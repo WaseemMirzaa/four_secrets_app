@@ -11,11 +11,16 @@ class Kontakt extends StatelessWidget {
       ? KontaktData.map["phoneNumber"]!
       : "";
 
+
+
+  // final key = GlobalKey<MenueState>();
+
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: Menue.getInstance(),
+        drawer: Menue(),
         appBar: AppBar(
           foregroundColor: Color.fromARGB(255, 255, 255, 255),
           // automaticallyImplyLeading: false,

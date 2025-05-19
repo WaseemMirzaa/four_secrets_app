@@ -6,29 +6,19 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class MenuService {
   // Singleton instance
   static final MenuService _instance = MenuService._internal();
-  
-  // Factory constructor to return the same instance
   factory MenuService() => _instance;
-  
-  // Internal constructor
   MenuService._internal();
-  
-  // Global key for the menu
-  final GlobalKey<MenueState> menuKey = GlobalKey<MenueState>();
-  
-  // Cached menu instance
-  Menue? _menuInstance;
-  
+
+  final menuKey = GlobalKey<MenueState>();
+
   // Cached user data
   String? userName;
   String? profilePictureUrl;
   bool isDataLoaded = false;
   
-  // Get the menu widget
-  Widget getMenu() {
-    // Create the menu instance if it doesn't exist
-    _menuInstance ??= Menue(key: menuKey);
-    return _menuInstance!;
+// Each call makes a fresh Menue widget but with the same key
+  Widget getMenu(Key key) {
+    return Menue(key: key);
   }
   
   // Preload user data

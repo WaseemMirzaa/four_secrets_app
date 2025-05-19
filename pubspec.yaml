@@ -71,6 +71,7 @@ dependencies:
   path: ^1.8.3
   uuid: ^4.2.2
   intl: ^0.20.2
+  staggered_grid_view: ^0.0.1
 
 
 
@@ -102,96 +103,27 @@ flutter:
 
   # Pictures
   assets:
-    - assets/images/logo/secrets-logo.jpg
-    - assets/images/home/Regina_und_Benni_Hochzeit.jpg
-    - assets/images/inspirations/Bacheloretteparty.jpg
-    - assets/images/inspirations/Band_DJ.jpg
-    - assets/images/inspirations/Braut_Braeutigam_Atelier.jpg
-    - assets/images/inspirations/Cake.jpg
-    - assets/images/inspirations/Fahrzeugservice.jpg
-    - assets/images/inspirations/Florist_Floristin.jpg
-    - assets/images/inspirations/Fotograf_Fotografin.jpg
-    - assets/images/inspirations/Kosmetische_Akupunktur.jpg
-    - assets/images/inspirations/Hair_und_MakeUp_Styling.jpg
-    - assets/images/inspirations/Location.jpg
-    - assets/images/inspirations/Tanzschule.jpg
-    - assets/images/inspirations/Personal_Training.jpg
-    - assets/images/inspirations/Wedding_Designer.jpg
-    - assets/images/logo/secrets-logo-app-bar.jpg
-    - assets/images/about_me/about_me_header.jpg
-    - assets/images/about_me/about_me1.png
-    - assets/images/about_me/about_me2.jpg
-    - assets/icons/secrets-icon.png
-    - assets/images/about_me/about_me3.jpg
-    - assets/images/about_me/about_me4.jpg
-    - assets/images/bachelorette_party/bachelorette_party_1.png
-    - assets/images/bachelorette_party/bachelorette_party_2.jpg
-    - assets/images/bachelorette_party/bachelorette_party_3.jpg
-    - assets/images/bachelorette_party/bachelorette_party_4.jpg
-    - assets/images/bachelorette_party/bachelorette_party_5.jpg
-    - assets/images/bachelorette_party/bachelorette_party_6.jpg
-    - assets/images/bachelorette_party/bachelorette_party_7.jpg
-    - assets/images/bachelorette_party/bachelorette_party_8.jpg
-    - assets/images/bachelorette_party/bachelorette_party_9.jpg
-    - assets/images/bachelorette_party/bachelorette_party_10.jpg
-    - assets/images/bachelorette_party/bachelorette_party_11.jpg
-    - assets/images/hair_makeup/hair_makeup_1.png
-    - assets/images/hair_makeup/hair_makeup_2.jpg
-    - assets/images/hair_makeup/hair_makeup_3.jpg
-    - assets/images/budget/budget.png
+    - assets/images/logo/
+    - assets/images/home/
+    - assets/images/inspirations/
+    - assets/images/logo/
+    - assets/images/about_me/
+    - assets/icons/
+    - assets/images/bachelorette_party/
+    - assets/images/hair_makeup/
+    - assets/images/budget/
     - assets/icons/oval.png
     - assets/icons/circle.png
     - assets/icons/square.png
     - assets/icons/rectangle.png
     - assets/images/background/home_bg.png
-    - assets/images/hair_makeup/hair_makeup_4.jpg
-    - assets/images/hair_makeup/hair_makeup_5.jpg
-    - assets/images/hair_makeup/hair_makeup_6.jpg
-    - assets/images/hair_makeup/hair_makeup_7.jpg
-    - assets/images/hair_makeup/hair_makeup_8.jpg
-    - assets/images/hair_makeup/hair_makeup_9.jpg
-    - assets/images/hair_makeup/hair_makeup_10.jpg
-    - assets/images/hair_makeup/hair_makeup_11.jpg
-    - assets/images/hair_makeup/hair_makeup_12.jpg
-    - assets/images/showroom_event/showroom_event_1.png
-    - assets/images/showroom_event/showroom_event_2.jpg
-    - assets/images/showroom_event/showroom_event_3.jpg
-    - assets/images/showroom_event/showroom_event_4.jpg
-    - assets/images/showroom_event/showroom_event_5.jpg
-    - assets/images/showroom_event/showroom_event_6.jpg
-    - assets/images/showroom_event/showroom_event_7.jpg
-    - assets/images/showroom_event/showroom_event_8.jpg
-    - assets/images/showroom_event/showroom_event_9.jpg
-    - assets/images/card/regina_card.jpg
-    - assets/images/card/cheska_nawi_card.jpg
-    - assets/images/card/phillip_schmitt_card.jpg
-    - assets/images/card/classy_flower_card.jpg
-    - assets/images/card/inna_wiebe_card.jpg
-    - assets/images/card/alexey_testov_card.jpg
-    - assets/images/card/stefan_krovinovic_card.jpg
-    - assets/images/card/joern_gropp_adrian_planitz_card.jpg
-    - assets/images/card/fabian_richt_card.jpg
-    - assets/images/card/nadja_koegel_card.jpg
-    - assets/images/card/alte_gaertnerei_card.jpg
-    - assets/images/card/amelie_borges_card.jpg
-    - assets/images/kontakt/kontaktseite.jpg
-    - assets/images/background/kosmetische_akupunktur_back.jpg
-    - assets/images/background/personal_training_back.jpg
-    - assets/images/background/band_back.jpg
-    - assets/images/background/table_management_bg.png
-    - assets/images/background/florist_back.jpg
-    - assets/images/background/bachelorette_back.jpg
-    - assets/images/background/hairstyling_makeup_back.jpg
-    - assets/images/background/showroom_event_back.jpg
-    - assets/images/background/fotografie_back.jpg
-    - assets/images/background/tanzschule_back.jpg
-    - assets/images/background/location_back.jpg
-    - assets/images/background/wedding_design_back.jpg
-    - assets/images/home/home_1.png
-    - assets/images/home/wedding_home.jpg
-    - assets/images/checklist/checklist.jpg
-    - assets/images/divider/wedding_rings.png
-    - assets/images/gaestelist/gaesteliste.png
+    - assets/images/showroom_event/
+    - assets/images/card/
+    - assets/images/kontakt/
+    - assets/images/background/
+    - assets/images/checklist/
+    - assets/images/divider/
+    
 
   # Videos
 #    - assets/videos/hair_makeup.mp4

@@ -16,6 +16,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   bool isPressedBtn1 = false;
+  final key = GlobalKey<MenueState>();
+
 
   @override
   void initState() {
@@ -37,7 +39,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: Menue.getInstance(), // Use the singleton instance
+        drawer: Menue.getInstance(key), // Use the singleton instance
         body: CustomScrollView(
           physics: ClampingScrollPhysics(),
           slivers: <Widget>[

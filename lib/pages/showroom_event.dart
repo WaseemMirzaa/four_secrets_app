@@ -27,11 +27,15 @@ class ShowroomEvent extends StatelessWidget {
       ? ShowroomEventData.map["videoRatio"]!
       : "";
 
+
+  final key = GlobalKey<MenueState>();
+
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: Menue.getInstance(),
+        drawer: Menue(),
         appBar: AppBar(
           // automaticallyImplyLeading: false,
           foregroundColor: Color.fromARGB(255, 255, 255, 255),

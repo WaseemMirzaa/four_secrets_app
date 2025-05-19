@@ -25,6 +25,7 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
   final TableService _tableService = TableService();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final key = GlobalKey<MenueState>();
 
   List<TableModel> _tables = [];
   List<Map<String, dynamic>> _guests = [];
@@ -828,7 +829,7 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: Menue.getInstance(),
+        drawer: Menue.getInstance(key),
         appBar: AppBar(
           foregroundColor: Color.fromARGB(255, 255, 255, 255),
           title: Text(AppConstants.tableManagementTitle),

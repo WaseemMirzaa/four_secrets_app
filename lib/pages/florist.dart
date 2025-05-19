@@ -6,11 +6,15 @@ class Florist extends StatelessWidget {
   Florist({super.key});
   final List items = FloristCardItems.getCardItems();
 
+
+  final key = GlobalKey<MenueState>();
+
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: Menue.getInstance(),
+        drawer: Menue.getInstance(key!),
         appBar: AppBar(
           // automaticallyImplyLeading: false,
           foregroundColor: Color.fromARGB(255, 255, 255, 255),

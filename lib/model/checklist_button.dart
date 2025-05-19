@@ -26,7 +26,7 @@ class MyButton extends StatelessWidget {
         text,
         style: TextStyle(
           color: onPressed == null 
-              ? Colors.white.withOpacity(0.7) 
+              ? Colors.white.withValues(alpha: 0.7) 
               : Color.fromARGB(255, 107, 69, 106),
           fontWeight: FontWeight.bold,
         ),

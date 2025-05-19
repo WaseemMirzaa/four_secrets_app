@@ -1,45 +1,61 @@
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class ToDoDataBase {
-  List toDoList = [];
+class ChecklistItemModel {
+  final String id;
+  final String taskName;
+   bool isCompleted;
+  final DateTime createdAt;
+  final String userId;
 
-  // reference our box
-  final _myBoxToDo = Hive.box('myboxToDo');
+  ChecklistItemModel({
+    required this.id,
+    required this.taskName,
+    required this.isCompleted,
+    required this.createdAt,
+    required this.userId,
+  });
 
-  // run this method if this is the 1st time ever opening this app
-  void createInitialDataToDo() {
-    toDoList = [
-      ["Übernachtung Gäste", false],
-      ["Flitterwochen organisieren", false],
-      ["Fotograf organisieren", false],
-      ["Location aussuchen/buchen", false],
-      ["Trauzeugen bestimmen", false],
-      ["Eheringe aussuchen", false],
-      ["Brautkleid aussuchen/anprobieren", false],
-      ["Hochzeitstorte bestellen", false],
-      ["Geschenke für die Gäste?", false],
-      ["Trauzeugen Outfit bestimmen", false],
-      ["Eventprogramm planen", false],
-      ["Sitzplan erstellen", false],
-      ["Deko organisieren", false],
-      ["Floristen aussuchen", false],
-      ["Hochzeitsrede schreiben", false],
-      ["Wedding Designer buchen", false],
-      ["Personal Training organisieren", false],
-      ["Tanzkurs besuchen", false],
-      ["Jungg. Abschied planen/feiern", false],
-      ["Ringkissen aussuchen", false],
-      ["Fotograf organisieren", false]
-    ];
+  // Convert to Map for Firestore
+  Map<String, dynamic> toMap() {
+    return {
+      'taskName': taskName,
+      'isCompleted': isCompleted,
+      'createdAt': Timestamp.fromDate(createdAt),
+      'userId': userId,
+    };
   }
 
-  // load the data from database ToDo
-  void loadDataToDo() {
-    toDoList = _myBoxToDo.get("TODOLIST");
+  // Create from Firestore document
+  factory ChecklistItemModel.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+    return ChecklistItemModel(
+      id: doc.id,
+      taskName: data['taskName'] ?? '',
+      isCompleted: data['isCompleted'] ?? false,
+      createdAt: (data['createdAt'] as Timestamp).toDate(),
+      userId: data['userId'] ?? '',
+    );
   }
 
-  // update the database ToDo
-  void updateDataBaseToDo() {
-    _myBoxToDo.put("TODOLIST", toDoList);
+  // Create a copy with some fields changed
+  ChecklistItemModel copyWith({
+    String? id,
+    String? taskName,
+    bool? isCompleted,
+    DateTime? createdAt,
+    String? userId,
+  }) {
+    return ChecklistItemModel(
+      id: id ?? this.id,
+      taskName: taskName ?? this.taskName,
+      isCompleted: isCompleted ?? this.isCompleted,
+      createdAt: createdAt ?? this.createdAt,
+      userId: userId ?? this.userId,
+    );
+  }
+
+  @override
+  String toString() {
+    return 'ChecklistItemModel(id: $id, taskName: $taskName, isCompleted: $isCompleted, createdAt: $createdAt, userId: $userId)';
   }
 }

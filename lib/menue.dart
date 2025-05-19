@@ -13,11 +13,13 @@ import 'services/menu_service.dart';
 export 'menue.dart' show MenueState;
 
 class Menue extends StatefulWidget {
-  const Menue({Key? key}) : super(key: key);
+   Menue({Key? key}) : super(key: key);
 
+
+ 
   // Static method to get the singleton menu instance
-  static Widget getInstance() {
-    return MenuService().getMenu();
+  static Widget getInstance(Key keyWidget) {
+    return MenuService().getMenu(keyWidget);
   }
 
   // Static method to preload user data
@@ -120,7 +122,8 @@ class MenueState extends State<Menue> {
   bool isPressedBtn8 = false; // About me
   bool isPressedBtn9 = false; // Kontakt
   bool isPressedBtn10 = false; // Impressum
-  bool isPressedBtn11 = false; // Logout
+  bool isPressedBtn11 = false; // inspiration
+  bool isPressedBtn12 = false; // Logout
 
   void buttonIsPressed(int buttonNumber) {
     setState(() {
@@ -135,7 +138,8 @@ class MenueState extends State<Menue> {
       isPressedBtn8 = buttonNumber == 8;
       isPressedBtn9 = buttonNumber == 9;
       isPressedBtn10 = buttonNumber == 10;
-      isPressedBtn11 = buttonNumber == 11;
+      isPressedBtn10 = buttonNumber == 11;
+      isPressedBtn11 = buttonNumber == 12;
     });
   }
 
@@ -213,7 +217,7 @@ class MenueState extends State<Menue> {
                           border: Border.all(color: Colors.white, width: 2.0),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
+                              color: Colors.black.withValues(alpha: 0.2),
                               spreadRadius: 1,
                               blurRadius: 3,
                               offset: const Offset(0, 2),
@@ -587,7 +591,46 @@ class MenueState extends State<Menue> {
               },
             ),
           ),
-          // 11. Profil bearbeiten
+          // 11. inspiration
+          Card(
+            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: ListTile(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 0,
+              ),
+              tileColor: isPressedBtn1 ? Colors.purple[50] : Colors.white,
+              leading: const Icon(
+                FontAwesomeIcons.solidLightbulb,
+              ),
+              title: const Text(
+                'Inspirationsordner',
+                style: TextStyle(fontSize: 18),
+              ),
+              onTap: () {
+                buttonIsPressed(11);
+                Timer(
+                  const Duration(milliseconds: 100),
+                   () {
+                    Navigator.of(context).pushNamed(RouteManager.inspirationFolderPage);
+                  },
+                );
+              },
+            ),
+          ),
+          const Divider(
+            color: Colors.grey,
+            thickness: 0.5,
+            indent: 8,
+            endIndent: 8,
+          ),
+          // 12. Profil bearbeiten
           Card(
             margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
             shape: RoundedRectangleBorder(

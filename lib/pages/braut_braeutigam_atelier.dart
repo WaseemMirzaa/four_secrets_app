@@ -9,11 +9,13 @@ class BrautBraeutigam extends StatefulWidget {
 }
 
 class _BrautBraeutigamState extends State<BrautBraeutigam> {
+  final key = GlobalKey<MenueState>();
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: const Menue(),
+        drawer: Menue(key: key,),
         appBar: AppBar(
           // automaticallyImplyLeading: false,
           foregroundColor: Color.fromARGB(255, 255, 255, 255),

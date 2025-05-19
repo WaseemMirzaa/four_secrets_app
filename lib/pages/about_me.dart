@@ -61,11 +61,15 @@ class _AboutMeState extends State<AboutMe> {
     );
   }
 
+
+  final key = GlobalKey<MenueState>();
+
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: Menue.getInstance(),
+        drawer: Menue.getInstance(key),
         appBar: AppBar(
           foregroundColor: Color.fromARGB(255, 255, 255, 255),
           title: const Text('About me'),

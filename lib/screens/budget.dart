@@ -20,6 +20,8 @@ class _BudgetState extends State<Budget> {
   int _tempBudget = 0;
   int _maxWholeBudget = 999999;
 
+  final key = GlobalKey<MenueState>();
+
   List budgetList = [
     ["Fotograph", 0],
     ["Location", 0]
@@ -115,7 +117,7 @@ class _BudgetState extends State<Budget> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: Menue.getInstance(),
+        drawer: Menue.getInstance(key),
         appBar: AppBar(
           foregroundColor: Color.fromARGB(255, 255, 255, 255),
           title: const Text('Budget'),

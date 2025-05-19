@@ -7,8 +7,6 @@ import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_app_check/firebase_app_check.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,7 +34,7 @@ Future<void> main() async {
   
   // init Hive
   await Hive.initFlutter();
-  await Hive.openBox('myboxToDo');
+  // Only keep the guest box, remove the todo box
   await Hive.openBox('myboxGuest');
 
   runApp(

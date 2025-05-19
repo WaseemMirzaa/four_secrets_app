@@ -1,9 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
-import 'package:four_secrets_wedding_app/model/to_do_data_base.dart';
 import 'package:flutter/material.dart';
 import 'package:four_secrets_wedding_app/menue.dart';
 import 'package:four_secrets_wedding_app/model/checklist_item.dart';
 import 'package:four_secrets_wedding_app/model/dialog_box.dart';
+import 'package:four_secrets_wedding_app/services/check_list_service.dart';
 import 'package:hive/hive.dart';
 
 class Checklist extends StatefulWidget {
@@ -15,48 +16,76 @@ class Checklist extends StatefulWidget {
 
 class _ChecklistState extends State<Checklist> {
   // reference the hive box
-  final _myBoxToDo = Hive.box('myboxToDo');
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  final key = GlobalKey<MenueState>();
+  
+
   ToDoDataBase db = ToDoDataBase();
+  bool _isLoading = true;
+
   // text controller
   final _controller = TextEditingController();
   // list with Todo tasks
 
   @override
   void initState() {
-    // if this is the 1st time ever openin the app, then create default data
-    if (_myBoxToDo.get("TODOLIST") == null) {
-      db.createInitialDataToDo();
-    } else {
-      // there already exists data
-      db.loadDataToDo();
-    }
-
     super.initState();
+    _loadChecklist();
   }
 
-  // checkbox was tapped
-  void checkboxChanged(bool? value, int index) {
-    setState(
-      () {
-        db.toDoList[index][1] = !db.toDoList[index][1];
-      },
-    );
-    db.updateDataBaseToDo();
-  }
+  Future<void> _loadChecklist() async {
+  setState(() => _isLoading = true);
 
-  void saveNewTask() {
+  if (_auth.currentUser == null) {
+    print("User not logged in.");
+    setState(() => _isLoading = false);
+    return;
+  }
+    print("User is logged in ${_auth.currentUser!.uid}.");
+
+  
+  await db.loadDataToDo();
+
+  setState(() => _isLoading = false);
+}
+
+
+   // Checkbox was tapped
+  void checkboxChanged(bool? value, int index) async {
+    if (value == null) return;
+    
     setState(() {
-      if (_controller.text.isNotEmpty) {
-        db.toDoList.add([_controller.text, false]);
-        _controller.clear();
-      }
-      Navigator.of(context).pop();
-      // createNewTask();
+      // Update UI immediately for better UX
+      db.toDoList[index].isCompleted = value;
     });
-    db.updateDataBaseToDo();
+    
+    // Update in Firebase
+    await db.updateTaskStatus(index, value);
   }
 
-  void createNewTask() {
+
+
+ 
+  void saveNewTask() async {
+    if (_controller.text.isEmpty) {
+      Navigator.of(context).pop();
+      return;
+    }
+    
+    // Close dialog first for better UX
+    Navigator.of(context).pop();
+    
+    setState(() => _isLoading = true);
+    
+    // Add task to Firebase
+    await db.addTask(_controller.text);
+    _controller.clear();
+    
+    setState(() => _isLoading = false);
+  }
+
+ void createNewTask() {
     showDialog(
       context: context,
       builder: (context) {
@@ -70,17 +99,20 @@ class _ChecklistState extends State<Checklist> {
     );
   }
 
-  void onDelete(int index) {
-    setState(() {
-      db.toDoList.removeAt(index);
-    });
+ 
+  void onDelete(int index) async {
+    setState(() => _isLoading = true);
+    
+    // Delete from Firebase
+    await db.deleteTask(index);
+    
+    setState(() => _isLoading = false);
   }
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: Menue.getInstance(),
+        drawer: Menue.getInstance(key),
         appBar: AppBar(
           foregroundColor: Color.fromARGB(255, 255, 255, 255),
           title: const Text('Checkliste'),
@@ -93,27 +125,41 @@ class _ChecklistState extends State<Checklist> {
         body: ListView(
           children: [
             Container(
-              width: MediaQuery.of(context).size.width,
+              width: MediaQuery.sizeOf(context).width,
               child: Image.asset(
                 'assets/images/checklist/checklist.jpg',
                 fit: BoxFit.cover,
               ),
             ),
             FourSecretsDivider(),
-            ListView.builder(
-              physics: ClampingScrollPhysics(),
-              padding: EdgeInsets.only(bottom: 90),
-              itemCount: db.toDoList.length,
-              shrinkWrap: true,
-              itemBuilder: (context, index) {
-                return CheckListItem(
-                  taskName: db.toDoList[index][0],
-                  taskCompleted: db.toDoList[index][1],
-                  onChanged: (value) => checkboxChanged(value, index),
-                  deleteFunction: (context) => onDelete(index),
-                );
-              },
-            ),
+            // if (db.toDoList.isEmpty)
+            //       Padding(
+            //         padding: const EdgeInsets.all(16.0),
+            //         child: Center(
+            //           child: Text(
+            //             'Keine Aufgaben vorhanden. Füge deine erste Aufgabe hinzu!',
+            //             style: TextStyle(fontSize: 16),
+            //             textAlign: TextAlign.center,
+            //           ),
+            //         ),
+            //       ),
+           ListView.builder(
+                    physics: ClampingScrollPhysics(),
+                    padding: EdgeInsets.only(bottom: 90),
+                    itemCount: db.toDoList.length,
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) {
+                      print(db.toDoList.length);
+                      return CheckListItem(
+                        taskName: db.toDoList[index].taskName,
+                        taskCompleted: db.toDoList[index].isCompleted,
+                        onChanged: (value) => checkboxChanged(value, index),
+                        deleteFunction: (context) => onDelete(index),
+                      );
+                    },
+                  ),
+                
+              
           ],
         ),
       ),

@@ -3,6 +3,7 @@ import 'package:four_secrets_wedding_app/pages/add_edit_guest_page.dart';
 import 'package:four_secrets_wedding_app/pages/edit_profile_page.dart';
 import 'package:four_secrets_wedding_app/pages/gaestelist.dart';
 import 'package:four_secrets_wedding_app/pages/impressum.dart';
+import 'package:four_secrets_wedding_app/pages/inspiration_folder.dart';
 import 'package:four_secrets_wedding_app/pages/kontakt.dart';
 import 'package:four_secrets_wedding_app/pages/parsonal_training.dart';
 import 'package:four_secrets_wedding_app/pages/about_me.dart';
@@ -41,6 +42,7 @@ class RouteManager {
   static const String forgotPasswordPage = '/forgot-password';
   static const String emailVerificationPage = '/email-verification';
   static const String inspirationsPage = '/inspirations';
+  static const String inspirationFolderPage = '/inspirationsFolder';
   static const String aboutMePage = '/aboutMe';
   static const String checklistPage = '/checklist';
   static const String budgetPage = '/budget';
@@ -200,6 +202,14 @@ class RouteManager {
       case floristPage:
         return PageTransition(
           child: Florist(), // Placeholder
+          settings: settings,
+          duration: const Duration(milliseconds: 250),
+          type: PageTransitionType.rightToLeft,
+        );
+
+      case inspirationFolderPage:
+        return PageTransition(
+          child: InspirationFolder(), // Placeholder
           settings: settings,
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,

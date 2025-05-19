@@ -28,6 +28,8 @@ class EditProfilePage extends StatefulWidget {
 }
 
 class _EditProfilePageState extends State<EditProfilePage> {
+  final key = GlobalKey<MenueState>();
+
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   File? _newProfilePicture;
@@ -231,7 +233,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                           AppConstants.emptyCurrentPasswordError);
                                       return;
                                     }
-
+//check list againt user id 1 images2 checklist 3 data waiting
                                     if (newPasswordController.text.length < 6) {
                                       SnackBarHelper.showErrorSnackBar(context,
                                           AppConstants.newPasswordLengthError);
@@ -504,7 +506,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     final headerHeight = screenHeight / 3;
 
     return Scaffold(
-      drawer: Menue.getInstance(),
+      drawer: Menue.getInstance(key),
       appBar: AppBar(
         systemOverlayStyle: const SystemUiOverlayStyle(
           statusBarColor: Colors.black,

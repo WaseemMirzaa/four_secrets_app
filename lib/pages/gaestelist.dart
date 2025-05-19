@@ -26,6 +26,8 @@ class _GaestelistState extends State<Gaestelist> {
   // List to store guests
   List<Map<String, dynamic>> guestList = [];
 
+  final key = GlobalKey<MenueState>();
+
   // Text controller
   final _controller = TextEditingController();
 
@@ -300,7 +302,7 @@ class _GaestelistState extends State<Gaestelist> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: Menue.getInstance(),
+        drawer: Menue.getInstance(key),
         appBar: AppBar(
           foregroundColor: Color.fromARGB(255, 255, 255, 255),
           title: Text(AppConstants.gaestelistTitle),

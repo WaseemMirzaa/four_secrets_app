@@ -15,6 +15,9 @@ class HairMakeUp extends StatelessWidget {
   String urlMode = "default";
   late List<String> images = HairMakeUpImages.getImages();
 
+  final key = GlobalKey<MenueState>();
+
+
   var urlHomepage = HairMakeUpData.map["homepage"] != null
       ? HairMakeUpData.map["homepage"]!
       : "";
@@ -42,7 +45,7 @@ class HairMakeUp extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: Menue.getInstance(),
+        drawer: Menue.getInstance(key!),
         appBar: AppBar(
           foregroundColor: Color.fromARGB(255, 255, 255, 255),
           // automaticallyImplyLeading: false,
