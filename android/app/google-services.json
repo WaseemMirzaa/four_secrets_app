@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "969854232661",
+    "project_id": "secrets-wedding",
+    "storage_bucket": "secrets-wedding.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:969854232661:android:c16da12a98b0e3f60e0cdc",
+        "android_client_info": {
+          "package_name": "com.app.four_secrets_wedding_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDyrLax7e8fYhRnvuqLya259xbGMfNAdpA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
