@@ -1,19 +1,44 @@
 class ImageUploadResponse {
   final String message;
+  final String? previousImageUrl;
   final ImageData image;
 
   ImageUploadResponse({
     required this.message,
+    this.previousImageUrl,
     required this.image,
   });
 
   factory ImageUploadResponse.fromJson(Map<String, dynamic> json) {
     return ImageUploadResponse(
+      previousImageUrl: json['previous_image_url'] ?? '',
       message: json['message'] ?? '',
       image: ImageData.fromJson(json['image'] ?? {}),
     );
   }
 }
+
+
+class ImageDeleteResponse {
+ 
+  final String message;
+  
+
+  ImageDeleteResponse({
+   
+    required this.message,
+   
+  });
+
+  factory ImageDeleteResponse.fromJson(Map<String, dynamic> json) {
+    return ImageDeleteResponse(
+      
+      message: json['message'] as String,
+     
+    );
+  }
+}
+
 
 class ImageData {
   final String filename;

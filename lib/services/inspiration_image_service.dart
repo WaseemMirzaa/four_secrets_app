@@ -15,7 +15,7 @@ class InspirationImageService {
   String? get userId => _auth.currentUser?.uid;
 
   // Create initial data for first-time users
-  Future<void> createInitialDataToDo(String title, File imageFile) async {
+  Future<void> addImageToDB(String title, File imageFile) async {
     if (userId == null) {
       print("Cannot create initial data: User not logged in");
       return;
@@ -25,7 +25,7 @@ class InspirationImageService {
     String? imageUrl;
 
 
-    final uploadResponse = await imageUploadService.uploadImage(imageFile);
+    final uploadResponse = await imageUploadService.uploadImageAndUpdateImage(imageFile);
     
       imageUrl = uploadResponse.image.getFullImageUrl();
 
@@ -33,7 +33,7 @@ class InspirationImageService {
     final inspirationModel = InspirationImageModel(
     title: title, 
     imageUrl: imageUrl, 
-    createdAt: FieldValue.serverTimestamp(), 
+    createdAt: DateTime.now(), 
     userId: userId!);
 
       // Use a batch write for better performance
@@ -92,65 +92,74 @@ print("data added to the collection for user: $userId");
   }
 
 
-  // Update task status in Firebase
-  Future<void> updateImageAndTitle(int index, String title,  ) async {
-    if (userId == null || index >= inspirationImagesList.length) {
-      print("Cannot update task: User not logged in or invalid index");
-      return;
-    }
-    
-    try {
-      //  final uploadResponse = await imageUploadService.uploadImage(imageFile);
-    
-      // imageUrl = uploadResponse.image.getFullImageUrl();
-      final task = inspirationImagesList[index];
-      final updatedTask = task.copyWith(id: task.id, title: title, );
-      
-      await _firestore
-          .collection('users')
-          .doc(userId)
-          .collection('inspiration')
-          .doc(task.id)
-          .update({
-            'title': title,
-            // 'imageUrl': imageUrl,
-      });
-      
-      // Update local list
-      inspirationImagesList[index] = updatedTask;
-      
-      print("Updated task status: ${task.title} to $title");
-    } catch (e) {
-      print('Error updating task: $e');
-    }
+/// Update the inspiration item by its Firestore document ID.
+/// - If [imageFile] is non-null, replaces the previous image on the server.
+/// - Otherwise only updates the title.
+/// Returns the updated model for the UI to consume.
+Future<InspirationImageModel> updateById({
+  required String id,
+  required String currentImageUrl,
+  required String newTitle,
+  File? imageFile,
+}) async {
+  if (userId == null) {
+    throw Exception("User not logged in");
   }
 
+  String updatedImageUrl = currentImageUrl;
+
+  // 1) Replace image on the server, if provided
+  if (imageFile != null) {
+    final resp = await imageUploadService.uploadImageAndUpdateImage(
+      imageFile,
+      previousImageUrl: currentImageUrl.isNotEmpty ? currentImageUrl : null,
+    );
+    updatedImageUrl = resp.image.getFullImageUrl();
+  }
+
+  // 2) Persist title & (maybe) new imageUrl to Firestore
+  await _firestore
+      .collection('users')
+      .doc(userId)
+      .collection('inspiration')
+      .doc(id)
+      .update({
+    'title': newTitle,
+    'imageUrl': updatedImageUrl,
+  });
+
+  // 3) Return updated model
+  return InspirationImageModel(
+    id: id,
+    userId: userId!,
+    title: newTitle,
+    imageUrl: updatedImageUrl,
+    createdAt: DateTime.now(), // or carry over the old DateTime if you have it
+  );
+}
+
+
   // Delete task from Firebase
-  Future<void> deleteImage(int index) async {
-    if (userId == null || index >= inspirationImagesList.length) {
-      print("Cannot delete task: User not logged in or invalid index");
-      return;
-    }
+  Future<void> deleteImage(String id, String imageUrl) async {
+   
     
     try {
-      final task = inspirationImagesList[index];
+
+      var g =  await imageUploadService.deleteImage(imageUrl);
+      print(g);
       
       await _firestore
           .collection('users')
           .doc(userId)
           .collection('inspiration')
-          .doc(task.id)
+          .doc(id)
           .delete();
       
-      // Remove from local list
-      inspirationImagesList.removeAt(index);
-      
-      print("Deleted task: ${task.title}");
+      print("Deleted task: $id");
     } catch (e) {
       print('Error deleting task: $e');
     }
   }
-
 
 
 

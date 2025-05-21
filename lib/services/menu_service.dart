@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:four_secrets_wedding_app/menue.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MenuService {
   // Singleton instance
@@ -15,7 +16,31 @@ class MenuService {
   String? userName;
   String? profilePictureUrl;
   bool isDataLoaded = false;
+  String? _selectedItem;
   
+  String? get selectedItem => _selectedItem;
+  set selectedItem(String? value) {
+    _selectedItem = value;
+    _saveSelectedItem(value); // Save to SharedPreferences
+  }
+
+  Future<void> _saveSelectedItem(String? item) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (item != null) {
+      await prefs.setString('selectedItem', item);
+    } else {
+      await prefs.remove('selectedItem');
+    }
+  }
+
+
+  Future<void> loadSelectedItem() async {
+    final prefs = await SharedPreferences.getInstance();
+    _selectedItem = prefs.getString('selectedItem');
+  }
+
+
+
 // Each call makes a fresh Menue widget but with the same key
   Widget getMenu(Key key) {
     return Menue(key: key);

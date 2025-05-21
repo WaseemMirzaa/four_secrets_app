@@ -119,6 +119,7 @@ flutter:
     - assets/images/background/home_bg.png
     - assets/images/showroom_event/
     - assets/images/card/
+    - assets/images/gaestelist/
     - assets/images/kontakt/
     - assets/images/background/
     - assets/images/checklist/

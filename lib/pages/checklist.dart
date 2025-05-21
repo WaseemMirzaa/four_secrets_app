@@ -91,6 +91,7 @@ class _ChecklistState extends State<Checklist> {
       builder: (context) {
         return DialogBox(
             controller: _controller,
+            isLoading: _isLoading,
             onSave: saveNewTask,
             onCancel: () => Navigator.of(context).pop(),
             isToDo: true,

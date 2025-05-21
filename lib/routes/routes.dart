@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:four_secrets_wedding_app/models/inspiration_image.dart';
 import 'package:four_secrets_wedding_app/pages/add_edit_guest_page.dart';
 import 'package:four_secrets_wedding_app/pages/edit_profile_page.dart';
 import 'package:four_secrets_wedding_app/pages/gaestelist.dart';
 import 'package:four_secrets_wedding_app/pages/impressum.dart';
 import 'package:four_secrets_wedding_app/pages/inspiration_folder.dart';
+import 'package:four_secrets_wedding_app/pages/inspiration_page_details_screen.dart';
 import 'package:four_secrets_wedding_app/pages/kontakt.dart';
 import 'package:four_secrets_wedding_app/pages/parsonal_training.dart';
 import 'package:four_secrets_wedding_app/pages/about_me.dart';
@@ -53,6 +55,7 @@ class RouteManager {
   static const String brauBraeutigamPage = '/braut_braeutigam_atelier';
   static const String locationPage = '/location';
   static const String weddingDesignerPage = '/wedding_designer';
+  static const String inspirationDetailPage = '/inspiration_detail';
   static const String bandDjPage = '/band_dj';
   static const String floristPage = '/florist';
   static const String weddingCakePage = '/weddingCake';
@@ -142,7 +145,17 @@ class RouteManager {
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
         );
-
+      case inspirationDetailPage:
+        final args = settings.arguments as Map<String, dynamic>;
+        return PageTransition(
+          child: InspirationDetailPage(
+            inspirationImage: args['inspirationImage'] as InspirationImageModel,
+           
+          ),
+          settings: settings,
+          duration: const Duration(milliseconds: 250),
+          type: PageTransitionType.rightToLeft,
+        );
       case budgetPage:
         return PageTransition(
           child: Budget(),

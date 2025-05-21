@@ -4,12 +4,14 @@ class InspirationImageModel {
    String? id;
   final String title;
   final String imageUrl;
-  final dynamic createdAt;
+   String? previousImageUrl;
+  final DateTime createdAt;
   final String userId;
 
   InspirationImageModel({
      this.id,
     required this.title,
+     this.previousImageUrl,
     required this.imageUrl,
     required this.createdAt,
     required this.userId,
@@ -22,7 +24,7 @@ class InspirationImageModel {
       'id': id,
       'title': title,
       'imageUrl': imageUrl,
-      'createdAt': Timestamp.fromDate(createdAt),
+      'createdAt':  Timestamp.fromDate(createdAt),
       'userId': userId,
     };
     
@@ -34,6 +36,7 @@ class InspirationImageModel {
     return InspirationImageModel(
       id: doc.id,
       title: data['title'] ?? '',
+      previousImageUrl: data['previousImageUrl'] ?? '',
       imageUrl: data['imageUrl'] ?? '',
       createdAt: (data['createdAt'] as Timestamp).toDate(),
       userId: data['userId'] ?? '',
@@ -51,6 +54,7 @@ class InspirationImageModel {
     return InspirationImageModel(
       id: id ?? this.id,
       title: title ??  this.title,
+      previousImageUrl: previousImageUrl ?? this.previousImageUrl,
       imageUrl: imageUrl ?? this.imageUrl,
       createdAt: createdAt ?? this.createdAt,
       userId: userId ?? this.userId,

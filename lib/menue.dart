@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:four_secrets_wedding_app/models/drawer_model.dart';
 import '../config/theme/app_theme.dart';
 import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:four_secrets_wedding_app/services/auth_service.dart';
@@ -37,10 +38,17 @@ class Menue extends StatefulWidget {
 }
 
 class MenueState extends State<Menue> {
+
+
+
   final AuthService _authService = AuthService();
   String? _userName;
   String? _profilePictureUrl;
   bool _isLoading = true;
+ // Initialize later in initState()
+  late Map<String,bool> _pressedStates;
+  String? currentSelected;
+
 
   @override
   void initState() {
@@ -48,6 +56,16 @@ class MenueState extends State<Menue> {
 
     // Check if data is already loaded in the service
     final menuService = MenuService();
+ _pressedStates = {
+    for (var item in listDrawerModel) item.name: false,
+    'Profil bearbeiten': false,
+    'Logout': false,
+  };
+
+  // Load saved selection from MenuService or default to Home
+  currentSelected = menuService.selectedItem ?? listDrawerModel[0].name;
+  _pressedStates[currentSelected!] = true;
+
     if (menuService.isDataLoaded) {
       _userName = menuService.userName;
       _profilePictureUrl = menuService.profilePictureUrl;
@@ -56,7 +74,16 @@ class MenueState extends State<Menue> {
       _loadUserData();
     }
   }
-
+void _select(String name) {
+  setState(() {
+    _pressedStates.updateAll((_, __) => false);
+    _pressedStates[name] = true;
+    currentSelected = name;
+    if (name != 'Logout') {
+      MenuService().selectedItem = name; // Save only non-logout selections
+    }
+  });
+}
   // Method to update user data from outside
   void updateUserData(String? userName, String? profilePictureUrl) {
     if (mounted) {
@@ -138,14 +165,15 @@ class MenueState extends State<Menue> {
       isPressedBtn8 = buttonNumber == 8;
       isPressedBtn9 = buttonNumber == 9;
       isPressedBtn10 = buttonNumber == 10;
-      isPressedBtn10 = buttonNumber == 11;
-      isPressedBtn11 = buttonNumber == 12;
+      isPressedBtn11 = buttonNumber == 11;
+      isPressedBtn12 = buttonNumber == 12;
     });
   }
 
   Future<void> _handleLogout(BuildContext context) async {
     try {
       await _authService.signOut();
+      MenuService().selectedItem = null;
       if (mounted) {
         Navigator.of(context).pushNamedAndRemoveUntil(
           RouteManager.signinPage,
@@ -284,8 +312,12 @@ class MenueState extends State<Menue> {
               ),
             ),
           ),
-          // 1. Home
-          Card(
+
+        ...listDrawerModel.map((e){
+          bool isSelected = _pressedStates[e.name]!;
+
+          return 
+           Card(
             margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
@@ -298,332 +330,101 @@ class MenueState extends State<Menue> {
                 horizontal: 10,
                 vertical: 0,
               ),
-              tileColor: isPressedBtn0 ? Colors.purple[50] : Colors.white,
-              leading: const Icon(Icons.home),
-              title: const Text(
-                'Home',
+              tileColor: isSelected ? Colors.purple[50] : Colors.white,
+              leading: Icon(e.icon),
+              title:  Text(
+               e.name,
                 style: TextStyle(fontSize: 18),
               ),
               onTap: () {
-                buttonIsPressed(0);
-                Timer(
+               
+                 _select(e.name);
+               
+                if(e.name == "Home"){
+                   Timer(
                   const Duration(milliseconds: 100),
                   () {
                     Navigator.of(context).pushNamed(RouteManager.homePage);
                   },
                 );
-              },
-            ),
-          ),
-          // 2. Inspirationen
-          Card(
-            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: ListTile(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 0,
-              ),
-              tileColor: isPressedBtn2 ? Colors.purple[50] : Colors.white,
-              leading: const Icon(Icons.auto_stories),
-              title: const Text(
-                'Inspirationen',
-                style: TextStyle(fontSize: 18),
-              ),
-              onTap: () {
-                buttonIsPressed(2);
-                Timer(
+                } else if(e.name == "Inspirationen"){
+                  Timer(
                   const Duration(milliseconds: 100),
                   () {
-                    Navigator.of(context)
-                        .pushNamed(RouteManager.inspirationsPage);
+                    Navigator.of(context).pushNamed(RouteManager.inspirationsPage);
                   },
                 );
-              },
-            ),
-          ),
-          // 3. Checkliste
-          Card(
-            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: ListTile(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 0,
-              ),
-              tileColor: isPressedBtn4 ? Colors.purple[50] : Colors.white,
-              leading: const Icon(Icons.checklist),
-              title: const Text(
-                'Checkliste',
-                style: TextStyle(fontSize: 18),
-              ),
-              onTap: () {
-                buttonIsPressed(4);
-                Timer(
+                } else if(e.name == "Checkliste"){
+                  Timer(
                   const Duration(milliseconds: 100),
                   () {
                     Navigator.of(context).pushNamed(RouteManager.checklistPage);
                   },
                 );
-              },
-            ),
-          ),
-          // 4. Budget
-          Card(
-            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: ListTile(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 0,
-              ),
-              tileColor: isPressedBtn3 ? Colors.purple[50] : Colors.white,
-              leading: const Icon(Icons.euro_rounded),
-              title: const Text(
-                'Budget',
-                style: TextStyle(fontSize: 18),
-              ),
-              onTap: () {
-                buttonIsPressed(3);
-                Timer(
+               
+                } else if(e.name == "Budget"){
+                  Timer(
                   const Duration(milliseconds: 100),
                   () {
                     Navigator.of(context).pushNamed(RouteManager.budgetPage);
                   },
                 );
-              },
-            ),
-          ),
-          // 5. Gästeliste
-          Card(
-            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: ListTile(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 0,
-              ),
-              tileColor: isPressedBtn5 ? Colors.purple[50] : Colors.white,
-              leading: const Icon(Icons.group),
-              title: const Text(
-                'Gästeliste',
-                style: TextStyle(fontSize: 18),
-              ),
-              onTap: () {
-                buttonIsPressed(5);
-                Timer(
+                } else if(e.name == "Gästeliste"){
+                  Timer(
                   const Duration(milliseconds: 100),
                   () {
-                    Navigator.of(context)
-                        .pushNamed(RouteManager.gaestelistPage);
+                    Navigator.of(context).pushNamed(RouteManager.gaestelistPage);
                   },
                 );
-              },
-            ),
-          ),
-          // 6. Tischverwaltung
-          Card(
-            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: ListTile(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 0,
-              ),
-              tileColor: isPressedBtn6 ? Colors.purple[50] : Colors.white,
-              leading: const Icon(Icons.table_bar),
-              title: const Text('Tischverwaltung'),
-              onTap: () {
-                buttonIsPressed(6);
-                Timer(
+                } else if(e.name == "Tischverwaltung"){
+                  Timer(
                   const Duration(milliseconds: 100),
                   () {
-                    Navigator.of(context)
-                        .pushNamed(RouteManager.tablesManagementPage);
+                    Navigator.of(context).pushNamed(RouteManager.tablesManagementPage);
                   },
                 );
-              },
-            ),
-          ),
-          // 7. Showroom
-          Card(
-            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: ListTile(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 0,
-              ),
-              tileColor: isPressedBtn7 ? Colors.purple[50] : Colors.white,
-              leading: const Icon(Icons.celebration),
-              title: const Text(
-                'Showroom',
-                style: TextStyle(fontSize: 18),
-              ),
-              onTap: () {
-                buttonIsPressed(7);
-                Timer(
+                } else if(e.name == "Showroom"){
+                  Timer(
                   const Duration(milliseconds: 100),
                   () {
-                    Navigator.of(context)
-                        .pushNamed(RouteManager.showroomEventPage);
+                    Navigator.of(context).pushNamed(RouteManager.showroomEventPage);
                   },
                 );
-              },
-            ),
-          ),
-          // 8. About me
-          Card(
-            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: ListTile(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 0,
-              ),
-              tileColor: isPressedBtn8 ? Colors.purple[50] : Colors.white,
-              leading: const Icon(
-                Icons.account_box_sharp,
-              ),
-              title: const Text(
-                'About me',
-                style: TextStyle(fontSize: 18),
-              ),
-              onTap: () {
-                buttonIsPressed(8);
-                Timer(
+                } else if(e.name == "Über mich"){
+                  Timer(
                   const Duration(milliseconds: 100),
                   () {
                     Navigator.of(context).pushNamed(RouteManager.aboutMePage);
                   },
                 );
-              },
-            ),
-          ),
-          // 9. Kontakt
-          Card(
-            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: ListTile(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 0,
-              ),
-              tileColor: isPressedBtn9 ? Colors.purple[50] : Colors.white,
-              leading: Icon(FontAwesomeIcons.mapLocationDot),
-              title: const Text(
-                'Kontakt',
-                style: TextStyle(fontSize: 18),
-              ),
-              onTap: () {
-                buttonIsPressed(9);
-                Timer(
+                } else if(e.name == "Kontakt"){
+                  Timer(
                   const Duration(milliseconds: 100),
                   () {
                     Navigator.of(context).pushNamed(RouteManager.kontakt);
                   },
                 );
-              },
-            ),
-          ),
-          // 10. Impressum
-          Card(
-            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: ListTile(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 0,
-              ),
-              tileColor: isPressedBtn10 ? Colors.purple[50] : Colors.white,
-              leading: Icon(
-                FontAwesomeIcons.circleInfo,
-              ),
-              title: const Text(
-                'Impressum',
-                style: TextStyle(fontSize: 18),
-              ),
-              onTap: () {
-                buttonIsPressed(10);
-                Timer(
+                } else if(e.name == "Impressum"){
+                  Timer(
                   const Duration(milliseconds: 100),
                   () {
                     Navigator.of(context).pushNamed(RouteManager.impressum);
                   },
                 );
-              },
-            ),
-          ),
-          // 11. inspiration
-          Card(
-            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: ListTile(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 0,
-              ),
-              tileColor: isPressedBtn1 ? Colors.purple[50] : Colors.white,
-              leading: const Icon(
-                FontAwesomeIcons.solidLightbulb,
-              ),
-              title: const Text(
-                'Inspirationsordner',
-                style: TextStyle(fontSize: 18),
-              ),
-              onTap: () {
-                buttonIsPressed(11);
-                Timer(
+                } else if(e.name == "Inspirationsordner"){
+                  Timer(
                   const Duration(milliseconds: 100),
-                   () {
+                  () {
                     Navigator.of(context).pushNamed(RouteManager.inspirationFolderPage);
                   },
                 );
+                }
               },
             ),
-          ),
+          );
+        }),
+
+          
           const Divider(
             color: Colors.grey,
             thickness: 0.5,
@@ -644,7 +445,8 @@ class MenueState extends State<Menue> {
                 horizontal: 10,
                 vertical: 0,
               ),
-              tileColor: isPressedBtn1 ? Colors.purple[50] : Colors.white,
+              tileColor: _pressedStates['Profil bearbeiten']! 
+       ? Colors.purple[50] : Colors.white,
               leading: const Icon(
                 Icons.person,
               ),
@@ -653,6 +455,7 @@ class MenueState extends State<Menue> {
                 style: TextStyle(fontSize: 18),
               ),
               onTap: () {
+                _select('Profil bearbeiten');
                 buttonIsPressed(1);
                 Timer(
                   const Duration(milliseconds: 100),
@@ -681,7 +484,8 @@ class MenueState extends State<Menue> {
                 horizontal: 10,
                 vertical: 0,
               ),
-              tileColor: isPressedBtn11 ? Colors.purple[50] : Colors.white,
+              tileColor: _pressedStates['Logout']! 
+       ? Colors.purple[50] : Colors.white,
               leading: const Icon(
                 Icons.logout,
                 color: Colors.red,
@@ -694,7 +498,8 @@ class MenueState extends State<Menue> {
                 ),
               ),
               onTap: () {
-                buttonIsPressed(11);
+                _select('Logout');
+               
                 Timer(
                   const Duration(milliseconds: 100),
                   () => _handleLogout(context),
