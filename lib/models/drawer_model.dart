@@ -23,6 +23,7 @@ List<DrawerModel> listDrawerModel = [
   DrawerModel(name: "Showroom", icon: Icons.celebration),
   DrawerModel(name: "Über mich", icon: Icons.account_box_sharp),
   DrawerModel(name: "Kontakt", icon: FontAwesomeIcons.mapLocationDot),
+  DrawerModel(name: "Hochzeitsplan", icon: FontAwesomeIcons.ring),
   DrawerModel(name: "Impressum", icon: FontAwesomeIcons.circleInfo),
   DrawerModel(name: "Inspirationsordner", icon:  FontAwesomeIcons.solidLightbulb),
 

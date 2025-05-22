@@ -418,7 +418,15 @@ void _select(String name) {
                     Navigator.of(context).pushNamed(RouteManager.inspirationFolderPage);
                   },
                 );
+                } else if(e.name == "Hochzeitsplan"){
+                  Timer(
+                  const Duration(milliseconds: 100),
+                  () {
+                    Navigator.of(context).pushNamed(RouteManager.weddingSchedulePage);
+                  },
+                );
                 }
+
               },
             ),
           );

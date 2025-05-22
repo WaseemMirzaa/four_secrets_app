@@ -9,6 +9,7 @@ import 'package:four_secrets_wedding_app/pages/inspiration_page_details_screen.d
 import 'package:four_secrets_wedding_app/pages/kontakt.dart';
 import 'package:four_secrets_wedding_app/pages/parsonal_training.dart';
 import 'package:four_secrets_wedding_app/pages/about_me.dart';
+import 'package:four_secrets_wedding_app/pages/wedding_schedule_page.dart';
 import 'package:four_secrets_wedding_app/screens/budget.dart';
 import 'package:four_secrets_wedding_app/pages/bachelorette_party.dart';
 import 'package:four_secrets_wedding_app/pages/band_dj.dart';
@@ -59,6 +60,7 @@ class RouteManager {
   static const String bandDjPage = '/band_dj';
   static const String floristPage = '/florist';
   static const String weddingCakePage = '/weddingCake';
+  static const String weddingSchedulePage = '/wedding_schedule';
   static const String weddingCarServicePage = '/wedding_car_service';
   static const String fotographPage = '/fotograph';
   static const String tanzschulePage = '/tanzschule';
@@ -120,6 +122,13 @@ class RouteManager {
       case aboutMePage:
         return PageTransition(
           child: const AboutMe(),
+          settings: settings,
+          duration: const Duration(milliseconds: 250),
+          type: PageTransitionType.rightToLeft,
+        );
+        case weddingSchedulePage:
+        return PageTransition(
+          child: const WeddingSchedulePage(),
           settings: settings,
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
