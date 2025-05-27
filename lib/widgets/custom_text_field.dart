@@ -5,8 +5,10 @@ class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
   final String label;
   final bool obscureText;
+  final bool isReadOnly;
   final int? maxLines;
   final TextInputType? keyboardType;
+
   final String? Function(String?)? validator;
 
   const CustomTextField({
@@ -15,6 +17,7 @@ class CustomTextField extends StatelessWidget {
     required this.label,
     this.obscureText = false,
     this.keyboardType,
+    this.isReadOnly = false,
     this.validator, this.maxLines,
   }) : super(key: key);
 
@@ -23,6 +26,7 @@ class CustomTextField extends StatelessWidget {
     return TextFormField(
       controller: controller,
       maxLines:  maxLines ?? 1,
+      readOnly: isReadOnly,
       onTapOutside: (event) {
         FocusScope.of(context).unfocus();
       },

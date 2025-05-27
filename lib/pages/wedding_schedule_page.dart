@@ -1,10 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:four_secrets_wedding_app/extension.dart';
 import 'package:four_secrets_wedding_app/menue.dart';
 import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
 import 'package:four_secrets_wedding_app/models/wedding_day_schedule_model.dart';
+import 'package:four_secrets_wedding_app/services/notification_alaram-service.dart';
 import 'package:four_secrets_wedding_app/services/wedding_day_schedule_service.dart';
 import 'package:four_secrets_wedding_app/utils/snackbar_helper.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_button_widget.dart';
@@ -12,6 +14,7 @@ import 'package:four_secrets_wedding_app/widgets/custom_text_field.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_text_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/wedding_schedule_page_widget.dart';
+import 'package:see_more/see_more_widget.dart';
 
 class WeddingSchedulePage extends StatefulWidget {
   const WeddingSchedulePage({super.key});
@@ -34,6 +37,9 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
 
   TimeOfDay? _selectedTime;
   String? _selectedTimeText;
+
+  TimeOfDay? _selectedReminder;
+  String? _selectedReminderText;
   bool _reminderEnabled = false;
   bool isLoading = false;
 
@@ -71,8 +77,14 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
         _descriptionController.text = scheduleItem.description;
         _responsiblePersonController.text = scheduleItem.responsiblePerson;
         _notesController.text = scheduleItem.notes;
+        _selectedTimeText = scheduleItem.time.toString();
+        _selectedTime = TimeOfDay.fromDateTime(scheduleItem.time);
+        _selectedTimeText = "${scheduleItem.time.hour > 12 ? (scheduleItem.time.hour - 12).toString().padLeft(2, '0') :
+        scheduleItem.time.hour.toString().padLeft(2, '0')}:${scheduleItem.time.minute.toString().padLeft(2, '0')} ${scheduleItem.time.hour >= 12 ? 'PM' : 'AM'}";
         // _bufferTimeController.text = scheduleItem.bufferTime.toString();
         _reminderTimeController.text = scheduleItem.reminderTime.toString();
+        _selectedReminderText = scheduleItem.reminderTime.toString();
+        _selectedReminder = TimeOfDay.fromDateTime(scheduleItem.reminderTime);
         _reminderEnabled = scheduleItem.reminderEnabled;
       }
 
@@ -171,7 +183,8 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
                         ), 
                   
                         SpacerWidget(height: 4),
-                        WeddingSchedulePageWidget(titleController: _descriptionController, label: "Beschreibung", text: "Beschreibung", maxLines: 3, ),
+                        WeddingSchedulePageWidget(titleController: _descriptionController, label: "Beschreibung", 
+                        text: "Beschreibung", maxLines: 3, ),
                         SpacerWidget(height: 4),
                         WeddingSchedulePageWidget(titleController: _responsiblePersonController, label: "Verantwortliche Person oder Dienstleister", 
                         text: "Verantwortliche Person oder Dienstleister", maxLines: 1, ),
@@ -181,37 +194,48 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
                         text: "Notizen", maxLines: 3, ),
                         SpacerWidget(height: 4),
                   
-                          CustomTextWidget(text: "Erinnerung",),
-                          SpacerWidget(height: 2),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                          
-                            CustomTextWidget(text: "Erinnerung aktivieren",),
-                             Switch(
-      value: _reminderEnabled,
-      onChanged: (value) {
-        stateDialog(() {
-          _reminderEnabled = value;
-        });
-      },
-    ),
-                          ],
+                          // CustomTextWidget(text: "Erinnerung",),
+                          // SpacerWidget(height: 2),
+
+                          Container(
+                             padding: EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                            
+                          ).copyWith(right: 0),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.withValues(alpha: 0.1),
+                            border: Border.all(color: Colors.transparent),
+                            borderRadius: BorderRadius.circular(5),
                           ),
-                          if (_selectedTime != null)
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                            SpacerWidget(height: 2),
-                            CustomTextWidget(text: "Pufferzeit (optional)",),
-                            SpacerWidget(height: 2),
-                            WeddingSchedulePageWidget(
-                              titleController: _bufferTimeController,
-                              label: "Pufferzeit in Minuten",
-                              text: "Pufferzeit in Minuten",
-                              maxLines: 1,
-                            ),
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: (){
+                                   showTimePicker(context: context, initialTime: TimeOfDay.now()).then((value) {
+                                    stateDialog(() {
+                                      _selectedReminder = value;
+                                      _selectedReminderText = value!.format(context);
+                                    });
+                                  });
+                                    },
+                                    child:  CustomTextWidget(text: _selectedReminderText ?? "Pufferzeit",),
+                                   
+                                  ),
+                                ),
+                               Switch(
+                                     value: _reminderEnabled,
+                                     onChanged: (value) {
+                                       stateDialog(() {
+                                         _reminderEnabled = value;
+                                       });
+                                     },
+                                   ),
                             ],
+                            ),
                           ),
                   ],),
                 ),
@@ -231,12 +255,11 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
                   _responsiblePersonController.clear();
                   _notesController.clear();
                   _bufferTimeController.clear();
-                  _reminderTimeController.clear();
                   Navigator.of(context).pop();
                            },),
                ),
                          Expanded(
-                           child: CustomButtonWidget(text: "Speichern", color: Color.fromARGB(255, 107, 69, 106), textColor: Colors.white, onPressed: (){
+                           child: CustomButtonWidget(text: "Speichern", color: Color.fromARGB(255, 107, 69, 106), textColor: Colors.white, onPressed: ()async{
                                            if (_titleController.text.isEmpty) {
                                              SnackBarHelper.showErrorSnackBar(context, "Bitte geben Sie einen Titel ein.");
                                              return;
@@ -245,8 +268,39 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
                                              SnackBarHelper.showErrorSnackBar(context, "Bitte wählen Sie eine Uhrzeit aus.");
                                              return;
                                            }
+
+                                          // Define the event date (could be a specific wedding date in the future)
+    DateTime eventDate = DateTime(
+      DateTime.now().year,
+      DateTime.now().month,
+      DateTime.now().day,
+    );
+
+    // Event time
+    DateTime eventTime = DateTime(
+      eventDate.year,
+      eventDate.month,
+      eventDate.day,
+      _selectedTime!.hour,
+      _selectedTime!.minute,
+    );
+
+    // Reminder time (if enabled and selected)
+    DateTime? reminderTime;
+    if (_reminderEnabled && _selectedReminder != null) {
+      reminderTime = DateTime(
+        eventDate.year,
+        eventDate.month,
+        eventDate.day,
+        _selectedReminder!.hour,
+        _selectedReminder!.minute,
+      );
+    } else {
+      reminderTime = null; // No reminder if not enabled or not selected
+    }
+
                                            if(id == null) {
-                                           weddingDayScheduleService.addScheduleItem(
+                                         await  weddingDayScheduleService.addScheduleItem(
                                              title: _titleController.text,
                                              description: _descriptionController.text,
                                              time: DateTime(
@@ -259,8 +313,12 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
                                              reminderEnabled: _reminderEnabled,
                                              responsiblePerson:  _responsiblePersonController.text,
                                              notes: _notesController.text,
-                                             reminderTime: _reminderTimeController.text.isEmpty ? DateTime.now() : DateTime.parse(_reminderTimeController.text),
+                                             reminderTime: reminderTime!,
                                            );
+
+                                           // Then, use the newItemId
+  
+
                                            } else {
                                              weddingDayScheduleService.updateOrder(
 
@@ -276,14 +334,14 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
                                                    _selectedTime!.minute,
                                                  ),
                                                  reminderEnabled: _reminderEnabled,
-                                                 reminderTime: _reminderTimeController.text.isEmpty ? DateTime.now() : DateTime.parse(_reminderTimeController.text),
+                                                 reminderTime: reminderTime!,
                                                  userId: weddingDayScheduleService.userId!,
                                                  responsiblePerson:  _responsiblePersonController.text,
                                                  notes: _notesController.text,
                                                  order: weddingDayScheduleService.weddingDayScheduleList.indexWhere((element) => element.id == id),
                                                ),
                                              );
-                                           }
+                          }
                                            Navigator.of(context).pop();
                                            loadData();
                            },),
@@ -314,8 +372,8 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
           onPressed:()=> addAndUpdateDialog(),
           child: const Icon(Icons.add),
         ),
-       body: SingleChildScrollView(
-         child: Column(
+       body: ListView(
+        
           children: [
           //  SpacerWidget(height: 17),
             SizedBox(
@@ -346,12 +404,14 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
           FourSecretsDivider(), 
 
          isLoading ? 
-          Expanded(child: CupertinoActivityIndicator())
+          CupertinoActivityIndicator()
    : SizedBox(
     width: context.screenWidth,
     
      child: ReorderableListView.builder(
+      physics: NeverScrollableScrollPhysics(),
       shrinkWrap: true,
+      buildDefaultDragHandles: false,
        padding: EdgeInsets.symmetric(horizontal: 18, vertical: 8),
        itemCount: weddingDayScheduleService.weddingDayScheduleList.length,
        onReorder: (oldIndex, newIndex) async {
@@ -375,17 +435,27 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
          return Container(
            key: ValueKey(item.id),
            margin: EdgeInsets.symmetric(vertical: 4),
-           child: _buildSlidableItem(item, index),
+           child: Row(
+             children: [
+               Expanded(child: _buildSlidableItem(item, index)),
+              ReorderableDragStartListener(
+                key: ValueKey(item.id),
+                index: index,
+                child: Icon(FontAwesomeIcons.gripVertical, color: Colors.grey.withValues(alpha: 0.6),),
+              )
+             ],
+           ),
          );
        },
      ),
    ),
           
+          SpacerWidget(height: 12)
          
           ],
          ),
        ),
-      )
+      
     );
     
   }
@@ -406,37 +476,141 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
         ),
       ],
     ),
-    child: GestureDetector(
-      onTap: () => addAndUpdateDialog(
-        id: item.id,
-        scheduleItem: item,
-      ),
-      child: Container(
+    child: Container(
         width: context.screenWidth,
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        // padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           gradient: LinearGradient(
             colors: [Colors.grey.shade200, Colors.grey.shade300],
           ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CustomTextWidget(
-              text: item.title,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-            CustomTextWidget(text: item.responsiblePerson, fontSize: 14),
-            CustomTextWidget(text: item.notes, fontSize: 14),
-            CustomTextWidget(text: item.description, fontSize: 14),
-            CustomTextWidget(text: item.time.toString(), fontSize: 14),
-          ],
+      
+      
+      child: ExpansionTile(
+        title: CustomTextWidget(text: item.title, fontSize: 14, fontWeight: FontWeight.bold,),
+        expandedCrossAxisAlignment: CrossAxisAlignment.start,
+        shape: OutlineInputBorder(
+          borderSide: BorderSide.none
         ),
+        childrenPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+        children: [ 
+          Row(
+            children: [
+              Expanded(
+                child: CustomTextWidget(
+                    text: "Bearbeiten und Teilen",
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+    
+              Icon(FontAwesomeIcons.share, size: 16,),
+              SizedBox(width: 15,), 
+              GestureDetector(
+                 onTap: () => addAndUpdateDialog(
+        id: item.id,
+        scheduleItem: item,
+      ),
+                child: Icon(FontAwesomeIcons.penToSquare, size: 16,))
+            ],
+          ),
+          FourSecretsDivider(),
+
+           CustomTextWidget(text: "Verantwortliche Person ", fontSize: 14, fontWeight: FontWeight.bold,),
+          CustomTextWidget(text: item.responsiblePerson, fontSize: 14),
+                  FourSecretsDivider(),
+          CustomTextWidget(text: "Notizen", fontSize: 14, fontWeight: FontWeight.bold,),
+         SeeMoreWidget(item.notes, textStyle: TextStyle(fontSize: 14, color: Colors.black), trimLength: 90,
+          seeMoreStyle: TextStyle(color: Color.fromARGB(255, 107, 69, 106), fontWeight:FontWeight.bold),
+          seeLessStyle:  TextStyle(color: Color.fromARGB(255, 107, 69, 106), fontWeight:FontWeight.bold),
+           ),
+                   FourSecretsDivider(),
+
+          CustomTextWidget(text: "Beschreibung", fontSize: 14, fontWeight: FontWeight.bold,),
+          SeeMoreWidget(item.description, textStyle: TextStyle(fontSize: 14, color: Colors.black), trimLength: 90,
+          seeMoreStyle: TextStyle(color: Color.fromARGB(255, 107, 69, 106), fontWeight:FontWeight.bold),
+          seeLessStyle:  TextStyle(color: Color.fromARGB(255, 107, 69, 106), fontWeight:FontWeight.bold),
+           ),
+                  FourSecretsDivider(),
+
+          CustomTextWidget(text: "Uhrzeit", fontSize: 14, fontWeight: FontWeight.bold,),
+          CustomTextWidget(text: "${item.time.hour}:${item.time.minute} ${item.time.hour > 12 ? 'PM' : 'AM'}", fontSize: 14),
+                   FourSecretsDivider(),
+
+          CustomTextWidget(text: "Erinnerung", fontSize: 14, fontWeight: FontWeight.bold,),
+          CustomTextWidget(text: "${item.reminderTime.hour}:${item.reminderTime.minute} ${item.reminderTime.hour > 12 ? 'PM' : 'AM'}", fontSize: 14),
+          FourSecretsDivider(),
+
+        ]
       ),
     ),
   );
 }
-
 }
+
+
+
+
+/*
+ Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: CustomTextWidget(
+                  text: item.title,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+    
+              Icon(FontAwesomeIcons.share, size: 16,),
+              SizedBox(width: 15,), 
+              GestureDetector(
+                 onTap: () => addAndUpdateDialog(
+        id: item.id,
+        scheduleItem: item,
+      ),
+                child: Icon(FontAwesomeIcons.penToSquare, size: 16,))
+            ],
+          ),
+          Divider(),
+          CustomTextWidget(text: "Verantwortliche Person ", fontSize: 14, fontWeight: FontWeight.bold,),
+          CustomTextWidget(text: item.responsiblePerson, fontSize: 14),
+          Divider(),
+          CustomTextWidget(text: "Notizen", fontSize: 14, fontWeight: FontWeight.bold,),
+         SeeMoreWidget(item.notes, textStyle: TextStyle(fontSize: 14, color: Colors.black), trimLength: 90,
+          seeMoreStyle: TextStyle(color: Color.fromARGB(255, 107, 69, 106), fontWeight:FontWeight.bold),
+          seeLessStyle:  TextStyle(color: Color.fromARGB(255, 107, 69, 106), fontWeight:FontWeight.bold),
+           ),
+          Divider(),
+          CustomTextWidget(text: "Beschreibung", fontSize: 14, fontWeight: FontWeight.bold,),
+          SeeMoreWidget(item.description, textStyle: TextStyle(fontSize: 14, color: Colors.black), trimLength: 90,
+          seeMoreStyle: TextStyle(color: Color.fromARGB(255, 107, 69, 106), fontWeight:FontWeight.bold),
+          seeLessStyle:  TextStyle(color: Color.fromARGB(255, 107, 69, 106), fontWeight:FontWeight.bold),
+           ),
+          Divider(),
+          CustomTextWidget(text: "Uhrzeit", fontSize: 14, fontWeight: FontWeight.bold,),
+          CustomTextWidget(text: item.time.toString(), fontSize: 14),
+          Divider(),
+          CustomTextWidget(text: "Uhrzeit", fontSize: 14, fontWeight: FontWeight.bold,),
+          CustomTextWidget(text: item.time.toString(), fontSize: 14),
+        ],
+      ),
+
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+

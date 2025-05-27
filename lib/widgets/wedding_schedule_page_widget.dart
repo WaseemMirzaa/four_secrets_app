@@ -8,10 +8,12 @@ class WeddingSchedulePageWidget extends StatelessWidget {
   final String? label;
   final String? text;
   final int? maxLines;
+  final bool isReadOnly;
 
 
-
-  const WeddingSchedulePageWidget({super.key, required this.titleController, this.label, this.maxLines, this.text});
+  const WeddingSchedulePageWidget({super.key, required this.titleController, 
+  this.isReadOnly = false,
+  this.label, this.maxLines, this.text});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +22,9 @@ class WeddingSchedulePageWidget extends StatelessWidget {
       children: [
            CustomTextWidget(text: text ?? "Beschreibung", fontSize: 14,),
                     SpacerWidget(height: 2),
-                    CustomTextField(controller: titleController, label: label ?? "Beschreibung", maxLines: maxLines ?? 1, ),
+                    CustomTextField(controller: titleController,
+                    isReadOnly: isReadOnly,
+                     label: label ?? "Beschreibung", maxLines: maxLines ?? 1, ),
       ],
     );
   }

@@ -1,8 +1,11 @@
 import 'dart:io';
 import 'dart:convert';
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:four_secrets_wedding_app/services/notification_alaram-service.dart';
+import 'package:four_secrets_wedding_app/services/wedding_day_schedule_service.dart';
 import 'package:path/path.dart' as path;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_model.dart';
@@ -61,10 +64,12 @@ class AuthService {
       final userModel = UserModel.fromMap(userData);
       print('🟢 UserModel created successfully: $userModel');
 
+      final scheduleService = WeddingDayScheduleService();
+  await scheduleService.loadData();
+
       // Save user data to SharedPreferences
       await saveUserToPrefs(userModel);
       print('🟢 User data saved to SharedPreferences');
-
       return userModel;
     } catch (e) {
       print('🔴 Error in signIn: $e');
@@ -191,6 +196,7 @@ class AuthService {
       print('🟢 Cleared user data from SharedPreferences');
 
       // Sign out from Firebase
+      NotificationService.cancelAllScheduledNotifications();
       await _auth.signOut();
       print('🟢 User signed out from Firebase successfully');
     } catch (e) {
@@ -314,4 +320,9 @@ class AuthService {
       throw e;
     }
   }
+
+
+
+
+
 }
