@@ -24,7 +24,7 @@ class _CustomButtonWidgetState extends State<CustomButtonWidget> {
                       onTap: widget.onPressed,
                       child: Container(
                         height: 40,
-                        width: 180,
+                        width: widget.width ?? 180,
                         padding: EdgeInsets.symmetric(
                           horizontal: 20, vertical: 8,
                           

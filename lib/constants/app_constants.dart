@@ -224,4 +224,67 @@ class AppConstants {
   static const String passwordUpdateSuccessMessage =
       'Passwort erfolgreich aktualisiert';
   static const String noUserLoggedInError = 'Kein Benutzer angemeldet';
+
+
+//wedding schedulePage 
+  static const String weddingAddPageTitle = "Tagesablauf";
+  static const String weddingSchedulePageTitle = "Programmpunkt / Titel";
+  static const String weddingSchedulePageDescription = "Beschreibung";
+  static const String weddingSchedulePageResponsiblePerson = "Verantwortliche Person";
+  static const String weddingSchedulePageNotes = "Notizen";
+  static const String weddingSchedulePageTime = "Uhrzeit";
+  static const String weddingSchedulePageDate = "Datum";
+  static const String weddingSchedulePageReminderDate = "Erinnerungsdatum";
+  static const String weddingSchedulePageReminder = "Erinnerung";
+  static const String weddingSchedulePageReminderTime = "Erinnerungszeit";
+  static const String weddingSchedulePageSave = "Speichern";
+  static const String weddingSchedulePageCancel = "Abbrechen";
+  static const String weddingSchedulePageUpdate = "Aktualisieren";
+  static const String weddingSchedulePageTitleError = "Bitte geben Sie einen Titel ein";
+  static const String weddingSchedulePageTimeError = "Bitte wählen Sie eine Uhrzeit aus";
+  static const String weddingSchedulePageDateError = "Bitte wählen Sie ein Datum aus";
+  static const String weddingSchedulePageReminderTimeError = "Bitte wählen Sie eine Erinnerungszeit aus";
+  static const String weddingSchedulePageReminderDateError = "Bitte wählen Sie ein Erinnerungsdatum aus";
+
+
+  //inspiration folder 
+  static const String inspirationFolderPageTitle = "Inspirationsordner";
+  static const String inspirationFolderPageAdd = "Hinzufügen";
+  static const String inspirationFolderPageImageTitle = "Bildtitel";
+  static const String inspirationFolderPageImageTitleError = "Bitte geben Sie einen Bildtitel ein";
+  static const String inspirationFolderPageImageError = "Bitte wählen Sie ein Bild aus";
+  static const String inspirationFolderPageSave = "Speichern";
+  static const String inspirationFolderPageCancel = "Abbrechen";
+  static const String inspirationFolderPageDelete = "Löschen";
+  static const String inspirationFolderPageDeleteTitle = "Löschen";
+  static const String inspirationFolderPageDeleteMessage = "Möchten Sie dieses Bild wirklich löschen?";
+  static const String inspirationFolderPageDeleteButton = "Löschen";
+  static const String inspirationFolderPageCancelButton = "Abbrechen";
+  static const String inspirationFolderPageImage = "Bild";
+  static const String inspirationFolderPageImageUpdate = "Bild aktualisieren";
+  static const String inspirationFolderPageImageSelectError = "Bitte wählen Sie ein Bild aus";
+  static const String inspirationFolderPageImageSelectError2 = "Bitte füllen Sie alle Felder aus";
+  static const String inspirationFolderPageImageSelectError3 = "Fehler beim Hochladen des Bildes";
+  static const String inspirationFolderPageImageSelectError4 = "Fehler beim Speichern des Bildes";
+  static const String inspirationFolderPageImageSelectError5 = "Fehler beim Löschen des Bildes";
+  static const String inspirationFolderPageEmpty = "Bitte fügen Sie Bilder hinzu, indem Sie auf das + Symbol klicken";
+
+
+
+  //wedding category title page
+  static const String weddingCategoryTitlePageNoCategoriesFound = 'Keine Kategorie gefunden. Fügen Sie eine benutzerdefinierte hinzu!';
+  static const String weddingCategoryTitlePageAddCustomCategory = 'Benutzerdefinierte Kategorie hinzufügen';
+  static const String weddingCategoryTitlePageCategoryName = 'Kategoriename';
+  static const String weddingCategoryTitlePageItemName = 'Artikelname';
+  static const String weddingCategoryTitlePageAdd = 'Hinzufügen';
+  static const String weddingCategoryTitlePageCancel = 'Abbrechen';
+  static const String weddingCategoryTitlePageAddCategory = 'Kategorie hinzufügen';
+  static const String weddingCategoryTitlePageAddItem = 'Artikel hinzufügen';
+  static const String weddingCategoryTitlePageAddCategoryError = 'Bitte geben Sie einen Kategoriename ein';
+  static const String weddingCategoryTitlePageAddItemError = 'Bitte geben Sie einen Artikelnamen ein';
+
+
+
+  static const String inspirationImageSelectText = "Wählen Sie eine Datei aus";
+
 }

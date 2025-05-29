@@ -76,6 +76,7 @@ dependencies:
   timezone: ^0.10.1
   see_more: ^0.0.5
   android_alarm_manager_plus: ^4.0.7
+  dotted_border: ^2.1.0
 
 
 

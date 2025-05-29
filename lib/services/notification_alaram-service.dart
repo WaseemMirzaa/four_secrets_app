@@ -25,6 +25,7 @@ class NotificationService {
       requestAlertPermission: true,
       requestBadgePermission: true,
       requestSoundPermission: true,
+      
     );
 
     // 4️⃣ Combine platform settings
@@ -124,7 +125,7 @@ class NotificationService {
       presentAlert: true,
       presentSound: true,
       presentBadge: true,
-      sound: 'alarm_sound.aiff',
+      // sound: 'alarm_sound.aiff',
       interruptionLevel: InterruptionLevel.critical,
     );
 

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:four_secrets_wedding_app/models/inspiration_image.dart';
+import 'package:four_secrets_wedding_app/models/wedding_day_schedule_model.dart';
 import 'package:four_secrets_wedding_app/pages/add_edit_guest_page.dart';
+import 'package:four_secrets_wedding_app/pages/add_wedding_schedule_page.dart';
 import 'package:four_secrets_wedding_app/pages/edit_profile_page.dart';
 import 'package:four_secrets_wedding_app/pages/gaestelist.dart';
 import 'package:four_secrets_wedding_app/pages/impressum.dart';
@@ -9,6 +11,7 @@ import 'package:four_secrets_wedding_app/pages/inspiration_page_details_screen.d
 import 'package:four_secrets_wedding_app/pages/kontakt.dart';
 import 'package:four_secrets_wedding_app/pages/parsonal_training.dart';
 import 'package:four_secrets_wedding_app/pages/about_me.dart';
+import 'package:four_secrets_wedding_app/pages/wedding_category_title_page.dart';
 import 'package:four_secrets_wedding_app/pages/wedding_schedule_page.dart';
 import 'package:four_secrets_wedding_app/screens/budget.dart';
 import 'package:four_secrets_wedding_app/pages/bachelorette_party.dart';
@@ -73,6 +76,8 @@ class RouteManager {
   static const String editProfilePage = '/edit-profile';
   static const String guestsPage = '/guests';
   static const String tablesManagementPage = '/tables-management';
+  static const String addWedidngSchedulePage = '/addWedidngSchedulePage';
+  static const String weddingCategoryTitlePage = '/weddingCategoryTitlePage';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -111,6 +116,7 @@ class RouteManager {
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
         );
+     
 
       case inspirationsPage:
         return PageTransition(
@@ -154,11 +160,30 @@ class RouteManager {
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
         );
+        case weddingCategoryTitlePage:
+        return PageTransition(
+          child: const WeddingCategoryTitlePage(),
+          settings: settings,
+          duration: const Duration(milliseconds: 250),
+          type: PageTransitionType.rightToLeft,
+        );
       case inspirationDetailPage:
         final args = settings.arguments as Map<String, dynamic>;
         return PageTransition(
           child: InspirationDetailPage(
             inspirationImage: args['inspirationImage'] as InspirationImageModel,
+           
+          ),
+          settings: settings,
+          duration: const Duration(milliseconds: 250),
+          type: PageTransitionType.rightToLeft,
+        );
+      case addWedidngSchedulePage:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final model = args?['weddingDayScheduleModel'] as WeddingDayScheduleModel?;
+        return PageTransition(
+          child: AddWeddingSchedulePage(
+           weddingDayScheduleModel: model,
            
           ),
           settings: settings,

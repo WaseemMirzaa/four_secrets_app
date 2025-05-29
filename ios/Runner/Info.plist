@@ -30,6 +30,8 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>This app needs camera access to take profile pictures</string>
+	<key>NSUserNotificationUsageDescription</key>
+	<string>This app uses notifications to remind you of important events.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>This app needs microphone access for videos</string>
 	<key>NSPhotoLibraryUsageDescription</key>

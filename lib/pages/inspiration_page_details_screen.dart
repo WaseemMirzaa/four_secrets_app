@@ -48,54 +48,17 @@ class _InspirationDetailPageState extends State<InspirationDetailPage> {
     return SafeArea(
       child: Scaffold(
         backgroundColor: AppTheme.backgroundColor,
-        body: Container(
-          height: context.screenHeight,
-          width: context.screenWidth,
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: NetworkImage(widget.inspirationImage.imageUrl),
-              fit: BoxFit.cover,
-            ),
-          ),
-          child: Stack(
-            children: [
-              // Top blurred app bar
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                height: 70,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(20),
-                    bottomRight: Radius.circular(20),
-                  ),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-                      width: context.screenWidth,
-                      alignment: Alignment.centerLeft,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(20),
-                          topRight: Radius.circular(20),
-                        ),
-                        color: Colors.black.withValues(alpha: 0.2),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          IconButton(
-                            icon: Icon(Icons.arrow_back, size: 30),
+        appBar: AppBar(
+          leading:  IconButton(
+                            icon: Icon(Icons.arrow_back, size: 20),
                             color: Colors.white,
                             onPressed: () => Navigator.of(context).pop(),
                           ),
-                          Text(
-                            "Inspiration Details",
-                            style: TextStyle(color: Colors.white, fontSize: 16),
-                          ),
-                          PopupMenuButton(
+        centerTitle: true,
+          title: Text("Inspiration Details", style: TextStyle(color: Colors.white, fontSize: 20),),
+          backgroundColor:  const Color.fromARGB(255, 107, 69, 106),
+          actions: [
+              PopupMenuButton(
                             color: Colors.white,
                             iconColor: Colors.white,
                             iconSize: 30,
@@ -135,7 +98,7 @@ class _InspirationDetailPageState extends State<InspirationDetailPage> {
                                               onPressed: () async {
                                                 await inspirationImageService.deleteImage(widget.inspirationImage.id!, widget.inspirationImage.imageUrl);
                                                 Navigator.of(context).pop();
-                                                Navigator.of(context).pop();
+                                                Navigator.of(context).pop(inspirationImageService.loadDataToDo());
                                               },),
                                             ),
                                           ],
@@ -149,12 +112,55 @@ class _InspirationDetailPageState extends State<InspirationDetailPage> {
                               ),
                             ],
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+          ],
+        ),
+        body: Container(
+          height: context.screenHeight,
+          width: context.screenWidth,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: NetworkImage(widget.inspirationImage.imageUrl),
+              fit: BoxFit.cover,
+            ),
+          ),
+          child: Stack(
+            children: [
+              // Top blurred app bar
+              // Positioned(
+              //   top: 0,
+              //   left: 0,
+              //   right: 0,
+              //   height: 70,
+              //   child: ClipRRect(
+              //     borderRadius: BorderRadius.only(
+              //       bottomLeft: Radius.circular(20),
+              //       bottomRight: Radius.circular(20),
+              //     ),
+              //     child: BackdropFilter(
+              //       filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+              //       child: Container(
+              //         padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+              //         width: context.screenWidth,
+              //         alignment: Alignment.centerLeft,
+              //         decoration: BoxDecoration(
+              //           borderRadius: BorderRadius.only(
+              //             topLeft: Radius.circular(20),
+              //             topRight: Radius.circular(20),
+              //           ),
+              //           color: Colors.black.withValues(alpha: 0.2),
+              //         ),
+              //         child: Row(
+              //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //           children: [
+                         
+                         
+                        
+              //           ],
+              //         ),
+              //       ),
+              //     ),
+              //   ),
+              // ),
 
               // Bottom title overlay
               Positioned(
@@ -208,12 +214,19 @@ class _InspirationDetailPageState extends State<InspirationDetailPage> {
                   topLeft: Radius.circular(22),
                   topRight: Radius.circular(22),
                 ),
-                child: SizedBox(
-                  height: 260,
-                  width: double.maxFinite,
-                  child: imageFile != null
-                      ? Image.file(imageFile!, fit: BoxFit.cover)
-                      : Image.network(widget.inspirationImage.imageUrl, fit: BoxFit.cover),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: SizedBox(
+                    height: 260,
+                    width: double.maxFinite,
+                    child: imageFile != null
+                        ? ClipRRect(
+                          borderRadius: BorderRadius.circular(22),
+                          child: Image.file(imageFile!, fit: BoxFit.cover))
+                        : ClipRRect(
+                          borderRadius: BorderRadius.circular(22),
+                          child: Image.network(widget.inspirationImage.imageUrl, fit: BoxFit.cover)),
+                  ),
                 ),
               ),
               titlePadding: EdgeInsets.zero,
@@ -273,7 +286,8 @@ class _InspirationDetailPageState extends State<InspirationDetailPage> {
                       ),
                                  
                   SizedBox(width: 24),
-                  Expanded(child: CustomButtonWidget(text: "Abbrechen", color: Colors.white, onPressed: () => Navigator.of(context).pop(),)),
+                  Expanded(child: CustomButtonWidget(text: "Abbrechen", 
+                  color: Colors.white, onPressed: () => Navigator.of(context).pop(),)),
                 ],
               ),
             ],

@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'dart:ui';
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:four_secrets_wedding_app/config/theme/app_theme.dart';
+import 'package:four_secrets_wedding_app/constants/app_constants.dart';
 import 'package:four_secrets_wedding_app/extension.dart';
 import 'package:four_secrets_wedding_app/menue.dart';
 import 'package:four_secrets_wedding_app/model/checklist_button.dart';
@@ -12,8 +14,10 @@ import 'package:four_secrets_wedding_app/services/inspiration_image_service.dart
 import 'package:four_secrets_wedding_app/utils/snackbar_helper.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_button_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
+import 'package:hive/hive.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:staggered_grid_view/flutter_staggered_grid_view.dart';
+
 
 class InspirationFolder extends StatefulWidget {
   const InspirationFolder({super.key});
@@ -29,13 +33,10 @@ class _InspirationFolderState extends State<InspirationFolder> {
   final key = GlobalKey<MenueState>();
   bool _isLoading = false;
   bool isLoading = false;
-
   final _controller = TextEditingController();
-
   File? imageFile;
 
   
-
 
 
   @override
@@ -75,13 +76,66 @@ loadDataFromFirebase() async {
                 height: 260,
                 width: double.maxFinite,
                 child:  imageFile != null
-                                    ?  Image.file(imageFile!, fit: BoxFit.cover,)
+                                    ?  Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(15),
+                                        child: Image.file(imageFile!, fit: BoxFit.cover,)),
+                                    )
                                       
-                                    : Image.asset("assets/images/background/noimage.png", fit: BoxFit.fill,),
+                                    : Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: InkWell(
+        onTap: ()async{
+           final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
+      stateDialog(() {
+        imageFile = File(image.path);
+      });
+    }
+
+      if (imageFile == null) {
+      stateDialog(() => _isLoading = false);
+      return;
+    }
+        },
+        child: DottedBorder(
+          radius: Radius.circular(15),
+          dashPattern: [8, 4],
+          color: Color.fromARGB(255, 107, 69, 106),
+          strokeWidth: 1.5,
+          borderType: BorderType.RRect,
+          child: Container(
+            height: 260,
+            width: double.infinity,
+            decoration: BoxDecoration(
+          color: Color.fromARGB(255, 107, 69, 106).withValues(alpha: 0.3),
+          borderRadius: BorderRadius.circular(15)
+            ),          
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.cloud_upload_outlined, size: 48, color: AppTheme.primaryColor),
+                const SizedBox(height: 12),
+                Text(
+                 AppConstants.inspirationImageSelectText,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.primaryColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    )
               ),
                 SpacerWidget(height: 2),
-
-
+                  if(imageFile != null)
                     MyButton(onPressed: ()async{
                        final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
@@ -96,7 +150,7 @@ loadDataFromFirebase() async {
       stateDialog(() => _isLoading = false);
       return;
     }
-                    },   text: "Bild auswählen"),
+                    },   text: AppConstants.inspirationFolderPageImageUpdate),
 
                 SpacerWidget(height: 3),
               Padding(
@@ -109,7 +163,7 @@ loadDataFromFirebase() async {
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     hintText: 
-                       "Bildtitel eingeben",
+                       "${AppConstants.inspirationFolderPageImageTitle} eingeben",
                     fillColor: Color.fromARGB(255, 255, 255, 255),
                   ),
                 ),
@@ -122,21 +176,22 @@ loadDataFromFirebase() async {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                
+          
                      Expanded(
                           child: CustomButtonWidget(
                             
-                            text: "Speichern", isLoading: _isLoading, textColor: Colors.white, onPressed: () async {
+                            text: AppConstants.inspirationFolderPageSave, isLoading: _isLoading, 
+                            textColor: Colors.white, onPressed: () async {
                           stateDialog(() => _isLoading = true);
                   
                       if(_controller.text.isEmpty || imageFile == null) {
                       stateDialog(() => _isLoading = false);
                       if (_controller.text.isEmpty) {
-                        SnackBarHelper.showErrorSnackBar(context, "Bitte geben Sie einen Titel ein.");
+                        SnackBarHelper.showErrorSnackBar(context, AppConstants.inspirationFolderPageImageTitleError);
                       } else if (imageFile == null) {
-                        SnackBarHelper.showErrorSnackBar(context, "Bitte wählen Sie ein Bild aus.");
+                        SnackBarHelper.showErrorSnackBar(context, AppConstants.inspirationFolderPageImageSelectError);
                       } else {
-                        SnackBarHelper.showErrorSnackBar(context, "Bitte füllen Sie alle Felder aus.");
+                        SnackBarHelper.showErrorSnackBar(context, AppConstants.inspirationFolderPageImageSelectError2);
                       }
                       return;
                     }
@@ -158,7 +213,11 @@ loadDataFromFirebase() async {
                       width: 35,
                     ),
                     // cancel button
-                          Expanded(child: CustomButtonWidget(text: "Abbrechen", color: Colors.white, onPressed: () => Navigator.of(context).pop(),)),
+                          Expanded(child: CustomButtonWidget(text: AppConstants.inspirationFolderPageCancelButton, color: Colors.white, onPressed: () {
+                             _controller.clear();
+                    imageFile = null;
+                            Navigator.of(context).pop();
+                          },)),
                 
                   ],
                 ),
@@ -187,7 +246,7 @@ loadDataFromFirebase() async {
         drawer: Menue.getInstance(key),
         appBar: AppBar(
           foregroundColor: Colors.white,
-          title: const Text('Inspirationsordner'),
+          title: const Text(AppConstants.inspirationFolderPageTitle),
           backgroundColor: const Color.fromARGB(255, 107, 69, 106),
         ),
         floatingActionButton: FloatingActionButton(
@@ -197,22 +256,22 @@ loadDataFromFirebase() async {
         body: Stack(
           children: [
             // 1) Background image
-            Positioned.fill(
-              child: Image.asset(
-                "assets/images/background/bg.jpg",
-                fit: BoxFit.cover,
-              ),
-            ),
+            // Positioned.fill(
+            //   child: Image.asset(
+            //     "assets/images/background/bg.jpg",
+            //     fit: BoxFit.cover,
+            //   ),
+            // ),
 
             // 2) Blur layer
-            Positioned.fill(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                child: Container(
-                  color: Colors.black.withValues(alpha: 0.2),
-                ),
-              ),
-            ),
+            // Positioned.fill(
+            //   child: BackdropFilter(
+            //     filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+            //     child: Container(
+            //       color: Colors.black.withValues(alpha: 0.2),
+            //     ),
+            //   ),
+            // ),
 
             // 3) Grid content
             //    Use Padding or SafeArea if you want margins
@@ -231,7 +290,13 @@ loadDataFromFirebase() async {
              sp.inspirationImagesList.isEmpty ?  
 
               Center(
-                child: Text("Bitte fügen Sie Bilder hinzu, indem Sie auf das + Symbol klicken"),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(AppConstants.inspirationFolderPageEmpty, textAlign: TextAlign.center, style: TextStyle(
+                    fontSize: 16, 
+                    fontWeight: FontWeight.bold
+                  ),),
+                ),
               )
             :
 
@@ -253,12 +318,19 @@ loadDataFromFirebase() async {
                         itemBuilder: (context, index) {
                           
                           return GestureDetector(
-                            onTap: (){
-                          Navigator.of(context).pushNamed(RouteManager.inspirationDetailPage, arguments: {
+                            onTap: ()async{
+                       var result =   Navigator.of(context).pushNamed(RouteManager.inspirationDetailPage, arguments: {
                                 'inspirationImage': sp.inspirationImagesList[index],
                               
                                 'id': sp.inspirationImagesList[index].id!,
                               });
+
+                              print("Returned value: $result"); // <-- You should see this when popped
+
+                          result.then((v){
+                              loadDataFromFirebase();
+                          });
+
                             },
                             child: Container(
                               decoration: BoxDecoration(
@@ -266,7 +338,7 @@ loadDataFromFirebase() async {
                                 borderRadius: BorderRadius.circular(18),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.1),
+                                    color: Colors.grey.withValues(alpha: 0.8),
                                     spreadRadius: 4,
                                     blurRadius: 15,
                                     offset: const Offset(0, 0),

@@ -8,6 +8,7 @@ class CustomTextField extends StatelessWidget {
   final bool isReadOnly;
   final int? maxLines;
   final TextInputType? keyboardType;
+  final Function(String)? onchanged;
 
   final String? Function(String?)? validator;
 
@@ -18,7 +19,7 @@ class CustomTextField extends StatelessWidget {
     this.obscureText = false,
     this.keyboardType,
     this.isReadOnly = false,
-    this.validator, this.maxLines,
+    this.validator, this.maxLines, this.onchanged,
   }) : super(key: key);
 
   @override
@@ -30,6 +31,7 @@ class CustomTextField extends StatelessWidget {
       onTapOutside: (event) {
         FocusScope.of(context).unfocus();
       },
+      onChanged: onchanged,
       decoration: AuthTheme.textFieldDecoration(label),
       obscureText: obscureText,
       keyboardType: keyboardType,
