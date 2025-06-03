@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:four_secrets_wedding_app/Pdf/generate_table_pdf.dart';
 import 'package:four_secrets_wedding_app/menue.dart';
 import 'package:four_secrets_wedding_app/model/checklist_button.dart';
 import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
@@ -835,6 +837,16 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
           title: Text(AppConstants.tableManagementTitle),
           backgroundColor: const Color.fromARGB(255, 107, 69, 106),
           actions: [
+
+             IconButton(
+              icon:  Icon(FontAwesomeIcons.download, size: 20,),
+              tooltip: AppConstants.addTableTooltip,
+              onPressed: (){
+                generateTableManagementPdf(_tables, _tableGuestsMap);
+
+              },
+            ),
+
             // Add table button in app bar
             IconButton(
               icon: const Icon(Icons.assignment_outlined),
@@ -922,7 +934,14 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
     );
   }
 
+
+  
+
   void onCancel() {
     Navigator.of(context).pop();
   }
 }
+
+
+
+

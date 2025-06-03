@@ -16,6 +16,7 @@ import 'package:four_secrets_wedding_app/widgets/custom_text_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/wedding_schedule_page_widget.dart';
 import 'package:see_more/see_more_widget.dart';
+import 'package:share_plus/share_plus.dart';
 
 class WeddingSchedulePage extends StatefulWidget {
   const WeddingSchedulePage({super.key});
@@ -69,8 +70,9 @@ bool _isFirstLoad = true;
         // resizeToAvoidBottomInset: false,
         drawer: Menue.getInstance(key),
         appBar: AppBar(
+          centerTitle: true,
           foregroundColor: Colors.white,
-          title: const Text('Inspirationsordner'),
+          title: const Text('Hochzeitsplan'),
           backgroundColor: const Color.fromARGB(255, 107, 69, 106),
         ),
         floatingActionButton: FloatingActionButton(
@@ -88,7 +90,7 @@ bool _isFirstLoad = true;
             SizedBox(
             
               child: Image.asset(
-                "assets/images/background/wedding_sche.png",
+                "assets/images/background/inspirationbg.png",
                 fit: BoxFit.cover,
               ),
             ),
@@ -120,7 +122,7 @@ bool _isFirstLoad = true;
       physics: NeverScrollableScrollPhysics(),
       shrinkWrap: true,
       buildDefaultDragHandles: false,
-       padding: EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
        itemCount: weddingDayScheduleService.weddingDayScheduleList.length,
        onReorder: (oldIndex, newIndex) async {
          final list = List<WeddingDayScheduleModel>.from(
@@ -149,7 +151,7 @@ bool _isFirstLoad = true;
               ReorderableDragStartListener(
                 key: ValueKey(item.id),
                 index: index,
-                child: Icon(FontAwesomeIcons.gripVertical, color: Colors.grey.withValues(alpha: 0.6),),
+                child: Icon(FontAwesomeIcons.gripVertical, size: 16, color: Colors.grey.withValues(alpha: 0.6),),
               )
              ],
            ),
@@ -158,7 +160,7 @@ bool _isFirstLoad = true;
      ),
    ),
           
-          SpacerWidget(height: 12)
+          SpacerWidget(height: 18)
          
           ],
          ),
@@ -197,33 +199,58 @@ bool _isFirstLoad = true;
       
       child: ExpansionTile(
         
-        title: CustomTextWidget(text: item.title, fontSize: 14, fontWeight: FontWeight.bold,),
+        title: Row(
+          spacing: 6,
+          children: [
+            Expanded(child: CustomTextWidget(text: item.title, fontSize: 14, fontWeight: FontWeight.bold,)),
+
+              GestureDetector(
+                onTap: ()async {
+                 await SharePlus.instance.share(ShareParams(title: "Hey My Wedding "));
+                },
+                child: Container(
+                     padding: EdgeInsets.only(
+                       bottom: 2, // Space between underline and text
+                     ),
+                     decoration: BoxDecoration(
+                         border: Border(bottom: BorderSide(
+                         color: Colors.black, 
+                         width: 1.0, // Underline thickness
+                        ))
+                      ),child: CustomTextWidget(text: "Teilen",)),
+              ),
+
+              SizedBox(width: 15,), 
+                GestureDetector(
+                onTap: () {
+                  Navigator.of(context).pushNamed(RouteManager.addWedidngSchedulePage, arguments: {
+                  "weddingDayScheduleModel": item,
+                  });
+                },
+                child:Container(
+     padding: EdgeInsets.only(
+       bottom: 2, // Space between underline and text
+     ),
+     decoration: BoxDecoration(
+         border: Border(bottom: BorderSide(
+         color: Colors.black, 
+         width: 1.0, // Underline thickness
+        ))
+      ),child: CustomTextWidget(text: "Bearbeiten",)),
+                
+                )
+          ],
+        ),
         expandedCrossAxisAlignment: CrossAxisAlignment.start,
         shape: OutlineInputBorder(
           borderSide: BorderSide.none
         ),
         childrenPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
         children: [ 
-          Row(
-            children: [
-              Expanded(
-                child: CustomTextWidget(
-                    text: "Bearbeiten und Teilen",
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-    
-              Icon(FontAwesomeIcons.share, size: 16,),
-              SizedBox(width: 15,), 
-              GestureDetector(
-                 onTap: () {
-                   Navigator.of(context).pushNamed(RouteManager.addWedidngSchedulePage, arguments: {
-                    "weddingDayScheduleModel" : item,
-                   });
-                 },
-                child: Icon(FontAwesomeIcons.penToSquare, size: 16,))
-            ],
+          CustomTextWidget(
+              text: "Bearbeiten und Teilen",
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
           ),
           FourSecretsDivider(),
 
@@ -245,11 +272,19 @@ bool _isFirstLoad = true;
                   FourSecretsDivider(),
 
           CustomTextWidget(text: "Uhrzeit", fontSize: 14, fontWeight: FontWeight.bold,),
-          CustomTextWidget(text: "${item.time.hour}:${item.time.minute} ${item.time.hour > 12 ? 'PM' : 'AM'}", fontSize: 14),
-                   FourSecretsDivider(),
+            CustomTextWidget(
+            text: "${item.time.hour.toString().padLeft(2, '0')}:${item.time.minute.toString().padLeft(2, '0')} "
+              "${item.time.hour >= 12 ? 'Uhr' : 'Uhr'}",
+            fontSize: 14,
+            ),
+            FourSecretsDivider(),
 
           CustomTextWidget(text: "Erinnerung", fontSize: 14, fontWeight: FontWeight.bold,),
-          CustomTextWidget(text: "${item.reminderTime.hour}:${item.reminderTime.minute} ${item.reminderTime.hour > 12 ? 'PM' : 'AM'}", fontSize: 14),
+            CustomTextWidget(
+            text: "${item.reminderTime.hour.toString().padLeft(2, '0')}:${item.reminderTime.minute.toString().padLeft(2, '0')} "
+                "${item.reminderTime.hour >= 12 ? 'Uhr' : 'Uhr'}",
+            fontSize: 14,
+            ),
           FourSecretsDivider(),
 
         ]

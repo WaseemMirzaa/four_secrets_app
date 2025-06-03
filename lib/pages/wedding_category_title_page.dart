@@ -1,11 +1,17 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:four_secrets_wedding_app/constants/app_constants.dart';
 import 'package:four_secrets_wedding_app/extension.dart';
+import 'package:four_secrets_wedding_app/model/wedding_category_model.dart';
+import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:four_secrets_wedding_app/services/wedidng_category_service.dart';
 import 'package:four_secrets_wedding_app/utils/snackbar_helper.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_button_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_text_field.dart';
+import 'package:four_secrets_wedding_app/widgets/custom_text_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
 
 class WeddingCategoryTitlePage extends StatefulWidget {
@@ -19,13 +25,13 @@ class WeddingCategoryTitlePage extends StatefulWidget {
 class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
   final TextEditingController _searchController = TextEditingController();
   final WeddingCategoryDatabase weddingCategoryDatabase = WeddingCategoryDatabase();
-  final TextEditingController _categoryController = TextEditingController();
-  final TextEditingController _itemController = TextEditingController();
+ 
 
   bool isLoading = false;
 
   Map<String, List<String>> allCategories = {};
   Map<String, List<String>> filteredCategory = {};
+  List<WeddingCategoryModel> allCategoryModels = []; // Store full models
 
   @override
   void initState() {
@@ -39,8 +45,10 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
       isLoading = true;
     });
     await weddingCategoryDatabase.createInitialWeddingCategories();
-    await weddingCategoryDatabase.loadWeddingCategories();
+    final loadedCategories = await weddingCategoryDatabase.loadWeddingCategories();
     setState(() {
+      // Get both the map and the full models
+      allCategoryModels = loadedCategories;
       allCategories = weddingCategoryDatabase.getCategoriesAsMap();
       filteredCategory = Map.from(allCategories);
       isLoading = false;
@@ -82,7 +90,7 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
       appBar: AppBar(
         centerTitle: true,
         foregroundColor: Colors.white,
-        title: const Text(AppConstants.weddingAddPageTitle),
+        title: const Text(AppConstants.weddingCategorySelectCategory),
         backgroundColor: const Color.fromARGB(255, 107, 69, 106),
       ),
       body: Padding(
@@ -91,7 +99,7 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
           children: [
             CustomTextField(
               controller: _searchController,
-               label: 'Search items...',
+              label: 'suchen...',
             ),
             const SpacerWidget(height: 4),
           Expanded(
@@ -112,86 +120,25 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
                           ),
                           SpacerWidget(height: 5), 
 
-                          CustomButtonWidget(text: AppConstants.weddingCategoryTitlePageAddCustomCategory, width: context.screenWidth, textColor: Colors.white, onPressed: () {
-                             showDialog(context: context, builder: (_){
-        return AlertDialog(
-      contentPadding: EdgeInsets.zero,
-      content: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          height: context.screenHeight * 0.3,
-          color: Colors.grey.shade100,
-          child: Column(
-            spacing: 10,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              // Textfield for adding new items
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 15),
-                child: TextField(
-                  controller: _categoryController,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    hintText: AppConstants.weddingCategoryTitlePageCategoryName,
-                    fillColor: Color.fromARGB(255, 255, 255, 255),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 15),
-                child: TextField(
-                  controller: _itemController,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    hintText: AppConstants.weddingCategoryTitlePageItemName,
-                    fillColor: Color.fromARGB(255, 255, 255, 255),
-                  ),
-                ),
-              ),
+                          CustomButtonWidget(text: AppConstants.weddingCategoryTitlePageAddCustomCategory,
+                           width: context.screenWidth, textColor: Colors.white, onPressed: () async {
 
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                child: Row(
-                  children: [
-                    Expanded(child: CustomButtonWidget(text: AppConstants.weddingCategoryTitlePageCancel, color: Colors.white,
-                     onPressed: () {
-                      _categoryController.clear();
-                       _itemController.clear();
-                       Navigator.of(context).pop();
-                     },)),
-                    const SizedBox(width: 20,),
-                    Expanded(child: CustomButtonWidget(text: AppConstants.weddingCategoryTitlePageAddCategory, 
-                    textColor: Colors.white,
-                    color: Color.fromARGB(255, 107, 69, 106), onPressed: () {
-                      if (_categoryController.text.isEmpty) {
-                        SnackBarHelper.showErrorSnackBar(context, AppConstants.weddingCategoryTitlePageAddCategoryError);
-                        return;
-                      }
-                      if (_itemController.text.isEmpty) {
-                        SnackBarHelper.showErrorSnackBar(context, AppConstants.weddingCategoryTitlePageAddItemError);
-                        return;
-                      }
-                      weddingCategoryDatabase.addCategory(_categoryController.text, [_itemController.text]);
-                      _categoryController.clear();
-                      _itemController.clear();
-                      _loadAndInitCategories();
-                      Navigator.of(context).pop();
-                    },)),
-                  ],
-                ),
-              )
+                              final emptyModel = WeddingCategoryModel(
+                              id: "",
+                              categoryName: '',
+                              items: [],
+                              createdAt: DateTime.now(),
+                              userId: "", // or current user ID
+                            );
 
-            ],
-          ),
-        ),
-      ),
-    
-    );
-       });
+                            var g =  Navigator.of(context).pushNamed(RouteManager.weddingCategoryCustomAddPage, 
+                            arguments:  {
+                              "weddingCategoryModel" : emptyModel,
+                              "index" : ""
+                            });
+                           g.then((v){
+                            _loadAndInitCategories();
+                           });
                           },)
                           
                         ],
@@ -223,6 +170,7 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
                             horizontal: 5,
                             vertical: 4,
                           ),
+                          
                           decoration: BoxDecoration(
                             color: Colors.grey.withValues(alpha: 0.2), 
                             borderRadius: BorderRadius.circular(15)
@@ -232,26 +180,102 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
                             shape: OutlineInputBorder(
                               borderSide: BorderSide.none
                             ),
-                            title: Text(
-                              categoryName,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            subtitle: Text('${items.length} items'),
-                            children: items.map((item) {
-                              return ListTile(
-                                shape: OutlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.white)
-                                  
+                            childrenPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                            title: Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        categoryName,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      CustomTextWidget(text: '${items.length} Unterkategorie', fontWeight: FontWeight.w500,)
+                                    ],
+                                  ),
                                 ),
-                                title: Text("* $item"),
-                                dense: true,
-                                onTap: () {
-                                  
-                                  Navigator.of(context).pop(item);
-                                },
+                                 if (index > 4)
+                          TextButton(onPressed: () {
+                            // Find the corresponding model for this category
+                            WeddingCategoryModel? model;
+                            var id;
+                            String? userId;
+                            DateTime? createdAt;
+                            // Option 1: Find by category name
+                            model = allCategoryModels.firstWhere(
+                              (m) {
+                                id = m.id;
+                                userId = m.userId;
+                                createdAt = m.createdAt;
+                                return m.categoryName == categoryName;
+                              },
+                              orElse: () => WeddingCategoryModel(
+                                id: id, // or generate a new ID
+                                categoryName: categoryName,
+                                items: items,
+                                createdAt: createdAt!,
+                                userId: userId!, // You'll need to get this from somewhere
+                              ),
+                            );
+                            
+                            // Option 2: If you want to use the index to get the model
+                            // (assuming the order matches)
+                            // if (index < allCategoryModels.length) {
+                            //   model = allCategoryModels[index];
+                            // }
+                            
+                            var g = Navigator.of(context).pushNamed(
+                              RouteManager.weddingCategoryCustomAddPage,
+                              arguments: {
+                                "weddingCategoryModel": model,
+                                "index": id
+                              },
+                            );
+                            g.then((v) {
+                              _loadAndInitCategories();
+                            });
+                          }, child: Container(
+                            padding: EdgeInsets.only(bottom:4 ),
+                            decoration: BoxDecoration(
+                              border: Border(bottom: BorderSide(color: Colors.black))
+                            ),
+                            child: 
+                             CustomTextWidget(text: "Bearbeiten"), 
+                            
+                          ))
+                              ],
+                            ), 
+                            
+                           
+                            children: items.map((item) {
+                              return Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: InkWell(
+                                         onTap: () {
+                                            
+                                            Navigator.of(context).pop(item);
+                                          },
+                                        child: Container(
+                                            width: context.screenWidth,
+                                           
+                                            child: CustomTextWidget(text: "* $item", fontSize: 14,)
+                                
+                                         
+                                        ),
+                                      ),
+                                    ),
+                                            SizedBox( width: context.screenWidth/6,),
+                                
+                                  ],
+                                ),
                               );
+                              
                             }).toList(),
                            
                           ),

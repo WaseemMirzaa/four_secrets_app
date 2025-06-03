@@ -140,15 +140,17 @@ class _TableDialogBoxState extends State<TableDialogBox> {
                             ),
                           ),
                         )
-                      : MyButton(onPressed: widget.onSave, text: "Speichern"),
+                      : MyButton(onPressed: widget.onSave, color: Color.fromARGB(255, 107, 69, 106), 
+                      textColor: Colors.white,
+                      text: "Speichern"),
                   const SizedBox(
                     width: 35,
                   ),
                   // cancel buttonk
                   MyButton(
-                    onPressed: widget.isLoading ? null : widget.onCancel,
+                    onPressed:widget.onCancel,
                     text: "Stornieren",
-                    color: widget.isLoading ? Colors.grey : null,
+                    color: Colors.white,
                   ),
                 ],
               ),

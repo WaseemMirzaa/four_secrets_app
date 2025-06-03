@@ -234,6 +234,7 @@ class AppConstants {
   static const String weddingSchedulePageNotes = "Notizen";
   static const String weddingSchedulePageTime = "Uhrzeit";
   static const String weddingSchedulePageDate = "Datum";
+  static const String weddingSchedulePageLocation = "Ort";
   static const String weddingSchedulePageReminderDate = "Erinnerungsdatum";
   static const String weddingSchedulePageReminder = "Erinnerung";
   static const String weddingSchedulePageReminderTime = "Erinnerungszeit";
@@ -248,7 +249,7 @@ class AppConstants {
 
 
   //inspiration folder 
-  static const String inspirationFolderPageTitle = "Inspirationsordner";
+  static const String inspirationFolderPageTitle = "Inspirationen";
   static const String inspirationFolderPageAdd = "Hinzufügen";
   static const String inspirationFolderPageImageTitle = "Bildtitel";
   static const String inspirationFolderPageImageTitleError = "Bitte geben Sie einen Bildtitel ein";
@@ -275,10 +276,15 @@ class AppConstants {
   static const String weddingCategoryTitlePageNoCategoriesFound = 'Keine Kategorie gefunden. Fügen Sie eine benutzerdefinierte hinzu!';
   static const String weddingCategoryTitlePageAddCustomCategory = 'Benutzerdefinierte Kategorie hinzufügen';
   static const String weddingCategoryTitlePageCategoryName = 'Kategoriename';
+  static const String weddingCategorySelectCategory = 'Kategorie auswählen';
   static const String weddingCategoryTitlePageItemName = 'Artikelname';
   static const String weddingCategoryTitlePageAdd = 'Hinzufügen';
+  static const String weddingCustomCategoryAppBarTitle = 'Benutzerdefinierte Kategorie hinzufügen';
   static const String weddingCategoryTitlePageCancel = 'Abbrechen';
+  static const String weddingCategoryDuplicateError = 'Element existiert bereits';
+  static const String weddingCategoryTitlePageCancelEdit = 'Bearbeitung abbrechen';
   static const String weddingCategoryTitlePageAddCategory = 'Kategorie hinzufügen';
+  static const String weddingCategoryTitlePageUpdateCategory = 'Kategorie bearbeiten';
   static const String weddingCategoryTitlePageAddItem = 'Artikel hinzufügen';
   static const String weddingCategoryTitlePageAddCategoryError = 'Bitte geben Sie einen Kategoriename ein';
   static const String weddingCategoryTitlePageAddItemError = 'Bitte geben Sie einen Artikelnamen ein';

@@ -11,6 +11,7 @@ class WeddingDayScheduleModel {
   final DateTime reminderTime;
   final String userId;
   final int order;
+  final String address;
 
   WeddingDayScheduleModel({
      this.id,
@@ -23,6 +24,7 @@ class WeddingDayScheduleModel {
     required this.responsiblePerson,
     required this.notes,
     required this.order,
+    required this.address
   });
 
   Map<String, dynamic> toMap() {
@@ -38,6 +40,8 @@ class WeddingDayScheduleModel {
       'responsiblePerson': responsiblePerson,
       'notes': notes,
       'order': order,
+      'address' : address, 
+      
     };
   }
 
@@ -54,6 +58,7 @@ class WeddingDayScheduleModel {
       responsiblePerson: map['responsiblePerson'] ?? '',
       notes: map['notes'] ?? '',
       order: map['order'] ?? 0,
+     address: map['address'] ?? "No Address"
     );
   }
 
@@ -68,6 +73,7 @@ WeddingDayScheduleModel copyWith({
   String? responsiblePerson,
   String? notes,
   int? order,
+  String? address
 }) {
   return WeddingDayScheduleModel(
     id: id ?? this.id,
@@ -80,6 +86,7 @@ WeddingDayScheduleModel copyWith({
     responsiblePerson: responsiblePerson ?? this.responsiblePerson,
     notes: notes ?? this.notes,
     order: order ?? this.order,
+    address: address ?? this.address
   );
 }
 

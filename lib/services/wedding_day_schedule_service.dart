@@ -18,6 +18,7 @@ Future<String?> addScheduleItem({
   required DateTime reminderTime,
   required String responsiblePerson,
   required String notes,
+  required String address,
 }) async {
   if (userId == null) {
     throw StateError('User must be logged in to add a schedule item.');
@@ -36,6 +37,8 @@ Future<String?> addScheduleItem({
     reminderTime: reminderTime,
     userId: userId!,
     order: currentCount,
+    address: address, 
+    
   );
 
   try {
@@ -151,7 +154,10 @@ Future<void> loadData() async {
             'userId': item.userId,
             'responsiblePerson': item.responsiblePerson,
             'notes': item.notes,
-            'order': item.order});
+            'order': item.order, 
+            'address' : item.address,
+           
+            });
       
 
       // Then reload to keep list in sync

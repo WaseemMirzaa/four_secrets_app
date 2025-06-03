@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:four_secrets_wedding_app/constants/app_constants.dart';
 import 'package:four_secrets_wedding_app/extension.dart';
 import 'package:four_secrets_wedding_app/models/wedding_day_schedule_model.dart';
+import 'package:four_secrets_wedding_app/pages/map_picker_page.dart';
 import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:four_secrets_wedding_app/services/wedding_day_schedule_service.dart';
 import 'package:four_secrets_wedding_app/utils/snackbar_helper.dart';
@@ -9,6 +11,9 @@ import 'package:four_secrets_wedding_app/widgets/custom_button_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_text_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/wedding_schedule_page_widget.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:map_location_picker/map_location_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class AddWeddingSchedulePage extends StatefulWidget {
   final WeddingDayScheduleModel? weddingDayScheduleModel;
@@ -24,22 +29,27 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
   final _notesController = TextEditingController();
   final _bufferTimeController = TextEditingController();
   final _reminderTimeController = TextEditingController();
-
   String? _titleController;
-
   TimeOfDay? _selectedTime;
   String? _selectedTimeText;
   DateTime? _selectedEventDate;
   String? _selectedEventDateText;
-
   TimeOfDay? _selectedReminder;
   DateTime? _selectedReminderDate;
   String? _selectedReminderText;
   String? _selectedReminderDateText;
   bool _reminderEnabled = false;
   bool isLoading = false;
+  String? address; 
+  Prediction? initialValue;
+  Position? position;
 
   WeddingDayScheduleService weddingDayScheduleService = WeddingDayScheduleService();
+
+
+  
+
+
 
   @override
   void initState() {
@@ -81,7 +91,40 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
       _selectedReminderText = null;
       _reminderEnabled = false;
     }
+    _setCurrentLocationAsInitial();
   }
+
+
+Future<void> _setCurrentLocationAsInitial() async {
+  try {
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+      permission = await Geolocator.requestPermission();
+    }
+
+     position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+
+    setState(() {
+      initialValue = Prediction(
+        description: "Your Current Location",
+        placeId: "",
+        structuredFormatting: StructuredFormatting(
+          mainText: "Current Location",
+          secondaryText: "${position!.latitude}, ${position!.longitude}",
+        ),
+      
+      );
+    });
+  } catch (e) {
+    print("Error getting location: $e");
+  }
+}
+
+
+
+
 
   Future<void> _selectEventDate() async {
     final DateTime? picked = await showDatePicker(
@@ -106,7 +149,7 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
     if (picked != null) {
       setState(() {
         _selectedTime = picked;
-        _selectedTimeText = "${picked.hour > 12 ? (picked.hour - 12).toString().padLeft(2, '0') : picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')} ${picked.hour >= 12 ? 'PM' : 'AM'}";
+        _selectedTimeText = "${picked.hour > 12 ? (picked.hour - 12).toString().padLeft(2, '0') : picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')} ${picked.hour >= 12 ? 'Uhr' : 'Uhr'}";
       });
     }
   }
@@ -134,7 +177,8 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
     if (picked != null) {
       setState(() {
         _selectedReminder = picked;
-        _selectedReminderText = "${picked.hour > 12 ? (picked.hour - 12).toString().padLeft(2, '0') : picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')} ${picked.hour >= 12 ? 'PM' : 'AM'}";
+        _selectedReminderText = "${picked.hour > 12 ? (picked.hour - 12).toString().padLeft(2, '0') : 
+        picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')} ${picked.hour >= 12 ? 'Uhr' : 'Uhr'}";
       });
     }
   }
@@ -291,6 +335,65 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                     ],
                   ),
                 ),
+
+                 CustomTextWidget(text: AppConstants.weddingSchedulePageLocation),
+                SpacerWidget(height: 2),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4).copyWith(right: 0),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withValues(alpha: 0.1),
+                    border: Border.all(color: Colors.transparent),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: ()async{
+                            final result = await showDialog<Prediction>(
+      context: context,
+      builder: (context) => Dialog(
+          insetPadding: const EdgeInsets.all(8),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.8,
+            child: MapLocationPicker(
+              apiKey: "AIzaSyBD7O6PQXXb5wrigZ6WOTn2VwTRFxCb9KU",
+              currentLatLng: LatLng(position!.latitude, position!.longitude),
+              onNext: (result) {
+                if (result != null) {
+                  setState(() {
+                    address = result.formattedAddress;
+                  });
+                  Navigator.of(context).pop(); // close the dialogs
+                }
+              },
+              onSuggestionSelected: (details) {
+                debugPrint('Suggestion selected: ${details?.result.name}');
+              },
+            ),
+          ),
+        ));
+
+    if (result != null) {
+      setState(() {
+        initialValue = result;
+        address = result.description ?? "No description";
+      });
+    }
+  
+                          },
+                          child: CustomTextWidget(text: "${AppConstants.weddingSchedulePageDate} Uhrzeit auswählen"),
+                        ),
+                      ),
+                      // IconButton(
+                      //   onPressed: _selectEventTime,
+                      //   icon: Icon(Icons.timer),
+                      // ),
+                    ],
+                  ),
+                ),
         
                 // Show reminder date and time fields only if reminder is enabled
                 if (_reminderEnabled) ...[
@@ -437,7 +540,12 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                               _selectedReminder!.hour,
                               _selectedReminder!.minute,
                             );
-                          }
+                          } 
+
+
+                          print(reminderTime);
+                          print(eventTime);
+                        
         
                           if (widget.weddingDayScheduleModel == null) {
                             await weddingDayScheduleService.addScheduleItem(
@@ -448,7 +556,8 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                               responsiblePerson: _responsiblePersonController.text,
                               notes: _notesController.text,
                               reminderTime: reminderTime!,
-                            );
+                              address: ""
+                                                          );
                              setState(() {
                             isLoading = false;
                           });
@@ -464,6 +573,7 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                                 userId: weddingDayScheduleService.userId!,
                                 responsiblePerson: _responsiblePersonController.text,
                                 notes: _notesController.text,
+                                address: "no address",
                                 order: weddingDayScheduleService.weddingDayScheduleList.indexWhere((element) => element.id == widget.weddingDayScheduleModel!.id),
                               ),
                             );

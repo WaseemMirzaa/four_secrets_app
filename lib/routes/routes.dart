@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:four_secrets_wedding_app/model/wedding_category_model.dart';
 import 'package:four_secrets_wedding_app/models/inspiration_image.dart';
 import 'package:four_secrets_wedding_app/models/wedding_day_schedule_model.dart';
 import 'package:four_secrets_wedding_app/pages/add_edit_guest_page.dart';
+import 'package:four_secrets_wedding_app/pages/add_title_category_wed_schedule_page.dart';
 import 'package:four_secrets_wedding_app/pages/add_wedding_schedule_page.dart';
 import 'package:four_secrets_wedding_app/pages/edit_profile_page.dart';
 import 'package:four_secrets_wedding_app/pages/gaestelist.dart';
@@ -78,6 +82,7 @@ class RouteManager {
   static const String tablesManagementPage = '/tables-management';
   static const String addWedidngSchedulePage = '/addWedidngSchedulePage';
   static const String weddingCategoryTitlePage = '/weddingCategoryTitlePage';
+  static const String weddingCategoryCustomAddPage = '/weddingCategoryCustomAddPage';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -163,6 +168,17 @@ class RouteManager {
         case weddingCategoryTitlePage:
         return PageTransition(
           child: const WeddingCategoryTitlePage(),
+          settings: settings,
+          duration: const Duration(milliseconds: 250),
+          type: PageTransitionType.rightToLeft,
+        );
+        case weddingCategoryCustomAddPage:
+        final args = settings.arguments as Map<String, dynamic>;
+        return PageTransition(
+          child:  AddCustomCategoryWeddingSchedulePage(
+            weddingCategoryModel: args['weddingCategoryModel'] as WeddingCategoryModel,
+            index: args['index'] as String,
+          ),
           settings: settings,
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,

@@ -207,31 +207,32 @@ class WeddingCategoryDatabase {
   }
 
   // Update category in Firebase
-  Future<void> updateCategory(int index, String categoryName, List<String> items) async {
-    if (userId == null || index >= categoryList.length) {
-      print("Cannot update category: User not logged in or invalid index");
-      return;
-    }
+  Future<void> updateCategory(String id, String categoryName, List<String> items) async {
+    // if (userId == null || index >= categoryList.length) {
+    
+    //   print("Cannot update category: User not logged in or invalid index");
+    //   return;
+    // }
     
     try {
-      final category = categoryList[index];
-      final updatedCategory = category.copyWith(
-        categoryName: categoryName,
-        items: items,
-      );
+     
+      // final updatedCategory = category.copyWith(
+      //   categoryName: categoryName,
+      //   items: items,
+      // );
       
       await _firestore
           .collection('users')
           .doc(userId)
           .collection('weddingCategories')
-          .doc(category.id)
+          .doc(id)
           .update({
         'categoryName': categoryName,
         'items': items,
       });
       
-      // Update local list
-      categoryList[index] = updatedCategory;
+      // // Update local list
+      // categoryList[index] = updatedCategory;
       
       print("Updated category: $categoryName");
     } catch (e) {

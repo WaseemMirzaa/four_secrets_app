@@ -1,6 +1,6 @@
 -- Merging decision tree log ---
 application
-INJECTED from /Users/waleed/CodetiveLab/four_secrets_app/android/app/src/main/AndroidManifest.xml:20:5-95:19
+INJECTED from /Users/waleed/CodetiveLab/four_secrets_app/android/app/src/main/AndroidManifest.xml:21:5-97:19
 INJECTED from /Users/waleed/CodetiveLab/four_secrets_app/android/app/src/debug/AndroidManifest.xml
 MERGED from [:cloud_firestore] /Users/waleed/CodetiveLab/four_secrets_app/build/cloud_firestore/intermediates/merged_manifest/debug/AndroidManifest.xml:7:5-13:19
 MERGED from [:cloud_firestore] /Users/waleed/CodetiveLab/four_secrets_app/build/cloud_firestore/intermediates/merged_manifest/debug/AndroidManifest.xml:7:5-13:19
@@ -16,6 +16,10 @@ MERGED from [:firebase_core] /Users/waleed/CodetiveLab/four_secrets_app/build/fi
 MERGED from [:firebase_core] /Users/waleed/CodetiveLab/four_secrets_app/build/firebase_core/intermediates/merged_manifest/debug/AndroidManifest.xml:7:5-13:19
 MERGED from [:image_picker_android] /Users/waleed/CodetiveLab/four_secrets_app/build/image_picker_android/intermediates/merged_manifest/debug/AndroidManifest.xml:8:5-32:19
 MERGED from [:image_picker_android] /Users/waleed/CodetiveLab/four_secrets_app/build/image_picker_android/intermediates/merged_manifest/debug/AndroidManifest.xml:8:5-32:19
+MERGED from [:printing] /Users/waleed/CodetiveLab/four_secrets_app/build/printing/intermediates/merged_manifest/debug/AndroidManifest.xml:7:5-17:19
+MERGED from [:printing] /Users/waleed/CodetiveLab/four_secrets_app/build/printing/intermediates/merged_manifest/debug/AndroidManifest.xml:7:5-17:19
+MERGED from [:share_plus] /Users/waleed/CodetiveLab/four_secrets_app/build/share_plus/intermediates/merged_manifest/debug/AndroidManifest.xml:7:5-33:19
+MERGED from [:share_plus] /Users/waleed/CodetiveLab/four_secrets_app/build/share_plus/intermediates/merged_manifest/debug/AndroidManifest.xml:7:5-33:19
 MERGED from [:url_launcher_android] /Users/waleed/CodetiveLab/four_secrets_app/build/url_launcher_android/intermediates/merged_manifest/debug/AndroidManifest.xml:7:5-12:19
 MERGED from [:url_launcher_android] /Users/waleed/CodetiveLab/four_secrets_app/build/url_launcher_android/intermediates/merged_manifest/debug/AndroidManifest.xml:7:5-12:19
 MERGED from [com.google.firebase:firebase-appcheck-playintegrity:18.0.0] /Users/waleed/.gradle/caches/transforms-3/0c65848a2076490f2435239576dafecf/transformed/jetified-firebase-appcheck-playintegrity-18.0.0/AndroidManifest.xml:21:5-29:19
@@ -99,8 +103,8 @@ MERGED from [com.google.android.play:core-common:2.0.3] /Users/waleed/.gradle/ca
 	android:name
 		INJECTED from /Users/waleed/CodetiveLab/four_secrets_app/android/app/src/main/AndroidManifest.xml
 manifest
-ADDED from /Users/waleed/CodetiveLab/four_secrets_app/android/app/src/main/AndroidManifest.xml:1:1-107:12
-MERGED from /Users/waleed/CodetiveLab/four_secrets_app/android/app/src/main/AndroidManifest.xml:1:1-107:12
+ADDED from /Users/waleed/CodetiveLab/four_secrets_app/android/app/src/main/AndroidManifest.xml:1:1-109:12
+MERGED from /Users/waleed/CodetiveLab/four_secrets_app/android/app/src/main/AndroidManifest.xml:1:1-109:12
 INJECTED from /Users/waleed/CodetiveLab/four_secrets_app/android/app/src/debug/AndroidManifest.xml:1:1-7:12
 INJECTED from /Users/waleed/CodetiveLab/four_secrets_app/android/app/src/debug/AndroidManifest.xml:1:1-7:12
 INJECTED from /Users/waleed/CodetiveLab/four_secrets_app/android/app/src/debug/AndroidManifest.xml:1:1-7:12
@@ -122,6 +126,8 @@ MERGED from [:wakelock_plus] /Users/waleed/CodetiveLab/four_secrets_app/build/wa
 MERGED from [:package_info_plus] /Users/waleed/CodetiveLab/four_secrets_app/build/package_info_plus/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-7:12
 MERGED from [:path_provider_android] /Users/waleed/CodetiveLab/four_secrets_app/build/path_provider_android/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-7:12
 MERGED from [:permission_handler_android] /Users/waleed/CodetiveLab/four_secrets_app/build/permission_handler_android/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-7:12
+MERGED from [:printing] /Users/waleed/CodetiveLab/four_secrets_app/build/printing/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-19:12
+MERGED from [:share_plus] /Users/waleed/CodetiveLab/four_secrets_app/build/share_plus/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-35:12
 MERGED from [:shared_preferences_android] /Users/waleed/CodetiveLab/four_secrets_app/build/shared_preferences_android/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-7:12
 MERGED from [:sqflite_android] /Users/waleed/CodetiveLab/four_secrets_app/build/sqflite_android/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-7:12
 MERGED from [:url_launcher_android] /Users/waleed/CodetiveLab/four_secrets_app/build/url_launcher_android/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-14:12
@@ -336,18 +342,22 @@ uses-permission#android.permission.SYSTEM_ALERT_WINDOW
 ADDED from /Users/waleed/CodetiveLab/four_secrets_app/android/app/src/main/AndroidManifest.xml:18:5-78
 	android:name
 		ADDED from /Users/waleed/CodetiveLab/four_secrets_app/android/app/src/main/AndroidManifest.xml:18:22-75
-queries
-ADDED from /Users/waleed/CodetiveLab/four_secrets_app/android/app/src/main/AndroidManifest.xml:101:5-106:15
-intent#action:name:android.intent.action.PROCESS_TEXT+data:mimeType:text/plain
-ADDED from /Users/waleed/CodetiveLab/four_secrets_app/android/app/src/main/AndroidManifest.xml:102:9-105:18
-action#android.intent.action.PROCESS_TEXT
-ADDED from /Users/waleed/CodetiveLab/four_secrets_app/android/app/src/main/AndroidManifest.xml:103:13-72
+uses-permission#android.permission.ACCESS_FINE_LOCATION
+ADDED from /Users/waleed/CodetiveLab/four_secrets_app/android/app/src/main/AndroidManifest.xml:19:5-79
 	android:name
-		ADDED from /Users/waleed/CodetiveLab/four_secrets_app/android/app/src/main/AndroidManifest.xml:103:21-70
+		ADDED from /Users/waleed/CodetiveLab/four_secrets_app/android/app/src/main/AndroidManifest.xml:19:22-76
+queries
+ADDED from /Users/waleed/CodetiveLab/four_secrets_app/android/app/src/main/AndroidManifest.xml:103:5-108:15
+intent#action:name:android.intent.action.PROCESS_TEXT+data:mimeType:text/plain
+ADDED from /Users/waleed/CodetiveLab/four_secrets_app/android/app/src/main/AndroidManifest.xml:104:9-107:18
+action#android.intent.action.PROCESS_TEXT
+ADDED from /Users/waleed/CodetiveLab/four_secrets_app/android/app/src/main/AndroidManifest.xml:105:13-72
+	android:name
+		ADDED from /Users/waleed/CodetiveLab/four_secrets_app/android/app/src/main/AndroidManifest.xml:105:21-70
 data
-ADDED from /Users/waleed/CodetiveLab/four_secrets_app/android/app/src/main/AndroidManifest.xml:104:13-50
+ADDED from /Users/waleed/CodetiveLab/four_secrets_app/android/app/src/main/AndroidManifest.xml:106:13-50
 	android:mimeType
-		ADDED from /Users/waleed/CodetiveLab/four_secrets_app/android/app/src/main/AndroidManifest.xml:104:19-48
+		ADDED from /Users/waleed/CodetiveLab/four_secrets_app/android/app/src/main/AndroidManifest.xml:106:19-48
 uses-sdk
 INJECTED from /Users/waleed/CodetiveLab/four_secrets_app/android/app/src/debug/AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from /Users/waleed/CodetiveLab/four_secrets_app/android/app/src/debug/AndroidManifest.xml
@@ -388,6 +398,10 @@ MERGED from [:path_provider_android] /Users/waleed/CodetiveLab/four_secrets_app/
 MERGED from [:path_provider_android] /Users/waleed/CodetiveLab/four_secrets_app/build/path_provider_android/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
 MERGED from [:permission_handler_android] /Users/waleed/CodetiveLab/four_secrets_app/build/permission_handler_android/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
 MERGED from [:permission_handler_android] /Users/waleed/CodetiveLab/four_secrets_app/build/permission_handler_android/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
+MERGED from [:printing] /Users/waleed/CodetiveLab/four_secrets_app/build/printing/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
+MERGED from [:printing] /Users/waleed/CodetiveLab/four_secrets_app/build/printing/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
+MERGED from [:share_plus] /Users/waleed/CodetiveLab/four_secrets_app/build/share_plus/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
+MERGED from [:share_plus] /Users/waleed/CodetiveLab/four_secrets_app/build/share_plus/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
 MERGED from [:shared_preferences_android] /Users/waleed/CodetiveLab/four_secrets_app/build/shared_preferences_android/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
 MERGED from [:shared_preferences_android] /Users/waleed/CodetiveLab/four_secrets_app/build/shared_preferences_android/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
 MERGED from [:sqflite_android] /Users/waleed/CodetiveLab/four_secrets_app/build/sqflite_android/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
@@ -820,6 +834,38 @@ ADDED from [:image_picker_android] /Users/waleed/CodetiveLab/four_secrets_app/bu
 		ADDED from [:image_picker_android] /Users/waleed/CodetiveLab/four_secrets_app/build/image_picker_android/intermediates/merged_manifest/debug/AndroidManifest.xml:30:17-33
 	android:name
 		ADDED from [:image_picker_android] /Users/waleed/CodetiveLab/four_secrets_app/build/image_picker_android/intermediates/merged_manifest/debug/AndroidManifest.xml:29:17-63
+provider#net.nfet.flutter.printing.PrintFileProvider
+ADDED from [:printing] /Users/waleed/CodetiveLab/four_secrets_app/build/printing/intermediates/merged_manifest/debug/AndroidManifest.xml:8:9-16:20
+	android:grantUriPermissions
+		ADDED from [:printing] /Users/waleed/CodetiveLab/four_secrets_app/build/printing/intermediates/merged_manifest/debug/AndroidManifest.xml:12:13-47
+	android:authorities
+		ADDED from [:printing] /Users/waleed/CodetiveLab/four_secrets_app/build/printing/intermediates/merged_manifest/debug/AndroidManifest.xml:10:13-68
+	android:exported
+		ADDED from [:printing] /Users/waleed/CodetiveLab/four_secrets_app/build/printing/intermediates/merged_manifest/debug/AndroidManifest.xml:11:13-37
+	android:name
+		ADDED from [:printing] /Users/waleed/CodetiveLab/four_secrets_app/build/printing/intermediates/merged_manifest/debug/AndroidManifest.xml:9:13-71
+provider#dev.fluttercommunity.plus.share.ShareFileProvider
+ADDED from [:share_plus] /Users/waleed/CodetiveLab/four_secrets_app/build/share_plus/intermediates/merged_manifest/debug/AndroidManifest.xml:13:9-21:20
+	android:grantUriPermissions
+		ADDED from [:share_plus] /Users/waleed/CodetiveLab/four_secrets_app/build/share_plus/intermediates/merged_manifest/debug/AndroidManifest.xml:17:13-47
+	android:authorities
+		ADDED from [:share_plus] /Users/waleed/CodetiveLab/four_secrets_app/build/share_plus/intermediates/merged_manifest/debug/AndroidManifest.xml:15:13-74
+	android:exported
+		ADDED from [:share_plus] /Users/waleed/CodetiveLab/four_secrets_app/build/share_plus/intermediates/merged_manifest/debug/AndroidManifest.xml:16:13-37
+	android:name
+		ADDED from [:share_plus] /Users/waleed/CodetiveLab/four_secrets_app/build/share_plus/intermediates/merged_manifest/debug/AndroidManifest.xml:14:13-77
+receiver#dev.fluttercommunity.plus.share.SharePlusPendingIntent
+ADDED from [:share_plus] /Users/waleed/CodetiveLab/four_secrets_app/build/share_plus/intermediates/merged_manifest/debug/AndroidManifest.xml:26:9-32:20
+	android:exported
+		ADDED from [:share_plus] /Users/waleed/CodetiveLab/four_secrets_app/build/share_plus/intermediates/merged_manifest/debug/AndroidManifest.xml:28:13-37
+	android:name
+		ADDED from [:share_plus] /Users/waleed/CodetiveLab/four_secrets_app/build/share_plus/intermediates/merged_manifest/debug/AndroidManifest.xml:27:13-82
+intent-filter#action:name:EXTRA_CHOSEN_COMPONENT
+ADDED from [:share_plus] /Users/waleed/CodetiveLab/four_secrets_app/build/share_plus/intermediates/merged_manifest/debug/AndroidManifest.xml:29:13-31:29
+action#EXTRA_CHOSEN_COMPONENT
+ADDED from [:share_plus] /Users/waleed/CodetiveLab/four_secrets_app/build/share_plus/intermediates/merged_manifest/debug/AndroidManifest.xml:30:17-65
+	android:name
+		ADDED from [:share_plus] /Users/waleed/CodetiveLab/four_secrets_app/build/share_plus/intermediates/merged_manifest/debug/AndroidManifest.xml:30:25-62
 activity#io.flutter.plugins.urllauncher.WebViewActivity
 ADDED from [:url_launcher_android] /Users/waleed/CodetiveLab/four_secrets_app/build/url_launcher_android/intermediates/merged_manifest/debug/AndroidManifest.xml:8:9-11:74
 	android:exported

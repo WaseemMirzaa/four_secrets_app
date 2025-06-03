@@ -7344,4 +7344,6 @@ int styleable ucrop_UCropView_ucrop_show_frame 10
 int styleable ucrop_UCropView_ucrop_show_grid 11
 int styleable ucrop_UCropView_ucrop_show_oval_crop_frame 12
 int xml flutter_image_picker_file_paths 0x7f140000
-int xml image_share_filepaths 0x7f140001
+int xml flutter_printing_file_paths 0x7f140001
+int xml flutter_share_file_paths 0x7f140002
+int xml image_share_filepaths 0x7f140003
