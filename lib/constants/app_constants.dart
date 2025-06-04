@@ -250,6 +250,7 @@ class AppConstants {
 
   //inspiration folder 
   static const String inspirationFolderPageTitle = "Inspirationen";
+  
   static const String inspirationFolderPageAdd = "Hinzufügen";
   static const String inspirationFolderPageImageTitle = "Bildtitel";
   static const String inspirationFolderPageImageTitleError = "Bitte geben Sie einen Bildtitel ein";
@@ -277,7 +278,7 @@ class AppConstants {
   static const String weddingCategoryTitlePageAddCustomCategory = 'Benutzerdefinierte Kategorie hinzufügen';
   static const String weddingCategoryTitlePageCategoryName = 'Kategoriename';
   static const String weddingCategorySelectCategory = 'Kategorie auswählen';
-  static const String weddingCategoryTitlePageItemName = 'Artikelname';
+  static const String weddingCategoryTitlePageItemName = 'Titel';
   static const String weddingCategoryTitlePageAdd = 'Hinzufügen';
   static const String weddingCustomCategoryAppBarTitle = 'Benutzerdefinierte Kategorie hinzufügen';
   static const String weddingCategoryTitlePageCancel = 'Abbrechen';

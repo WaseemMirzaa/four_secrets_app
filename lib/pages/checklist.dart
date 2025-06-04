@@ -5,7 +5,6 @@ import 'package:four_secrets_wedding_app/menue.dart';
 import 'package:four_secrets_wedding_app/model/checklist_item.dart';
 import 'package:four_secrets_wedding_app/model/dialog_box.dart';
 import 'package:four_secrets_wedding_app/services/check_list_service.dart';
-import 'package:hive/hive.dart';
 
 class Checklist extends StatefulWidget {
   const Checklist({super.key});

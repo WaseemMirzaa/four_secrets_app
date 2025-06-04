@@ -14,7 +14,6 @@ import 'package:four_secrets_wedding_app/services/inspiration_image_service.dart
 import 'package:four_secrets_wedding_app/utils/snackbar_helper.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_button_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
-import 'package:hive/hive.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:staggered_grid_view/flutter_staggered_grid_view.dart';
 
@@ -245,6 +244,7 @@ loadDataFromFirebase() async {
       child: Scaffold(
         drawer: Menue.getInstance(key),
         appBar: AppBar(
+          centerTitle: true,
           foregroundColor: Colors.white,
           title: const Text(AppConstants.inspirationFolderPageTitle),
           backgroundColor: const Color.fromARGB(255, 107, 69, 106),

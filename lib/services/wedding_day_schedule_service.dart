@@ -12,7 +12,7 @@ class WeddingDayScheduleService {
   String? get userId => _auth.currentUser?.uid;
   Future<String?> addScheduleItem({
   required String title,
-  required String description,
+  // required String description,
   required DateTime time,
   required bool reminderEnabled,
   DateTime? reminderTime, // Make nullable
@@ -31,7 +31,7 @@ class WeddingDayScheduleService {
   final newScheduleItem = WeddingDayScheduleModel(
     id: null, // Firestore will generate
     title: title,
-    description: description,
+    // description: description,
     responsiblePerson: responsiblePerson,
     notes: notes,
     time: time,
@@ -61,7 +61,7 @@ class WeddingDayScheduleService {
         id: id.hashCode, // Use a unique ID, e.g., hash of the document ID
         dateTime: reminderTime,
         title: "Hochzeits-Erinnerung: $title",
-        body: description,
+        body: notes,
         payload: id,
       );
     }
@@ -104,7 +104,7 @@ Future<void> loadData() async {
           id: item.id.hashCode, // Unique ID based on document ID
           dateTime: item.reminderTime!,
           title: "Wedding Reminder: ${item.title}",
-          body: item.description,
+          body: item.notes,
           payload: item.id,
         );
       }
@@ -144,7 +144,7 @@ Future<void> loadData() async {
     try {
       Map<String, dynamic> updateData = {
         'title': item.title,
-        'description': item.description,
+        // 'description': item.description,
         'time': Timestamp.fromDate(item.time),
         'reminderEnabled': item.reminderEnabled,
         'userId': item.userId,

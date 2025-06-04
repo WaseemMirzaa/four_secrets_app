@@ -41,8 +41,7 @@ class WeddingCategoryDatabase {
         {
           "categoryName": "Vorbereitung & Ankunft",
           "items": [
-            "Braut",
-            "Bräutigam",
+            "⁠Braut & Bräutigam",
             "Ankunft der Gäste",
             "Transport zur Location",
             "Begrüßung durch Gastgeber"
@@ -57,7 +56,7 @@ class WeddingCategoryDatabase {
             "Einzug der Braut",
             "Eheversprechen",
             "Ringtausch",
-            "Auszug des Brautpaares",
+           
             "Gratulation & Umarmungen"
           ]
         },
@@ -66,9 +65,9 @@ class WeddingCategoryDatabase {
           "items": [
             "Sektempfang",
             "Gruppenfoto",
-            "Brautpaarshooting",
+            "Brautpaar-Shooting",
             "Familienfotos",
-            "Gästebuch eintragen"
+            "Gästebuch-Einträge"
           ]
         },
         {
@@ -92,6 +91,19 @@ class WeddingCategoryDatabase {
             "Feuerwerk",
             "Verabschiedung der Gäste",
             "Letzter Tanz"
+          ]
+        },
+        {
+          "categoryName": "Reden & Ansprachen",
+          "items": [
+            "Danksagung",
+            "Spiele oder Programmpunkte",
+            // "Hochzeitstanz mit Eltern",
+            // "DJ legt auf / Liveband beginnt",
+            // "Mitternachtssnack",
+            // "Feuerwerk",
+            // "Verabschiedung der Gäste",
+            // "Letzter Tanz"
           ]
         }
       ];

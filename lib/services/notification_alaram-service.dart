@@ -230,14 +230,14 @@ class NotificationService {
 
       debugPrint('⏰ Scheduled alarm (id=$id) for $scheduledDate');
       // Test immediate notification to verify setup
-      if (DateTime.now().difference(dateTime).inMinutes.abs() < 1) {
-        await showAlarmNotification(
-          id: id + 10000, // Different ID for test
-          title: 'Test: $title',
-          body: 'This is a test notification - $body',
-          payload: payload ?? '',
-        );
-      }
+      // if (DateTime.now().difference(dateTime).inMinutes.abs() < 1) {
+      //   await showAlarmNotification(
+      //     id: id + 10000, // Different ID for test
+      //     title: 'Test: $title',
+      //     body: 'This is a test notification - $body',
+      //     payload: payload ?? '',
+      //   );
+      // }
     } catch (e) {
       debugPrint('❌ Error scheduling notification: $e');
     }

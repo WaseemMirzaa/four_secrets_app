@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:four_secrets_wedding_app/config/theme/app_theme.dart';
+import 'package:four_secrets_wedding_app/constants/app_constants.dart';
 import 'package:four_secrets_wedding_app/extension.dart';
 import 'package:four_secrets_wedding_app/model/checklist_button.dart';
 import 'package:four_secrets_wedding_app/models/inspiration_image.dart';
@@ -55,7 +56,7 @@ class _InspirationDetailPageState extends State<InspirationDetailPage> {
                             onPressed: () => Navigator.of(context).pop(),
                           ),
         centerTitle: true,
-          title: Text("Inspiration Details", style: TextStyle(color: Colors.white, fontSize: 20),),
+          title: Text(AppConstants.inspirationFolderPageTitle, style: TextStyle(color: Colors.white, fontSize: 20),),
           backgroundColor:  const Color.fromARGB(255, 107, 69, 106),
           actions: [
               PopupMenuButton(

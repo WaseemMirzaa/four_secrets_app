@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:four_secrets_wedding_app/Pdf/shcedule_pdf.dart';
+import 'package:four_secrets_wedding_app/constants/app_constants.dart';
 import 'package:four_secrets_wedding_app/extension.dart';
 import 'package:four_secrets_wedding_app/menue.dart';
 import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
@@ -69,8 +71,27 @@ bool _isFirstLoad = true;
         appBar: AppBar(
           centerTitle: true,
           foregroundColor: Colors.white,
-          title: const Text('Hochzeitsplan'),
+          title:  Text(AppConstants.weddingAddPageTitle),
           backgroundColor: const Color.fromARGB(255, 107, 69, 106),
+          actions: [
+            IconButton(onPressed: (){
+             final sortedScheduleList = weddingDayScheduleService.weddingDayScheduleList
+    .where((e) => e.time != null) // Filter if needed
+    .toList()
+  ..sort((a, b) => a.time.compareTo(b.time))..map((e) => e
+    ..time = DateTime(
+    e.time.year,
+    e.time.month,
+    e.time.day,
+    e.time.hour,
+    e.time.minute,
+    )
+  );
+
+// Step 2: Pass it to the PDF generator
+generateTableWeddingPdf(sortedScheduleList);
+            }, icon: Icon(FontAwesomeIcons.download, size: 18,))
+          ],
         ),
         floatingActionButton: FloatingActionButton(
           onPressed:(){
@@ -88,7 +109,7 @@ bool _isFirstLoad = true;
             
               child: Image.asset(
                 "assets/images/background/inspirationbg.png",
-                fit: BoxFit.cover,
+                fit: BoxFit.fitWidth,
               ),
             ),
             Transform.translate(
@@ -199,8 +220,26 @@ bool _isFirstLoad = true;
         title: Row(
           spacing: 6,
           children: [
-            Expanded(child: CustomTextWidget(text: item.title, fontSize: 14, fontWeight: FontWeight.bold,)),
-
+           
+               Icon(FontAwesomeIcons.clock, size: 18),
+                CustomTextWidget(
+                text: "${item.time.hour.toString().padLeft(2, '0')}:${item.time.minute.toString().padLeft(2, '0')} "
+                  "${item.time.hour >= 12 ? 'Uhr' : 'Uhr'}",
+                fontSize: 14,
+                ),
+                SizedBox(
+                  height: 15,
+                  child: VerticalDivider(
+                    thickness: 2,
+                    color: Colors.black,
+                  ),
+                ), 
+                Icon(FontAwesomeIcons.calendar, size: 18,),
+                 CustomTextWidget(
+                text: "${item.time.day.toString().padLeft(2, '0')}-${item.time.month.toString().padLeft(2, '0')}-${item.time.year}",
+                fontSize: 14,
+                ),
+              Spacer(),
               GestureDetector(
                 onTap: ()async {
                  await SharePlus.instance.share(
@@ -249,11 +288,13 @@ bool _isFirstLoad = true;
         ),
         childrenPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
         children: [ 
-          CustomTextWidget(
-              text: "Bearbeiten und Teilen",
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
+          CustomTextWidget(text: item.title, fontSize: 14, fontWeight: FontWeight.bold,),
+
+          // CustomTextWidget(
+          //     text: "Bearbeiten und Teilen",
+          //   fontSize: 16,
+          //   fontWeight: FontWeight.bold,
+          // ),
           FourSecretsDivider(),
 
            CustomTextWidget(text: "Verantwortliche Person ", fontSize: 14, fontWeight: FontWeight.bold,),
@@ -266,27 +307,44 @@ bool _isFirstLoad = true;
            ),
                    FourSecretsDivider(),
 
-          CustomTextWidget(text: "Beschreibung", fontSize: 14, fontWeight: FontWeight.bold,),
-          SeeMoreWidget(item.description, textStyle: TextStyle(fontSize: 14, color: Colors.black), trimLength: 90,
-          seeMoreStyle: TextStyle(color: Color.fromARGB(255, 107, 69, 106), fontWeight:FontWeight.bold),
-          seeLessStyle:  TextStyle(color: Color.fromARGB(255, 107, 69, 106), fontWeight:FontWeight.bold),
-           ),
-                  FourSecretsDivider(),
+          // CustomTextWidget(text: "Beschreibung", fontSize: 14, fontWeight: FontWeight.bold,),
+          // SeeMoreWidget(item.description, textStyle: TextStyle(fontSize: 14, color: Colors.black), trimLength: 90,
+          // seeMoreStyle: TextStyle(color: Color.fromARGB(255, 107, 69, 106), fontWeight:FontWeight.bold),
+          // seeLessStyle:  TextStyle(color: Color.fromARGB(255, 107, 69, 106), fontWeight:FontWeight.bold),
+          //  ),
+          //         FourSecretsDivider(),
 
-          CustomTextWidget(text: "Uhrzeit", fontSize: 14, fontWeight: FontWeight.bold,),
-            CustomTextWidget(
-            text: "${item.time.hour.toString().padLeft(2, '0')}:${item.time.minute.toString().padLeft(2, '0')} "
-              "${item.time.hour >= 12 ? 'Uhr' : 'Uhr'}",
-            fontSize: 14,
-            ),
-            FourSecretsDivider(),
+          // CustomTextWidget(text: "Uhrzeit", fontSize: 14, fontWeight: FontWeight.bold,),
+           
+            // FourSecretsDivider(),
           if(item.reminderTime != null)
           CustomTextWidget(text: "Erinnerung", fontSize: 14, fontWeight: FontWeight.bold,),
+
+          SpacerWidget(height: 2),
           if(item.reminderTime != null)
-            CustomTextWidget(
-            text: "${item.reminderTime!.hour.toString().padLeft(2, '0')}:${item.reminderTime!.minute.toString().padLeft(2, '0')} "
-                "${item.reminderTime!.hour >= 12 ? 'Uhr' : 'Uhr'}",
-            fontSize: 14,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              spacing: 10,
+              children: [
+                Icon(FontAwesomeIcons.clock, size: 18),
+                CustomTextWidget(
+                text: "${item.reminderTime!.hour.toString().padLeft(2, '0')}:${item.reminderTime!.minute.toString().padLeft(2, '0')} "
+                    "${item.reminderTime!.hour >= 12 ? 'Uhr' : 'Uhr'}",
+                fontSize: 14,
+                ),
+                 SizedBox(
+                  height: 15,
+                  child: VerticalDivider(
+                    thickness: 2,
+                    color: Colors.black,
+                  ),
+                ), 
+                Icon(FontAwesomeIcons.calendar, size: 18,),
+              CustomTextWidget(
+                text: "${item.reminderTime!.day.toString().padLeft(2, '0')}-${item.reminderTime!.month.toString().padLeft(2, '0')}-${item.reminderTime!.year}",
+                fontSize: 14,
+                ),
+              ],
             ),
           if(item.reminderTime != null)
 

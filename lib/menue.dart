@@ -418,7 +418,7 @@ void _select(String name) {
                     Navigator.of(context).pushNamed(RouteManager.inspirationFolderPage);
                   },
                 );
-                } else if(e.name == "Hochzeitsplan"){
+                } else if(e.name == "Tagesablauf"){
                   Timer(
                   const Duration(milliseconds: 100),
                   () {

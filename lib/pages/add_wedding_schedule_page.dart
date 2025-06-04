@@ -56,11 +56,18 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
     super.initState();
 
     if (widget.weddingDayScheduleModel != null) {
+      print(widget.weddingDayScheduleModel);
       _titleController = widget.weddingDayScheduleModel!.title;
-      _descriptionController.text = widget.weddingDayScheduleModel!.description;
+      // _descriptionController.text = widget.weddingDayScheduleModel!.description;
       _responsiblePersonController.text = widget.weddingDayScheduleModel!.responsiblePerson;
       _notesController.text = widget.weddingDayScheduleModel!.notes;
-      
+      address = widget.weddingDayScheduleModel!.address;
+      lat = widget.weddingDayScheduleModel!.lat;
+      long = widget.weddingDayScheduleModel!.long;
+
+      print(lat);
+      print(long);
+      print( widget.weddingDayScheduleModel!.address);
       // Set event date and time from existing item
       _selectedEventDate = widget.weddingDayScheduleModel!.time;
       _selectedEventDateText = "${_selectedEventDate!.day}/${_selectedEventDate!.month}/${_selectedEventDate!.year}";
@@ -204,7 +211,7 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
 
                 SpacerWidget(height: 4),
                 // Event Date Section
-                CustomTextWidget(text: "Auswählen"),
+                CustomTextWidget(text: "Datum"),
                 SpacerWidget(height: 2),
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4).copyWith(right: 0),
@@ -256,21 +263,7 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                   ),
                 ),
         
-                SpacerWidget(height: 4),
-                WeddingSchedulePageWidget(
-                  titleController: _descriptionController,
-                  // label: AppConstants.weddingSchedulePageDescription,
-                  text: AppConstants.weddingSchedulePageDescription,
-                  maxLines: 3,
-                ),
-                SpacerWidget(height: 4),
-                WeddingSchedulePageWidget(
-                  titleController: _responsiblePersonController,
-                  // label: AppConstants.weddingSchedulePageResponsiblePerson,
-                  text: AppConstants.weddingSchedulePageResponsiblePerson,
-                  maxLines: 1,
-                ),
-                SpacerWidget(height: 4),
+         SpacerWidget(height: 4),
                
                 WeddingSchedulePageWidget(
                   titleController: _notesController,
@@ -278,6 +271,21 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                   text: AppConstants.weddingSchedulePageNotes,
                   maxLines: 3,
                 ),
+                // SpacerWidget(height: 4),
+                // WeddingSchedulePageWidget(
+                //   titleController: _descriptionController,
+                //   // label: AppConstants.weddingSchedulePageDescription,
+                //   text: AppConstants.weddingSchedulePageDescription,
+                //   maxLines: 3,
+                // ),
+                SpacerWidget(height: 4),
+                WeddingSchedulePageWidget(
+                  titleController: _responsiblePersonController,
+                  // label: AppConstants.weddingSchedulePageResponsiblePerson,
+                  text: AppConstants.weddingSchedulePageResponsiblePerson,
+                  maxLines: 1,
+                ),
+               
                 SpacerWidget(height: 4),
         
                 // Reminder Section
@@ -297,7 +305,7 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                         Expanded(
-                        child: CustomTextWidget(text: address ?? "Keine Adresse ausgewählt"),
+                        child: CustomTextWidget(text: address ?? ""),
                       ),
                       IconButton(
                         onPressed: ()async{
@@ -492,13 +500,13 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
   if (widget.weddingDayScheduleModel == null) {
     await weddingDayScheduleService.addScheduleItem(
       title: _titleController!,
-      description: _descriptionController.text,
+      // description: _descriptionController.text,
       time: eventTime,
       reminderEnabled: _reminderEnabled,
       responsiblePerson: _responsiblePersonController.text,
       notes: _notesController.text,
       reminderTime: reminderTime, // Remove the ! - allow null
-      address: address ?? "No Address", 
+      address: address ?? "", 
       lat: lat ?? 0.00,
       long: long ?? 0.00
     );
@@ -512,14 +520,14 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
       WeddingDayScheduleModel(
         id: widget.weddingDayScheduleModel!.id,
         title: _titleController!,
-        description: _descriptionController.text,
+        // description: _descriptionController.text,
         time: eventTime,
         reminderEnabled: _reminderEnabled,
         reminderTime: reminderTime, // Remove the ! - allow null
         userId: weddingDayScheduleService.userId!,
         responsiblePerson: _responsiblePersonController.text,
         notes: _notesController.text,
-        address: "no address",
+        address: address ?? "no address",
         lat: lat ?? 0.00,
         long: long ?? 0.00,
         order: weddingDayScheduleService.weddingDayScheduleList.indexWhere((element) => 

@@ -8,7 +8,6 @@ import 'package:flutter/services.dart';
 import 'package:four_secrets_wedding_app/services/notification_alaram-service.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
 
@@ -57,10 +56,7 @@ WidgetsFlutterBinding.ensureInitialized();
     DeviceOrientation.portraitUp,
   ]);
   
-  // init Hive
-  await Hive.initFlutter();
-  // Only keep the guest box, remove the todo box
-  await Hive.openBox('myboxGuest');
+  
 
   runApp(
     MaterialApp(
