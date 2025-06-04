@@ -48,7 +48,7 @@
     <string name="character_counter_content_description">%2$dలో %1$d అక్షరాలు నమోదు చేయబడ్డాయి</string>
     <string name="character_counter_overflowed_content_description">అక్షర పరిధి %2$dలో %1$dను అధిగమించింది</string>
     <string name="clear_text_end_icon_content_description">రాసినదాన్ని తీసివేయండి</string>
-    <string msgid="2523291102206661146" name="common_google_play_services_enable_button">ప్రారంభించు</string>
+    <string msgid="2523291102206661146" name="common_google_play_services_enable_button">ప్రారంభించండి</string>
     <string msgid="227660514972886228" name="common_google_play_services_enable_text">మీరు Google Play సేవలను ప్రారంభిస్తే మినహా %1$s పని చేయదు.</string>
     <string msgid="5122002158466380389" name="common_google_play_services_enable_title">Google Play సేవలను ప్రారంభించండి</string>
     <string msgid="7153882981874058840" name="common_google_play_services_install_button">ఇన్‌స్టాల్ చేయి</string>

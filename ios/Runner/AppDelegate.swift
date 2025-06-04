@@ -9,7 +9,7 @@ import flutter_local_notifications
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-     GMSServices.provideAPIKey("AIzaSyBD7O6PQXXb5wrigZ6WOTn2VwTRFxCb9KU")
+     GMSServices.provideAPIKey("AIzaSyDR_QZaW3xiJfLLNFybEd6e6HunqDkUjJg")
     GeneratedPluginRegistrant.register(with: self)
     
     if #available(iOS 10.0, *) {

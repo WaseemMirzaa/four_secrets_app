@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:four_secrets_wedding_app/models/table_model.dart';
 import 'package:pdf/pdf.dart';
@@ -42,24 +43,47 @@ Future<void> generateTableManagementPdf(
   final ByteData bytes = await rootBundle.load(logoPath);
   final Uint8List imageData = bytes.buffer.asUint8List();
   final logo = pw.MemoryImage(imageData);
+  // final divider = 'assets/images/logo/secrets-logo.jpg'; // Path to your logo
+  // final ByteData bytes = await rootBundle.load(logoPath);
+  // final Uint8List imageData = bytes.buffer.asUint8List();
+  // final logo = pw.MemoryImage(imageData);
 
   pdf.addPage(
     pw.Page(
+      margin: pw.EdgeInsets.only(top: 0, ),
       build: (pw.Context context) {
         return pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
-            pw.Center(
-              child: 
-               pw.Image(
+            pw.Container(
+              color: PdfColor.fromInt(0xffFF6B456A),
+              height: 140,
+              width: double.maxFinite, 
+              child: pw.Row(children: [
+                pw.SizedBox(
+                  width: 10
+                ),
+                pw.ClipRRect(
+                  verticalRadius: 20,
+                  horizontalRadius: 20,
+                  child:  pw.Image(
               logo,
               width: 160,
               height: 100,
             ),
+                ),
+             
+
+              ])
             ),
-            pw.Text('Tischverwaltung', style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
+
+            pw.Padding(padding:  pw.EdgeInsets.symmetric(horizontal: 30, vertical: 20,),  
+            child: 
+            pw.Text('Tischverwaltung', style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),),
             pw.SizedBox(height: 20),
             for (var table in tables)
+             pw.Padding(padding:  pw.EdgeInsets.symmetric(horizontal: 30, vertical: 10) , 
+             child: 
               pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
@@ -85,9 +109,14 @@ Future<void> generateTableManagementPdf(
                   pw.SizedBox(height: 10),
                 ],
               ),
+             ),
             pw.SizedBox(height: 20),
-            pw.Text('Gesamttische: ${tables.length}'),
-            pw.Text('Gesamt zugewiesene Gäste: ${_getTotalAssignedGuests(tableGuestsMap)}'),
+            pw.Padding(padding:pw.EdgeInsets.symmetric(horizontal: 30, vertical: 6), 
+            child: 
+            pw.Text('Gesamttische: ${tables.length}'),),
+             pw.Padding(padding:pw.EdgeInsets.symmetric(horizontal: 30, vertical: 6), 
+            child: 
+            pw.Text('Gesamt zugewiesene Gäste: ${_getTotalAssignedGuests(tableGuestsMap)}'),),
           ],
         );
       },

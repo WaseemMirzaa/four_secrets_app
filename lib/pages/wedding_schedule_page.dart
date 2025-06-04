@@ -7,14 +7,10 @@ import 'package:four_secrets_wedding_app/menue.dart';
 import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
 import 'package:four_secrets_wedding_app/models/wedding_day_schedule_model.dart';
 import 'package:four_secrets_wedding_app/routes/routes.dart';
-import 'package:four_secrets_wedding_app/services/notification_alaram-service.dart';
 import 'package:four_secrets_wedding_app/services/wedding_day_schedule_service.dart';
-import 'package:four_secrets_wedding_app/utils/snackbar_helper.dart';
-import 'package:four_secrets_wedding_app/widgets/custom_button_widget.dart';
-import 'package:four_secrets_wedding_app/widgets/custom_text_field.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_text_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
-import 'package:four_secrets_wedding_app/widgets/wedding_schedule_page_widget.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:see_more/see_more_widget.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -28,6 +24,7 @@ class WeddingSchedulePage extends StatefulWidget {
 class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
 
   final key = GlobalKey<MenueState>();
+  late GoogleMapController _mapController;
 
   WeddingDayScheduleModel? weddingDayScheduleModel;
 bool _isFirstLoad = true;
@@ -206,18 +203,23 @@ bool _isFirstLoad = true;
 
               GestureDetector(
                 onTap: ()async {
-                 await SharePlus.instance.share(ShareParams(title: "Hey My Wedding "));
+                 await SharePlus.instance.share(
+                  ShareParams(
+                  text: "Hey, mein Hochzeits-Termin ist um ${item.time.hour.toString().padLeft(2, '0')}:${item.time.minute.toString().padLeft(2, '0')} Uhr!, Location ${item.address}"
+                  
+                  )
+                 );
                 },
                 child: Container(
                      padding: EdgeInsets.only(
                        bottom: 2, // Space between underline and text
                      ),
                      decoration: BoxDecoration(
-                         border: Border(bottom: BorderSide(
-                         color: Colors.black, 
-                         width: 1.0, // Underline thickness
-                        ))
-                      ),child: CustomTextWidget(text: "Teilen",)),
+                        //  border: Border(bottom: BorderSide(
+                        //  color: Colors.black, 
+                        //  width: 1.0, // Underline thickness
+                        // ))
+                      ),child: Icon(FontAwesomeIcons.share, size: 20, color: Colors.black,)),
               ),
 
               SizedBox(width: 15,), 
@@ -232,11 +234,11 @@ bool _isFirstLoad = true;
        bottom: 2, // Space between underline and text
      ),
      decoration: BoxDecoration(
-         border: Border(bottom: BorderSide(
-         color: Colors.black, 
-         width: 1.0, // Underline thickness
-        ))
-      ),child: CustomTextWidget(text: "Bearbeiten",)),
+        //  border: Border(bottom: BorderSide(
+        //  color: Colors.black, 
+        //  width: 1.0, // Underline thickness
+        // ))
+      ),child: Icon(FontAwesomeIcons.penToSquare, size: 20, color: Colors.black,)),
                 
                 )
           ],
@@ -278,15 +280,53 @@ bool _isFirstLoad = true;
             fontSize: 14,
             ),
             FourSecretsDivider(),
-
+          if(item.reminderTime != null)
           CustomTextWidget(text: "Erinnerung", fontSize: 14, fontWeight: FontWeight.bold,),
+          if(item.reminderTime != null)
             CustomTextWidget(
-            text: "${item.reminderTime.hour.toString().padLeft(2, '0')}:${item.reminderTime.minute.toString().padLeft(2, '0')} "
-                "${item.reminderTime.hour >= 12 ? 'Uhr' : 'Uhr'}",
+            text: "${item.reminderTime!.hour.toString().padLeft(2, '0')}:${item.reminderTime!.minute.toString().padLeft(2, '0')} "
+                "${item.reminderTime!.hour >= 12 ? 'Uhr' : 'Uhr'}",
             fontSize: 14,
             ),
-          FourSecretsDivider(),
+          if(item.reminderTime != null)
 
+          FourSecretsDivider(),
+            CustomTextWidget(text: "Ort", fontSize: 14, fontWeight: FontWeight.bold,),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(15),
+              child: Container(
+                // padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                height: context.screenHeight * 0.2,
+                width: context.screenWidth,
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey, 
+                      blurRadius: 10, offset: Offset(10, 0)
+                    )
+                  ]
+                ),
+                child:GoogleMap(
+                initialCameraPosition: CameraPosition(
+                  target: LatLng(item.lat, item.long),
+                  zoom: 14.0,
+                ),
+                onMapCreated: (controller) {
+                  _mapController = controller;
+                },
+                
+                markers: {
+                  Marker(
+                    markerId: const MarkerId("selected-location"),
+                    position: LatLng(item.lat, item.long),
+                  ),
+                },
+              ),
+              ),
+            ), 
+                  FourSecretsDivider(),
+
+            
         ]
       ),
     ),

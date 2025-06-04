@@ -24,7 +24,7 @@ class WeddingSchedulePageWidget extends StatelessWidget {
                     SpacerWidget(height: 2),
                     CustomTextField(controller: titleController,
                     isReadOnly: isReadOnly,
-                     label: label ?? "Beschreibung", maxLines: maxLines ?? 1, ),
+                     label: label ?? "", maxLines: maxLines ?? 1, ),
       ],
     );
   }

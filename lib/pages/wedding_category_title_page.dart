@@ -240,10 +240,10 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
                           }, child: Container(
                             padding: EdgeInsets.only(bottom:4 ),
                             decoration: BoxDecoration(
-                              border: Border(bottom: BorderSide(color: Colors.black))
+                              // border: Border(bottom: BorderSide(color: Colors.black))
                             ),
                             child: 
-                             CustomTextWidget(text: "Bearbeiten"), 
+                             Icon(FontAwesomeIcons.penToSquare, size: 20, color: Colors.black,), 
                             
                           ))
                               ],

@@ -233,9 +233,9 @@ class AppConstants {
   static const String weddingSchedulePageResponsiblePerson = "Verantwortliche Person";
   static const String weddingSchedulePageNotes = "Notizen";
   static const String weddingSchedulePageTime = "Uhrzeit";
-  static const String weddingSchedulePageDate = "Datum";
+  static const String weddingSchedulePageDate = "Uhrzeit auswählen";
   static const String weddingSchedulePageLocation = "Ort";
-  static const String weddingSchedulePageReminderDate = "Erinnerungsdatum";
+  static const String weddingSchedulePageReminderDate = "Erinnerungsdatum auswählen";
   static const String weddingSchedulePageReminder = "Erinnerung";
   static const String weddingSchedulePageReminderTime = "Erinnerungszeit";
   static const String weddingSchedulePageSave = "Speichern";

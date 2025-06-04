@@ -13,6 +13,7 @@ import 'package:four_secrets_wedding_app/pages/impressum.dart';
 import 'package:four_secrets_wedding_app/pages/inspiration_folder.dart';
 import 'package:four_secrets_wedding_app/pages/inspiration_page_details_screen.dart';
 import 'package:four_secrets_wedding_app/pages/kontakt.dart';
+import 'package:four_secrets_wedding_app/pages/map_picker_page.dart';
 import 'package:four_secrets_wedding_app/pages/parsonal_training.dart';
 import 'package:four_secrets_wedding_app/pages/about_me.dart';
 import 'package:four_secrets_wedding_app/pages/wedding_category_title_page.dart';
@@ -83,6 +84,7 @@ class RouteManager {
   static const String addWedidngSchedulePage = '/addWedidngSchedulePage';
   static const String weddingCategoryTitlePage = '/weddingCategoryTitlePage';
   static const String weddingCategoryCustomAddPage = '/weddingCategoryCustomAddPage';
+  static const String weddingCategoryMap = '/weddingCategoryMap';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -121,11 +123,21 @@ class RouteManager {
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
         );
-     
-
       case inspirationsPage:
         return PageTransition(
           child: Inspirations(),
+          settings: settings,
+          duration: const Duration(milliseconds: 250),
+          type: PageTransitionType.rightToLeft,
+        );
+      case weddingCategoryMap:
+        final args = settings.arguments as Map<String, dynamic>;
+        return PageTransition(
+          child: MapSelectionPage(
+            address: args['address'] as String,
+            lat: args['lat'] as double,
+            long: args['long'] as double,
+          ),
           settings: settings,
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,

@@ -10,15 +10,17 @@ class WeddingDayScheduleService {
   List<WeddingDayScheduleModel> weddingDayScheduleList = [];
 
   String? get userId => _auth.currentUser?.uid;
-Future<String?> addScheduleItem({
+  Future<String?> addScheduleItem({
   required String title,
   required String description,
   required DateTime time,
   required bool reminderEnabled,
-  required DateTime reminderTime,
+  DateTime? reminderTime, // Make nullable
   required String responsiblePerson,
   required String notes,
   required String address,
+  required double lat, 
+  required double long
 }) async {
   if (userId == null) {
     throw StateError('User must be logged in to add a schedule item.');
@@ -34,11 +36,12 @@ Future<String?> addScheduleItem({
     notes: notes,
     time: time,
     reminderEnabled: reminderEnabled,
-    reminderTime: reminderTime,
+    reminderTime: reminderTime, // Can be null
     userId: userId!,
     order: currentCount,
     address: address, 
-    
+    lat: lat,
+    long: long
   );
 
   try {
@@ -52,12 +55,12 @@ Future<String?> addScheduleItem({
     final id = docRef.id; // Get the generated ID
     print("Added schedule item: $title with ID: $id");
     
-    // Optionally, schedule the alarm if reminder is enabled
-    if (reminderEnabled) {
+    // Optionally, schedule the alarm if reminder is enabled AND reminderTime is not null
+    if (reminderEnabled && reminderTime != null) {
       await NotificationService.scheduleAlarmNotification(
         id: id.hashCode, // Use a unique ID, e.g., hash of the document ID
         dateTime: reminderTime,
-        title: "Wedding Reminder: $title",
+        title: "Hochzeits-Erinnerung: $title",
         body: description,
         payload: id,
       );
@@ -69,8 +72,6 @@ Future<String?> addScheduleItem({
     return null; // Return null on error instead of an empty string
   }
 }
-
-
 
 Future<void> loadData() async {
   if (userId == null) {
@@ -96,12 +97,12 @@ Future<void> loadData() async {
 
     print("Loaded ${weddingDayScheduleList.length} schedule items");
 
-    // Schedule alarms for items with reminders enabled
+    // Schedule alarms for items with reminders enabled AND reminderTime is not null
     for (var item in weddingDayScheduleList) {
-      if (item.reminderEnabled) {
+      if (item.reminderEnabled && item.reminderTime != null) {
         await NotificationService.scheduleAlarmNotification(
           id: item.id.hashCode, // Unique ID based on document ID
-          dateTime: item.reminderTime,
+          dateTime: item.reminderTime!,
           title: "Wedding Reminder: ${item.title}",
           body: item.description,
           payload: item.id,
@@ -112,6 +113,8 @@ Future<void> loadData() async {
     print('Error loading schedule: $e');
   }
 }
+
+
   // Delete schedule item from Firebase
   Future<void> deleteScheduleItem(String id) async {
     if (userId == null) return;
@@ -139,26 +142,31 @@ Future<void> loadData() async {
     }
 
     try {
-     
-        await _firestore
+      Map<String, dynamic> updateData = {
+        'title': item.title,
+        'description': item.description,
+        'time': Timestamp.fromDate(item.time),
+        'reminderEnabled': item.reminderEnabled,
+        'userId': item.userId,
+        'responsiblePerson': item.responsiblePerson,
+        'notes': item.notes,
+        'order': item.order, 
+        'address': item.address,
+        'lat': item.lat, 
+        'long': item.long
+      };
+
+      // Only add reminderTime if it's not null
+      if (item.reminderTime != null) {
+        updateData['reminderTime'] = Timestamp.fromDate(item.reminderTime!);
+      }
+
+      await _firestore
           .collection('users')
           .doc(userId)
           .collection('weddingDaySchedule')
           .doc(item.id)
-          .update({
-            'title': item.title,
-            'description': item.description,
-            'time': Timestamp.fromDate(item.time),
-            'reminderEnabled': item.reminderEnabled,
-            'reminderTime': Timestamp.fromDate(item.reminderTime),
-            'userId': item.userId,
-            'responsiblePerson': item.responsiblePerson,
-            'notes': item.notes,
-            'order': item.order, 
-            'address' : item.address,
-           
-            });
-      
+          .update(updateData);
 
       // Then reload to keep list in sync
       // await loadData();
@@ -167,7 +175,6 @@ Future<void> loadData() async {
       print('Error updating schedule item: $e');
     }
   }
-
 /// Rewrites every item's `order` field in Firestore to match its
 /// index in [reordered], then replaces your local list.
 Future<void> updateOrderItemsList(List<WeddingDayScheduleModel> reordered) async {
