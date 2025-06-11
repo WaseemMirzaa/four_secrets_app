@@ -287,6 +287,7 @@ class _AddCustomCategoryWeddingSchedulePageState extends State<AddCustomCategory
                           ? AppConstants.weddingCategoryTitlePageUpdateCategory 
                           : AppConstants.weddingCategoryTitlePageAddCategory,
                         textColor: Colors.white,
+                        
                         color: const Color.fromARGB(255, 107, 69, 106),
                         onPressed: () {
                           String categoryName = _categoryController.text.trim();

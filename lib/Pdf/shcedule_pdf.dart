@@ -36,10 +36,11 @@ Future<void> generateTableWeddingPdf(
   // final logo = pw.MemoryImage(imageData);
 
   pdf.addPage(
-    pw.Page(
+    pw.MultiPage(
       margin: pw.EdgeInsets.only(top: 0, ),
       build: (pw.Context context) {
-        return pw.Column(
+        return [
+          pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
             pw.Container(
@@ -153,8 +154,8 @@ Future<void> generateTableWeddingPdf(
              )
           ]
         )
-        
-        ;
+      
+        ];
              
       }
     ),

@@ -216,9 +216,10 @@ generateTableWeddingPdf(sortedScheduleList);
       
       
       child: ExpansionTile(
-        
+        tilePadding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
         title: Row(
           spacing: 6,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
            
                Icon(FontAwesomeIcons.clock, size: 18),
@@ -234,12 +235,12 @@ generateTableWeddingPdf(sortedScheduleList);
                     color: Colors.black,
                   ),
                 ), 
-                Icon(FontAwesomeIcons.calendar, size: 18,),
+                Icon(FontAwesomeIcons.calendar, size: 22,),
                  CustomTextWidget(
                 text: "${item.time.day.toString().padLeft(2, '0')}-${item.time.month.toString().padLeft(2, '0')}-${item.time.year}",
                 fontSize: 14,
                 ),
-              Spacer(),
+            Flexible(child: SizedBox(width: 10,)),
               GestureDetector(
                 onTap: ()async {
                  await SharePlus.instance.share(
@@ -249,37 +250,30 @@ generateTableWeddingPdf(sortedScheduleList);
                   )
                  );
                 },
-                child: Container(
-                     padding: EdgeInsets.only(
-                       bottom: 2, // Space between underline and text
-                     ),
-                     decoration: BoxDecoration(
-                        //  border: Border(bottom: BorderSide(
-                        //  color: Colors.black, 
-                        //  width: 1.0, // Underline thickness
-                        // ))
-                      ),child: Icon(FontAwesomeIcons.share, size: 20, color: Colors.black,)),
+                child: Icon(FontAwesomeIcons.share, size: 20, color: Colors.black,),
               ),
 
-              SizedBox(width: 15,), 
-                GestureDetector(
-                onTap: () {
-                  Navigator.of(context).pushNamed(RouteManager.addWedidngSchedulePage, arguments: {
-                  "weddingDayScheduleModel": item,
-                  });
-                },
-                child:Container(
-     padding: EdgeInsets.only(
-       bottom: 2, // Space between underline and text
-     ),
-     decoration: BoxDecoration(
-        //  border: Border(bottom: BorderSide(
-        //  color: Colors.black, 
-        //  width: 1.0, // Underline thickness
-        // ))
-      ),child: Icon(FontAwesomeIcons.penToSquare, size: 20, color: Colors.black,)),
-                
-                )
+                SizedBox(
+                  width: 10,
+                ),
+              
+                Flexible(
+                  child: GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).pushNamed(RouteManager.addWedidngSchedulePage, arguments: {
+                    "weddingDayScheduleModel": item,
+                    });
+                  },
+                  child:Icon(FontAwesomeIcons.penToSquare, 
+                  size: 20, color: Colors.black,),
+                  
+                  ),
+                ), 
+               Flexible(
+                 child: SizedBox(
+                    width: 10,
+                  ),
+               ),
           ],
         ),
         expandedCrossAxisAlignment: CrossAxisAlignment.start,

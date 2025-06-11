@@ -284,8 +284,8 @@ class AppConstants {
   static const String weddingCategoryTitlePageCancel = 'Abbrechen';
   static const String weddingCategoryDuplicateError = 'Element existiert bereits';
   static const String weddingCategoryTitlePageCancelEdit = 'Bearbeitung abbrechen';
-  static const String weddingCategoryTitlePageAddCategory = 'Kategorie hinzufügen';
-  static const String weddingCategoryTitlePageUpdateCategory = 'Kategorie bearbeiten';
+  static const String weddingCategoryTitlePageAddCategory = 'Hinzufügen';
+  static const String weddingCategoryTitlePageUpdateCategory = 'Bearbeiten';
   static const String weddingCategoryTitlePageAddItem = 'Artikel hinzufügen';
   static const String weddingCategoryTitlePageAddCategoryError = 'Bitte geben Sie einen Kategoriename ein';
   static const String weddingCategoryTitlePageAddItemError = 'Bitte geben Sie einen Artikelnamen ein';

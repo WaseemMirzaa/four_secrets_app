@@ -54,6 +54,7 @@ class _CustomButtonWidgetState extends State<CustomButtonWidget> {
                         ) : Center(
                           child: Text(widget.text, style: TextStyle(
                             fontWeight: FontWeight.bold,
+                           
                             color: widget.textColor ?? Color.fromARGB(255, 107, 69, 106) )),
                         ),
                       ),

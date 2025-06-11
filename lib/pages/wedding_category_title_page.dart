@@ -25,7 +25,7 @@ class WeddingCategoryTitlePage extends StatefulWidget {
 class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
   final TextEditingController _searchController = TextEditingController();
   final WeddingCategoryDatabase weddingCategoryDatabase = WeddingCategoryDatabase();
- 
+  final subCategoryController = TextEditingController();
 
   bool isLoading = false;
 
@@ -182,6 +182,7 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
                             ),
                             childrenPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                             title: Row(
+                              spacing: 6,
                               children: [
                                 Expanded(
                                   child: Column(
@@ -198,6 +199,129 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
                                   ),
                                 ),
                                  if (index > 4)
+                          TextButton(onPressed: () async {
+                             WeddingCategoryModel? model;
+                            var id;
+                            String? userId;
+                            DateTime? createdAt;
+                            // Option 1: Find by category name
+                            model = allCategoryModels.firstWhere(
+                              (m) {
+                                id = m.id;
+                                userId = m.userId;
+                                createdAt = m.createdAt;
+                                return m.categoryName == categoryName;
+                              },
+                              orElse: () => WeddingCategoryModel(
+                                id: id, // or generate a new ID
+                                categoryName: categoryName,
+                                items: items,
+                                createdAt: createdAt!,
+                                userId: userId!, 
+                              ),
+                            );
+
+   var updateCateData = await  showDialog(
+      context: context,
+      builder: (_) => StatefulBuilder(
+        builder: (_, stateDialog) => AlertDialog(
+          backgroundColor: Colors.white,
+          title:  ClipRRect(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(22),
+                  topRight: Radius.circular(22),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child:   Center(child: CustomTextWidget(text: "Unterkategorie hinzufügen", color: Color.fromARGB(255, 107, 69, 106), fontWeight: FontWeight.bold,)),
+
+                ),
+              ),
+              titlePadding: EdgeInsets.zero,
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+             
+             
+
+              
+              SpacerWidget(height: 6),
+              TextField(
+                controller: subCategoryController,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  hintText: "Titel",
+                ),
+              ),
+              SpacerWidget(height: 6),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+
+                      Expanded(
+                        child: CustomButtonWidget(
+                          
+                          text: AppConstants.weddingCategoryTitlePageAddCategory, isLoading: isLoading, textColor: Colors.white, onPressed: () async {
+                              stateDialog(() => isLoading = true);
+                              if (subCategoryController.text.isEmpty) {
+                                SnackBarHelper.showErrorSnackBar(context, "Bitte geben Sie einen Titel für die Unterkategorie ein.");
+                                stateDialog(() => isLoading = false);
+                                return;
+                              }
+                              try {
+                                 await weddingCategoryDatabase.updateCategory(
+                                   model!.id,
+                                  model.categoryName,
+                                 model.items..add(subCategoryController.text)
+                                );
+                            var g =    await weddingCategoryDatabase.loadWeddingCategories();
+        Navigator.of(context).pop(g);
+                               subCategoryController.clear();
+                              } catch (e) {
+                                SnackBarHelper.showErrorSnackBar(context, "Fehler beim Hinzufügen der Unterkategorie");
+                                stateDialog(() => isLoading = false);
+                              }
+                
+                       
+                            },
+                            ),
+                      ),
+                                 
+                  SizedBox(width: 24),
+                  Expanded(child: CustomButtonWidget(text: "Abbrechen", 
+                  color: Colors.white, onPressed: () => Navigator.of(context).pop(),)),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+      if(updateCateData != null){
+  final loadedCategories = await weddingCategoryDatabase.loadWeddingCategories();
+  setState(() {
+    // Update all the necessary state variables
+    allCategoryModels = loadedCategories;
+    allCategories = weddingCategoryDatabase.getCategoriesAsMap();
+    filteredCategory = Map.from(allCategories);
+    isLoading = false;
+  });
+  print("loadWeddingCategories completed");
+} else {
+  print("updateCateData is null");
+}
+                          }, child: Container(
+                            padding: EdgeInsets.only(bottom:4 ),
+                            decoration: BoxDecoration(
+                              // border: Border(bottom: BorderSide(color: Colors.black))
+                            ),
+                            child: 
+                             Icon(FontAwesomeIcons.plus, size: 20, color: Colors.black,), 
+                            
+                          )),
+
+                            if (index > 4)
                           TextButton(onPressed: () {
                             // Find the corresponding model for this category
                             WeddingCategoryModel? model;
@@ -246,6 +370,7 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
                              Icon(FontAwesomeIcons.penToSquare, size: 20, color: Colors.black,), 
                             
                           ))
+
                               ],
                             ), 
                             

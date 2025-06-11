@@ -65,165 +65,167 @@ loadDataFromFirebase() async {
         borderRadius: BorderRadius.circular(12),
         child: StatefulBuilder(builder: (_, stateDialog) { return   Container(
           color: Colors.grey.shade100,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              // Textfield for adding new items
-
-              SizedBox(
-                height: 260,
-                width: double.maxFinite,
-                child:  imageFile != null
-                                    ?  Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(15),
-                                        child: Image.file(imageFile!, fit: BoxFit.cover,)),
-                                    )
-                                      
-                                    : Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: InkWell(
-        onTap: ()async{
-           final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-
-    if (image != null) {
-      stateDialog(() {
-        imageFile = File(image.path);
-      });
-    }
-
-      if (imageFile == null) {
-      stateDialog(() => _isLoading = false);
-      return;
-    }
-        },
-        child: DottedBorder(
-          radius: Radius.circular(15),
-          dashPattern: [8, 4],
-          color: Color.fromARGB(255, 107, 69, 106),
-          strokeWidth: 1.5,
-          borderType: BorderType.RRect,
-          child: Container(
-            height: 260,
-            width: double.infinity,
-            decoration: BoxDecoration(
-          color: Color.fromARGB(255, 107, 69, 106).withValues(alpha: 0.3),
-          borderRadius: BorderRadius.circular(15)
-            ),          
+          child: SingleChildScrollView(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Icon(Icons.cloud_upload_outlined, size: 48, color: AppTheme.primaryColor),
-                const SizedBox(height: 12),
-                Text(
-                 AppConstants.inspirationImageSelectText,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.primaryColor,
+                // Textfield for adding new items
+            
+                SizedBox(
+                  height: 260,
+                  width: double.maxFinite,
+                  child:  imageFile != null
+                                      ?  Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(15),
+                                          child: Image.file(imageFile!, fit: BoxFit.cover,)),
+                                      )
+                                        
+                                      : Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: InkWell(
+                    onTap: ()async{
+             final ImagePicker picker = ImagePicker();
+                final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+            
+                if (image != null) {
+                  stateDialog(() {
+                    imageFile = File(image.path);
+                  });
+                }
+            
+                  if (imageFile == null) {
+                  stateDialog(() => _isLoading = false);
+                  return;
+                }
+                    },
+                    child: DottedBorder(
+            radius: Radius.circular(15),
+            dashPattern: [8, 4],
+            color: Color.fromARGB(255, 107, 69, 106),
+            strokeWidth: 1.5,
+            borderType: BorderType.RRect,
+            child: Container(
+              height: 260,
+              width: double.infinity,
+              decoration: BoxDecoration(
+            color: Color.fromARGB(255, 107, 69, 106).withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(15)
+              ),          
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.cloud_upload_outlined, size: 48, color: AppTheme.primaryColor),
+                  const SizedBox(height: 12),
+                  Text(
+                   AppConstants.inspirationImageSelectText,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.primaryColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+                    ),
+                  ),
+                )
+                ),
+                  SpacerWidget(height: 2),
+                    if(imageFile != null)
+                      MyButton(onPressed: ()async{
+                         final ImagePicker picker = ImagePicker();
+                final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+            
+                if (image != null) {
+                  stateDialog(() {
+                    imageFile = File(image.path);
+                  });
+                }
+            
+                  if (imageFile == null) {
+                  stateDialog(() => _isLoading = false);
+                  return;
+                }
+                      },   text: AppConstants.inspirationFolderPageImageUpdate),
+            
+                  SpacerWidget(height: 3),
+                Padding(
+                           padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+            
+                  child: TextField(
+                    controller: _controller,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      hintText: 
+                         "${AppConstants.inspirationFolderPageImageTitle} eingeben",
+                      fillColor: Color.fromARGB(255, 255, 255, 255),
+                    ),
                   ),
                 ),
+                // Buttons row
+                  SpacerWidget(height: 2),
+            
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+            
+                       Expanded(
+                            child: CustomButtonWidget(
+                              
+                              text: AppConstants.inspirationFolderPageSave, isLoading: _isLoading, 
+                              textColor: Colors.white, onPressed: () async {
+                            stateDialog(() => _isLoading = true);
+                    
+                        if(_controller.text.isEmpty || imageFile == null) {
+                        stateDialog(() => _isLoading = false);
+                        if (_controller.text.isEmpty) {
+                          SnackBarHelper.showErrorSnackBar(context, AppConstants.inspirationFolderPageImageTitleError);
+                        } else if (imageFile == null) {
+                          SnackBarHelper.showErrorSnackBar(context, AppConstants.inspirationFolderPageImageSelectError);
+                        } else {
+                          SnackBarHelper.showErrorSnackBar(context, AppConstants.inspirationFolderPageImageSelectError2);
+                        }
+                        return;
+                      }
+                    
+                      // Add task to Firebase
+                      await sp.addImageToDB(_controller.text, imageFile!);
+                      Navigator.of(context).pop();
+                      loadDataFromFirebase();
+                      _controller.clear();
+                      imageFile = null;
+                      stateDialog(() => _isLoading = false);
+                          }
+                                ),
+                          ),
+                      // save button
+                     
+                          
+                      const SizedBox(
+                        width: 35,
+                      ),
+                      // cancel button
+                            Expanded(child: CustomButtonWidget(text: AppConstants.inspirationFolderPageCancelButton, color: Colors.white, onPressed: () {
+                               _controller.clear();
+                      imageFile = null;
+                              Navigator.of(context).pop();
+                            },)),
+                  
+                    ],
+                  ),
+                ),
+                  SpacerWidget(height: 4),
+            
               ],
             ),
-          ),
-        ),
-      ),
-    )
-              ),
-                SpacerWidget(height: 2),
-                  if(imageFile != null)
-                    MyButton(onPressed: ()async{
-                       final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-
-    if (image != null) {
-      stateDialog(() {
-        imageFile = File(image.path);
-      });
-    }
-
-      if (imageFile == null) {
-      stateDialog(() => _isLoading = false);
-      return;
-    }
-                    },   text: AppConstants.inspirationFolderPageImageUpdate),
-
-                SpacerWidget(height: 3),
-              Padding(
-                         padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-
-                child: TextField(
-                  controller: _controller,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    hintText: 
-                       "${AppConstants.inspirationFolderPageImageTitle} eingeben",
-                    fillColor: Color.fromARGB(255, 255, 255, 255),
-                  ),
-                ),
-              ),
-              // Buttons row
-                SpacerWidget(height: 2),
-
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-          
-                     Expanded(
-                          child: CustomButtonWidget(
-                            
-                            text: AppConstants.inspirationFolderPageSave, isLoading: _isLoading, 
-                            textColor: Colors.white, onPressed: () async {
-                          stateDialog(() => _isLoading = true);
-                  
-                      if(_controller.text.isEmpty || imageFile == null) {
-                      stateDialog(() => _isLoading = false);
-                      if (_controller.text.isEmpty) {
-                        SnackBarHelper.showErrorSnackBar(context, AppConstants.inspirationFolderPageImageTitleError);
-                      } else if (imageFile == null) {
-                        SnackBarHelper.showErrorSnackBar(context, AppConstants.inspirationFolderPageImageSelectError);
-                      } else {
-                        SnackBarHelper.showErrorSnackBar(context, AppConstants.inspirationFolderPageImageSelectError2);
-                      }
-                      return;
-                    }
-                  
-                    // Add task to Firebase
-                    await sp.addImageToDB(_controller.text, imageFile!);
-                    Navigator.of(context).pop();
-                    loadDataFromFirebase();
-                    _controller.clear();
-                    imageFile = null;
-                    stateDialog(() => _isLoading = false);
-                        }
-                              ),
-                        ),
-                    // save button
-                   
-                        
-                    const SizedBox(
-                      width: 35,
-                    ),
-                    // cancel button
-                          Expanded(child: CustomButtonWidget(text: AppConstants.inspirationFolderPageCancelButton, color: Colors.white, onPressed: () {
-                             _controller.clear();
-                    imageFile = null;
-                            Navigator.of(context).pop();
-                          },)),
-                
-                  ],
-                ),
-              ),
-                SpacerWidget(height: 4),
-
-            ],
           ),
         );
         }
@@ -242,6 +244,7 @@ loadDataFromFirebase() async {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        resizeToAvoidBottomInset: true,
         drawer: Menue.getInstance(key),
         appBar: AppBar(
           centerTitle: true,
