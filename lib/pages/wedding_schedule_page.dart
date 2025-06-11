@@ -177,9 +177,8 @@ generateTableWeddingPdf(sortedScheduleList);
        },
      ),
    ),
-          
+          FourSecretsDivider(),
           SpacerWidget(height: 18)
-         
           ],
          ),
        ),
@@ -377,6 +376,7 @@ generateTableWeddingPdf(sortedScheduleList);
               ),
             ), 
                   FourSecretsDivider(),
+
 
             
         ]

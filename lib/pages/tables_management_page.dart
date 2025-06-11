@@ -657,8 +657,10 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
     bool isOvalTable = table.tableType.toLowerCase() == 'oval';
 
     return Card(
+      color: Colors.grey.shade300,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
+        
       ),
       margin: EdgeInsets.fromLTRB(24, 10, 24, 0),
       child: Padding(

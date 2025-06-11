@@ -201,9 +201,9 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                       width: context.screenWidth,
                       padding: EdgeInsets.symmetric(horizontal: 10, vertical: 18).copyWith(right: 0),
                       decoration: BoxDecoration(
-                        color: Colors.grey.withValues(alpha: 0.1),
-                        border: Border.all(color: Colors.transparent),
-                        borderRadius: BorderRadius.circular(5),
+                        color: Colors.white,
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       child: CustomTextWidget(text: _titleController ?? ""),
                     ),
@@ -216,9 +216,10 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4).copyWith(right: 0),
                   decoration: BoxDecoration(
-                    color: Colors.grey.withValues(alpha: 0.1),
-                    border: Border.all(color: Colors.transparent),
-                    borderRadius: BorderRadius.circular(5),
+                    color: Colors.white,
+                    border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(8),
+                 
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -242,9 +243,9 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4).copyWith(right: 0),
                   decoration: BoxDecoration(
-                    color: Colors.grey.withValues(alpha: 0.1),
-                    border: Border.all(color: Colors.transparent),
-                    borderRadius: BorderRadius.circular(5),
+                    color: Colors.white,
+                    border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -267,8 +268,9 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                
                 WeddingSchedulePageWidget(
                   titleController: _notesController,
+
                   // label: AppConstants.weddingSchedulePageNotes,
-                  text: AppConstants.weddingSchedulePageNotes,
+                  text: "Beschreibung/${AppConstants.weddingSchedulePageNotes}",
                   maxLines: 3,
                 ),
                 // SpacerWidget(height: 4),
@@ -297,9 +299,9 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8).copyWith(right: 0),
                   decoration: BoxDecoration(
-                    color: Colors.grey.withValues(alpha: 0.1),
-                    border: Border.all(color: Colors.transparent),
-                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.white,
+                    border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -336,9 +338,9 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4).copyWith(right: 0),
                   decoration: BoxDecoration(
-                    color: Colors.grey.withValues(alpha: 0.1),
-                    border: Border.all(color: Colors.transparent),
-                    borderRadius: BorderRadius.circular(5),
+                    color: Colors.white,
+                    border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -365,9 +367,9 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4).copyWith(right: 0),
                     decoration: BoxDecoration(
-                      color: Colors.grey.withValues(alpha: 0.1),
-                      border: Border.all(color: Colors.transparent),
-                      borderRadius: BorderRadius.circular(5),
+                     color: Colors.white,
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -388,9 +390,9 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4).copyWith(right: 0),
                     decoration: BoxDecoration(
-                      color: Colors.grey.withValues(alpha: 0.1),
-                      border: Border.all(color: Colors.transparent),
-                      borderRadius: BorderRadius.circular(5),
+                      color: Colors.white,
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,

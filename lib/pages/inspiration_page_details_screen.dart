@@ -50,13 +50,14 @@ class _InspirationDetailPageState extends State<InspirationDetailPage> {
       child: Scaffold(
         backgroundColor: AppTheme.backgroundColor,
         appBar: AppBar(
+           foregroundColor: Colors.white,
           leading:  IconButton(
                             icon: Icon(Icons.arrow_back, size: 20),
                             color: Colors.white,
                             onPressed: () => Navigator.of(context).pop(),
                           ),
         centerTitle: true,
-          title: Text(AppConstants.inspirationFolderPageTitle, style: TextStyle(color: Colors.white, fontSize: 20),),
+         title: const Text(AppConstants.inspirationFolderPageTitle, ),
           backgroundColor:  const Color.fromARGB(255, 107, 69, 106),
           actions: [
               PopupMenuButton(
@@ -118,83 +119,50 @@ class _InspirationDetailPageState extends State<InspirationDetailPage> {
         body: Container(
           height: context.screenHeight,
           width: context.screenWidth,
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: NetworkImage(widget.inspirationImage.imageUrl),
-              fit: BoxFit.cover,
-            ),
-          ),
-          child: Stack(
+        
+          
+          child: Column(
             children: [
-              // Top blurred app bar
-              // Positioned(
-              //   top: 0,
-              //   left: 0,
-              //   right: 0,
-              //   height: 70,
-              //   child: ClipRRect(
-              //     borderRadius: BorderRadius.only(
-              //       bottomLeft: Radius.circular(20),
-              //       bottomRight: Radius.circular(20),
-              //     ),
-              //     child: BackdropFilter(
-              //       filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-              //       child: Container(
-              //         padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-              //         width: context.screenWidth,
-              //         alignment: Alignment.centerLeft,
-              //         decoration: BoxDecoration(
-              //           borderRadius: BorderRadius.only(
-              //             topLeft: Radius.circular(20),
-              //             topRight: Radius.circular(20),
-              //           ),
-              //           color: Colors.black.withValues(alpha: 0.2),
-              //         ),
-              //         child: Row(
-              //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //           children: [
-                         
-                         
-                        
-              //           ],
-              //         ),
-              //       ),
-              //     ),
-              //   ),
-              // ),
-
-              // Bottom title overlay
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
-                  ),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-                    child: Container(
-                      height: context.screenHeight * 0.2,
-                      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-                      width: context.screenWidth,
-                      alignment: Alignment.topCenter,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(20),
-                          topRight: Radius.circular(20),
+             SizedBox(
+              height: context.screenHeight * 0.5 + 50,
+              width: context.screenWidth,
+              child: Image.network(widget.inspirationImage.imageUrl, fit: BoxFit.cover,),
+             ),
+             Expanded(
+               child: Transform.translate(
+                offset: Offset(0, -15),
+                 child: Container(
+                          height: context.screenHeight,
+                          padding: EdgeInsets.symmetric(horizontal: 25, vertical: 25),
+                          width: context.screenWidth,
+                          alignment: Alignment.topLeft,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(20),
+                              topRight: Radius.circular(20),
+                            ),
+                            color: Colors.white,
+                          ),
+                          child: Column(
+                            spacing: 10,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Keine Beschreibung verfügbar.",
+                                style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
+                              ),
+                              Text(
+                                widget.inspirationImage.title,
+                                style: TextStyle(color: Colors.black, fontSize: 16),
+                              ),
+                            ],
+                          ),
                         ),
-                        color: Colors.black.withValues(alpha: 0.2),
-                      ),
-                      child: Text(
-                        widget.inspirationImage.title,
-                        style: TextStyle(color: Colors.white, fontSize: 16),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+               ),
+             ),
+                  
+                
+              
             ],
           ),
         ),

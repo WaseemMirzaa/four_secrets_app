@@ -9,6 +9,7 @@ import 'package:four_secrets_wedding_app/extension.dart';
 import 'package:four_secrets_wedding_app/menue.dart';
 import 'package:four_secrets_wedding_app/model/checklist_button.dart';
 import 'package:four_secrets_wedding_app/model/dialog_box.dart';
+import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
 import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:four_secrets_wedding_app/services/inspiration_image_service.dart';
 import 'package:four_secrets_wedding_app/utils/snackbar_helper.dart';
@@ -258,145 +259,119 @@ loadDataFromFirebase() async {
         ),
         body: Stack(
           children: [
-            // 1) Background image
-            // Positioned.fill(
-            //   child: Image.asset(
-            //     "assets/images/background/bg.jpg",
-            //     fit: BoxFit.cover,
-            //   ),
-            // ),
+           
 
-            // 2) Blur layer
-            // Positioned.fill(
-            //   child: BackdropFilter(
-            //     filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-            //     child: Container(
-            //       color: Colors.black.withValues(alpha: 0.2),
-            //     ),
-            //   ),
-            // ),
-
-            // 3) Grid content
-            //    Use Padding or SafeArea if you want margins
-
-            // sp.inspirationImagesList.isEmpty ?  
-
-            //   Center(
-            //     child: Text("Please Add Images "),
-            //   )
-
-            // :
-
-            _isLoading ?  Center(
-              child: CupertinoActivityIndicator(),
-            )  :
-             sp.inspirationImagesList.isEmpty ?  
-
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(AppConstants.inspirationFolderPageEmpty, textAlign: TextAlign.center, style: TextStyle(
-                    fontSize: 16, 
-                    fontWeight: FontWeight.bold
-                  ),),
-                ),
-              )
-            :
-
-            Padding(
+            _isLoading ? Center(child: CupertinoActivityIndicator())
+    : sp.inspirationImagesList.isEmpty
+        ? Center(
+            child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Column(
-                children: [
-                  // If you have other widgets above the grid, they go here,
-                  // otherwise you can remove this Column and Expanded.
-                  Expanded(
-                    child: RefreshIndicator(
-                      onRefresh: () => loadDataFromFirebase(),
-                      child: StaggeredGridView.countBuilder(
-                        crossAxisCount: 2,
-                        itemCount: sp.inspirationImagesList.length,
-                        mainAxisSpacing: 8,
-                        crossAxisSpacing: 8,
-                        //oldimageurl
-                        itemBuilder: (context, index) {
-                          
-                          return GestureDetector(
-                            onTap: ()async{
-                       var result =   Navigator.of(context).pushNamed(RouteManager.inspirationDetailPage, arguments: {
-                                'inspirationImage': sp.inspirationImagesList[index],
-                              
-                                'id': sp.inspirationImagesList[index].id!,
-                              });
-
-                              print("Returned value: $result"); // <-- You should see this when popped
-
-                          result.then((v){
-                              loadDataFromFirebase();
-                          });
-
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.5),
-                                borderRadius: BorderRadius.circular(18),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withValues(alpha: 0.8),
-                                    spreadRadius: 4,
-                                    blurRadius: 15,
-                                    offset: const Offset(0, 0),
-                                  ),
-                                ]
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(18),
-                                child:  _isLoading ? Center(
-                                      child: CircularProgressIndicator.adaptive(
-                                        
-                                          backgroundColor: AppTheme.backgroundColor,
-                                          valueColor:  AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
-                                      ),
-                                      )  : Image.network(
-                                    sp.inspirationImagesList[index].imageUrl,
-                                    fit: BoxFit.cover,
-                                    loadingBuilder: (context, child, loadingProgress) {
-                                      if (loadingProgress == null) {
-                                      return child;
-                                      }
-                                      return Center(
-                                      child: CircularProgressIndicator(
-                                        value: loadingProgress.expectedTotalBytes != null
-                                          ? loadingProgress.cumulativeBytesLoaded /
-                                            (loadingProgress.expectedTotalBytes ?? 1)
-                                          : null,
-                                          color: AppTheme.backgroundColor,
-                                          valueColor:  AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
-                                      ),
-                                      );
-                                    },
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Center(
-                                      child: Text(
-                                        "Fehler beim Laden",
-                                        style: TextStyle(color: Colors.red),
-                                      ),
-                                      );
-                                    },
-                                    ),
-                              ),
-                            ),
-                          );
-                        },
-                        staggeredTileBuilder: (index) => StaggeredTile.extent(
-                          1,
-                          index % 2 == 0 ? 150 : 250,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+              child: Text(
+                AppConstants.inspirationFolderPageEmpty,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ),
+          )
+        : RefreshIndicator(
+            onRefresh: () => loadDataFromFirebase(),
+            child: CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(
+                  child: Column(
+                    children: [
+                      Image.asset("assets/images/background/inspiration.png"),
+                      SpacerWidget(height: 5),
+                      FourSecretsDivider(),
+                      SpacerWidget(height: 5),
+                    ],
+                  ),
+                ),
+                SliverPadding(
+                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                  sliver: SliverStaggeredGrid.countBuilder(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 15,
+                    mainAxisSpacing: 15,
+                    itemCount: sp.inspirationImagesList.length,
+                    itemBuilder: (context, index) {
+                      return  GestureDetector(
+                          onTap: ()async{
+                            var result =   Navigator.of(context).pushNamed(RouteManager.inspirationDetailPage, arguments: {
+                              'inspirationImage': sp.inspirationImagesList[index],
+                              'id': sp.inspirationImagesList[index].id!,
+                            });
+                                
+                            print("Returned value: $result"); // <-- You should see this when popped
+                                
+                        result.then((v){
+                            loadDataFromFirebase();
+                        });
+                                
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.5),
+                              borderRadius: BorderRadius.circular(18),
+                             
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(18),
+                              child:  _isLoading ? Center(
+                                    child: CircularProgressIndicator.adaptive(
+                                      
+                                        backgroundColor: AppTheme.backgroundColor,
+                                        valueColor:  AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+                                    ),
+                                    )  : Image.network(
+                                  sp.inspirationImagesList[index].imageUrl,
+                                  fit: BoxFit.cover,
+                                  loadingBuilder: (context, child, loadingProgress) {
+                                    if (loadingProgress == null) {
+                                    return child;
+                                    }
+                                    return Center(
+                                    child: CircularProgressIndicator(
+                                      value: loadingProgress.expectedTotalBytes != null
+                                        ? loadingProgress.cumulativeBytesLoaded /
+                                          (loadingProgress.expectedTotalBytes ?? 1)
+                                        : null,
+                                        color: AppTheme.backgroundColor,
+                                        valueColor:  AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+                                    ),
+                                    );
+                                  },
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Center(
+                                    child: Text(
+                                      "Fehler beim Laden",
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                    );
+                                  },
+                                  ),
+                            ),
+                          ),
+                        );
+                    },
+                  staggeredTileBuilder: (index) => StaggeredTile.extent(
+                        1,
+                        index % 2 == 0 ? 150 : 250,
+                      ),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: SizedBox(height: 20,),
+                ),
+                SliverToBoxAdapter(
+                  child: FourSecretsDivider(),
+                ),
+                 SliverToBoxAdapter(
+                  child: SpacerWidget(height: 15,),
+                ),
+              ],
+            ),
+          ),
           ],
         ),
       ),

@@ -140,6 +140,23 @@ class WeddingCategoryDatabase {
     }
   }
 
+
+Future<bool> categoryExists(String categoryName) async {
+    final categories = await loadWeddingCategories();
+    return categories.any((category) => category.categoryName.toLowerCase() == categoryName.toLowerCase());
+  }
+
+  // Get the index of the category with the given name
+  Future<String?> getCategoryIndex(String categoryName) async {
+    final categories = await loadWeddingCategories();
+    for (int i = 0; i < categories.length; i++) {
+      if (categories[i].categoryName.toLowerCase() == categoryName.toLowerCase()) {
+        return i.toString(); // Assuming index is stored as a string
+      }
+    }
+    return null;
+  }
+
   // Load data from Firebase
   Future<List<WeddingCategoryModel>> loadWeddingCategories() async {
     if (userId == null) {
@@ -191,7 +208,6 @@ class WeddingCategoryDatabase {
       print("Cannot add category: User not logged in");
       return;
     }
-    
     try {
       final now = DateTime.now();
       final newCategory = WeddingCategoryModel(
@@ -201,24 +217,20 @@ class WeddingCategoryDatabase {
         createdAt: now,
         userId: userId!,
       );
-      
+      print(now);
       final docRef = await _firestore
           .collection('users')
           .doc(userId)
           .collection('weddingCategories')
           .add(newCategory.toMap());
-      
-      // Add to local list with the generated ID
       final categoryWithId = newCategory.copyWith(id: docRef.id);
       categoryList.add(categoryWithId);
-      
       print("Added category: $categoryName");
     } catch (e) {
       print('Error adding category: $e');
     }
   }
 
-  // Update category in Firebase
   Future<void> updateCategory(String id, String categoryName, List<String> items) async {
     // if (userId == null || index >= categoryList.length) {
     

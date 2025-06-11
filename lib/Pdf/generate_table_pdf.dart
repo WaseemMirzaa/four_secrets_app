@@ -50,7 +50,14 @@ Future<void> generateTableManagementPdf(
 
   pdf.addPage(
     pw.MultiPage (
-      margin: pw.EdgeInsets.only(top: 0, ),
+      margin: pw.EdgeInsets.zero,
+      header: (pw.Context context) {
+      if (context.pageNumber == 1) {
+        return pw.SizedBox(height: 0); // No header on the first page
+      } else {
+        return pw.SizedBox(height: 60); // 20-unit top margin on subsequent pages
+      }
+    },
       build: (pw.Context context) {
       return [
         pw.Column(

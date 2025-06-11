@@ -23,6 +23,20 @@ class WeddingSchedulePageWidget extends StatelessWidget {
            CustomTextWidget(text: text ?? "Beschreibung", fontSize: 14,),
                     SpacerWidget(height: 2),
                     CustomTextField(controller: titleController,
+                    inputDecoration: InputDecoration(
+                      filled: true, 
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                         borderSide: BorderSide(color: Colors.grey.withValues(alpha: 0.9)),
+                        borderRadius: BorderRadius.circular(8),
+                      ), 
+                      enabledBorder: OutlineInputBorder(
+                         borderSide: BorderSide(color: Colors.grey.withValues(alpha: 0.9)),
+                        borderRadius: BorderRadius.circular(8),
+                      )
+                    
+                    ),
+                    
                     isReadOnly: isReadOnly,
                      label: label ?? "", maxLines: maxLines ?? 1, ),
       ],

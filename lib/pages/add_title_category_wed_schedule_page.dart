@@ -26,6 +26,7 @@ class _AddCustomCategoryWeddingSchedulePageState extends State<AddCustomCategory
   final key = GlobalKey<FormState>();
   List<String> listOfitemInCategory = [];
   bool isUpdate = false;
+  bool isLoading = false;
   int updateIndex = -1; // Track which item is being updated
   String originalItemValue = ''; // Store original value for comparison
 
@@ -36,6 +37,7 @@ class _AddCustomCategoryWeddingSchedulePageState extends State<AddCustomCategory
       print(widget.index);
       _categoryController.text = widget.weddingCategoryModel!.categoryName;
       listOfitemInCategory = List.from(widget.weddingCategoryModel!.items); // Create a copy
+      print(listOfitemInCategory.length);
     }
   }
 
@@ -86,7 +88,7 @@ class _AddCustomCategoryWeddingSchedulePageState extends State<AddCustomCategory
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         centerTitle: true,
         foregroundColor: Colors.white,
@@ -103,8 +105,11 @@ class _AddCustomCategoryWeddingSchedulePageState extends State<AddCustomCategory
                 // Category name text field
                 CustomTextField(
                   controller: _categoryController,
+                  
                   label: AppConstants.weddingCategoryTitlePageItemName,
                   inputDecoration: InputDecoration(
+                    fillColor: Colors.white,
+                    filled: true,
                     hintText: AppConstants.weddingCategoryTitlePageCategoryName,
                     hintStyle: TextStyle(color: Colors.grey.withValues(alpha: 0.8)),
                     border: OutlineInputBorder(
@@ -283,38 +288,69 @@ class _AddCustomCategoryWeddingSchedulePageState extends State<AddCustomCategory
                     const SizedBox(width: 20),
                     Expanded(
                       child: CustomButtonWidget(
+                        isLoading: isLoading,
                         text: widget.weddingCategoryModel != null 
                           ? AppConstants.weddingCategoryTitlePageUpdateCategory 
                           : AppConstants.weddingCategoryTitlePageAddCategory,
                         textColor: Colors.white,
                         
                         color: const Color.fromARGB(255, 107, 69, 106),
-                        onPressed: () {
+                        onPressed: () async {
+                          setState(() {
+                            isLoading = true;
+                          });
                           String categoryName = _categoryController.text.trim();
                           if (categoryName.isEmpty) {
                             SnackBarHelper.showErrorSnackBar(
                                 context, AppConstants.weddingCategoryTitlePageAddCategoryError);
+                                setState(() {
+                            isLoading = false;
+                          });
                             return;
                           }
                           if (listOfitemInCategory.isEmpty) {
+
                             SnackBarHelper.showErrorSnackBar(
                                 context, AppConstants.weddingCategoryTitlePageAddItemError);
+                                 setState(() {
+                            isLoading = false;
+                          });
                             return;
                           }
-                          
-                          if(widget.weddingCategoryModel != null){
+
+                          if (widget.weddingCategoryModel != null) {
+                            // Update existing category
                             weddingCategoryDatabase.updateCategory(
-                              widget.index!, 
-                              categoryName, 
-                              listOfitemInCategory
+                              widget.index!,
+                              categoryName,
+                              listOfitemInCategory,
                             );
-                          } else {
-                            weddingCategoryDatabase.addCategory(
-                              categoryName, 
-                              listOfitemInCategory
-                            );
-                          }
+                             setState(() {
+                            isLoading = false;
+                          });
                           Navigator.of(context).pop(weddingCategoryDatabase.loadWeddingCategories());
+
+                          } else {
+                            // Check if category already exists
+                            final bool categoryAlreadyExists = await  weddingCategoryDatabase.categoryExists(categoryName);
+                            print(categoryAlreadyExists);
+                            if (categoryAlreadyExists) {
+                               setState(() {
+                            isLoading = false;
+                          });
+                             return    SnackBarHelper.showErrorSnackBar(
+                                context, "$categoryName existiert bereits. Bitte wähle einen anderen Namen");
+                           
+                            } else {
+                              // Add new category
+                              weddingCategoryDatabase.addCategory(categoryName, listOfitemInCategory);
+                               setState(() {
+                            isLoading = false;
+                          });
+                          Navigator.of(context).pop(weddingCategoryDatabase.loadWeddingCategories());
+                            
+                            }
+                          }
                         },
                       ),
                     ),

@@ -188,8 +188,8 @@ class RouteManager {
         final args = settings.arguments as Map<String, dynamic>;
         return PageTransition(
           child:  AddCustomCategoryWeddingSchedulePage(
-            weddingCategoryModel: args['weddingCategoryModel'] as WeddingCategoryModel,
-            index: args['index'] as String,
+            weddingCategoryModel: args['weddingCategoryModel'] as WeddingCategoryModel?,
+            index: args['index'] as String?,
           ),
           settings: settings,
           duration: const Duration(milliseconds: 250),
