@@ -1,5 +1,5 @@
-import 'package:four_secrets_wedding_app/data/tanzschule_card_data.dart';
-import 'package:four_secrets_wedding_app/model/card_front_widget.dart';
+import 'package:DreamWedding/data/tanzschule_card_data.dart';
+import 'package:DreamWedding/model/card_front_widget.dart';
 import 'package:flutter/material.dart';
 
 class TanzschuleCardItems {
@@ -12,8 +12,7 @@ class TanzschuleCardItems {
         nachname: TanzschuleCardData.map1['nachname']!,
         bezeichnung: TanzschuleCardData.map1['bezeichnung']!,
         backCardTaetigkeit: TanzschuleCardData.map1['backCardTaetigkeit']!,
-        backCardAdress1: TanzschuleCardData.map1['backCardAdresse1']!,
-        backCardAdress2: TanzschuleCardData.map1['backCardAdresse2']!,
+        slogan: TanzschuleCardData.map1['slogan']!,
         homepage: TanzschuleCardData.map1['homepage']!,
         email: TanzschuleCardData.map1['email']!,
         instagram: TanzschuleCardData.map1["instagram"]!,

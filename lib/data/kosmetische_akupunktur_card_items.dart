@@ -1,5 +1,5 @@
-import 'package:four_secrets_wedding_app/data/kosmetische_akupunktur_card_data.dart';
-import 'package:four_secrets_wedding_app/model/card_front_widget.dart';
+import 'package:DreamWedding/data/kosmetische_akupunktur_card_data.dart';
+import 'package:DreamWedding/model/card_front_widget.dart';
 import 'package:flutter/material.dart';
 
 class KosmetischeAkupunkturCardItems {
@@ -13,10 +13,7 @@ class KosmetischeAkupunkturCardItems {
         bezeichnung: KosmetischeAkupunkturCardData.map1['bezeichnung']!,
         backCardTaetigkeit:
             KosmetischeAkupunkturCardData.map1['backCardTaetigkeit']!,
-        backCardAdress1:
-            KosmetischeAkupunkturCardData.map1['backCardAdresse1']!,
-        backCardAdress2:
-            KosmetischeAkupunkturCardData.map1['backCardAdresse2']!,
+        slogan: KosmetischeAkupunkturCardData.map1['slogan']!,
         homepage: KosmetischeAkupunkturCardData.map1['homepage']!,
         email: KosmetischeAkupunkturCardData.map1["email"]!,
         instagram: KosmetischeAkupunkturCardData.map1["instagram"]!,

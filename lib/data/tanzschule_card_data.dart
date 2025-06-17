@@ -6,13 +6,12 @@ class TanzschuleCardData {
     "email": "info@unserhochzeitstanz.com",
     "homepage": "https://www.unserhochzeitstanz.com/",
     "instagram": "https://www.instagram.com/tanzschuleamstachus/",
-    "phoneNumber": "+49 (0)172 442 78 27",
+    "phoneNumber": "+49 172 442 78 27",
     "avatar": "assets/images/card/fabian_richt_card.jpg",
-    "vorname": "Fabian",
-    "nachname": "Richt",
+    "vorname": "Fabian und",
+    "nachname": "Melanie Richt",
     "bezeichnung": "Tanzschule",
     "backCardTaetigkeit": "Tanzlehrer",
-    "backCardAdresse1": "Scharfreilerplatz 8\n81459 München",
-    "backCardAdresse2": "",
+    "slogan": "Eleganz in jedem Schritt."
   };
 }

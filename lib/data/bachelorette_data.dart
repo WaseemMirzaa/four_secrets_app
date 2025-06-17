@@ -6,6 +6,6 @@ class BacheloretteData {
     "email": "info@4-secrets.de",
     "homepage": "https://www.4-secrets.de",
     "instagram": "https://www.instagram.com/4secrets.hairstyle/",
-    "phoneNumber": "089 8000 17 48",
+    "phoneNumber": "+49 (0)89 800 017 48",
   };
 }
