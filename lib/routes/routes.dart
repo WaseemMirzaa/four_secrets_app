@@ -16,7 +16,6 @@ import 'package:four_secrets_wedding_app/pages/fotograph.dart';
 import 'package:four_secrets_wedding_app/pages/kosmetische_akupunktur.dart';
 import 'package:four_secrets_wedding_app/pages/hair_makeup.dart';
 import 'package:four_secrets_wedding_app/pages/home.dart';
-import 'package:four_secrets_wedding_app/pages/inspirations.dart';
 import 'package:four_secrets_wedding_app/pages/location.dart';
 import 'package:four_secrets_wedding_app/pages/showroom_event.dart';
 import 'package:four_secrets_wedding_app/pages/splash_screen.dart';
@@ -46,7 +45,7 @@ class RouteManager {
   static const String signupPage = '/signup';
   static const String forgotPasswordPage = '/forgot-password';
   static const String emailVerificationPage = '/email-verification';
-  static const String inspirationsPage = '/inspirations';
+  static const String muenchnerGeheimtippPage = '/muenchner_geheimtipp';
   static const String aboutMePage = '/aboutMe';
   static const String checklistPage = '/checklist';
   static const String budgetPage = '/budget';
@@ -87,6 +86,7 @@ class RouteManager {
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
         );
+
       case signinPage:
         return PageTransition(
           child: const SignInScreen(),
@@ -94,6 +94,7 @@ class RouteManager {
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
         );
+
       case signupPage:
         return PageTransition(
           child: const SignUpScreen(),
@@ -101,6 +102,7 @@ class RouteManager {
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
         );
+
       case forgotPasswordPage:
         return PageTransition(
           child: const ForgotPasswordScreen(),
@@ -108,6 +110,7 @@ class RouteManager {
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
         );
+        
       case homePage:
         return PageTransition(
           child: const HomePage(),
@@ -116,13 +119,14 @@ class RouteManager {
           type: PageTransitionType.rightToLeft,
         );
 
-      case inspirationsPage:
+      case muenchnerGeheimtippPage:
         return PageTransition(
-          child: Inspirations(),
+          child: MuenchnerGeheimtipp(),
           settings: settings,
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
         );
+
       case aboutMePage:
         return PageTransition(
           child: const AboutMe(),
@@ -130,6 +134,7 @@ class RouteManager {
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
         );
+
       case checklistPage:
         return PageTransition(
           child: const Checklist(),
@@ -137,6 +142,7 @@ class RouteManager {
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
         );
+
       case gaestelistPage:
         return PageTransition(
           child: const Gaestelist(),
@@ -144,6 +150,7 @@ class RouteManager {
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
         );
+
       case showroomEventPage:
         return PageTransition(
           child: ShowroomEvent(),
