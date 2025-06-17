@@ -119,8 +119,9 @@ class MenueState extends State<Menue> {
   bool isPressedBtn7 = false; // Showroom
   bool isPressedBtn8 = false; // About me
   bool isPressedBtn9 = false; // Kontakt
+  bool isPressedBtn10 = false; // KI-Assistent (Chatbot)
   bool isPressedBtn10 = false; // Impressum
-  bool isPressedBtn11 = false; // Logout
+  bool isPressedBtn12 = false; // Logout
 
   void buttonIsPressed(int buttonNumber) {
     setState(() {
@@ -136,6 +137,7 @@ class MenueState extends State<Menue> {
       isPressedBtn9 = buttonNumber == 9;
       isPressedBtn10 = buttonNumber == 10;
       isPressedBtn11 = buttonNumber == 11;
+      isPressedBtn11 = buttonNumber == 12;
     });
   }
 
@@ -311,7 +313,7 @@ class MenueState extends State<Menue> {
               },
             ),
           ),
-          // 2. Inspirationen
+          // 2. Muenchner Geheimtipp
           Card(
             margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
             shape: RoundedRectangleBorder(
@@ -327,7 +329,7 @@ class MenueState extends State<Menue> {
               tileColor: isPressedBtn2 ? Colors.purple[50] : Colors.white,
               leading: const Icon(Icons.auto_stories),
               title: const Text(
-                'Inspirationen',
+                'Münchner Geheimtipp',
                 style: TextStyle(fontSize: 18),
               ),
               onTap: () {
@@ -336,7 +338,7 @@ class MenueState extends State<Menue> {
                   const Duration(milliseconds: 100),
                   () {
                     Navigator.of(context)
-                        .pushNamed(RouteManager.inspirationsPage);
+                        .pushNamed(RouteManager.muenchnerGeheimtippPage);
                   },
                 );
               },
@@ -478,7 +480,7 @@ class MenueState extends State<Menue> {
               tileColor: isPressedBtn7 ? Colors.purple[50] : Colors.white,
               leading: const Icon(Icons.celebration),
               title: const Text(
-                'Showroom',
+                'Showroom-Event',
                 style: TextStyle(fontSize: 18),
               ),
               onTap: () {
@@ -555,7 +557,7 @@ class MenueState extends State<Menue> {
               },
             ),
           ),
-          // 10. Impressum
+          // 9. KI-Assistent (Chatbot)
           Card(
             margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
             shape: RoundedRectangleBorder(
@@ -569,11 +571,41 @@ class MenueState extends State<Menue> {
                 vertical: 0,
               ),
               tileColor: isPressedBtn10 ? Colors.purple[50] : Colors.white,
+              leading: Icon(FontAwesomeIcons.mapLocationDot),
+              title: const Text(
+                'KI-Assistent',
+                style: TextStyle(fontSize: 18),
+              ),
+              onTap: () {
+                buttonIsPressed(9);
+                Timer(
+                  const Duration(milliseconds: 100),
+                  () {
+                    Navigator.of(context).pushNamed(RouteManager.chatbotPage);
+                  },
+                );
+              },
+            ),
+          ),
+          // 10. Impressum und Datenschutz
+          Card(
+            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: ListTile(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 0,
+              ),
+              tileColor: isPressedBtn11 ? Colors.purple[50] : Colors.white,
               leading: Icon(
                 FontAwesomeIcons.circleInfo,
               ),
               title: const Text(
-                'Impressum',
+                'Impressum und Datenschutz',
                 style: TextStyle(fontSize: 18),
               ),
               onTap: () {
@@ -638,7 +670,7 @@ class MenueState extends State<Menue> {
                 horizontal: 10,
                 vertical: 0,
               ),
-              tileColor: isPressedBtn11 ? Colors.purple[50] : Colors.white,
+              tileColor: isPressedBtn12 ? Colors.purple[50] : Colors.white,
               leading: const Icon(
                 Icons.logout,
                 color: Colors.red,
