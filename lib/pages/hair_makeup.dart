@@ -85,7 +85,7 @@ class HairMakeUp extends StatelessWidget {
                         "ich nehme mir Zeit dich kennenzulernen und  dein "
                         "Styling ganz individuell auf dich abzustimmen."
                         "\n\n"
-                        "Für das Probestyling empfange ich dich in meinem meinem Studio, "
+                        "Für das Probestyling empfange ich dich in meinem Studio, "
                         "einer Privat-Lounge nur für dich, im Glockenbachviertel in München. "
                         "Für deinen Hochzeitstag entscheidest du selbst, ob dein Styling "
                         "bei mir im Studio oder direkt bei dir vor Ort stattfinden soll. "
