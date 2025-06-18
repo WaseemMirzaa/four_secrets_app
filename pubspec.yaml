@@ -40,6 +40,7 @@ dependencies:
   sticky_footer_scrollview: ^1.1.1
   url_launcher: ^6.3.1
   video_player: ^2.9.5
+  flutter_dotenv: ^5.1.0
 
   # State Management & Data Persistence
   provider: ^6.1.1
