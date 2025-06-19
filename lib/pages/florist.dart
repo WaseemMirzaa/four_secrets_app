@@ -14,6 +14,7 @@ class Florist extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+         backgroundColor: Colors.white,
         drawer: Menue.getInstance(key!),
         appBar: AppBar(
           // automaticallyImplyLeading: false,

@@ -5,12 +5,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:four_secrets_wedding_app/services/notification_alaram-service.dart';
+import 'package:four_secrets_wedding_app/services/push_notification_service.dart';
 import 'package:four_secrets_wedding_app/services/wedding_day_schedule_service.dart';
 import 'package:path/path.dart' as path;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_model.dart';
 import 'image_service.dart';
 import 'permission_service.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -33,7 +35,7 @@ class AuthService {
       );
 
       print('🟢 Firebase Auth successful, fetching user data...');
-      
+
       // Reload user to get latest verification status
       await result.user!.reload();
 
@@ -54,18 +56,30 @@ class AuthService {
       // Create UserModel from Firestore data
       final userData = userDoc.data()!;
       userData['uid'] = result.user!.uid; // Ensure UID is included
-      userData['emailVerified'] = result.user!.emailVerified; // Get latest verification status
+      userData['emailVerified'] =
+          result.user!.emailVerified; // Get latest verification status
 
       // Update verification status in Firestore if needed
       if (result.user!.emailVerified != (userData['emailVerified'] ?? false)) {
         await updateEmailVerificationStatus(result.user!.emailVerified);
       }
 
+      // Update FCM token after login
+      final fcmToken = await PushNotificationService().getFcmTokenDirect();
+      print('🟢 FCM token: $fcmToken');
+      if (fcmToken != null) {
+        await _firestore
+            .collection('users')
+            .doc(result.user!.uid)
+            .update({'fcmToken': fcmToken});
+        print('🟢 FCM token saved to Firestore');
+      }
+
       final userModel = UserModel.fromMap(userData);
       print('🟢 UserModel created successfully: $userModel');
 
       final scheduleService = WeddingDayScheduleService();
-  await scheduleService.loadData();
+      await scheduleService.loadData();
 
       // Save user data to SharedPreferences
       await saveUserToPrefs(userModel);
@@ -81,8 +95,8 @@ class AuthService {
     required String email,
     required String password,
     required String name,
-    File? profilePicture, // Make it optional
-    String? profilePictureUrl, // Make it optional
+    File? profilePicture,
+    String? profilePictureUrl,
   }) async {
     try {
       final UserCredential userCredential =
@@ -95,8 +109,8 @@ class AuthService {
       await _firestore.collection('users').doc(userCredential.user!.uid).set({
         'name': name,
         'email': email,
-        'profilePictureUrl': profilePictureUrl, // Can be null
-        'emailVerified': false, // Add verification status
+        'profilePictureUrl': profilePictureUrl,
+        'emailVerified': false,
         'createdAt': FieldValue.serverTimestamp(),
       });
 
@@ -128,10 +142,10 @@ class AuthService {
         print('🔴 No current Firebase user');
         return null;
       }
-      
+
       // Reload user to get latest verification status
       await firebaseUser.reload();
-      
+
       // Try to get user data from Firestore
       print('🟢 Fetching current user data from Firestore');
       final doc =
@@ -145,8 +159,9 @@ class AuthService {
       // Create UserModel from Firestore data
       final userData = doc.data()!;
       userData['uid'] = firebaseUser.uid; // Ensure UID is included
-      userData['emailVerified'] = firebaseUser.emailVerified; // Get latest verification status
-      
+      userData['emailVerified'] =
+          firebaseUser.emailVerified; // Get latest verification status
+
       // Update verification status in Firestore if needed
       if (firebaseUser.emailVerified != (userData['emailVerified'] ?? false)) {
         await updateEmailVerificationStatus(firebaseUser.emailVerified);
@@ -190,13 +205,25 @@ class AuthService {
     try {
       print('🟢 Signing out user');
 
+      // Clear FCM token before signing out
+      if (_auth.currentUser != null) {
+        await _firestore
+            .collection('users')
+            .doc(_auth.currentUser!.uid)
+            .update({'fcmToken': ''});
+        print('🟢 Cleared FCM token');
+        // Delete the FCM token from the device
+      }
+
       // Clear SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove(_userKey);
       print('🟢 Cleared user data from SharedPreferences');
 
-      // Sign out from Firebase
+      // Cancel all notifications
       NotificationService.cancelAllScheduledNotifications();
+
+      // Sign out from Firebase
       await _auth.signOut();
       print('🟢 User signed out from Firebase successfully');
     } catch (e) {
@@ -207,10 +234,7 @@ class AuthService {
 
   Future<String?> uploadProfilePicture(File image, String userId) async {
     try {
-      final ref = FirebaseStorage.instance
-          .ref()
-          .child('user_profiles')
-          .child('$userId.jpg');
+      final ref = _storage.ref().child('user_profiles').child('$userId.jpg');
 
       // Upload image
       await ref.putFile(image);
@@ -309,11 +333,11 @@ class AuthService {
     try {
       final user = _auth.currentUser;
       if (user == null) throw Exception('No user logged in');
-      
+
       await _firestore.collection('users').doc(user.uid).update({
         'emailVerified': isVerified,
       });
-      
+
       print('🟢 Updated email verification status to: $isVerified');
     } catch (e) {
       print('🔴 Error updating email verification status: $e');
@@ -321,8 +345,81 @@ class AuthService {
     }
   }
 
+  Future<List<Map<String, dynamic>>> searchUsers(String query) async {
+    try {
+      // Search by name
+      final nameResults = await _firestore
+          .collection('users')
+          .where('name', isGreaterThanOrEqualTo: query)
+          .where('name', isLessThanOrEqualTo: query + '\uf8ff')
+          .limit(5)
+          .get();
 
+      // Search by email
+      final emailResults = await _firestore
+          .collection('users')
+          .where('email', isGreaterThanOrEqualTo: query)
+          .where('email', isLessThanOrEqualTo: query + '\uf8ff')
+          .limit(5)
+          .get();
 
+      // Combine and deduplicate results
+      final Set<String> seenUids = {};
+      final List<Map<String, dynamic>> results = [];
 
+      for (var doc in nameResults.docs) {
+        if (!seenUids.contains(doc.id)) {
+          seenUids.add(doc.id);
+          results.add({
+            'uid': doc.id,
+            'name': doc.data()['name'] ?? '',
+            'email': doc.data()['email'] ?? '',
+          });
+        }
+      }
 
+      for (var doc in emailResults.docs) {
+        if (!seenUids.contains(doc.id)) {
+          seenUids.add(doc.id);
+          results.add({
+            'uid': doc.id,
+            'name': doc.data()['name'] ?? '',
+            'email': doc.data()['email'] ?? '',
+          });
+        }
+      }
+
+      return results;
+    } catch (e) {
+      throw Exception('Error searching users: $e');
+    }
+  }
+
+  Future<bool> checkNotificationPermission() async {
+    try {
+      final settings = await FirebaseMessaging.instance.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+        provisional: false,
+      );
+      return settings.authorizationStatus == AuthorizationStatus.authorized;
+    } catch (e) {
+      print('🔴 Error checking notification permission: $e');
+      return false;
+    }
+  }
+
+  Future<String?> getCurrentUserName() async {
+    try {
+      final user = _auth.currentUser;
+      if (user != null) {
+        final doc = await _firestore.collection('users').doc(user.uid).get();
+        return doc.data()?['name'] as String?;
+      }
+      return null;
+    } catch (e) {
+      throw Exception('Error getting user name: $e');
+    }
+  }
 }

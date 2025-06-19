@@ -319,8 +319,7 @@ class _SignInScreenState extends State<SignInScreen> {
                           },
                           activeColor: Colors.white,
                           checkColor: const Color.fromARGB(255, 107, 69, 106),
-                          fillColor:
-                              WidgetStateProperty.resolveWith((states) {
+                          fillColor: WidgetStateProperty.resolveWith((states) {
                             if (states.contains(WidgetState.selected)) {
                               return Colors.white;
                             }

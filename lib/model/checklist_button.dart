@@ -6,13 +6,12 @@ class MyButton extends StatelessWidget {
   final Color? color;
   final Color? textColor;
 
-  const MyButton({
-    super.key,
-    required this.onPressed,
-    required this.text,
-    this.color,
-    this.textColor
-  });
+  const MyButton(
+      {super.key,
+      required this.onPressed,
+      required this.text,
+      this.color,
+      this.textColor});
 
   @override
   Widget build(BuildContext context) {
@@ -24,23 +23,24 @@ class MyButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       elevation: 2,
-      child: onPressed == null  ? Center(
-        child: SizedBox(
-          height: 15, 
-          width: 15,
-          child: CircularProgressIndicator(
-            strokeWidth: 2,
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-          ),
-        ),
-      )  :    Text(
-        text,
-        style: TextStyle(
-          color: 
-              textColor ?? Color.fromARGB(255, 107, 69, 106),
-          fontWeight: FontWeight.bold,
-        ),
-      ),
+      child: onPressed == null
+          ? Center(
+              child: SizedBox(
+                height: 15,
+                width: 15,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              ),
+            )
+          : Text(
+              text,
+              style: TextStyle(
+                color: textColor ?? Color.fromARGB(255, 107, 69, 106),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
     );
   }
 }

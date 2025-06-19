@@ -6,12 +6,12 @@ import 'package:four_secrets_wedding_app/firebase_options.dart';
 import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:flutter/services.dart';
 import 'package:four_secrets_wedding_app/services/notification_alaram-service.dart';
+import 'package:four_secrets_wedding_app/services/push_notification_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
-
-  // This must be a top‐level or @pragma('vm:entry-point') function
+// This must be a top‐level or @pragma('vm:entry-point') function
 @pragma('vm:entry-point')
 void alarmCallback(int id) {
   // When AlarmManager fires, show the notification
@@ -22,41 +22,52 @@ void alarmCallback(int id) {
   );
 }
 
-
 Future<void> main() async {
-WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
 
   tz.initializeTimeZones();
- 
+
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    
+
     await FirebaseAppCheck.instance.activate(
-      androidProvider: kDebugMode 
-        ? AndroidProvider.debug 
-        : AndroidProvider.playIntegrity,
-      appleProvider: kDebugMode
-        ? AppleProvider.debug
-        : AppleProvider.appAttest,
+      androidProvider:
+          kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity,
+      appleProvider: kDebugMode ? AppleProvider.debug : AppleProvider.appAttest,
     );
   } catch (e) {
     debugPrint('Failed to initialize Firebase: $e');
   }
 
-  // 3️⃣ Initialize NotificationService
+  // Initialize NotificationService
   try {
     await NotificationService.initialize();
     print('🔔 NotificationService initialized successfully');
   } catch (e) {
     print('❌ NotificationService initialization failed: $e');
   }
+
+  final testToken = await PushNotificationService().getFcmTokenDirect();
+  if (testToken != null) {
+    print('🟢 Test FCM token successful');
+  } else {
+    print('🟡 Test FCM token returned null');
+  }
+
+  // Initialize PushNotificationService
+  try {
+    final pushNotificationService = PushNotificationService();
+    await pushNotificationService.initialize();
+    print('🔔 PushNotificationService initialized successfully');
+  } catch (e) {
+    print('❌ PushNotificationService initialization failed: $e');
+  }
+
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);
-  
-  
 
   runApp(
     MaterialApp(

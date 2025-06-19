@@ -40,6 +40,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        
         drawer: Menue.getInstance(key), // Use the singleton instance
         body: CustomScrollView(
           physics: ClampingScrollPhysics(),

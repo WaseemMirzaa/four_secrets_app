@@ -229,8 +229,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                     // Validate inputs
                                     if (currentPasswordController
                                         .text.isEmpty) {
-                                      SnackBarHelper.showErrorSnackBar(context,
-                                          AppConstants.emptyCurrentPasswordError);
+                                      SnackBarHelper.showErrorSnackBar(
+                                          context,
+                                          AppConstants
+                                              .emptyCurrentPasswordError);
                                       return;
                                     }
 //check list againt user id 1 images2 checklist 3 data waiting
@@ -242,8 +244,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
                                     if (newPasswordController.text !=
                                         confirmPasswordController.text) {
-                                      SnackBarHelper.showErrorSnackBar(context,
-                                          AppConstants.newPasswordMismatchError);
+                                      SnackBarHelper.showErrorSnackBar(
+                                          context,
+                                          AppConstants
+                                              .newPasswordMismatchError);
                                       return;
                                     }
 
@@ -291,23 +295,24 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
                                       SnackBarHelper.showSuccessSnackBar(
                                           context,
-                                          AppConstants.passwordUpdateSuccessMessage);
+                                          AppConstants
+                                              .passwordUpdateSuccessMessage);
                                     } catch (e) {
                                       if (!mounted) return;
 
-                                      String errorMessage =
-                                          AppConstants.passwordUpdateFailedError;
+                                      String errorMessage = AppConstants
+                                          .passwordUpdateFailedError;
 
                                       if (e
                                           .toString()
                                           .contains('wrong-password')) {
-                                        errorMessage =
-                                            AppConstants.wrongCurrentPasswordError;
+                                        errorMessage = AppConstants
+                                            .wrongCurrentPasswordError;
                                       } else if (e
                                           .toString()
                                           .contains('too-many-requests')) {
-                                        errorMessage =
-                                            AppConstants.tooManyPasswordRequestsError;
+                                        errorMessage = AppConstants
+                                            .tooManyPasswordRequestsError;
                                       }
 
                                       SnackBarHelper.showErrorSnackBar(
@@ -424,8 +429,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
       }
     } catch (e) {
       if (mounted) {
-        SnackBarHelper.showErrorSnackBar(context,
-            '${AppConstants.profileUpdateFailedError}${e.toString()}');
+        SnackBarHelper.showErrorSnackBar(
+            context, '${AppConstants.profileUpdateFailedError}${e.toString()}');
       }
     } finally {
       if (mounted) {
@@ -506,6 +511,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     final headerHeight = screenHeight / 3;
 
     return Scaffold(
+      backgroundColor: Colors.white,
       drawer: Menue.getInstance(key),
       appBar: AppBar(
         systemOverlayStyle: const SystemUiOverlayStyle(

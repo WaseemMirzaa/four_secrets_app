@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:four_secrets_wedding_app/models/drawer_model.dart';
+import 'package:four_secrets_wedding_app/widgets/custom_text_widget.dart';
+import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
 import '../config/theme/app_theme.dart';
 import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:four_secrets_wedding_app/services/auth_service.dart';
@@ -14,10 +16,8 @@ import 'services/menu_service.dart';
 export 'menue.dart' show MenueState;
 
 class Menue extends StatefulWidget {
-   Menue({Key? key}) : super(key: key);
+  Menue({Key? key}) : super(key: key);
 
-
- 
   // Static method to get the singleton menu instance
   static Widget getInstance(Key keyWidget) {
     return MenuService().getMenu(keyWidget);
@@ -38,17 +38,13 @@ class Menue extends StatefulWidget {
 }
 
 class MenueState extends State<Menue> {
-
-
-
   final AuthService _authService = AuthService();
   String? _userName;
   String? _profilePictureUrl;
   bool _isLoading = true;
- // Initialize later in initState()
-  late Map<String,bool> _pressedStates;
+  // Initialize later in initState()
+  late Map<String, bool> _pressedStates;
   String? currentSelected;
-
 
   @override
   void initState() {
@@ -56,15 +52,15 @@ class MenueState extends State<Menue> {
 
     // Check if data is already loaded in the service
     final menuService = MenuService();
- _pressedStates = {
-    for (var item in listDrawerModel) item.name: false,
-    'Profil bearbeiten': false,
-    'Logout': false,
-  };
+    _pressedStates = {
+      for (var item in listDrawerModel) item.name: false,
+      'Profil bearbeiten': false,
+      'Logout': false,
+    };
 
-  // Load saved selection from MenuService or default to Home
-  currentSelected = menuService.selectedItem ?? listDrawerModel[0].name;
-  _pressedStates[currentSelected!] = true;
+    // Load saved selection from MenuService or default to Home
+    currentSelected = menuService.selectedItem ?? listDrawerModel[0].name;
+    _pressedStates[currentSelected!] = true;
 
     if (menuService.isDataLoaded) {
       _userName = menuService.userName;
@@ -74,16 +70,18 @@ class MenueState extends State<Menue> {
       _loadUserData();
     }
   }
-void _select(String name) {
-  setState(() {
-    _pressedStates.updateAll((_, __) => false);
-    _pressedStates[name] = true;
-    currentSelected = name;
-    if (name != 'Logout') {
-      MenuService().selectedItem = name; // Save only non-logout selections
-    }
-  });
-}
+
+  void _select(String name) {
+    setState(() {
+      _pressedStates.updateAll((_, __) => false);
+      _pressedStates[name] = true;
+      currentSelected = name;
+      if (name != 'Logout') {
+        MenuService().selectedItem = name; // Save only non-logout selections
+      }
+    });
+  }
+
   // Method to update user data from outside
   void updateUserData(String? userName, String? profilePictureUrl) {
     if (mounted) {
@@ -313,126 +311,147 @@ void _select(String name) {
             ),
           ),
 
-        ...listDrawerModel.map((e){
-          bool isSelected = _pressedStates[e.name]!;
+          ...listDrawerModel.map((e) {
+            bool isSelected = _pressedStates[e.name]!;
 
-          return 
-           Card(
-            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: ListTile(
+            return Card(
+              margin:
+                  const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 0,
-              ),
-              tileColor: isSelected ? Colors.purple[50] : Colors.white,
-              leading: Icon(e.icon),
-              title:  Text(
-               e.name,
-                style: TextStyle(fontSize: 18),
-              ),
-              onTap: () {
-               
-                 _select(e.name);
-               
-                if(e.name == "Home"){
-                   Timer(
-                  const Duration(milliseconds: 100),
-                  () {
-                    Navigator.of(context).pushNamed(RouteManager.homePage);
-                  },
-                );
-                } else if(e.name == "Inspirationen"){
-                  Timer(
-                  const Duration(milliseconds: 100),
-                  () {
-                    Navigator.of(context).pushNamed(RouteManager.inspirationsPage);
-                  },
-                );
-                } else if(e.name == "Checkliste"){
-                  Timer(
-                  const Duration(milliseconds: 100),
-                  () {
-                    Navigator.of(context).pushNamed(RouteManager.checklistPage);
-                  },
-                );
-               
-                } else if(e.name == "Budget"){
-                  Timer(
-                  const Duration(milliseconds: 100),
-                  () {
-                    Navigator.of(context).pushNamed(RouteManager.budgetPage);
-                  },
-                );
-                } else if(e.name == "Gästeliste"){
-                  Timer(
-                  const Duration(milliseconds: 100),
-                  () {
-                    Navigator.of(context).pushNamed(RouteManager.gaestelistPage);
-                  },
-                );
-                } else if(e.name == "Tischverwaltung"){
-                  Timer(
-                  const Duration(milliseconds: 100),
-                  () {
-                    Navigator.of(context).pushNamed(RouteManager.tablesManagementPage);
-                  },
-                );
-                } else if(e.name == "Showroom"){
-                  Timer(
-                  const Duration(milliseconds: 100),
-                  () {
-                    Navigator.of(context).pushNamed(RouteManager.showroomEventPage);
-                  },
-                );
-                } else if(e.name == "Über mich"){
-                  Timer(
-                  const Duration(milliseconds: 100),
-                  () {
-                    Navigator.of(context).pushNamed(RouteManager.aboutMePage);
-                  },
-                );
-                } else if(e.name == "Kontakt"){
-                  Timer(
-                  const Duration(milliseconds: 100),
-                  () {
-                    Navigator.of(context).pushNamed(RouteManager.kontakt);
-                  },
-                );
-                } else if(e.name == "Impressum"){
-                  Timer(
-                  const Duration(milliseconds: 100),
-                  () {
-                    Navigator.of(context).pushNamed(RouteManager.impressum);
-                  },
-                );
-                } else if(e.name == "Inspirationsordner"){
-                  Timer(
-                  const Duration(milliseconds: 100),
-                  () {
-                    Navigator.of(context).pushNamed(RouteManager.inspirationFolderPage);
-                  },
-                );
-                } else if(e.name == "Tagesablauf"){
-                  Timer(
-                  const Duration(milliseconds: 100),
-                  () {
-                    Navigator.of(context).pushNamed(RouteManager.weddingSchedulePage);
-                  },
-                );
-                }
+              child: ListTile(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 0,
+                ),
+                tileColor: isSelected ? Colors.purple[50] : Colors.white,
+                leading: Icon(e.icon),
+                title: CustomTextWidget(
+                  text: e.name,
+                  fontSize: 16,
+                  color: Colors.black,
+                ),
+                onTap: () {
+                  _select(e.name);
 
-              },
-            ),
-          );
-        }),
+                  if (e.name == "Home") {
+                    Timer(
+                      const Duration(milliseconds: 100),
+                      () {
+                        Navigator.of(context).pushNamed(RouteManager.homePage);
+                      },
+                    );
+                  } else if (e.name == "Inspirationen") {
+                    Timer(
+                      const Duration(milliseconds: 100),
+                      () {
+                        Navigator.of(context)
+                            .pushNamed(RouteManager.inspirationsPage);
+                      },
+                    );
+                  } else if (e.name == "Checkliste") {
+                    Timer(
+                      const Duration(milliseconds: 100),
+                      () {
+                        Navigator.of(context)
+                            .pushNamed(RouteManager.checklistPage);
+                      },
+                    );
+                  } else if (e.name == "Budget") {
+                    Timer(
+                      const Duration(milliseconds: 100),
+                      () {
+                        Navigator.of(context)
+                            .pushNamed(RouteManager.budgetPage);
+                      },
+                    );
+                  } else if (e.name == "Gästeliste") {
+                    Timer(
+                      const Duration(milliseconds: 100),
+                      () {
+                        Navigator.of(context)
+                            .pushNamed(RouteManager.gaestelistPage);
+                      },
+                    );
+                  } else if (e.name == "Tischverwaltung") {
+                    Timer(
+                      const Duration(milliseconds: 100),
+                      () {
+                        Navigator.of(context)
+                            .pushNamed(RouteManager.tablesManagementPage);
+                      },
+                    );
+                  } else if (e.name == "Showroom") {
+                    Timer(
+                      const Duration(milliseconds: 100),
+                      () {
+                        Navigator.of(context)
+                            .pushNamed(RouteManager.showroomEventPage);
+                      },
+                    );
+                  } else if (e.name == "Über mich") {
+                    Timer(
+                      const Duration(milliseconds: 100),
+                      () {
+                        Navigator.of(context)
+                            .pushNamed(RouteManager.aboutMePage);
+                      },
+                    );
+                  } else if (e.name == "Kontakt") {
+                    Timer(
+                      const Duration(milliseconds: 100),
+                      () {
+                        Navigator.of(context).pushNamed(RouteManager.kontakt);
+                      },
+                    );
+                  } else if (e.name == "Zusammenarbeit") {
+                    Timer(
+                      const Duration(milliseconds: 100),
+                      () {
+                        Navigator.of(context)
+                            .pushNamed(RouteManager.collaborationPage);
+                      },
+                    );
+                  } else if (e.name == "Impressum") {
+                    Timer(
+                      const Duration(milliseconds: 100),
+                      () {
+                        Navigator.of(context).pushNamed(RouteManager.impressum);
+                      },
+                    );
+                  } else if (e.name == "Hochzeitskit") {
+                    Timer(
+                      const Duration(milliseconds: 100),
+                      () {
+                        Navigator.of(context).pushNamed(RouteManager.toDoPage);
+                      },
+                    );
+                  } else if (e.name == "Inspirationsordner") {
+                    Timer(
+                      const Duration(milliseconds: 100),
+                      () {
+                        Navigator.of(context)
+                            .pushNamed(RouteManager.inspirationFolderPage);
+                      },
+                    );
+                  } else if (e.name == "Tagesablauf") {
+                    Timer(
+                      const Duration(milliseconds: 100),
+                      () {
+                        Navigator.of(context)
+                            .pushNamed(RouteManager.weddingSchedulePage);
+                      },
+                    );
+                  }
+                },
+              ),
+            );
+          }),
 
-          
           const Divider(
             color: Colors.grey,
             thickness: 0.5,
@@ -453,14 +472,16 @@ void _select(String name) {
                 horizontal: 10,
                 vertical: 0,
               ),
-              tileColor: _pressedStates['Profil bearbeiten']! 
-       ? Colors.purple[50] : Colors.white,
+              tileColor: _pressedStates['Profil bearbeiten']!
+                  ? Colors.purple[50]
+                  : Colors.white,
               leading: const Icon(
                 Icons.person,
               ),
-              title: const Text(
-                'Profil bearbeiten',
-                style: TextStyle(fontSize: 18),
+              title: CustomTextWidget(
+                text: 'Profil bearbeiten',
+                fontSize: 16,
+                color: Colors.black,
               ),
               onTap: () {
                 _select('Profil bearbeiten');
@@ -492,22 +513,20 @@ void _select(String name) {
                 horizontal: 10,
                 vertical: 0,
               ),
-              tileColor: _pressedStates['Logout']! 
-       ? Colors.purple[50] : Colors.white,
+              tileColor:
+                  _pressedStates['Logout']! ? Colors.purple[50] : Colors.white,
               leading: const Icon(
                 Icons.logout,
                 color: Colors.red,
               ),
-              title: const Text(
-                'Logout',
-                style: TextStyle(
-                  fontSize: 18,
-                  color: Colors.red,
-                ),
+              title: CustomTextWidget(
+                text: 'Logout',
+                fontSize: 16,
+                color: Colors.red,
               ),
               onTap: () {
                 _select('Logout');
-               
+
                 Timer(
                   const Duration(milliseconds: 100),
                   () => _handleLogout(context),
@@ -515,6 +534,7 @@ void _select(String name) {
               },
             ),
           ),
+          const SpacerWidget(height: 10),
         ],
       ),
     );

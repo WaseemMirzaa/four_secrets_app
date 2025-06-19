@@ -2,8 +2,7 @@ import 'package:four_secrets_wedding_app/menue.dart';
 import 'package:flutter/material.dart';
 
 class Impressum extends StatelessWidget {
-   Impressum({super.key});
-
+  Impressum({super.key});
 
   @override
   Widget build(BuildContext context) {

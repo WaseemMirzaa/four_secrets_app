@@ -58,7 +58,8 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
       });
     } catch (e) {
       if (mounted) {
-        SnackBarHelper.showErrorSnackBar(context, '${AppConstants.loadDataError}$e');
+        SnackBarHelper.showErrorSnackBar(
+            context, '${AppConstants.loadDataError}$e');
       }
     }
   }
@@ -102,9 +103,9 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
     final maxGuestsController = TextEditingController();
     var selectedTableType; // Default value
     final tableTypes = [
-      AppConstants.tableTypeRound, 
-      AppConstants.tableTypeOval, 
-      AppConstants.tableTypeRectangular, 
+      AppConstants.tableTypeRound,
+      AppConstants.tableTypeOval,
+      AppConstants.tableTypeRectangular,
       AppConstants.tableTypeSquare
     ];
     bool _isLoading = false; // Track loading state
@@ -145,8 +146,8 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
                 setState(() {
                   _isLoading = false;
                 });
-                SnackBarHelper.showErrorSnackBar(context,
-                    AppConstants.enterValidGuestsError);
+                SnackBarHelper.showErrorSnackBar(
+                    context, AppConstants.enterValidGuestsError);
                 return;
               }
 
@@ -346,7 +347,8 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
                                                         SnackBarHelper
                                                             .showInfoSnackBar(
                                                                 context,
-                                                                AppConstants.maxCapacityWarning);
+                                                                AppConstants
+                                                                    .maxCapacityWarning);
                                                         capacityWarningShown =
                                                             true;
                                                       }
@@ -505,11 +507,13 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
                                           if (selectedGuestIds.length == 1) {
                                             SnackBarHelper.showSuccessSnackBar(
                                                 context,
-                                                AppConstants.oneGuestAssignedSuccess);
+                                                AppConstants
+                                                    .oneGuestAssignedSuccess);
                                           } else {
                                             SnackBarHelper.showSuccessSnackBar(
                                                 context,
-                                                AppConstants.multipleGuestsAssignedSuccess);
+                                                AppConstants
+                                                    .multipleGuestsAssignedSuccess);
                                           }
                                         } catch (e) {
                                           if (!mounted) return;
@@ -660,7 +664,6 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
       color: Colors.grey.shade300,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
-        
       ),
       margin: EdgeInsets.fromLTRB(24, 10, 24, 0),
       child: Padding(
@@ -833,19 +836,21 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        // backgroundColor: Colors.white,
         drawer: Menue.getInstance(key),
         appBar: AppBar(
           foregroundColor: Color.fromARGB(255, 255, 255, 255),
           title: Text(AppConstants.tableManagementTitle),
           backgroundColor: const Color.fromARGB(255, 107, 69, 106),
           actions: [
-
-             IconButton(
-              icon:  Icon(FontAwesomeIcons.download, size: 20,),
+            IconButton(
+              icon: Icon(
+                FontAwesomeIcons.download,
+                size: 20,
+              ),
               tooltip: AppConstants.addTableTooltip,
-              onPressed: (){
+              onPressed: () {
                 generateTableManagementPdf(_tables, _tableGuestsMap);
-
               },
             ),
 
@@ -936,14 +941,7 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
     );
   }
 
-
-  
-
   void onCancel() {
     Navigator.of(context).pop();
   }
 }
-
-
-
-

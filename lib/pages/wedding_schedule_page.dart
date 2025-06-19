@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:four_secrets_wedding_app/Pdf/share_single_pdf.dart';
 import 'package:four_secrets_wedding_app/Pdf/shcedule_pdf.dart';
 import 'package:four_secrets_wedding_app/constants/app_constants.dart';
 import 'package:four_secrets_wedding_app/extension.dart';
@@ -13,6 +14,7 @@ import 'package:four_secrets_wedding_app/services/wedding_day_schedule_service.d
 import 'package:four_secrets_wedding_app/widgets/custom_text_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:printing/printing.dart';
 import 'package:see_more/see_more_widget.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -24,20 +26,20 @@ class WeddingSchedulePage extends StatefulWidget {
 }
 
 class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
-
   final key = GlobalKey<MenueState>();
   late GoogleMapController _mapController;
 
   WeddingDayScheduleModel? weddingDayScheduleModel;
-bool _isFirstLoad = true;
-  WeddingDayScheduleService weddingDayScheduleService = WeddingDayScheduleService();
+  bool _isFirstLoad = true;
+  WeddingDayScheduleService weddingDayScheduleService =
+      WeddingDayScheduleService();
   @override
   void initState() {
     super.initState();
     loadData();
   }
 
-@override
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Skip the first call (which happens after initState)
@@ -47,66 +49,68 @@ bool _isFirstLoad = true;
     _isFirstLoad = false;
   }
 
-  loadData(){
+  loadData() {
     setState(() {
       // isLoading = true;
     });
-    weddingDayScheduleService.loadData().then((v){
+    weddingDayScheduleService.loadData().then((v) {
       setState(() {
-      // isLoading = false;
+        // isLoading = false;
+      });
     });
-    });
-    
   }
-
-
-
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        backgroundColor: Colors.white,
         // resizeToAvoidBottomInset: false,
         drawer: Menue.getInstance(key),
         appBar: AppBar(
           centerTitle: true,
           foregroundColor: Colors.white,
-          title:  Text(AppConstants.weddingAddPageTitle),
+          title: Text(AppConstants.weddingAddPageTitle),
           backgroundColor: const Color.fromARGB(255, 107, 69, 106),
           actions: [
-            IconButton(onPressed: (){
-             final sortedScheduleList = weddingDayScheduleService.weddingDayScheduleList
-    .where((e) => e.time != null) // Filter if needed
-    .toList()
-  ..sort((a, b) => a.time.compareTo(b.time))..map((e) => e
-    ..time = DateTime(
-    e.time.year,
-    e.time.month,
-    e.time.day,
-    e.time.hour,
-    e.time.minute,
-    )
-  );
+            IconButton(
+                onPressed: () {
+                  final sortedScheduleList =
+                      weddingDayScheduleService.weddingDayScheduleList
+                          .where((e) => e.time != null) // Filter if needed
+                          .toList()
+                        ..sort((a, b) => a.time.compareTo(b.time))
+                        ..map((e) => e
+                          ..time = DateTime(
+                            e.time.year,
+                            e.time.month,
+                            e.time.day,
+                            e.time.hour,
+                            e.time.minute,
+                          ));
 
 // Step 2: Pass it to the PDF generator
-generateTableWeddingPdf(sortedScheduleList);
-            }, icon: Icon(FontAwesomeIcons.download, size: 18,))
+                  generateTableWeddingPdf(sortedScheduleList);
+                },
+                icon: Icon(
+                  FontAwesomeIcons.download,
+                  size: 18,
+                ))
           ],
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed:(){
-             Navigator.of(context).pushNamed(RouteManager.addWedidngSchedulePage, arguments: {
-             "weddingDayScheduleModel" : weddingDayScheduleModel,
-             });
+          onPressed: () {
+            Navigator.of(context)
+                .pushNamed(RouteManager.addWedidngSchedulePage, arguments: {
+              "weddingDayScheduleModel": weddingDayScheduleModel,
+            });
           },
           child: const Icon(Icons.add),
         ),
-       body: ListView(
-        
+        body: ListView(
           children: [
-          //  SpacerWidget(height: 17),
+            //  SpacerWidget(height: 17),
             SizedBox(
-            
               child: Image.asset(
                 "assets/images/background/inspirationbg.png",
                 fit: BoxFit.fitWidth,
@@ -118,92 +122,95 @@ generateTableWeddingPdf(sortedScheduleList);
                 height: 30,
                 width: context.screenWidth,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                    Colors.transparent,
-                    Color(0xffFFF7FF).withValues(alpha: 0.1),
-                    Color(0xffFFF7FF).withValues(alpha: 0.2),
-                    Color(0xffFFF7FF),
-                  ])
-                ),
+                    gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                      Colors.transparent,
+                      Color(0xffFFF7FF).withValues(alpha: 0.1),
+                      Color(0xffFFF7FF).withValues(alpha: 0.2),
+                      Color(0xffFFF7FF),
+                    ])),
               ),
             ),
-          FourSecretsDivider(), 
+            FourSecretsDivider(),
 
-        
-         SizedBox(
-    width: context.screenWidth,
-    
-     child: ReorderableListView.builder(
-      physics: NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
-      buildDefaultDragHandles: false,
-       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-       itemCount: weddingDayScheduleService.weddingDayScheduleList.length,
-       onReorder: (oldIndex, newIndex) async {
-         final list = List<WeddingDayScheduleModel>.from(
-             weddingDayScheduleService.weddingDayScheduleList);
-         if (newIndex > oldIndex) newIndex--;
-         final item = list.removeAt(oldIndex);
-         list.insert(newIndex, item);
-     
-         // Persist the new order in Firestore:
-         await weddingDayScheduleService.updateOrderItemsList(list);
-     
-         setState(() {
-           // Reflect the change immediately:
-           weddingDayScheduleService.weddingDayScheduleList = list;
-         });
-       },
-       itemBuilder: (context, index) {
-         final item = weddingDayScheduleService.weddingDayScheduleList[index];
-         // Give each child a Unique Key from its ID:
-         return Container(
-           key: ValueKey(item.id),
-           margin: EdgeInsets.symmetric(vertical: 4),
-           child: Row(
-             children: [
-               Expanded(child: _buildSlidableItem(item, index)),
-              ReorderableDragStartListener(
-                key: ValueKey(item.id),
-                index: index,
-                child: Icon(FontAwesomeIcons.gripVertical, size: 16, color: Colors.grey.withValues(alpha: 0.6),),
-              )
-             ],
-           ),
-         );
-       },
-     ),
-   ),
-          FourSecretsDivider(),
-          SpacerWidget(height: 18)
+            SizedBox(
+              width: context.screenWidth,
+              child: ReorderableListView.builder(
+                physics: NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                buildDefaultDragHandles: false,
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                itemCount:
+                    weddingDayScheduleService.weddingDayScheduleList.length,
+                onReorder: (oldIndex, newIndex) async {
+                  final list = List<WeddingDayScheduleModel>.from(
+                      weddingDayScheduleService.weddingDayScheduleList);
+                  if (newIndex > oldIndex) newIndex--;
+                  final item = list.removeAt(oldIndex);
+                  list.insert(newIndex, item);
+
+                  // Persist the new order in Firestore:
+                  await weddingDayScheduleService.updateOrderItemsList(list);
+
+                  setState(() {
+                    // Reflect the change immediately:
+                    weddingDayScheduleService.weddingDayScheduleList = list;
+                  });
+                },
+                itemBuilder: (context, index) {
+                  final item =
+                      weddingDayScheduleService.weddingDayScheduleList[index];
+                  // Give each child a Unique Key from its ID:
+                  return Container(
+                    key: ValueKey(item.id),
+                    margin: EdgeInsets.symmetric(vertical: 4),
+                    child: Row(
+                      children: [
+                        Expanded(child: _buildSlidableItem(item, index)),
+                        ReorderableDragStartListener(
+                          key: ValueKey(item.id),
+                          index: index,
+                          child: Icon(
+                            FontAwesomeIcons.gripVertical,
+                            size: 16,
+                            color: Colors.grey.withValues(alpha: 0.6),
+                          ),
+                        )
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+            if (weddingDayScheduleService.weddingDayScheduleList.isNotEmpty)
+              FourSecretsDivider(),
+            SpacerWidget(height: 18)
           ],
-         ),
-       ),
-      
-    );
-    
-  }
-  Widget _buildSlidableItem(WeddingDayScheduleModel item, int index) {
-  return Slidable(
-    key: ValueKey(item.id),
-    endActionPane: ActionPane(
-      motion: StretchMotion(),
-      children: [
-        SlidableAction(
-          onPressed: (_) {
-            weddingDayScheduleService.deleteScheduleItem(item.id!);
-            loadData();
-          },
-          icon: Icons.delete,
-          backgroundColor: Colors.red.shade300,
-          borderRadius: BorderRadius.circular(10),
         ),
-      ],
-    ),
-    child: Container(
+      ),
+    );
+  }
+
+  Widget _buildSlidableItem(WeddingDayScheduleModel item, int index) {
+    return Slidable(
+      key: ValueKey(item.id),
+      endActionPane: ActionPane(
+        motion: StretchMotion(),
+        children: [
+          SlidableAction(
+            onPressed: (_) {
+              weddingDayScheduleService.deleteScheduleItem(item.id!);
+              loadData();
+            },
+            icon: Icons.delete,
+            backgroundColor: Colors.red.shade300,
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ],
+      ),
+      child: Container(
         width: context.screenWidth,
         // padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
@@ -212,179 +219,223 @@ generateTableWeddingPdf(sortedScheduleList);
             colors: [Colors.grey.shade200, Colors.grey.shade300],
           ),
         ),
-      
-      
-      child: ExpansionTile(
-        tilePadding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-        title: Row(
-          spacing: 6,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-           
-               Icon(FontAwesomeIcons.clock, size: 18),
-                CustomTextWidget(
-                text: "${item.time.hour.toString().padLeft(2, '0')}:${item.time.minute.toString().padLeft(2, '0')} "
-                  "${item.time.hour >= 12 ? 'Uhr' : 'Uhr'}",
-                fontSize: 14,
-                ),
-                SizedBox(
-                  height: 15,
-                  child: VerticalDivider(
-                    thickness: 2,
-                    color: Colors.black,
-                  ),
-                ), 
-                Icon(FontAwesomeIcons.calendar, size: 22,),
-                 CustomTextWidget(
-                text: "${item.time.day.toString().padLeft(2, '0')}-${item.time.month.toString().padLeft(2, '0')}-${item.time.year}",
-                fontSize: 14,
-                ),
-            Flexible(child: SizedBox(width: 10,)),
-              GestureDetector(
-                onTap: ()async {
-                 await SharePlus.instance.share(
-                  ShareParams(
-                  text: "Hey, mein Hochzeits-Termin ist um ${item.time.hour.toString().padLeft(2, '0')}:${item.time.minute.toString().padLeft(2, '0')} Uhr!, Location ${item.address}"
-                  
-                  )
-                 );
-                },
-                child: Icon(FontAwesomeIcons.share, size: 20, color: Colors.black,),
-              ),
 
-                SizedBox(
-                  width: 10,
-                ),
-              
-                Flexible(
-                  child: GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).pushNamed(RouteManager.addWedidngSchedulePage, arguments: {
-                    "weddingDayScheduleModel": item,
-                    });
-                  },
-                  child:Icon(FontAwesomeIcons.penToSquare, 
-                  size: 20, color: Colors.black,),
-                  
-                  ),
-                ), 
-               Flexible(
-                 child: SizedBox(
-                    width: 10,
-                  ),
-               ),
-          ],
-        ),
-        expandedCrossAxisAlignment: CrossAxisAlignment.start,
-        shape: OutlineInputBorder(
-          borderSide: BorderSide.none
-        ),
-        childrenPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-        children: [ 
-          CustomTextWidget(text: item.title, fontSize: 14, fontWeight: FontWeight.bold,),
-
-          // CustomTextWidget(
-          //     text: "Bearbeiten und Teilen",
-          //   fontSize: 16,
-          //   fontWeight: FontWeight.bold,
-          // ),
-          FourSecretsDivider(),
-
-           CustomTextWidget(text: "Verantwortliche Person ", fontSize: 14, fontWeight: FontWeight.bold,),
-          CustomTextWidget(text: item.responsiblePerson, fontSize: 14),
-                  FourSecretsDivider(),
-          CustomTextWidget(text: "Notizen", fontSize: 14, fontWeight: FontWeight.bold,),
-         SeeMoreWidget(item.notes, textStyle: TextStyle(fontSize: 14, color: Colors.black), trimLength: 90,
-          seeMoreStyle: TextStyle(color: Color.fromARGB(255, 107, 69, 106), fontWeight:FontWeight.bold),
-          seeLessStyle:  TextStyle(color: Color.fromARGB(255, 107, 69, 106), fontWeight:FontWeight.bold),
-           ),
-                   FourSecretsDivider(),
-
-          // CustomTextWidget(text: "Beschreibung", fontSize: 14, fontWeight: FontWeight.bold,),
-          // SeeMoreWidget(item.description, textStyle: TextStyle(fontSize: 14, color: Colors.black), trimLength: 90,
-          // seeMoreStyle: TextStyle(color: Color.fromARGB(255, 107, 69, 106), fontWeight:FontWeight.bold),
-          // seeLessStyle:  TextStyle(color: Color.fromARGB(255, 107, 69, 106), fontWeight:FontWeight.bold),
-          //  ),
-          //         FourSecretsDivider(),
-
-          // CustomTextWidget(text: "Uhrzeit", fontSize: 14, fontWeight: FontWeight.bold,),
-           
-            // FourSecretsDivider(),
-          if(item.reminderTime != null)
-          CustomTextWidget(text: "Erinnerung", fontSize: 14, fontWeight: FontWeight.bold,),
-
-          SpacerWidget(height: 2),
-          if(item.reminderTime != null)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              spacing: 10,
+        child: ExpansionTile(
+            tilePadding: EdgeInsets.symmetric(horizontal: 10, vertical: 6)
+                .copyWith(right: 4),
+            title: Row(
+              spacing: 6,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Icon(FontAwesomeIcons.clock, size: 18),
-                CustomTextWidget(
-                text: "${item.reminderTime!.hour.toString().padLeft(2, '0')}:${item.reminderTime!.minute.toString().padLeft(2, '0')} "
-                    "${item.reminderTime!.hour >= 12 ? 'Uhr' : 'Uhr'}",
-                fontSize: 14,
+                Row(
+                  children: [
+                    Row(
+                      children: [
+                        Icon(FontAwesomeIcons.clock, size: 16),
+                        SizedBox(width: 4),
+                        CustomTextWidget(
+                          text:
+                              "${item.time.hour.toString().padLeft(2, '0')}:${item.time.minute.toString().padLeft(2, '0')} "
+                              "${item.time.hour >= 12 ? 'Uhr' : 'Uhr'}",
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 15,
+                      width: 16,
+                      child: VerticalDivider(
+                        thickness: 2,
+                        color: Colors.black,
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        Icon(
+                          FontAwesomeIcons.calendar,
+                          size: 14,
+                        ),
+                        SizedBox(width: 4),
+                        CustomTextWidget(
+                          text:
+                              "${item.time.day.toString().padLeft(2, '0')}-${item.time.month.toString().padLeft(2, '0')}-${item.time.year}",
+                          fontSize: 12,
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                 SizedBox(
-                  height: 15,
-                  child: VerticalDivider(
-                    thickness: 2,
-                    color: Colors.black,
-                  ),
-                ), 
-                Icon(FontAwesomeIcons.calendar, size: 18,),
-              CustomTextWidget(
-                text: "${item.reminderTime!.day.toString().padLeft(2, '0')}-${item.reminderTime!.month.toString().padLeft(2, '0')}-${item.reminderTime!.year}",
-                fontSize: 14,
+                Row(
+                  children: [
+                    InkWell(
+                      onTap: () async {
+                        final pdfBytes = await generateSingleSchedulePdf(item);
+                        await Printing.sharePdf(
+                            bytes: pdfBytes,
+                            filename: 'Zeitplan_der_Hochzeit.pdf');
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(6.0),
+                        child: Icon(
+                          FontAwesomeIcons.share,
+                          size: 20,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 4),
+                    InkWell(
+                      onTap: () {
+                        Navigator.of(context).pushNamed(
+                            RouteManager.addWedidngSchedulePage,
+                            arguments: {
+                              "weddingDayScheduleModel": item,
+                            });
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(6.0),
+                        child: Icon(
+                          FontAwesomeIcons.penToSquare,
+                          size: 20,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          if(item.reminderTime != null)
+            expandedCrossAxisAlignment: CrossAxisAlignment.start,
+            shape: OutlineInputBorder(borderSide: BorderSide.none),
+            childrenPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            children: [
+              CustomTextWidget(
+                text: item.title,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
 
-          FourSecretsDivider(),
-            CustomTextWidget(text: "Ort", fontSize: 14, fontWeight: FontWeight.bold,),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(15),
-              child: Container(
-                // padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                height: context.screenHeight * 0.2,
-                width: context.screenWidth,
-                decoration: BoxDecoration(
-                  boxShadow: [
+              // CustomTextWidget(
+              //     text: "Bearbeiten und Teilen",
+              //   fontSize: 16,
+              //   fontWeight: FontWeight.bold,
+              // ),
+              FourSecretsDivider(),
+
+              CustomTextWidget(
+                text: "Verantwortliche Person ",
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+              CustomTextWidget(text: item.responsiblePerson, fontSize: 14),
+              FourSecretsDivider(),
+              CustomTextWidget(
+                text: "Notizen",
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+              SeeMoreWidget(
+                item.notes,
+                textStyle: TextStyle(fontSize: 14, color: Colors.black),
+                trimLength: 90,
+                seeMoreStyle: TextStyle(
+                    color: Color.fromARGB(255, 107, 69, 106),
+                    fontWeight: FontWeight.bold),
+                seeLessStyle: TextStyle(
+                    color: Color.fromARGB(255, 107, 69, 106),
+                    fontWeight: FontWeight.bold),
+              ),
+              FourSecretsDivider(),
+
+              // CustomTextWidget(text: "Beschreibung", fontSize: 14, fontWeight: FontWeight.bold,),
+              // SeeMoreWidget(item.description, textStyle: TextStyle(fontSize: 14, color: Colors.black), trimLength: 90,
+              // seeMoreStyle: TextStyle(color: Color.fromARGB(255, 107, 69, 106), fontWeight:FontWeight.bold),
+              // seeLessStyle:  TextStyle(color: Color.fromARGB(255, 107, 69, 106), fontWeight:FontWeight.bold),
+              //  ),
+              //         FourSecretsDivider(),
+
+              // CustomTextWidget(text: "Uhrzeit", fontSize: 14, fontWeight: FontWeight.bold,),
+
+              // FourSecretsDivider(),
+              if (item.reminderTime != null)
+                CustomTextWidget(
+                  text: "Erinnerung",
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+
+              SpacerWidget(height: 2),
+              if (item.reminderTime != null)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  spacing: 10,
+                  children: [
+                    Icon(FontAwesomeIcons.clock, size: 18),
+                    CustomTextWidget(
+                      text:
+                          "${item.reminderTime!.hour.toString().padLeft(2, '0')}:${item.reminderTime!.minute.toString().padLeft(2, '0')} "
+                          "${item.reminderTime!.hour >= 12 ? 'Uhr' : 'Uhr'}",
+                      fontSize: 14,
+                    ),
+                    SizedBox(
+                      height: 15,
+                      child: VerticalDivider(
+                        thickness: 2,
+                        color: Colors.black,
+                      ),
+                    ),
+                    Icon(
+                      FontAwesomeIcons.calendar,
+                      size: 18,
+                    ),
+                    CustomTextWidget(
+                      text:
+                          "${item.reminderTime!.day.toString().padLeft(2, '0')}-${item.reminderTime!.month.toString().padLeft(2, '0')}-${item.reminderTime!.year}",
+                      fontSize: 14,
+                    ),
+                  ],
+                ),
+              if (item.reminderTime != null) FourSecretsDivider(),
+              CustomTextWidget(
+                text: "Ort",
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(15),
+                child: Container(
+                  // padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  height: context.screenHeight * 0.2,
+                  width: context.screenWidth,
+                  decoration: BoxDecoration(boxShadow: [
                     BoxShadow(
-                      color: Colors.grey, 
-                      blurRadius: 10, offset: Offset(10, 0)
-                    )
-                  ]
-                ),
-                child:GoogleMap(
-                initialCameraPosition: CameraPosition(
-                  target: LatLng(item.lat, item.long),
-                  zoom: 14.0,
-                ),
-                onMapCreated: (controller) {
-                  _mapController = controller;
-                },
-                
-                markers: {
-                  Marker(
-                    markerId: const MarkerId("selected-location"),
-                    position: LatLng(item.lat, item.long),
+                        color: Colors.grey,
+                        blurRadius: 10,
+                        offset: Offset(10, 0))
+                  ]),
+                  child: GoogleMap(
+                    initialCameraPosition: CameraPosition(
+                      target: LatLng(item.lat, item.long),
+                      zoom: 14.0,
+                    ),
+                    onMapCreated: (controller) {
+                      _mapController = controller;
+                    },
+                    markers: {
+                      Marker(
+                        markerId: const MarkerId("selected-location"),
+                        position: LatLng(item.lat, item.long),
+                      ),
+                    },
                   ),
-                },
+                ),
               ),
-              ),
-            ), 
-                  FourSecretsDivider(),
 
-
-            
-        ]
+              FourSecretsDivider(),
+            ]),
       ),
-    ),
-  );
+    );
+  }
 }
-}
-
-
-

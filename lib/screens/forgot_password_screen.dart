@@ -23,10 +23,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
     try {
       await AuthService().forgotPassword(_emailController.text.trim());
-      
+
       // Clear the input field after successful password reset
       _emailController.clear();
-      
+
       if (!mounted) return;
       SnackBarHelper.showSuccessSnackBar(context,
           'E-Mail zum Zurücksetzen des Passworts gesendet. Bitte überprüfen Sie Ihren Posteingang.');

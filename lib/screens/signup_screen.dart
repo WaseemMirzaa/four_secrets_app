@@ -40,7 +40,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -340,7 +339,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
           errorMessage = AppConstants.networkRequestFailedError;
           break;
         default:
-          errorMessage = '${AppConstants.signUpFailedError}${e.message ?? 'Please try again'}';
+          errorMessage =
+              '${AppConstants.signUpFailedError}${e.message ?? 'Please try again'}';
       }
 
       SnackBarHelper.showErrorSnackBar(context, errorMessage);

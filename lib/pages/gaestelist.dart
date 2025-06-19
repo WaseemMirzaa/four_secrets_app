@@ -50,7 +50,8 @@ class _GaestelistState extends State<Gaestelist> {
           .collection('users')
           .doc(userId)
           .collection('guests')
-          .orderBy('createdAt', descending: false)  // Sort by creation time, oldest first
+          .orderBy('createdAt',
+              descending: false) // Sort by creation time, oldest first
           .get();
 
       final List<Map<String, dynamic>> loadedGuests = [];
@@ -302,6 +303,7 @@ class _GaestelistState extends State<Gaestelist> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        backgroundColor: Colors.white,
         drawer: Menue.getInstance(key),
         appBar: AppBar(
           foregroundColor: Color.fromARGB(255, 255, 255, 255),
