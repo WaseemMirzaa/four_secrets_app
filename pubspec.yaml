@@ -84,6 +84,9 @@ dependencies:
   flutter_typeahead: ^5.2.0
   google_places_flutter: ^2.1.0
   readmore: ^3.0.0
+  flutter_speed_dial: ^7.0.0
+  syncfusion_flutter_pdfviewer: ^29.1.38
+  flutter_card_swiper: ^7.0.2
   
 
 

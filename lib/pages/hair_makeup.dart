@@ -1,6 +1,6 @@
 import 'package:four_secrets_wedding_app/data/hair_makeup_data.dart';
 import 'package:four_secrets_wedding_app/data/hair_makeup_images.dart';
-import 'package:four_secrets_wedding_app/model/carousel_slider_widget.dart';
+import 'package:four_secrets_wedding_app/model/swipeable_card_widget.dart';
 import 'package:four_secrets_wedding_app/model/footer_buttons.dart';
 import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
 import 'package:flutter/material.dart';
@@ -10,13 +10,10 @@ import 'package:four_secrets_wedding_app/menue.dart';
 class HairMakeUp extends StatelessWidget {
   HairMakeUp({super.key});
 
-  int activeIndex = 0;
-
   String urlMode = "default";
   late List<String> images = HairMakeUpImages.getImages();
 
   final key = GlobalKey<MenueState>();
-
 
   var urlHomepage = HairMakeUpData.map["homepage"] != null
       ? HairMakeUpData.map["homepage"]!
@@ -70,12 +67,10 @@ class HairMakeUp extends StatelessWidget {
                     physics: ClampingScrollPhysics(),
                     child: Column(
                       children: [
-                        CarouselSliderWidget(
-                            images: images,
-                            activeIndex: activeIndex,
-                            height: 450,
-                            viewportFraction: 0.7,
-                            enlargeFactor: 0.4),
+                        SwipeableCardWidget(
+                          images: images,
+                          height: 450,
+                        ),
                         FourSecretsDivider(),
                         Padding(
                           padding: const EdgeInsets.symmetric(

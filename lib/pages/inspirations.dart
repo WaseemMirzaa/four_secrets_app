@@ -10,9 +10,7 @@ class Inspirations extends StatelessWidget {
   final List<String> content = InspirationsContent.getContent();
   final List routes = InspirationsRoutes.getRoutes();
 
-
   final key = GlobalKey<MenueState>();
-
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +18,9 @@ class Inspirations extends StatelessWidget {
       child: Scaffold(
         drawer: Menue(),
         appBar: AppBar(
+          centerTitle: true,
           // automaticallyImplyLeading: false,
-          title: const Text('Inspirationen'),
+          title: const Text('Münchner Geheimtipp'),
           backgroundColor: const Color.fromARGB(255, 107, 69, 106),
           foregroundColor: Color.fromARGB(255, 255, 255, 255),
         ),

@@ -13,7 +13,7 @@ class DrawerModel {
 
 List<DrawerModel> listDrawerModel = [
   DrawerModel(name: "Home", icon: Icons.home),
-  DrawerModel(name: "Inspirationen", icon: Icons.auto_stories),
+  DrawerModel(name: "Münchner Geheimtipp", icon: Icons.auto_stories),
   DrawerModel(name: "Checkliste", icon: Icons.checklist),
   DrawerModel(name: "Budget", icon: Icons.euro_rounded),
   DrawerModel(name: "Gästeliste", icon: Icons.group),
@@ -22,9 +22,8 @@ List<DrawerModel> listDrawerModel = [
   DrawerModel(name: "Über mich", icon: Icons.account_box_sharp),
   DrawerModel(name: "Kontakt", icon: FontAwesomeIcons.mapLocationDot),
   DrawerModel(name: "Hochzeitskit", icon: FontAwesomeIcons.listCheck),
-  DrawerModel(name: "Tagesablauf", icon: FontAwesomeIcons.clock),
+  DrawerModel(name: "Tagesablauf", icon: FontAwesomeIcons.solidClock),
   DrawerModel(name: "Impressum", icon: FontAwesomeIcons.circleInfo),
-  DrawerModel(name: "Zusammenarbeit", icon: FontAwesomeIcons.peopleGroup),
-  DrawerModel(
-      name: "Inspirationsordner", icon: FontAwesomeIcons.solidLightbulb),
+  DrawerModel(name: "Mitgestalter", icon: FontAwesomeIcons.peopleGroup),
+  DrawerModel(name: "Inspirationen", icon: FontAwesomeIcons.solidLightbulb),
 ];

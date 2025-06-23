@@ -10,35 +10,41 @@ class WeddingSchedulePageWidget extends StatelessWidget {
   final int? maxLines;
   final bool isReadOnly;
 
-
-  const WeddingSchedulePageWidget({super.key, required this.titleController, 
-  this.isReadOnly = false,
-  this.label, this.maxLines, this.text});
+  const WeddingSchedulePageWidget(
+      {super.key,
+      required this.titleController,
+      this.isReadOnly = false,
+      this.label,
+      this.maxLines,
+      this.text});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-           CustomTextWidget(text: text ?? "Beschreibung", fontSize: 14,),
-                    SpacerWidget(height: 2),
-                    CustomTextField(controller: titleController,
-                    inputDecoration: InputDecoration(
-                      filled: true, 
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                         borderSide: BorderSide(color: Colors.grey.withValues(alpha: 0.9)),
-                        borderRadius: BorderRadius.circular(8),
-                      ), 
-                      enabledBorder: OutlineInputBorder(
-                         borderSide: BorderSide(color: Colors.grey.withValues(alpha: 0.9)),
-                        borderRadius: BorderRadius.circular(8),
-                      )
-                    
-                    ),
-                    
-                    isReadOnly: isReadOnly,
-                     label: label ?? "", maxLines: maxLines ?? 1, ),
+        CustomTextWidget(
+          text: text ?? "Beschreibung",
+          fontSize: 14,
+        ),
+        SpacerWidget(height: 2),
+        CustomTextField(
+          controller: titleController,
+          inputDecoration: InputDecoration(
+              filled: true,
+              fillColor: Colors.grey.withValues(alpha: 0.2),
+              border: OutlineInputBorder(
+                borderSide: BorderSide.none,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide.none,
+                borderRadius: BorderRadius.circular(8),
+              )),
+          isReadOnly: isReadOnly,
+          label: label ?? "",
+          maxLines: maxLines ?? 1,
+        ),
       ],
     );
   }

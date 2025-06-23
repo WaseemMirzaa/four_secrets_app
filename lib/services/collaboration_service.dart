@@ -168,7 +168,7 @@ class CollaborationService {
 
       // Create collaboration todo
       await _collaborationTodoService.createCollaborationTodo(
-        todoId: todo.id,
+        todoId: todo.id!,
         todoName: todoName ??
             todo.toDoName, // Use the name from invitation or fallback to todo name
         ownerId: inviterId,

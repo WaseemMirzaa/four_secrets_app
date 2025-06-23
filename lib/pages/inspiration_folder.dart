@@ -387,6 +387,8 @@ class _InspirationFolderState extends State<InspirationFolder> {
                                                 ),
                                               );
                                             },
+                                            cacheWidth: 300,
+                                            cacheHeight: 300,
                                           ),
                                   ),
                                 ),

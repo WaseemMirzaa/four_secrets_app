@@ -72,6 +72,7 @@ class MenueState extends State<Menue> {
   }
 
   void _select(String name) {
+    if (!mounted) return;
     setState(() {
       _pressedStates.updateAll((_, __) => false);
       _pressedStates[name] = true;
@@ -94,6 +95,7 @@ class MenueState extends State<Menue> {
   }
 
   Future<void> _loadUserData() async {
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
     });
@@ -136,36 +138,10 @@ class MenueState extends State<Menue> {
     }
   }
 
-  bool isPressedBtn0 = false; // Home
-  bool isPressedBtn1 = false; // Profil bearbeiten
-  bool isPressedBtn2 = false; // Inspirationen
-  bool isPressedBtn3 = false; // Budget
-  bool isPressedBtn4 = false; // Checkliste
-  bool isPressedBtn5 = false; // Gästeliste
-  bool isPressedBtn6 = false; // Tischverwaltung
-  bool isPressedBtn7 = false; // Showroom
-  bool isPressedBtn8 = false; // About me
-  bool isPressedBtn9 = false; // Kontakt
-  bool isPressedBtn10 = false; // Impressum
-  bool isPressedBtn11 = false; // inspiration
-  bool isPressedBtn12 = false; // Logout
-
-  void buttonIsPressed(int buttonNumber) {
-    setState(() {
-      isPressedBtn0 = buttonNumber == 0;
-      isPressedBtn1 = buttonNumber == 1;
-      isPressedBtn2 = buttonNumber == 2;
-      isPressedBtn3 = buttonNumber == 3;
-      isPressedBtn4 = buttonNumber == 4;
-      isPressedBtn5 = buttonNumber == 5;
-      isPressedBtn6 = buttonNumber == 6;
-      isPressedBtn7 = buttonNumber == 7;
-      isPressedBtn8 = buttonNumber == 8;
-      isPressedBtn9 = buttonNumber == 9;
-      isPressedBtn10 = buttonNumber == 10;
-      isPressedBtn11 = buttonNumber == 11;
-      isPressedBtn12 = buttonNumber == 12;
-    });
+  // Optimized navigation method to eliminate Timer delays
+  void _navigateTo(String routeName) {
+    if (!mounted) return;
+    Navigator.of(context).pushNamed(routeName);
   }
 
   Future<void> _handleLogout(BuildContext context) async {
@@ -233,67 +209,79 @@ class MenueState extends State<Menue> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  if (!_isLoading)
-                    CircleAvatar(
-                      radius: 55,
-                      backgroundColor: Colors.white,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2.0),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.2),
-                              spreadRadius: 1,
-                              blurRadius: 3,
-                              offset: const Offset(0, 2),
+                  _isLoading
+                      ? Center(
+                          child: CircularProgressIndicator(
+                          color: Colors.white,
+                        ))
+                      : CircleAvatar(
+                          radius: 55,
+                          backgroundColor: Colors.white,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border:
+                                  Border.all(color: Colors.white, width: 2.0),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.2),
+                                  spreadRadius: 1,
+                                  blurRadius: 3,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        child: ClipOval(
-                          child: (_profilePictureUrl != null &&
-                                  _profilePictureUrl!.isNotEmpty
-                              ? Image.network(
-                                  _profilePictureUrl!,
-                                  width: 100,
-                                  height: 100,
-                                  fit: BoxFit.cover,
-                                  // loadingBuilder:
-                                  //     (context, child, loadingProgress) {
-                                  //   if (loadingProgress == null) {
-                                  //     return child;
-                                  //   }
-                                  //   return Center(
-                                  //     child: CircularProgressIndicator(
-                                  //       color: const Color.fromARGB(
-                                  //           255, 107, 69, 106),
-                                  //       value: loadingProgress
-                                  //                   .expectedTotalBytes !=
-                                  //               null
-                                  //           ? loadingProgress
-                                  //                   .cumulativeBytesLoaded /
-                                  //               loadingProgress
-                                  //                   .expectedTotalBytes!
-                                  //           : null,
-                                  //     ),
-                                  //   );
-                                  // },
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Container(
+                            child: ClipOval(
+                              child: (_profilePictureUrl != null &&
+                                      _profilePictureUrl!.isNotEmpty
+                                  ? Image.network(
+                                      _profilePictureUrl!,
                                       width: 100,
                                       height: 100,
-                                    );
-                                  },
-                                )
-                              : Image.asset(
-                                  'assets/images/logo/secrets-logo.jpg',
-                                  width: 100,
-                                  height: 100,
-                                  fit: BoxFit.cover,
-                                )),
+                                      fit: BoxFit.cover,
+                                      loadingBuilder:
+                                          (context, child, loadingProgress) {
+                                        if (loadingProgress == null) {
+                                          return child;
+                                        }
+                                        return Center(
+                                          child: CircularProgressIndicator(
+                                            color: const Color.fromARGB(
+                                                255, 107, 69, 106),
+                                            value: loadingProgress
+                                                        .expectedTotalBytes !=
+                                                    null
+                                                ? loadingProgress
+                                                        .cumulativeBytesLoaded /
+                                                    loadingProgress
+                                                        .expectedTotalBytes!
+                                                : null,
+                                          ),
+                                        );
+                                      },
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                        return Container(
+                                          width: 100,
+                                          height: 100,
+                                          child: Image.asset(
+                                            'assets/images/logo/secrets-logo.jpg',
+                                            width: 100,
+                                            height: 100,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        );
+                                      },
+                                    )
+                                  : Image.asset(
+                                      'assets/images/logo/secrets-logo.jpg',
+                                      width: 100,
+                                      height: 100,
+                                      fit: BoxFit.cover,
+                                    )),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
                   const SizedBox(height: 6),
                   Center(
                     child: Text(
@@ -338,114 +326,50 @@ class MenueState extends State<Menue> {
                 onTap: () {
                   _select(e.name);
 
-                  if (e.name == "Home") {
-                    Timer(
-                      const Duration(milliseconds: 100),
-                      () {
-                        Navigator.of(context).pushNamed(RouteManager.homePage);
-                      },
-                    );
-                  } else if (e.name == "Inspirationen") {
-                    Timer(
-                      const Duration(milliseconds: 100),
-                      () {
-                        Navigator.of(context)
-                            .pushNamed(RouteManager.inspirationsPage);
-                      },
-                    );
-                  } else if (e.name == "Checkliste") {
-                    Timer(
-                      const Duration(milliseconds: 100),
-                      () {
-                        Navigator.of(context)
-                            .pushNamed(RouteManager.checklistPage);
-                      },
-                    );
-                  } else if (e.name == "Budget") {
-                    Timer(
-                      const Duration(milliseconds: 100),
-                      () {
-                        Navigator.of(context)
-                            .pushNamed(RouteManager.budgetPage);
-                      },
-                    );
-                  } else if (e.name == "Gästeliste") {
-                    Timer(
-                      const Duration(milliseconds: 100),
-                      () {
-                        Navigator.of(context)
-                            .pushNamed(RouteManager.gaestelistPage);
-                      },
-                    );
-                  } else if (e.name == "Tischverwaltung") {
-                    Timer(
-                      const Duration(milliseconds: 100),
-                      () {
-                        Navigator.of(context)
-                            .pushNamed(RouteManager.tablesManagementPage);
-                      },
-                    );
-                  } else if (e.name == "Showroom") {
-                    Timer(
-                      const Duration(milliseconds: 100),
-                      () {
-                        Navigator.of(context)
-                            .pushNamed(RouteManager.showroomEventPage);
-                      },
-                    );
-                  } else if (e.name == "Über mich") {
-                    Timer(
-                      const Duration(milliseconds: 100),
-                      () {
-                        Navigator.of(context)
-                            .pushNamed(RouteManager.aboutMePage);
-                      },
-                    );
-                  } else if (e.name == "Kontakt") {
-                    Timer(
-                      const Duration(milliseconds: 100),
-                      () {
-                        Navigator.of(context).pushNamed(RouteManager.kontakt);
-                      },
-                    );
-                  } else if (e.name == "Zusammenarbeit") {
-                    Timer(
-                      const Duration(milliseconds: 100),
-                      () {
-                        Navigator.of(context)
-                            .pushNamed(RouteManager.collaborationPage);
-                      },
-                    );
-                  } else if (e.name == "Impressum") {
-                    Timer(
-                      const Duration(milliseconds: 100),
-                      () {
-                        Navigator.of(context).pushNamed(RouteManager.impressum);
-                      },
-                    );
-                  } else if (e.name == "Hochzeitskit") {
-                    Timer(
-                      const Duration(milliseconds: 100),
-                      () {
-                        Navigator.of(context).pushNamed(RouteManager.toDoPage);
-                      },
-                    );
-                  } else if (e.name == "Inspirationsordner") {
-                    Timer(
-                      const Duration(milliseconds: 100),
-                      () {
-                        Navigator.of(context)
-                            .pushNamed(RouteManager.inspirationFolderPage);
-                      },
-                    );
-                  } else if (e.name == "Tagesablauf") {
-                    Timer(
-                      const Duration(milliseconds: 100),
-                      () {
-                        Navigator.of(context)
-                            .pushNamed(RouteManager.weddingSchedulePage);
-                      },
-                    );
+                  // Optimized navigation without Timer delays
+                  switch (e.name) {
+                    case "Home":
+                      _navigateTo(RouteManager.homePage);
+                      break;
+                    case "Münchner Geheimtipp":
+                      _navigateTo(RouteManager.inspirationsPage);
+                      break;
+                    case "Checkliste":
+                      _navigateTo(RouteManager.checklistPage);
+                      break;
+                    case "Budget":
+                      _navigateTo(RouteManager.budgetPage);
+                      break;
+                    case "Gästeliste":
+                      _navigateTo(RouteManager.gaestelistPage);
+                      break;
+                    case "Tischverwaltung":
+                      _navigateTo(RouteManager.tablesManagementPage);
+                      break;
+                    case "Showroom":
+                      _navigateTo(RouteManager.showroomEventPage);
+                      break;
+                    case "Über mich":
+                      _navigateTo(RouteManager.aboutMePage);
+                      break;
+                    case "Kontakt":
+                      _navigateTo(RouteManager.kontakt);
+                      break;
+                    case "Mitgestalter":
+                      _navigateTo(RouteManager.collaborationPage);
+                      break;
+                    case "Impressum":
+                      _navigateTo(RouteManager.impressum);
+                      break;
+                    case "Hochzeitskit":
+                      _navigateTo(RouteManager.toDoPage);
+                      break;
+                    case "Inspirationen":
+                      _navigateTo(RouteManager.inspirationFolderPage);
+                      break;
+                    case "Tagesablauf":
+                      _navigateTo(RouteManager.weddingSchedulePage);
+                      break;
                   }
                 },
               ),
@@ -485,11 +409,7 @@ class MenueState extends State<Menue> {
               ),
               onTap: () {
                 _select('Profil bearbeiten');
-                buttonIsPressed(1);
-                Timer(
-                  const Duration(milliseconds: 100),
-                  () => _navigateToEditProfile(),
-                );
+                _navigateToEditProfile();
               },
             ),
           ),
@@ -526,11 +446,7 @@ class MenueState extends State<Menue> {
               ),
               onTap: () {
                 _select('Logout');
-
-                Timer(
-                  const Duration(milliseconds: 100),
-                  () => _handleLogout(context),
-                );
+                _handleLogout(context);
               },
             ),
           ),

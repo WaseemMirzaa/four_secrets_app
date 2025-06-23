@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -15,6 +17,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:four_secrets_wedding_app/utils/snackbar_helper.dart';
 import 'package:four_secrets_wedding_app/constants/app_constants.dart';
+import 'package:four_secrets_wedding_app/pages/PdfViewPage.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 class TablesManagementPage extends StatefulWidget {
   const TablesManagementPage({Key? key}) : super(key: key);
@@ -849,11 +854,33 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
                 size: 20,
               ),
               tooltip: AppConstants.addTableTooltip,
-              onPressed: () {
-                generateTableManagementPdf(_tables, _tableGuestsMap);
+              onPressed: () async {
+                await _downloadPdf();
               },
             ),
+            // View PDF button
+            IconButton(
+              icon: Icon(
+                FontAwesomeIcons.eye,
+                size: 20,
+              ),
+              tooltip: 'View PDF',
+              onPressed: () async {
+                Uint8List? pdfBytes = await generateTableManagementPdf(
+                  _tables,
+                  _tableGuestsMap,
+                );
 
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => PdfViewPage(
+                      pdfBytes: pdfBytes!,
+                      title: 'Tischverwaltung',
+                    ),
+                  ),
+                );
+              },
+            ),
             // Add table button in app bar
             IconButton(
               icon: const Icon(Icons.assignment_outlined),
@@ -877,6 +904,8 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
                 child: Image.asset(
                   AppConstants.tableManagementBackground,
                   fit: BoxFit.cover,
+                  filterQuality: FilterQuality.medium,
+                  cacheWidth: MediaQuery.of(context).size.width.toInt(),
                 ),
               ),
               FourSecretsDivider(),
@@ -943,5 +972,63 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
 
   void onCancel() {
     Navigator.of(context).pop();
+  }
+
+  Future<void> _downloadPdf() async {
+    try {
+      final pdfBytes =
+          await generateTableManagementPdf(_tables, _tableGuestsMap);
+      final now = DateTime.now();
+      final filename =
+          'Tischverwaltung_${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}_${now.hour.toString().padLeft(2, '0')}-${now.minute.toString().padLeft(2, '0')}-${now.second.toString().padLeft(2, '0')}.pdf';
+
+      // Get documents directory for saving
+      final documentsDir = await getApplicationDocumentsDirectory();
+      final downloadsDir = Directory('${documentsDir.path}/Downloads');
+
+      // Create Downloads directory if it doesn't exist
+      if (!await downloadsDir.exists()) {
+        await downloadsDir.create(recursive: true);
+      }
+
+      final file = File('${downloadsDir.path}/$filename');
+      print(file.path);
+      // Write PDF bytes to file
+      await file.writeAsBytes(pdfBytes);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Expanded(
+                  child: Text('PDF erfolgreich gespeichert: $filename'),
+                ),
+                IconButton(
+                  icon: Icon(Icons.visibility, color: Colors.white),
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => PdfViewPage(
+                          pdfBytes: pdfBytes,
+                          title: 'Tischverwaltung',
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+            backgroundColor: Color.fromARGB(255, 107, 69, 106),
+            duration: Duration(seconds: 5),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.showErrorSnackBar(
+            context, 'Fehler beim Herunterladen: $e');
+      }
+    }
   }
 }

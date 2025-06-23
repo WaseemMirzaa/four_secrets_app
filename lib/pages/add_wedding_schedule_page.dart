@@ -40,16 +40,12 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
   String? _selectedReminderDateText;
   bool _reminderEnabled = false;
   bool isLoading = false;
-  String? address; 
-  double? lat; 
+  String? address;
+  double? lat;
   double? long;
 
-  WeddingDayScheduleService weddingDayScheduleService = WeddingDayScheduleService();
-
-
-  
-
-
+  WeddingDayScheduleService weddingDayScheduleService =
+      WeddingDayScheduleService();
 
   @override
   void initState() {
@@ -59,7 +55,8 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
       print(widget.weddingDayScheduleModel);
       _titleController = widget.weddingDayScheduleModel!.title;
       // _descriptionController.text = widget.weddingDayScheduleModel!.description;
-      _responsiblePersonController.text = widget.weddingDayScheduleModel!.responsiblePerson;
+      _responsiblePersonController.text =
+          widget.weddingDayScheduleModel!.responsiblePerson;
       _notesController.text = widget.weddingDayScheduleModel!.notes;
       address = widget.weddingDayScheduleModel!.address;
       lat = widget.weddingDayScheduleModel!.lat;
@@ -67,19 +64,25 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
 
       print(lat);
       print(long);
-      print( widget.weddingDayScheduleModel!.address);
+      print(widget.weddingDayScheduleModel!.address);
       // Set event date and time from existing item
       _selectedEventDate = widget.weddingDayScheduleModel!.time;
-      _selectedEventDateText = "${_selectedEventDate!.day}/${_selectedEventDate!.month}/${_selectedEventDate!.year}";
-      _selectedTime = TimeOfDay.fromDateTime(widget.weddingDayScheduleModel!.time);
-      _selectedTimeText = "${widget.weddingDayScheduleModel!.time.hour > 12 ? (widget.weddingDayScheduleModel!.time.hour - 12).toString().padLeft(2, '0') : widget.weddingDayScheduleModel!.time.hour.toString().padLeft(2, '0')}:${widget.weddingDayScheduleModel!.time.minute.toString().padLeft(2, '0')} ${widget.weddingDayScheduleModel!.time.hour >= 12 ? 'PM' : 'AM'}";
-      
+      _selectedEventDateText =
+          "${_selectedEventDate!.day}/${_selectedEventDate!.month}/${_selectedEventDate!.year}";
+      _selectedTime =
+          TimeOfDay.fromDateTime(widget.weddingDayScheduleModel!.time);
+      _selectedTimeText =
+          "${widget.weddingDayScheduleModel!.time.hour > 12 ? (widget.weddingDayScheduleModel!.time.hour - 12).toString().padLeft(2, '0') : widget.weddingDayScheduleModel!.time.hour.toString().padLeft(2, '0')}:${widget.weddingDayScheduleModel!.time.minute.toString().padLeft(2, '0')} ${widget.weddingDayScheduleModel!.time.hour >= 12 ? 'PM' : 'AM'}";
+
       _reminderEnabled = widget.weddingDayScheduleModel!.reminderEnabled;
       if (widget.weddingDayScheduleModel!.reminderTime != null) {
         _selectedReminderDate = widget.weddingDayScheduleModel!.reminderTime;
-        _selectedReminderDateText = "${_selectedReminderDate!.day}/${_selectedReminderDate!.month}/${_selectedReminderDate!.year}";
-        _selectedReminder = TimeOfDay.fromDateTime(widget.weddingDayScheduleModel!.reminderTime!);
-        _selectedReminderText = "${widget.weddingDayScheduleModel!.reminderTime!.hour > 12 ? (widget.weddingDayScheduleModel!.reminderTime!.hour - 12).toString().padLeft(2, '0') : widget.weddingDayScheduleModel!.reminderTime!.hour.toString().padLeft(2, '0')}:${widget.weddingDayScheduleModel!.reminderTime!.minute.toString().padLeft(2, '0')} ${widget.weddingDayScheduleModel!.reminderTime!.hour >= 12 ? 'PM' : 'AM'}";
+        _selectedReminderDateText =
+            "${_selectedReminderDate!.day}/${_selectedReminderDate!.month}/${_selectedReminderDate!.year}";
+        _selectedReminder = TimeOfDay.fromDateTime(
+            widget.weddingDayScheduleModel!.reminderTime!);
+        _selectedReminderText =
+            "${widget.weddingDayScheduleModel!.reminderTime!.hour > 12 ? (widget.weddingDayScheduleModel!.reminderTime!.hour - 12).toString().padLeft(2, '0') : widget.weddingDayScheduleModel!.reminderTime!.hour.toString().padLeft(2, '0')}:${widget.weddingDayScheduleModel!.reminderTime!.minute.toString().padLeft(2, '0')} ${widget.weddingDayScheduleModel!.reminderTime!.hour >= 12 ? 'PM' : 'AM'}";
       } else {
         _selectedReminderDate = null;
         _selectedReminderDateText = null;
@@ -99,11 +102,6 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
       _reminderEnabled = false;
     }
   }
-
-
-
-
-
 
   Future<void> _selectEventDate() async {
     final DateTime? picked = await showDatePicker(
@@ -128,7 +126,8 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
     if (picked != null) {
       setState(() {
         _selectedTime = picked;
-        _selectedTimeText = "${picked.hour > 12 ? (picked.hour - 12).toString().padLeft(2, '0') : picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')} ${picked.hour >= 12 ? 'Uhr' : 'Uhr'}";
+        _selectedTimeText =
+            "${picked.hour > 12 ? (picked.hour - 12).toString().padLeft(2, '0') : picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')} ${picked.hour >= 12 ? 'Uhr' : 'Uhr'}";
       });
     }
   }
@@ -143,7 +142,8 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
     if (picked != null && picked != _selectedReminderDate) {
       setState(() {
         _selectedReminderDate = picked;
-        _selectedReminderDateText = "${picked.day}/${picked.month}/${picked.year}";
+        _selectedReminderDateText =
+            "${picked.day}/${picked.month}/${picked.year}";
       });
     }
   }
@@ -156,8 +156,8 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
     if (picked != null) {
       setState(() {
         _selectedReminder = picked;
-        _selectedReminderText = "${picked.hour > 12 ? (picked.hour - 12).toString().padLeft(2, '0') : 
-        picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')} ${picked.hour >= 12 ? 'Uhr' : 'Uhr'}";
+        _selectedReminderText =
+            "${picked.hour > 12 ? (picked.hour - 12).toString().padLeft(2, '0') : picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')} ${picked.hour >= 12 ? 'Uhr' : 'Uhr'}";
       });
     }
   }
@@ -183,49 +183,52 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                 SpacerWidget(height: 4),
                 CustomTextWidget(text: AppConstants.weddingSchedulePageTitle),
                 SpacerWidget(height: 2),
-                  GestureDetector(
-                    onTap: ()async{
+                GestureDetector(
+                  onTap: () async {
                     print("Navigating to category page...");
-    final result = await Navigator.of(context).pushNamed(RouteManager.weddingCategoryTitlePage);
+                    final result = await Navigator.of(context)
+                        .pushNamed(RouteManager.weddingCategoryTitlePage);
 
-    print("Returned value: $result"); // <-- You should see this when popped
+                    print(
+                        "Returned value: $result"); // <-- You should see this when popped
 
-    if (result != null && result is String) {
-      setState(() {
-        _titleController = result;
-      });
-    }
-                     
-                    },
-                    child: Container(
-                      width: context.screenWidth,
-                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 18).copyWith(right: 0),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: CustomTextWidget(text: _titleController ?? ""),
+                    if (result != null && result is String) {
+                      setState(() {
+                        _titleController = result;
+                      });
+                    }
+                  },
+                  child: Container(
+                    width: context.screenWidth,
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 18)
+                        .copyWith(right: 0),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withValues(alpha: 0.2),
+                      border: Border.all(color: Colors.white),
+                      borderRadius: BorderRadius.circular(8),
                     ),
+                    child: CustomTextWidget(text: _titleController ?? ""),
                   ),
+                ),
 
                 SpacerWidget(height: 4),
                 // Event Date Section
                 CustomTextWidget(text: "Datum"),
                 SpacerWidget(height: 2),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4).copyWith(right: 0),
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4)
+                      .copyWith(right: 0),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(8),
-                 
+                    color: Colors.grey.withValues(alpha: 0.2),
+                    border: Border.all(color: Colors.white),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        child: CustomTextWidget(text: _selectedEventDateText ?? ""),
+                        child: CustomTextWidget(
+                            text: _selectedEventDateText ?? ""),
                       ),
                       IconButton(
                         onPressed: _selectEventDate,
@@ -234,18 +237,19 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                     ],
                   ),
                 ),
-        
+
                 SpacerWidget(height: 4),
-        
+
                 // Event Time Section
                 CustomTextWidget(text: AppConstants.weddingSchedulePageDate),
                 SpacerWidget(height: 2),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4).copyWith(right: 0),
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4)
+                      .copyWith(right: 0),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(8),
+                    color: Colors.grey.withValues(alpha: 0.2),
+                    border: Border.all(color: Colors.white),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -253,7 +257,8 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                       Expanded(
                         child: GestureDetector(
                           onTap: _selectEventTime,
-                          child: CustomTextWidget(text: _selectedTimeText ?? ""),
+                          child:
+                              CustomTextWidget(text: _selectedTimeText ?? ""),
                         ),
                       ),
                       IconButton(
@@ -263,9 +268,9 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                     ],
                   ),
                 ),
-        
-         SpacerWidget(height: 4),
-               
+
+                SpacerWidget(height: 4),
+
                 WeddingSchedulePageWidget(
                   titleController: _notesController,
 
@@ -287,46 +292,47 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                   text: AppConstants.weddingSchedulePageResponsiblePerson,
                   maxLines: 1,
                 ),
-               
+
                 SpacerWidget(height: 4),
-        
+
                 // Reminder Section
                 // CustomTextWidget(text: AppConstants.weddingSchedulePageReminder),
-              
 
-                 CustomTextWidget(text: AppConstants.weddingSchedulePageLocation),
+                CustomTextWidget(
+                    text: AppConstants.weddingSchedulePageLocation),
                 SpacerWidget(height: 2),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8).copyWith(right: 0),
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8)
+                      .copyWith(right: 0),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(8),
+                    color: Colors.grey.withValues(alpha: 0.2),
+                    border: Border.all(color: Colors.white),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                        Expanded(
+                      Expanded(
                         child: CustomTextWidget(text: address ?? ""),
                       ),
                       IconButton(
-                        onPressed: ()async{
-                           var g = await   Navigator.pushNamed(context, RouteManager.weddingCategoryMap, 
+                        onPressed: () async {
+                          var g = await Navigator.pushNamed(
+                              context, RouteManager.weddingCategoryMap,
                               arguments: {
-                                'address' : address ?? "", 
-                                'lat' : lat ?? 0.00, 
-                                'long' : long ?? 0.00
-                              }
-                              );
+                                'address': address ?? "",
+                                'lat': lat ?? 0.00,
+                                'long': long ?? 0.00
+                              });
 
-    if(g != null){
-      final map = g as Map<String, dynamic>;
-      setState(() {
-        lat = map['lat'];
-        long = map['long'];
-        address = map['address'];
-      });
-    }
+                          if (g != null) {
+                            final map = g as Map<String, dynamic>;
+                            setState(() {
+                              lat = map['lat'];
+                              long = map['long'];
+                              address = map['address'];
+                            });
+                          }
                         },
                         icon: Icon(FontAwesomeIcons.mapLocation),
                       ),
@@ -336,17 +342,20 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                 SpacerWidget(height: 4),
 
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4).copyWith(right: 0),
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4)
+                      .copyWith(right: 0),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(8),
+                    color: Colors.grey.withValues(alpha: 0.2),
+                    border: Border.all(color: Colors.white),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        child: CustomTextWidget(text: "${AppConstants.weddingSchedulePageReminder} aktivieren"),
+                        child: CustomTextWidget(
+                            text:
+                                "${AppConstants.weddingSchedulePageReminder} aktivieren"),
                       ),
                       Switch(
                         value: _reminderEnabled,
@@ -362,20 +371,23 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                 // Show reminder date and time fields only if reminder is enabled
                 if (_reminderEnabled) ...[
                   SpacerWidget(height: 4),
-                  CustomTextWidget(text: AppConstants.weddingSchedulePageReminderDate),
+                  CustomTextWidget(
+                      text: AppConstants.weddingSchedulePageReminderDate),
                   SpacerWidget(height: 2),
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4).copyWith(right: 0),
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4)
+                        .copyWith(right: 0),
                     decoration: BoxDecoration(
-                     color: Colors.white,
-                      border: Border.all(color: Colors.grey),
+                      color: Colors.grey.withValues(alpha: 0.2),
+                      border: Border.all(color: Colors.white),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(
-                          child: CustomTextWidget(text: _selectedReminderDateText ?? ""),
+                          child: CustomTextWidget(
+                              text: _selectedReminderDateText ?? ""),
                         ),
                         IconButton(
                           onPressed: _selectReminderDate,
@@ -385,13 +397,15 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                     ),
                   ),
                   SpacerWidget(height: 4),
-                  CustomTextWidget(text: AppConstants.weddingSchedulePageReminderTime),
+                  CustomTextWidget(
+                      text: AppConstants.weddingSchedulePageReminderTime),
                   SpacerWidget(height: 2),
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4).copyWith(right: 0),
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4)
+                        .copyWith(right: 0),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(color: Colors.grey),
+                      color: Colors.grey.withValues(alpha: 0.2),
+                      border: Border.all(color: Colors.white),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
@@ -400,7 +414,8 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                         Expanded(
                           child: GestureDetector(
                             onTap: _selectReminderTime,
-                            child: CustomTextWidget(text: _selectedReminderText ?? ""),
+                            child: CustomTextWidget(
+                                text: _selectedReminderText ?? ""),
                           ),
                         ),
                         IconButton(
@@ -411,9 +426,9 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                     ),
                   ),
                 ],
-        
+
                 SpacerWidget(height: 4),
-        
+
                 Row(
                   spacing: 10,
                   children: [
@@ -441,116 +456,126 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                     ),
                     Expanded(
                       child: CustomButtonWidget(
-                        isLoading: isLoading,
-                        text: widget.weddingDayScheduleModel != null ? AppConstants.weddingSchedulePageUpdate  :  AppConstants.weddingSchedulePageSave,
-                        color: Color.fromARGB(255, 107, 69, 106),
-                        textColor: Colors.white,
-                        onPressed: () async {
-  setState(() => isLoading = true);
+                          isLoading: isLoading,
+                          text: widget.weddingDayScheduleModel != null
+                              ? AppConstants.weddingSchedulePageUpdate
+                              : AppConstants.weddingSchedulePageSave,
+                          color: Color.fromARGB(255, 107, 69, 106),
+                          textColor: Colors.white,
+                          onPressed: () async {
+                            setState(() => isLoading = true);
 
-  if (_titleController == "" && _titleController!.isEmpty ) {
-    SnackBarHelper.showErrorSnackBar(
-      context,
-      AppConstants.weddingSchedulePageTitleError,
-    );
-    setState(() => isLoading = false);
-    return;
-  }
+                            if (_titleController == "" &&
+                                _titleController!.isEmpty) {
+                              SnackBarHelper.showErrorSnackBar(
+                                context,
+                                AppConstants.weddingSchedulePageTitleError,
+                              );
+                              setState(() => isLoading = false);
+                              return;
+                            }
 
-  if (_selectedEventDate == null) {
-    SnackBarHelper.showErrorSnackBar(
-      context,
-      AppConstants.weddingSchedulePageDateError,
-    );
-    setState(() => isLoading = false);
-    return;
-  }
+                            if (_selectedEventDate == null) {
+                              SnackBarHelper.showErrorSnackBar(
+                                context,
+                                AppConstants.weddingSchedulePageDateError,
+                              );
+                              setState(() => isLoading = false);
+                              return;
+                            }
 
-  if (_selectedTime == null) {
-    SnackBarHelper.showErrorSnackBar(
-      context,
-      AppConstants.weddingSchedulePageTimeError,
-    );
-    setState(() => isLoading = false);
-    return;
-  }
+                            if (_selectedTime == null) {
+                              SnackBarHelper.showErrorSnackBar(
+                                context,
+                                AppConstants.weddingSchedulePageTimeError,
+                              );
+                              setState(() => isLoading = false);
+                              return;
+                            }
 
-  // Event time with selected date and time
-  DateTime eventTime = DateTime(
-    _selectedEventDate!.year,
-    _selectedEventDate!.month,
-    _selectedEventDate!.day,
-    _selectedTime!.hour,
-    _selectedTime!.minute,
-  );
+                            // Event time with selected date and time
+                            DateTime eventTime = DateTime(
+                              _selectedEventDate!.year,
+                              _selectedEventDate!.month,
+                              _selectedEventDate!.day,
+                              _selectedTime!.hour,
+                              _selectedTime!.minute,
+                            );
 
-  // Reminder time (if enabled and selected)
-  DateTime? reminderTime;
-  if (_reminderEnabled && _selectedReminderDate != null && _selectedReminder != null) {
-    reminderTime = DateTime(
-      _selectedReminderDate!.year,
-      _selectedReminderDate!.month,
-      _selectedReminderDate!.day,
-      _selectedReminder!.hour,
-      _selectedReminder!.minute,
-    );
-  }
+                            // Reminder time (if enabled and selected)
+                            DateTime? reminderTime;
+                            if (_reminderEnabled &&
+                                _selectedReminderDate != null &&
+                                _selectedReminder != null) {
+                              reminderTime = DateTime(
+                                _selectedReminderDate!.year,
+                                _selectedReminderDate!.month,
+                                _selectedReminderDate!.day,
+                                _selectedReminder!.hour,
+                                _selectedReminder!.minute,
+                              );
+                            }
 
-  print(reminderTime);
-  print(eventTime);
+                            print(reminderTime);
+                            print(eventTime);
 
-  if (widget.weddingDayScheduleModel == null) {
-    await weddingDayScheduleService.addScheduleItem(
-      title: _titleController!,
-      // description: _descriptionController.text,
-      time: eventTime,
-      reminderEnabled: _reminderEnabled,
-      responsiblePerson: _responsiblePersonController.text,
-      notes: _notesController.text,
-      reminderTime: reminderTime, // Remove the ! - allow null
-      address: address ?? "", 
-      lat: lat ?? 0.00,
-      long: long ?? 0.00
-    );
-      // SnackBarHelper.showSuccessSnackBar(context, "Event Scheduled for $reminderTime");
+                            if (widget.weddingDayScheduleModel == null) {
+                              await weddingDayScheduleService.addScheduleItem(
+                                  title: _titleController!,
+                                  // description: _descriptionController.text,
+                                  time: eventTime,
+                                  reminderEnabled: _reminderEnabled,
+                                  responsiblePerson:
+                                      _responsiblePersonController.text,
+                                  notes: _notesController.text,
+                                  reminderTime:
+                                      reminderTime, // Remove the ! - allow null
+                                  address: address ?? "",
+                                  lat: lat ?? 0.00,
+                                  long: long ?? 0.00);
+                              // SnackBarHelper.showSuccessSnackBar(context, "Event Scheduled for $reminderTime");
 
-    setState(() {
-      isLoading = false;
-    });
-  } else {
-    weddingDayScheduleService.updateOrder(
-      WeddingDayScheduleModel(
-        id: widget.weddingDayScheduleModel!.id,
-        title: _titleController!,
-        // description: _descriptionController.text,
-        time: eventTime,
-        reminderEnabled: _reminderEnabled,
-        reminderTime: reminderTime, // Remove the ! - allow null
-        userId: weddingDayScheduleService.userId!,
-        responsiblePerson: _responsiblePersonController.text,
-        notes: _notesController.text,
-        address: address ?? "no address",
-        lat: lat ?? 0.00,
-        long: long ?? 0.00,
-        order: weddingDayScheduleService.weddingDayScheduleList.indexWhere((element) => 
-        element.id == widget.weddingDayScheduleModel!.id),
-      ),
-    );
-    setState(() {
-      isLoading = false;
-    });
-  }
-  Navigator.of(context).pushReplacementNamed(RouteManager.weddingSchedulePage);
-  setState(() {
-    isLoading = false;
-  });
-}
-                      ),
+                              setState(() {
+                                isLoading = false;
+                              });
+                            } else {
+                              weddingDayScheduleService.updateOrder(
+                                WeddingDayScheduleModel(
+                                  id: widget.weddingDayScheduleModel!.id,
+                                  title: _titleController!,
+                                  // description: _descriptionController.text,
+                                  time: eventTime,
+                                  reminderEnabled: _reminderEnabled,
+                                  reminderTime:
+                                      reminderTime, // Remove the ! - allow null
+                                  userId: weddingDayScheduleService.userId!,
+                                  responsiblePerson:
+                                      _responsiblePersonController.text,
+                                  notes: _notesController.text,
+                                  address: address ?? "no address",
+                                  lat: lat ?? 0.00,
+                                  long: long ?? 0.00,
+                                  order: weddingDayScheduleService
+                                      .weddingDayScheduleList
+                                      .indexWhere((element) =>
+                                          element.id ==
+                                          widget.weddingDayScheduleModel!.id),
+                                ),
+                              );
+                              setState(() {
+                                isLoading = false;
+                              });
+                            }
+                            Navigator.of(context).pushReplacementNamed(
+                                RouteManager.weddingSchedulePage);
+                            setState(() {
+                              isLoading = false;
+                            });
+                          }),
                     ),
                   ],
                 ),
                 SpacerWidget(height: 7),
-        
               ],
             ),
           ),

@@ -14,6 +14,7 @@ import 'package:four_secrets_wedding_app/widgets/custom_button_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_text_field.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_text_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 class WeddingCategoryTitlePage extends StatefulWidget {
   const WeddingCategoryTitlePage({super.key});
@@ -25,11 +26,13 @@ class WeddingCategoryTitlePage extends StatefulWidget {
 
 class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
   final TextEditingController _searchController = TextEditingController();
+  final TextEditingController typeAheadController = TextEditingController();
   final WeddingCategoryDatabase weddingCategoryDatabase =
       WeddingCategoryDatabase();
   final subCategoryController = TextEditingController();
 
   bool isLoading = false;
+  bool isSearching = false;
 
   Map<String, List<String>> allCategories = {};
   Map<String, List<String>> filteredCategory = {};
@@ -87,6 +90,7 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
   @override
   void dispose() {
     _searchController.dispose();
+    typeAheadController.dispose();
     super.dispose();
   }
 
@@ -116,33 +120,156 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
         child: Column(
           children: [
-            CustomTextField(
-              controller: _searchController,
-              inputDecoration: InputDecoration(
-                prefixIcon: Icon(
-                  FontAwesomeIcons.magnifyingGlass,
-                  color: Colors.grey.withValues(alpha: 0.8),
-                ),
-                hintText: "suchen...",
-                fillColor: Colors.white,
-                filled: true,
-                border: OutlineInputBorder(
-                    borderSide: BorderSide(
+            TypeAheadField<String>(
+              controller: typeAheadController,
+              suggestionsCallback: (pattern) async {
+                if (pattern.isEmpty) return [];
+                setState(() => isSearching = true);
+                await Future.delayed(const Duration(milliseconds: 150));
+                final lower = pattern.toLowerCase();
+                final Set<String> allSuggestions = {};
+                allCategories.forEach((cat, items) {
+                  if (cat.toLowerCase().contains(lower))
+                    allSuggestions.add(cat);
+                  allSuggestions.addAll(items
+                      .where((item) => item.toLowerCase().contains(lower)));
+                });
+                if (mounted) setState(() => isSearching = false);
+                return allSuggestions.toList();
+              },
+              builder: (context, controller, focusNode) {
+                return TextField(
+                  controller: controller,
+                  focusNode: focusNode,
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                    fontWeight: FontWeight.normal,
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      controller.text = value;
+                      isSearching = true;
+                    });
+                  },
+                  onTapOutside: (event) {
+                    FocusScope.of(context).unfocus();
+                  },
+                  decoration: InputDecoration(
+                    prefixIcon: Icon(
+                      FontAwesomeIcons.magnifyingGlass,
                       color: Colors.grey.withValues(alpha: 0.8),
                     ),
-                    borderRadius: BorderRadius.circular(8)),
-                enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Colors.grey.withValues(alpha: 0.8),
+                    hintText: "suchen...",
+                    fillColor: Colors.grey.withValues(alpha: 0.2),
+                    filled: true,
+                    suffixIcon: controller.text.isNotEmpty
+                        ? IconButton(
+                            icon: Icon(Icons.close, color: Colors.grey),
+                            onPressed: () {
+                              setState(() {
+                                _searchController.clear();
+                                controller.clear();
+                                _onSearchChanged();
+                              });
+                              FocusScope.of(context).unfocus();
+                            },
+                          )
+                        : null,
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    borderRadius: BorderRadius.circular(8)),
-                focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Colors.grey.withValues(alpha: 0.8),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    borderRadius: BorderRadius.circular(8)),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    disabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+                  ),
+                );
+              },
+              itemBuilder: (context, suggestion) {
+                return Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withValues(alpha: 0.08),
+                        blurRadius: 4,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: ListTile(
+                    title: Text(
+                      suggestion,
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 107, 69, 106),
+                        fontWeight: FontWeight.w500,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                );
+              },
+              decorationBuilder: (context, child) => Material(
+                type: MaterialType.card,
+                elevation: 4,
+                borderRadius: BorderRadius.circular(8),
+                child: child,
               ),
-              label: 'suchen...',
+              onSelected: (suggestion) {
+                setState(() {});
+                _searchController.text = suggestion;
+                typeAheadController.text = suggestion;
+                _searchController.selection = TextSelection.fromPosition(
+                  TextPosition(offset: suggestion.length),
+                );
+                typeAheadController.selection = TextSelection.fromPosition(
+                  TextPosition(offset: suggestion.length),
+                );
+                _onSearchChanged();
+                FocusScope.of(context).unfocus();
+              },
+              emptyBuilder: (context) {
+                final text = typeAheadController.text.trim();
+                if (text.isEmpty) {
+                  return SizedBox.shrink();
+                }
+                if (isSearching) {
+                  return Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(16),
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                }
+                return Container(
+                  padding: EdgeInsets.all(16),
+                  child: Text(
+                    "Keine Ergebnisse gefunden",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                );
+              },
             ),
             const SpacerWidget(height: 4),
             Expanded(
@@ -199,35 +326,53 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
                                   return Container(
                                     margin: const EdgeInsets.symmetric(
                                       horizontal: 5,
-                                      vertical: 4,
+                                      vertical: 8,
                                     ),
                                     decoration: BoxDecoration(
                                       color: Colors.white,
                                       borderRadius: BorderRadius.circular(15),
                                     ),
-                                    child: Column(
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.all(12.0),
-                                          child: Row(
+                                    child: ExpansionTile(
+                                      tilePadding: EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 10,
+                                      ),
+                                      backgroundColor:
+                                          Colors.grey.withValues(alpha: 0.2),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(15),
+                                      ),
+                                      collapsedShape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(15),
+                                      ),
+                                      collapsedBackgroundColor:
+                                          Colors.grey.withValues(alpha: 0.2),
+                                      title: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
-                                              Expanded(
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    CustomTextWidget(
-                                                      text: categoryName,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 16,
-                                                      color: Color.fromARGB(
-                                                          255, 107, 69, 106),
-                                                    ),
-                                                  ],
-                                                ),
+                                              CustomTextWidget(
+                                                text: categoryName,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                                color: Colors.black,
                                               ),
-                                              if (index > 4) ...[
+                                              CustomTextWidget(
+                                                text:
+                                                    '${items.length} Unterkategorien',
+                                                fontSize: 12,
+                                                color: Colors.black,
+                                              ),
+                                            ],
+                                          ),
+                                          if (index > 5) ...[
+                                            Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
                                                 IconButton(
                                                   onPressed: () async {
                                                     WeddingCategoryModel? model;
@@ -312,6 +457,7 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
                                                               SpacerWidget(
                                                                   height: 6),
                                                               Row(
+                                                                spacing: 12,
                                                                 mainAxisAlignment:
                                                                     MainAxisAlignment
                                                                         .center,
@@ -352,6 +498,8 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
                                                                               .pop(g);
                                                                           subCategoryController
                                                                               .clear();
+                                                                          FocusScope.of(context)
+                                                                              .unfocus();
                                                                         } catch (e) {
                                                                           SnackBarHelper.showErrorSnackBar(
                                                                               context,
@@ -362,24 +510,24 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
                                                                       },
                                                                     ),
                                                                   ),
-                                                                  SizedBox(
-                                                                      width:
-                                                                          24),
-                                                                  Container(
-                                                                    constraints:
-                                                                        BoxConstraints(
-                                                                      maxWidth:
-                                                                          160,
-                                                                    ),
+                                                                  Expanded(
                                                                     child:
-                                                                        CustomButtonWidget(
-                                                                      text:
-                                                                          "Abbrechen",
-                                                                      color: Colors
-                                                                          .white,
-                                                                      onPressed:
-                                                                          () =>
-                                                                              Navigator.of(context).pop(),
+                                                                        Container(
+                                                                      constraints:
+                                                                          BoxConstraints(
+                                                                        maxWidth:
+                                                                            160,
+                                                                      ),
+                                                                      child:
+                                                                          CustomButtonWidget(
+                                                                        text:
+                                                                            "Abbrechen",
+                                                                        color: Colors
+                                                                            .white,
+                                                                        onPressed:
+                                                                            () =>
+                                                                                Navigator.of(context).pop(),
+                                                                      ),
                                                                     ),
                                                                   ),
                                                                 ],
@@ -481,64 +629,24 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
                                                   ),
                                                 ),
                                               ],
-                                            ],
-                                          ),
-                                        ),
-                                        ListView.builder(
-                                          shrinkWrap: true,
-                                          physics:
-                                              NeverScrollableScrollPhysics(),
-                                          itemCount: items.length,
-                                          itemBuilder: (context, itemIndex) {
-                                            return Container(
-                                              margin:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 5,
-                                                      vertical: 4),
-                                              decoration: BoxDecoration(
-                                                color: Colors.grey
-                                                    .withValues(alpha: 0.2),
-                                                borderRadius:
-                                                    BorderRadius.circular(15),
+                                            )
+                                          ]
+                                        ],
+                                      ),
+                                      children: [
+                                        ...items.map((item) => ListTile(
+                                              title: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: CustomTextWidget(
+                                                  text: item,
+                                                  fontWeight: FontWeight.normal,
+                                                ),
                                               ),
-                                              child: ListTile(
-                                                title: CustomTextWidget(
-                                                    text: items[itemIndex],
-                                                    fontWeight:
-                                                        FontWeight.normal),
-                                                onTap: () {
-                                                  Navigator.of(context)
-                                                      .pop(items[itemIndex]);
-                                                },
-                                              ),
-                                            );
-
-                                            // Padding(
-                                            //   padding:
-                                            //       const EdgeInsets.symmetric(
-                                            //           horizontal: 16.0,
-                                            //           vertical: 8.0),
-                                            //   child: InkWell(
-                                            //     onTap: () {
-                                            //       Navigator.of(context)
-                                            //           .pop(items[itemIndex]);
-                                            //     },
-                                            //     child: Row(
-                                            //       children: [
-                                            //         Expanded(
-                                            //           child: CustomTextWidget(
-                                            //             text:
-                                            //                 "• ${items[itemIndex]}",
-                                            //             fontSize: 14,
-                                            //           ),
-                                            //         ),
-                                            //       ],
-                                            //     ),
-                                            //   ),
-                                            // );
-                                          },
-                                        ),
-                                        SizedBox(height: 8),
+                                              onTap: () {
+                                                Navigator.of(context).pop(item);
+                                              },
+                                            ))
                                       ],
                                     ),
                                   );
@@ -647,9 +755,9 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
                   },
                   borderRadius: BorderRadius.circular(16),
                   splashColor:
-                      Color.fromARGB(255, 107, 69, 106).withOpacity(0.1),
+                      Color.fromARGB(255, 107, 69, 106).withValues(alpha: 0.1),
                   highlightColor:
-                      Color.fromARGB(255, 107, 69, 106).withOpacity(0.05),
+                      Color.fromARGB(255, 107, 69, 106).withValues(alpha: 0.05),
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: CustomTextWidget(

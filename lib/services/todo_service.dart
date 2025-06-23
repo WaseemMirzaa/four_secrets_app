@@ -84,15 +84,17 @@ class TodoService {
 
   // Create a new todo list
   Future<ToDoModel> createTodo(
-      String toDoName, List<String> toDoItems, String categoryId) async {
+      String toDoName, List<String> toDoItems, String? categoryId) async {
     if (userId == null) {
       throw Exception('User not logged in');
     }
 
-    // Verify category exists and user has access
-    final category = await _categoryService.getCategory(categoryId);
-    if (category == null) {
-      throw Exception('Category not found');
+    // If categoryId is provided, verify category exists and user has access
+    if (categoryId != null && categoryId.isNotEmpty) {
+      final category = await _categoryService.getCategory(categoryId);
+      if (category == null) {
+        throw Exception('Category not found');
+      }
     }
 
     final docRef =
@@ -111,6 +113,7 @@ class TodoService {
       toDoName: toDoName,
       toDoItems: itemsWithCheckedState,
       userId: userId!,
+      categoryId: categoryId,
       collaborators: [],
       comments: [],
     );
@@ -201,11 +204,14 @@ class TodoService {
   }
 
   // Get todos for a specific category
-  Future<List<ToDoModel>> getTodosByCategory(String categoryId) async {
+  Future<List<ToDoModel>> getTodosByCategory(String? categoryId) async {
     if (userId == null) {
       throw Exception('User not logged in');
     }
-
+    if (categoryId == null || categoryId.isEmpty) {
+      // If no categoryId, return empty list (or all todos if you prefer)
+      return [];
+    }
     try {
       final snapshot = await _firestore
           .collection('users')
@@ -213,7 +219,6 @@ class TodoService {
           .collection('todos')
           .where('categoryId', isEqualTo: categoryId)
           .get();
-
       return snapshot.docs.map((doc) => ToDoModel.fromFirestore(doc)).toList();
     } catch (e) {
       print('Error loading todos for category: $e');
@@ -228,7 +233,7 @@ class TodoService {
     }
 
     // Check if user has access to this todo
-    final hasAccess = await _collaborationService.hasAccess(todo.id);
+    final hasAccess = await _collaborationService.hasAccess(todo.id!);
     if (!hasAccess && todo.userId != userId) {
       throw Exception('User does not have access to this todo');
     }

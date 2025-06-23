@@ -19,7 +19,6 @@ class _HomePageState extends State<HomePage> {
   bool isPressedBtn1 = false;
   final key = GlobalKey<MenueState>();
 
-
   @override
   void initState() {
     super.initState();
@@ -40,7 +39,6 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        
         drawer: Menue.getInstance(key), // Use the singleton instance
         body: CustomScrollView(
           physics: ClampingScrollPhysics(),
@@ -113,26 +111,26 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
 
-        //         SliverToBoxAdapter(
-        //           child: Column(children: [
-        //              ElevatedButton(
-        //   onPressed: () => NotificationDebugHelper.testImmediateNotification(),
-        //   child: Text('Test Immediate Notification'),
-        // ),
-        // ElevatedButton(
-        //   onPressed: () => NotificationDebugHelper.testScheduledNotification(),
-        //   child: Text('Test Scheduled Notification'),
-        // ),
-        // ElevatedButton(
-        //   onPressed: () => NotificationDebugHelper.runFullTest(),
-        //   child: Text('Run Full Test Suite'),
-        // ),
-        // ElevatedButton(
-        //   onPressed: () => NotificationDebugHelper.checkPermissions(),
-        //   child: Text('Check Permissions'),
-        // ),
-        //           ],),
-        //         ),
+            //         SliverToBoxAdapter(
+            //           child: Column(children: [
+            //              ElevatedButton(
+            //   onPressed: () => NotificationDebugHelper.testImmediateNotification(),
+            //   child: Text('Test Immediate Notification'),
+            // ),
+            // ElevatedButton(
+            //   onPressed: () => NotificationDebugHelper.testScheduledNotification(),
+            //   child: Text('Test Scheduled Notification'),
+            // ),
+            // ElevatedButton(
+            //   onPressed: () => NotificationDebugHelper.runFullTest(),
+            //   child: Text('Run Full Test Suite'),
+            // ),
+            // ElevatedButton(
+            //   onPressed: () => NotificationDebugHelper.checkPermissions(),
+            //   child: Text('Check Permissions'),
+            // ),
+            //           ],),
+            //         ),
 
             const SliverToBoxAdapter(
               child: SizedBox(

@@ -49,13 +49,6 @@ Future<void> main() async {
     print('❌ NotificationService initialization failed: $e');
   }
 
-  final testToken = await PushNotificationService().getFcmTokenDirect();
-  if (testToken != null) {
-    print('🟢 Test FCM token successful');
-  } else {
-    print('🟡 Test FCM token returned null');
-  }
-
   // Initialize PushNotificationService
   try {
     final pushNotificationService = PushNotificationService();
@@ -64,6 +57,16 @@ Future<void> main() async {
   } catch (e) {
     print('❌ PushNotificationService initialization failed: $e');
   }
+
+  // Get FCM token in background to avoid blocking UI
+  Future.microtask(() async {
+    final testToken = await PushNotificationService().getFcmTokenDirect();
+    if (testToken != null) {
+      print('🟢 Test FCM token successful');
+    } else {
+      print('🟡 Test FCM token returned null');
+    }
+  });
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,

@@ -1,21 +1,25 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ToDoModel {
-  final String id;
+  final String? id;
   final String toDoName;
   final String userId;
+  final String? categoryId;
   final List<String> collaborators;
   final List<Map<String, dynamic>> comments;
   final List<Map<String, dynamic>>
       toDoItems; // Changed to store item name and checked state
+  final String? reminder; // ISO8601 string or null
 
   ToDoModel({
-    required this.id,
+    this.id,
     required this.toDoName,
     required this.userId,
+    this.categoryId,
     required this.collaborators,
     required this.comments,
     required this.toDoItems,
+    this.reminder,
   });
 
   factory ToDoModel.fromFirestore(DocumentSnapshot doc) {
@@ -39,9 +43,11 @@ class ToDoModel {
       id: doc.id,
       toDoName: data['toDoName'] ?? '',
       userId: data['userId'] ?? '',
+      categoryId: data['categoryId'],
       collaborators: List<String>.from(data['collaborators'] ?? []),
       comments: List<Map<String, dynamic>>.from(data['comments'] ?? []),
       toDoItems: convertedItems,
+      reminder: data['reminder'],
     );
   }
 
@@ -49,9 +55,11 @@ class ToDoModel {
     return {
       'toDoName': toDoName,
       'userId': userId,
+      if (categoryId != null) 'categoryId': categoryId,
       'collaborators': collaborators,
       'comments': comments,
       'toDoItems': toDoItems,
+      if (reminder != null) 'reminder': reminder,
     };
   }
 
@@ -59,17 +67,21 @@ class ToDoModel {
     String? id,
     String? toDoName,
     String? userId,
+    String? categoryId,
     List<String>? collaborators,
     List<Map<String, dynamic>>? comments,
     List<Map<String, dynamic>>? toDoItems,
+    String? reminder,
   }) {
     return ToDoModel(
       id: id ?? this.id,
       toDoName: toDoName ?? this.toDoName,
       userId: userId ?? this.userId,
+      categoryId: categoryId ?? this.categoryId,
       collaborators: collaborators ?? this.collaborators,
       comments: comments ?? this.comments,
       toDoItems: toDoItems ?? this.toDoItems,
+      reminder: reminder ?? this.reminder,
     );
   }
 

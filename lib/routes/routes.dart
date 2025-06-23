@@ -10,6 +10,7 @@ import 'package:four_secrets_wedding_app/pages/add_todo_page.dart';
 import 'package:four_secrets_wedding_app/pages/add_wedding_schedule_page.dart';
 import 'package:four_secrets_wedding_app/pages/collaboration_screen.dart';
 import 'package:four_secrets_wedding_app/pages/collaboration_todos_screen.dart';
+import 'package:four_secrets_wedding_app/pages/custom_todo_cateogry_page.dart';
 import 'package:four_secrets_wedding_app/pages/edit_profile_page.dart';
 import 'package:four_secrets_wedding_app/pages/gaestelist.dart';
 import 'package:four_secrets_wedding_app/pages/impressum.dart';
@@ -97,6 +98,7 @@ class RouteManager {
   static const String collaborationTodosPage = '/collaboration-todos';
   static const String addTodoCategoriesPage = '/addTodoCategoriesPage';
   static const String collaboratorDetailsPage = '/collaborator-details';
+  static const String customTodoCategoryPage = '/customTodoCategoryPage';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -465,6 +467,13 @@ class RouteManager {
           type: PageTransitionType.rightToLeft,
         );
 
+      case customTodoCategoryPage:
+        return PageTransition(
+          child: const CustomTodoCategoryPage(),
+          settings: settings,
+          duration: const Duration(milliseconds: 250),
+          type: PageTransitionType.rightToLeft,
+        );
       default:
         throw const FormatException('Route not found! Check routes.dart File.');
     }

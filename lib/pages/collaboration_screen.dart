@@ -62,7 +62,10 @@ class _CollaborationScreenState extends State<CollaborationScreen>
   }
 
   Future<void> _loadData() async {
+    if (!mounted) return;
+
     setState(() => _isLoading = true);
+
     try {
       final myUid = _auth.currentUser?.uid;
       if (myUid == null) return;
@@ -219,11 +222,13 @@ class _CollaborationScreenState extends State<CollaborationScreen>
 
       await _preloadUserInfo(allUserIds);
 
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     } catch (e) {
       print('Error loading data: $e');
-      setState(() => _isLoading = false);
       if (mounted) {
+        setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error loading data: $e')),
         );

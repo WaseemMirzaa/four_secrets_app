@@ -10,6 +10,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:four_secrets_wedding_app/constants/app_constants.dart';
+import 'package:four_secrets_wedding_app/utils/snackbar_helper.dart';
 
 class Gaestelist extends StatefulWidget {
   const Gaestelist({super.key});
@@ -154,82 +155,60 @@ class _GaestelistState extends State<Gaestelist> {
                   _isLoading = true;
                 });
 
-                // Schedule the operation on a separate isolate or thread
-                // to avoid blocking the UI thread
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  Future(() async {
-                    try {
-                      if (_controller.text.isEmpty) {
-                        if (context.mounted) {
-                          Navigator.of(context).pop();
-                        }
-                        return;
-                      }
-
-                      final userId = _auth.currentUser?.uid;
-                      if (userId == null) {
-                        if (context.mounted) {
-                          Navigator.of(context).pop();
-                        }
-                        return;
-                      }
-
-                      try {
-                        final guestName = _controller.text;
-                        _controller.clear();
-
-                        // Add to Firestore without waiting
-                        _firestore
-                            .collection('users')
-                            .doc(userId)
-                            .collection('guests')
-                            .add({
-                          'name': guestName,
-                          'takePart': false,
-                          'mayBeTakePart': false,
-                          'canceled': false,
-                          'createdAt': FieldValue.serverTimestamp(),
-                        });
-
-                        // Add a short delay before closing the dialog
-                        // This allows the loading indicator to be visible briefly
-                        await Future.delayed(const Duration(milliseconds: 300));
-
-                        // Close dialog first before loading guests
-                        if (context.mounted) {
-                          Navigator.of(context).pop();
-                        }
-
-                        // Then reload guests after dialog is closed
-                        // Add another small delay to ensure dialog animation completes
-                        await Future.delayed(const Duration(milliseconds: 200));
-
-                        // Use compute to run _loadGuests in a background isolate
-                        await compute<void, void>((_) async {
-                          // This is a workaround since we can't directly pass _loadGuests
-                          // We'll do the actual loading in the main thread after this completes
-                        }, null);
-
-                        // Now reload the guests in the main thread
-                        await _loadGuests();
-                      } catch (e) {
-                        print('${AppConstants.addGuestError}$e');
-
-                        if (context.mounted) {
-                          setState(() {
-                            _isLoading = false;
-                          });
-                        }
-                      }
-                    } catch (e) {
-                      if (context.mounted) {
-                        setState(() {
-                          _isLoading = false;
-                        });
-                      }
+                try {
+                  if (_controller.text.isEmpty) {
+                    if (context.mounted) {
+                      Navigator.of(context).pop();
                     }
-                  });
-                });
+                    return;
+                  }
+
+                  final userId = _auth.currentUser?.uid;
+                  if (userId == null) {
+                    if (context.mounted) {
+                      Navigator.of(context).pop();
+                    }
+                    return;
+                  }
+
+                  try {
+                    final guestName = _controller.text;
+                    _controller.clear();
+
+                    // Add to Firestore
+                    await _firestore
+                        .collection('users')
+                        .doc(userId)
+                        .collection('guests')
+                        .add({
+                      'name': guestName,
+                      'takePart': false,
+                      'mayBeTakePart': false,
+                      'canceled': false,
+                      'createdAt': FieldValue.serverTimestamp(),
+                    });
+
+                    // Close dialog first
+                    if (context.mounted) {
+                      Navigator.of(context).pop();
+                    }
+
+                    // Then reload guests
+                    await _loadGuests();
+                  } catch (e) {
+                    print('Error adding guest: $e');
+                    if (context.mounted) {
+                      Navigator.of(context).pop();
+                      SnackBarHelper.showErrorSnackBar(
+                          context, 'Error adding guest: $e');
+                    }
+                  }
+                } catch (e) {
+                  print('Error in createNewTask: $e');
+                  if (context.mounted) {
+                    Navigator.of(context).pop();
+                  }
+                }
               },
               onCancel: () {
                 if (!_isLoading) {
@@ -321,10 +300,10 @@ class _GaestelistState extends State<Gaestelist> {
               child: Image.asset(
                 AppConstants.gaestelistBackground,
                 fit: BoxFit.cover,
-                // Reduce image quality to improve performance
+                // Optimize image quality for better performance
                 filterQuality: FilterQuality.medium,
-                // cacheHeight: 300, // Set appropriate cache height
-                // cacheWidth: MediaQuery.of(context).size.width.toInt(),
+                // Add caching for better performance
+                cacheWidth: MediaQuery.of(context).size.width.toInt(),
               ),
             ),
             FourSecretsDivider(),
@@ -521,13 +500,8 @@ class _GaestelistState extends State<Gaestelist> {
                         ),
                         onPressed: () {
                           buttonIsPressed(1);
-                          Timer(
-                            const Duration(milliseconds: 100),
-                            () {
-                              Navigator.of(context)
-                                  .pushNamed(RouteManager.tablesManagementPage);
-                            },
-                          );
+                          Navigator.of(context)
+                              .pushNamed(RouteManager.tablesManagementPage);
                         },
                         label: const Text(
                           AppConstants.tableManagementButtonLabel,
@@ -553,20 +527,3 @@ class _GaestelistState extends State<Gaestelist> {
 }
 
 enum States { takePart, mayBeTakePart, canceled }
-
-// Add this function outside the class to be used with compute()
-Future<Map<String, dynamic>> _addGuestInBackground(
-    Map<String, dynamic> params) async {
-  try {
-    // This function runs in a separate isolate
-    return {
-      'success': true,
-      'name': params['name'],
-    };
-  } catch (e) {
-    return {
-      'success': false,
-      'error': e.toString(),
-    };
-  }
-}

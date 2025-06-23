@@ -25,6 +25,8 @@ class CustomTextWidget extends StatelessWidget {
             fontSize: fontSize ?? 14,
             fontWeight: fontWeight ?? FontWeight.normal,
             color: color ?? Colors.black,
+            decorationColor: Colors.black,
+            decorationThickness: 2,
             decoration: decoration));
   }
 }

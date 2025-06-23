@@ -126,6 +126,7 @@ INJECTED from /Users/waleed/CodetiveLab/four_secrets_app/android/app/src/main/An
 INJECTED from /Users/waleed/CodetiveLab/four_secrets_app/android/app/src/main/AndroidManifest.xml:1:1-118:12
 MERGED from [:android_alarm_manager_plus] /Users/waleed/CodetiveLab/four_secrets_app/build/android_alarm_manager_plus/intermediates/merged_manifest/release/AndroidManifest.xml:2:1-7:12
 MERGED from [:cloud_firestore] /Users/waleed/CodetiveLab/four_secrets_app/build/cloud_firestore/intermediates/merged_manifest/release/AndroidManifest.xml:2:1-15:12
+MERGED from [:syncfusion_flutter_pdfviewer] /Users/waleed/CodetiveLab/four_secrets_app/build/syncfusion_flutter_pdfviewer/intermediates/merged_manifest/release/AndroidManifest.xml:2:1-7:12
 MERGED from [:device_info_plus] /Users/waleed/CodetiveLab/four_secrets_app/build/device_info_plus/intermediates/merged_manifest/release/AndroidManifest.xml:2:1-7:12
 MERGED from [:firebase_app_check] /Users/waleed/CodetiveLab/four_secrets_app/build/firebase_app_check/intermediates/merged_manifest/release/AndroidManifest.xml:2:1-15:12
 MERGED from [:firebase_auth] /Users/waleed/CodetiveLab/four_secrets_app/build/firebase_auth/intermediates/merged_manifest/release/AndroidManifest.xml:2:1-15:12
@@ -515,6 +516,8 @@ MERGED from [:android_alarm_manager_plus] /Users/waleed/CodetiveLab/four_secrets
 MERGED from [:android_alarm_manager_plus] /Users/waleed/CodetiveLab/four_secrets_app/build/android_alarm_manager_plus/intermediates/merged_manifest/release/AndroidManifest.xml:5:5-44
 MERGED from [:cloud_firestore] /Users/waleed/CodetiveLab/four_secrets_app/build/cloud_firestore/intermediates/merged_manifest/release/AndroidManifest.xml:5:5-44
 MERGED from [:cloud_firestore] /Users/waleed/CodetiveLab/four_secrets_app/build/cloud_firestore/intermediates/merged_manifest/release/AndroidManifest.xml:5:5-44
+MERGED from [:syncfusion_flutter_pdfviewer] /Users/waleed/CodetiveLab/four_secrets_app/build/syncfusion_flutter_pdfviewer/intermediates/merged_manifest/release/AndroidManifest.xml:5:5-44
+MERGED from [:syncfusion_flutter_pdfviewer] /Users/waleed/CodetiveLab/four_secrets_app/build/syncfusion_flutter_pdfviewer/intermediates/merged_manifest/release/AndroidManifest.xml:5:5-44
 MERGED from [:device_info_plus] /Users/waleed/CodetiveLab/four_secrets_app/build/device_info_plus/intermediates/merged_manifest/release/AndroidManifest.xml:5:5-44
 MERGED from [:device_info_plus] /Users/waleed/CodetiveLab/four_secrets_app/build/device_info_plus/intermediates/merged_manifest/release/AndroidManifest.xml:5:5-44
 MERGED from [:firebase_app_check] /Users/waleed/CodetiveLab/four_secrets_app/build/firebase_app_check/intermediates/merged_manifest/release/AndroidManifest.xml:5:5-44

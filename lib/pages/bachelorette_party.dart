@@ -1,6 +1,6 @@
 import 'package:four_secrets_wedding_app/data/bachelorette_data.dart';
 import 'package:four_secrets_wedding_app/data/bachelorette_images.dart';
-import 'package:four_secrets_wedding_app/model/carousel_slider_widget.dart';
+import 'package:four_secrets_wedding_app/model/swipeable_card_widget.dart';
 import 'package:four_secrets_wedding_app/model/footer_buttons.dart';
 import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
 import 'package:flutter/material.dart';
@@ -36,11 +36,7 @@ class BacheloretteParty extends StatelessWidget {
       ? BacheloretteData.map["videoRatio"]!
       : "";
 
-  int activeIndex = 0;
-
   String urlMode = "default";
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -71,12 +67,9 @@ class BacheloretteParty extends StatelessWidget {
                     physics: ClampingScrollPhysics(),
                     child: Column(
                       children: [
-                        CarouselSliderWidget(
+                        SwipeableCardWidget(
                           images: images,
-                          activeIndex: activeIndex,
                           height: 330,
-                          viewportFraction: 0.95,
-                          enlargeFactor: 0.4,
                         ),
                         FourSecretsDivider(),
                         Padding(

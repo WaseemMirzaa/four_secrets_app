@@ -18,7 +18,6 @@ class _ChecklistState extends State<Checklist> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   final key = GlobalKey<MenueState>();
-  
 
   ToDoDataBase db = ToDoDataBase();
   bool _isLoading = true;
@@ -34,80 +33,90 @@ class _ChecklistState extends State<Checklist> {
   }
 
   Future<void> _loadChecklist() async {
-  setState(() => _isLoading = true);
+    setState(() => _isLoading = true);
 
-  if (_auth.currentUser == null) {
-    print("User not logged in.");
-    setState(() => _isLoading = false);
-    return;
-  }
+    if (_auth.currentUser == null) {
+      print("User not logged in.");
+      setState(() => _isLoading = false);
+      return;
+    }
     print("User is logged in ${_auth.currentUser!.uid}.");
 
-  
-  await db.loadDataToDo();
+    await db.loadDataToDo();
 
-  setState(() => _isLoading = false);
-}
+    setState(() => _isLoading = false);
+  }
 
-
-   // Checkbox was tapped
+  // Checkbox was tapped
   void checkboxChanged(bool? value, int index) async {
     if (value == null) return;
-    
+
     setState(() {
       // Update UI immediately for better UX
       db.toDoList[index].isCompleted = value;
     });
-    
+
     // Update in Firebase
     await db.updateTaskStatus(index, value);
   }
 
-
-
- 
-  void saveNewTask() async {
-    if (_controller.text.isEmpty) {
-      Navigator.of(context).pop();
-      return;
-    }
-    
-    // Close dialog first for better UX
-    Navigator.of(context).pop();
-    
-    setState(() => _isLoading = true);
-    
-    // Add task to Firebase
-    await db.addTask(_controller.text);
-    _controller.clear();
-    
-    setState(() => _isLoading = false);
-  }
-
- void createNewTask() {
-    showDialog(
+  void createNewTask() async {
+    var g = await showDialog(
       context: context,
+      barrierDismissible: false, // Prevent closing dialog while loading
       builder: (context) {
-        return DialogBox(
-            controller: _controller,
-            isLoading: _isLoading,
-            onSave: saveNewTask,
-            onCancel: () => Navigator.of(context).pop(),
-            isToDo: true,
-            isGuest: false);
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return DialogBox(
+                controller: _controller,
+                isLoading: _isLoading,
+                onSave: () async {
+                  if (_controller.text.isEmpty) {
+                    Navigator.of(context).pop();
+                    return;
+                  }
+
+                  // Set loading state within dialog
+                  setDialogState(() => _isLoading = true);
+
+                  try {
+                    // Add task to Firebase
+                    await db.addTask(_controller.text);
+                    _controller.clear();
+
+                    // Close dialog after successful save
+                    if (context.mounted) {
+                      Navigator.of(context).pop(true);
+                    }
+                  } catch (e) {
+                    // Handle error if needed
+                    print("Error adding task: $e");
+                  } finally {
+                    // Reset loading state
+                    setDialogState(() => _isLoading = false);
+                  }
+                },
+                onCancel: () => Navigator.of(context).pop(),
+                isToDo: true,
+                isGuest: false);
+          },
+        );
       },
     );
+    if (g == true) {
+      _loadChecklist();
+    }
   }
 
- 
   void onDelete(int index) async {
     setState(() => _isLoading = true);
-    
+
     // Delete from Firebase
     await db.deleteTask(index);
-    
+
     setState(() => _isLoading = false);
   }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -143,23 +152,21 @@ class _ChecklistState extends State<Checklist> {
             //           ),
             //         ),
             //       ),
-           ListView.builder(
-                    physics: ClampingScrollPhysics(),
-                    padding: EdgeInsets.only(bottom: 90),
-                    itemCount: db.toDoList.length,
-                    shrinkWrap: true,
-                    itemBuilder: (context, index) {
-                      print(db.toDoList.length);
-                      return CheckListItem(
-                        taskName: db.toDoList[index].taskName,
-                        taskCompleted: db.toDoList[index].isCompleted,
-                        onChanged: (value) => checkboxChanged(value, index),
-                        deleteFunction: (context) => onDelete(index),
-                      );
-                    },
-                  ),
-                
-              
+            ListView.builder(
+              physics: ClampingScrollPhysics(),
+              padding: EdgeInsets.only(bottom: 90),
+              itemCount: db.toDoList.length,
+              shrinkWrap: true,
+              itemBuilder: (context, index) {
+                print(db.toDoList.length);
+                return CheckListItem(
+                  taskName: db.toDoList[index].taskName,
+                  taskCompleted: db.toDoList[index].isCompleted,
+                  onChanged: (value) => checkboxChanged(value, index),
+                  deleteFunction: (context) => onDelete(index),
+                );
+              },
+            ),
           ],
         ),
       ),

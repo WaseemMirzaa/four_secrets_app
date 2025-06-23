@@ -37,6 +37,7 @@ class _AddCustomCategoryWeddingSchedulePageState
       _itemControllerList = widget.weddingCategoryModel!.items
           .map((e) => TextEditingController(text: e))
           .toList();
+      _itemControllerList.add(TextEditingController());
     }
   }
 
@@ -60,105 +61,112 @@ class _AddCustomCategoryWeddingSchedulePageState
         backgroundColor: const Color.fromARGB(255, 107, 69, 106),
       ),
       body: SingleChildScrollView(
-        child: Container(
-          padding: const EdgeInsets.all(15),
-          child: Column(
-            children: [
-              // Category name text field
-              CustomTextField(
-                controller: _categoryController,
-                label: AppConstants.weddingCategoryTitlePageItemName,
-                inputDecoration: InputDecoration(
-                  fillColor: Colors.white,
-                  filled: true,
-                  hintText: AppConstants.weddingCategoryTitlePageCategoryName,
-                  hintStyle:
-                      TextStyle(color: Colors.grey.withValues(alpha: 0.8)),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide:
-                        BorderSide(color: Colors.grey.withValues(alpha: 0.7)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide:
-                        BorderSide(color: Colors.grey.withValues(alpha: 0.7)),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide:
-                        BorderSide(color: Colors.grey.withValues(alpha: 0.7)),
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide:
-                        BorderSide(color: Colors.red.withValues(alpha: 0.7)),
-                  ),
+        padding: const EdgeInsets.all(15),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Category name text field
+            CustomTextField(
+              controller: _categoryController,
+              label: AppConstants.weddingCategoryTitlePageItemName,
+              inputDecoration: InputDecoration(
+                fillColor: Colors.grey.withValues(alpha: 0.2),
+                filled: true,
+                hintText: AppConstants.weddingCategoryTitlePageCategoryName,
+                hintStyle: TextStyle(color: Colors.grey.withValues(alpha: 0.8)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                  borderSide: BorderSide.none,
+                ),
+                errorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                  borderSide: BorderSide.none,
                 ),
               ),
-              const SizedBox(height: 10),
+            ),
+            const SizedBox(height: 10),
 
-              // List of editable text fields
-              ..._itemControllerList.asMap().entries.map((entry) {
-                int index = entry.key;
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5),
+            // List of editable text fields
+            ..._itemControllerList.asMap().entries.map((entry) {
+              int index = entry.key;
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 5),
+                child: CustomTextField(
+                  controller: _itemControllerList[index],
+                  label: "Unterpunkt ${index + 1}",
+                  inputDecoration: InputDecoration(
+                    hintText: "Unterpunkt ${index + 1}",
+                    fillColor: Colors.grey.withValues(alpha: 0.2),
+                    filled: true,
+                    hintStyle:
+                        TextStyle(color: Colors.grey.withValues(alpha: 0.8)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: BorderSide.none,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: BorderSide.none,
+                    ),
+                    suffixIcon: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _itemControllerList.removeAt(index);
+                        });
+                      },
+                      icon: Icon(Icons.delete, color: Colors.black),
+                    ),
+                  ),
+                ),
+              );
+            }),
+
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              GestureDetector(
+                onTap: _addNewTextField,
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 107, 69, 106),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Expanded(
-                        child: CustomTextField(
-                          controller: _itemControllerList[index],
-                          label: "Item ${index + 1}",
-                          inputDecoration: InputDecoration(
-                            hintText: "Enter item ${index + 1}",
-                            hintStyle: TextStyle(
-                                color: Colors.grey.withValues(alpha: 0.8)),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                              borderSide: BorderSide(
-                                  color: Colors.grey.withValues(alpha: 0.7)),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                              borderSide: BorderSide(
-                                  color: Colors.grey.withValues(alpha: 0.7)),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                              borderSide: BorderSide(
-                                  color: Colors.grey.withValues(alpha: 0.7)),
-                            ),
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          setState(() {
-                            _itemControllerList.removeAt(index);
-                          });
-                        },
-                        icon: Icon(Icons.delete, color: Colors.black),
+                      Icon(Icons.add, color: Colors.white),
+                      const SizedBox(width: 10),
+                      CustomTextWidget(
+                        text: 'Hinzufügen',
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
                       ),
                     ],
                   ),
-                );
-              }),
-
-              // Add new field button
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                child: CustomButtonWidget(
-                  width: double.infinity,
-                  text: 'Hinzufügen',
-                  textColor: Colors.white,
-                  color: const Color.fromARGB(255, 148, 107, 147),
-                  onPressed: _addNewTextField,
                 ),
               ),
-
-              const SizedBox(height: 20),
-
-              // Cancel and Add/Update Category buttons
+              const SizedBox(height: 15),
               Row(
                 children: [
                   Expanded(
