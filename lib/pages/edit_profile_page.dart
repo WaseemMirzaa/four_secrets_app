@@ -8,6 +8,7 @@ import 'package:four_secrets_wedding_app/models/user_model.dart';
 import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:four_secrets_wedding_app/services/auth_service.dart';
 import 'package:four_secrets_wedding_app/services/image_upload_service.dart';
+import 'package:four_secrets_wedding_app/widgets/custom_dialog.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
 import '../utils/snackbar_helper.dart';
@@ -460,29 +461,18 @@ class _EditProfilePageState extends State<EditProfilePage> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text(AppConstants.deleteAccountTitle),
-          content: const Text(
-            AppConstants.deleteAccountConfirmation,
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Stornieren'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: const Text(
-                AppConstants.deleteButton,
-                style: TextStyle(color: Colors.red),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-                _deleteAccount();
-              },
-            ),
-          ],
+        return CustomDialog(
+          title: AppConstants.deleteAccountTitle,
+          message: AppConstants.deleteAccountConfirmation,
+          confirmText: AppConstants.deleteButton,
+          cancelText: 'Stornieren',
+          onConfirm: () {
+            Navigator.of(context).pop();
+            _deleteAccount();
+          },
+          onCancel: () {
+            Navigator.of(context).pop();
+          },
         );
       },
     );
