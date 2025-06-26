@@ -58,15 +58,26 @@ class DialogBox extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                
-                      Expanded(child: CustomButtonWidget(text: "Speichern", isLoading: isLoading, textColor: Colors.white, color: Color.fromARGB(255, 107, 69, 106), onPressed: onSave,)),
-            
+                    Expanded(
+                        child: CustomButtonWidget(
+                      text: "Stornieren",
+                      color: Colors.white,
+                      textColor: Colors.black,
+                      onPressed: onCancel,
+                    )),
+
                     const SizedBox(
                       width: 25,
                     ),
                     // cancel button
-              
-                    Expanded(child: CustomButtonWidget(text: "Stornieren",  color: Colors.white, textColor: Colors.black, onPressed: onCancel,)),
+                    Expanded(
+                        child: CustomButtonWidget(
+                      text: "Speichern",
+                      isLoading: isLoading,
+                      textColor: Colors.white,
+                      color: Color.fromARGB(255, 107, 69, 106),
+                      onPressed: onSave,
+                    )),
                   ],
                 ),
               ),

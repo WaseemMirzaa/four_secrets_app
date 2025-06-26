@@ -99,7 +99,6 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        centerTitle: true,
         foregroundColor: Colors.white,
         title: const Text(AppConstants.weddingCategorySelectCategory),
         backgroundColor: const Color.fromARGB(255, 107, 69, 106),

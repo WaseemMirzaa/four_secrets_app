@@ -162,7 +162,6 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
         // resizeToAvoidBottomInset: false,
         drawer: Menue.getInstance(key),
         appBar: AppBar(
-          centerTitle: true,
           foregroundColor: Colors.white,
           title: Text(AppConstants.weddingAddPageTitle),
           backgroundColor: const Color.fromARGB(255, 107, 69, 106),
@@ -372,7 +371,7 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
                                     child: Icon(
                                       FontAwesomeIcons.gripVertical,
                                       size: 24,
-                                      color: Colors.grey.withValues(alpha: 0.6),
+                                      color: Color(0xFF6B456A),
                                     ),
                                   )
                                 ],

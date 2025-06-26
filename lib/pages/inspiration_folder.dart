@@ -196,6 +196,24 @@ class _InspirationFolderState extends State<InspirationFolder> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Expanded(
+                                      child: CustomButtonWidget(
+                                    text: AppConstants
+                                        .inspirationFolderPageCancelButton,
+                                    color: Colors.white,
+                                    onPressed: () {
+                                      _controller.clear();
+                                      imageFile = null;
+                                      Navigator.of(context).pop();
+                                    },
+                                  )),
+                                  // save button
+
+                                  const SizedBox(
+                                    width: 35,
+                                  ),
+                                  // cancel button
+
+                                  Expanded(
                                     child: CustomButtonWidget(
                                         text: AppConstants
                                             .inspirationFolderPageSave,
@@ -237,23 +255,6 @@ class _InspirationFolderState extends State<InspirationFolder> {
                                           stateDialog(() => _isLoading = false);
                                         }),
                                   ),
-                                  // save button
-
-                                  const SizedBox(
-                                    width: 35,
-                                  ),
-                                  // cancel button
-                                  Expanded(
-                                      child: CustomButtonWidget(
-                                    text: AppConstants
-                                        .inspirationFolderPageCancelButton,
-                                    color: Colors.white,
-                                    onPressed: () {
-                                      _controller.clear();
-                                      imageFile = null;
-                                      Navigator.of(context).pop();
-                                    },
-                                  )),
                                 ],
                               ),
                             ),
@@ -274,7 +275,6 @@ class _InspirationFolderState extends State<InspirationFolder> {
         resizeToAvoidBottomInset: true,
         drawer: Menue.getInstance(key),
         appBar: AppBar(
-          centerTitle: true,
           foregroundColor: Colors.white,
           title: const Text(AppConstants.inspirationFolderPageTitle),
           backgroundColor: const Color.fromARGB(255, 107, 69, 106),

@@ -48,7 +48,6 @@ class _AddTodoCategoriesPageState extends State<AddTodoCategoriesPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        centerTitle: true,
         foregroundColor: Colors.white,
         title: Text(
           widget.toDoModel != null
@@ -89,6 +88,10 @@ class _AddTodoCategoriesPageState extends State<AddTodoCategoriesPage> {
                   borderSide: BorderSide.none,
                 ),
               ),
+              onchanged: (_) => setState(() {}),
+              maxLines: 1,
+              keyboardType: TextInputType.text,
+              maxLength: 50,
             ),
             const SizedBox(height: 10),
 
@@ -199,6 +202,15 @@ class _AddTodoCategoriesPageState extends State<AddTodoCategoriesPage> {
                         if (categoryName.isEmpty) {
                           SnackBarHelper.showErrorSnackBar(context,
                               'Bitte geben Sie einen Namen für die Aufgabenliste ein');
+                          setState(() {
+                            _isLoading = false;
+                          });
+                          return;
+                        }
+
+                        if (categoryName.length > 50) {
+                          SnackBarHelper.showErrorSnackBar(context,
+                              'Der Kategoriename darf maximal 50 Zeichen lang sein.');
                           setState(() {
                             _isLoading = false;
                           });

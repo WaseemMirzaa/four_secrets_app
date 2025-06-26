@@ -262,7 +262,6 @@ class _MapSelectionPageState extends State<MapSelectionPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        centerTitle: true,
         foregroundColor: Colors.white,
         title: const Text('Standort auswählen'),
         backgroundColor: const Color.fromARGB(255, 107, 69, 106),

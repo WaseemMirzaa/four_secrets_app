@@ -47,6 +47,9 @@ class _ToDoPageState extends State<ToDoPage> {
   bool hasNewCollabNotification = false;
   List<CollaborationTodoModel> acceptedCollaborations = [];
   List<CollaborationTodoModel> receivedCollaborations = [];
+  int? _editingCommentIndex;
+  TextEditingController _editingController = TextEditingController();
+  TextEditingController _commentController = TextEditingController();
 
   @override
   void initState() {
@@ -439,6 +442,31 @@ class _ToDoPageState extends State<ToDoPage> {
     }).toList();
   }
 
+  String formatCommentTimestamp(dynamic ts) {
+    if (ts == null) return '';
+    DateTime dateTime;
+    if (ts is DateTime) {
+      dateTime = ts;
+    } else if (ts is String) {
+      dateTime = DateTime.tryParse(ts) ?? DateTime.now();
+    } else {
+      dateTime = DateTime.now();
+    }
+    final now = DateTime.now();
+    final diff = now.difference(dateTime);
+    if (diff.inDays > 7) {
+      return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
+    } else if (diff.inDays > 0) {
+      return 'vor ${diff.inDays} Tagen';
+    } else if (diff.inHours > 0) {
+      return 'vor ${diff.inHours} Stunden';
+    } else if (diff.inMinutes > 0) {
+      return 'vor ${diff.inMinutes} Minuten';
+    } else {
+      return 'Gerade eben';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final myUid = FirebaseAuth.instance.currentUser?.uid;
@@ -446,7 +474,6 @@ class _ToDoPageState extends State<ToDoPage> {
         child: Scaffold(
       drawer: Menue.getInstance(key),
       appBar: AppBar(
-        centerTitle: true,
         foregroundColor: Colors.white,
         title: const Text(AppConstants.toDoPageTitle),
         backgroundColor: const Color.fromARGB(255, 107, 69, 106),
@@ -467,8 +494,8 @@ class _ToDoPageState extends State<ToDoPage> {
                   );
                   if (g == true) {
                     _loadCollaborationData();
+                    _checkUnreadNotifications();
                   }
-                  _checkUnreadNotifications();
                 },
               ),
               if (hasNewCollabNotification)
@@ -587,7 +614,7 @@ class _ToDoPageState extends State<ToDoPage> {
           ),
 
           SpacerWidget(height: 2),
-          FourSecretsDivider(),
+          // FourSecretsDivider(),
           // Sent Collaborations section
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
@@ -647,7 +674,7 @@ class _ToDoPageState extends State<ToDoPage> {
             )
           else
             SpacerWidget(height: 2),
-          FourSecretsDivider(),
+          // FourSecretsDivider(),
           ...toDoList.entries.map((entry) {
             String todoId = entry.key;
             // Use manual search to avoid linter error
@@ -671,338 +698,524 @@ class _ToDoPageState extends State<ToDoPage> {
               decoration: BoxDecoration(
                   color: Colors.grey.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(15)),
-              child: ExpansionTile(
-                shape: OutlineInputBorder(borderSide: BorderSide.none),
-                childrenPadding:
-                    EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                title: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            (todoModel.categories != null &&
-                                    todoModel.categories!.isNotEmpty &&
-                                    todoModel.categories![0]['categoryName'] !=
-                                        null &&
-                                    todoModel.categories![0]['categoryName']
-                                        .toString()
-                                        .isNotEmpty)
-                                ? todoModel.categories![0]['categoryName']
-                                : toDoName,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          CustomTextWidget(
-                            text:
-                                '${(todoModel.categories != null && todoModel.categories!.isNotEmpty) ? todoModel.categories!.fold(0, (sum, cat) => sum + ((cat['items'] as List?)?.length ?? 0)) : (todoModel.toDoItems?.length ?? 0)} Punkte${((todoModel.categories != null && todoModel.categories!.isNotEmpty) ? todoModel.categories!.fold(0, (sum, cat) => sum + ((cat['items'] as List?)?.length ?? 0)) : (todoModel.toDoItems?.length ?? 0)) != 1 ? 'n' : ''} • ${todoModel.collaborators.length} Mitgestalter${todoModel.collaborators.length != 1 ? '' : ''}',
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ],
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(
-                        Icons.edit,
-                        size: 20,
-                        color: const Color.fromARGB(255, 107, 69, 106),
-                      ),
-                      onPressed: () {
-                        ToDoModel? model = todoModel;
-                        Navigator.of(context).pushNamed(
-                          RouteManager.addToDoPage,
-                          arguments: {"toDoModel": model, "id": model?.id},
-                        ).then((v) {
-                          _loadAndInitCategories();
-                        });
-                      },
-                    ),
-                  ],
-                ),
+              child: Column(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8.0, vertical: 4.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
+                  ExpansionTile(
+                    shape: OutlineInputBorder(borderSide: BorderSide.none),
+                    childrenPadding:
+                        EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    title: Row(
                       children: [
-                        SizedBox(width: 8),
-                        if (todoModel?.reminder != null &&
-                            todoModel?.reminder!.isNotEmpty == true)
-                          Builder(
-                            builder: (context) {
-                              final reminder =
-                                  DateTime.tryParse(todoModel?.reminder ?? '');
-                              if (reminder == null) return SizedBox();
-                              return Text(
-                                '${reminder.day.toString().padLeft(2, '0')}.${reminder.month.toString().padLeft(2, '0')}.${reminder.year} - '
-                                '${reminder.hour.toString().padLeft(2, '0')}:${reminder.minute.toString().padLeft(2, '0')}',
-                                style: TextStyle(
-                                    fontSize: 14, color: Colors.deepPurple),
-                              );
-                            },
-                          )
-                        else
-                          Expanded(
-                            child: Text('Kein Reminder gesetzt',
-                                style: TextStyle(
-                                    fontSize: 14, color: Colors.grey)),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                (todoModel.categories != null &&
+                                        todoModel.categories!.isNotEmpty &&
+                                        todoModel.categories![0]
+                                                ['categoryName'] !=
+                                            null &&
+                                        todoModel.categories![0]['categoryName']
+                                            .toString()
+                                            .isNotEmpty)
+                                    ? todoModel.categories![0]['categoryName']
+                                    : toDoName,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              CustomTextWidget(
+                                text:
+                                    '${(todoModel.categories != null && todoModel.categories!.isNotEmpty) ? todoModel.categories!.fold(0, (sum, cat) => sum + ((cat['items'] as List?)?.length ?? 0)) : (todoModel.toDoItems?.length ?? 0)} Punkte${((todoModel.categories != null && todoModel.categories!.isNotEmpty) ? todoModel.categories!.fold(0, (sum, cat) => sum + ((cat['items'] as List?)?.length ?? 0)) : (todoModel.toDoItems?.length ?? 0)) != 1 ? 'n' : ''} • ${todoModel.collaborators.length} Mitgestalter${todoModel.collaborators.length != 1 ? '' : ''}',
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ],
                           ),
+                        ),
                         IconButton(
-                          icon: Icon(Icons.alarm_add, color: Colors.deepPurple),
-                          tooltip: todoModel?.reminder == null
-                              ? 'Add reminder'
-                              : 'Edit reminder',
-                          onPressed: () async {
-                            DateTime now = DateTime.now();
-                            DateTime? pickedDate = await showDatePicker(
-                              context: context,
-                              initialDate: todoModel?.reminder != null &&
-                                      todoModel?.reminder!.isNotEmpty == true
-                                  ? DateTime.tryParse(
-                                          todoModel?.reminder ?? '') ??
-                                      now
-                                  : now,
-                              firstDate: now,
-                              lastDate: DateTime(now.year + 5),
-                            );
-                            if (pickedDate != null) {
-                              TimeOfDay? pickedTime = await showTimePicker(
-                                context: context,
-                                initialTime: todoModel?.reminder != null &&
-                                        todoModel?.reminder!.isNotEmpty == true
-                                    ? TimeOfDay.fromDateTime(DateTime.tryParse(
-                                            todoModel?.reminder ?? '') ??
-                                        now)
-                                    : TimeOfDay.now(),
-                              );
-                              if (pickedTime != null) {
-                                final reminderDateTime = DateTime(
-                                  pickedDate.year,
-                                  pickedDate.month,
-                                  pickedDate.day,
-                                  pickedTime.hour,
-                                  pickedTime.minute,
-                                );
-                                try {
-                                  final updatedTodo = todoModel?.copyWith(
-                                      reminder:
-                                          reminderDateTime.toIso8601String());
-                                  if (updatedTodo != null) {
-                                    await toDoService.updateTodo(updatedTodo);
-                                    print('Updated todo in Firestore: ' +
-                                        updatedTodo.toMap().toString());
-                                    await _loadAndInitCategories();
-                                    setState(() {
-                                      listToDoModel[index] = updatedTodo;
-                                    });
-                                  }
-                                } catch (e) {
-                                  if (context.mounted) {
-                                    SnackBarHelper.showErrorSnackBar(
-                                        context, "Failed to set reminder: $e");
-                                  }
-                                }
-                              }
-                            }
+                          icon: Icon(
+                            Icons.edit,
+                            size: 20,
+                            color: const Color.fromARGB(255, 107, 69, 106),
+                          ),
+                          onPressed: () {
+                            ToDoModel? model = todoModel;
+                            Navigator.of(context).pushNamed(
+                              RouteManager.addToDoPage,
+                              arguments: {"toDoModel": model, "id": model?.id},
+                            ).then((v) {
+                              _loadAndInitCategories();
+                            });
                           },
                         ),
-                        if (todoModel?.reminder != null &&
-                            todoModel?.reminder!.isNotEmpty == true)
-                          IconButton(
-                            icon:
-                                Icon(Icons.close, size: 20, color: Colors.red),
-                            tooltip: 'Remove reminder',
-                            onPressed: () async {
-                              try {
-                                final updatedTodo =
-                                    todoModel?.copyWith(reminder: null);
-                                if (updatedTodo != null) {
-                                  await toDoService.updateTodo(updatedTodo);
-                                  await _loadAndInitCategories();
-                                  setState(() {
-                                    listToDoModel[index] = updatedTodo;
-                                  });
-                                }
-                              } catch (e) {
-                                if (context.mounted) {
-                                  SnackBarHelper.showErrorSnackBar(
-                                      context, "Failed to remove reminder: $e");
-                                }
-                              }
-                            },
-                          ),
                       ],
                     ),
-                  ),
-                  if (todoModel?.categories != null &&
-                      todoModel?.categories!.isNotEmpty == true)
-                    ...List.generate(todoModel?.categories!.length ?? 0,
-                        (catIdx) {
-                      var cat = todoModel!.categories![catIdx];
-                      var items = (cat['items'] as List);
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ...List.generate(items.length, (itemIdx) {
-                            var itemRaw = items[itemIdx];
-                            Map<String, dynamic> item;
-                            if (itemRaw is String) {
-                              item = {'name': itemRaw, 'isChecked': false};
-                            } else if (itemRaw is Map<String, dynamic>) {
-                              item = itemRaw;
-                            } else if (itemRaw is Map) {
-                              item = Map<String, dynamic>.from(itemRaw);
-                            } else {
-                              item = {
-                                'name': itemRaw.toString(),
-                                'isChecked': false
-                              };
-                            }
-                            final itemName = item['name'] ?? '';
-                            final isChecked = item['isChecked'] ?? false;
-                            return Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                children: [
-                                  Checkbox(
-                                    value: isChecked,
-                                    onChanged: (bool? value) async {
-                                      try {
-                                        var categoriesCopy =
-                                            List<Map<String, dynamic>>.from(
-                                                todoModel!.categories!);
-                                        var itemsCopy = (categoriesCopy[catIdx]
-                                                ['items'] as List)
-                                            .map((e) =>
-                                                e is Map<String, dynamic>
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8.0, vertical: 4.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            SizedBox(width: 8),
+                            if (todoModel?.reminder != null &&
+                                todoModel?.reminder!.isNotEmpty == true)
+                              Builder(
+                                builder: (context) {
+                                  final reminder = DateTime.tryParse(
+                                      todoModel?.reminder ?? '');
+                                  if (reminder == null) return SizedBox();
+                                  return Text(
+                                    '${reminder.day.toString().padLeft(2, '0')}.${reminder.month.toString().padLeft(2, '0')}.${reminder.year} - '
+                                    '${reminder.hour.toString().padLeft(2, '0')}:${reminder.minute.toString().padLeft(2, '0')}',
+                                    style: TextStyle(
+                                        fontSize: 14, color: Colors.deepPurple),
+                                  );
+                                },
+                              )
+                            else
+                              Expanded(
+                                child: Text('Kein Reminder gesetzt',
+                                    style: TextStyle(
+                                        fontSize: 14, color: Colors.grey)),
+                              ),
+                            IconButton(
+                              icon: Icon(Icons.alarm_add,
+                                  color: Colors.deepPurple),
+                              tooltip: todoModel?.reminder == null
+                                  ? 'Add reminder'
+                                  : 'Edit reminder',
+                              onPressed: () async {
+                                DateTime now = DateTime.now();
+                                DateTime? pickedDate = await showDatePicker(
+                                  context: context,
+                                  initialDate: todoModel?.reminder != null &&
+                                          todoModel?.reminder!.isNotEmpty ==
+                                              true
+                                      ? DateTime.tryParse(
+                                              todoModel?.reminder ?? '') ??
+                                          now
+                                      : now,
+                                  firstDate: now,
+                                  lastDate: DateTime(now.year + 5),
+                                );
+                                if (pickedDate != null) {
+                                  TimeOfDay? pickedTime = await showTimePicker(
+                                    context: context,
+                                    initialTime: todoModel?.reminder != null &&
+                                            todoModel?.reminder!.isNotEmpty ==
+                                                true
+                                        ? TimeOfDay.fromDateTime(
+                                            DateTime.tryParse(
+                                                    todoModel?.reminder ??
+                                                        '') ??
+                                                now)
+                                        : TimeOfDay.now(),
+                                  );
+                                  if (pickedTime != null) {
+                                    final reminderDateTime = DateTime(
+                                      pickedDate.year,
+                                      pickedDate.month,
+                                      pickedDate.day,
+                                      pickedTime.hour,
+                                      pickedTime.minute,
+                                    );
+                                    try {
+                                      final updatedTodo = todoModel?.copyWith(
+                                          reminder: reminderDateTime
+                                              .toIso8601String());
+                                      if (updatedTodo != null) {
+                                        await toDoService
+                                            .updateTodo(updatedTodo);
+                                        print('Updated todo in Firestore: ' +
+                                            updatedTodo.toMap().toString());
+                                        await _loadAndInitCategories();
+                                        setState(() {
+                                          listToDoModel[index] = updatedTodo;
+                                        });
+                                        // Show persistent reminder notification
+                                        if (context.mounted) {
+                                          SnackBarHelper.showPersistentSnackBar(
+                                            context,
+                                            'Reminder gesetzt! Bleibt sichtbar bis du es schließt.',
+                                            backgroundColor: Colors.deepPurple,
+                                          );
+                                        }
+                                      }
+                                    } catch (e) {
+                                      if (context.mounted) {
+                                        SnackBarHelper.showErrorSnackBar(
+                                            context,
+                                            "Failed to set reminder: $e");
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                            ),
+                            if (todoModel?.reminder != null &&
+                                todoModel?.reminder!.isNotEmpty == true)
+                              IconButton(
+                                icon: Icon(Icons.close,
+                                    size: 20, color: Colors.red),
+                                tooltip: 'Remove reminder',
+                                onPressed: () async {
+                                  try {
+                                    final updatedTodo =
+                                        todoModel?.copyWith(reminder: null);
+                                    if (updatedTodo != null) {
+                                      await toDoService.updateTodo(updatedTodo);
+                                      await _loadAndInitCategories();
+                                      setState(() {
+                                        listToDoModel[index] = updatedTodo;
+                                      });
+                                    }
+                                  } catch (e) {
+                                    if (context.mounted) {
+                                      SnackBarHelper.showErrorSnackBar(context,
+                                          "Failed to remove reminder: $e");
+                                    }
+                                  }
+                                },
+                              ),
+                          ],
+                        ),
+                      ),
+                      if (todoModel?.categories != null &&
+                          todoModel?.categories!.isNotEmpty == true)
+                        ...List.generate(todoModel?.categories!.length ?? 0,
+                            (catIdx) {
+                          var cat = todoModel!.categories![catIdx];
+                          var items = (cat['items'] as List);
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ...List.generate(items.length, (itemIdx) {
+                                var itemRaw = items[itemIdx];
+                                Map<String, dynamic> item;
+                                if (itemRaw is String) {
+                                  item = {'name': itemRaw, 'isChecked': false};
+                                } else if (itemRaw is Map<String, dynamic>) {
+                                  item = itemRaw;
+                                } else if (itemRaw is Map) {
+                                  item = Map<String, dynamic>.from(itemRaw);
+                                } else {
+                                  item = {
+                                    'name': itemRaw.toString(),
+                                    'isChecked': false
+                                  };
+                                }
+                                final itemName = item['name'] ?? '';
+                                final isChecked = item['isChecked'] ?? false;
+                                return Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Row(
+                                    children: [
+                                      Checkbox(
+                                        value: isChecked,
+                                        onChanged: (bool? value) async {
+                                          try {
+                                            var categoriesCopy =
+                                                List<Map<String, dynamic>>.from(
+                                                    todoModel!.categories!);
+                                            var itemsCopy = (categoriesCopy[
+                                                    catIdx]['items'] as List)
+                                                .map((e) => e
+                                                        is Map<String, dynamic>
                                                     ? e
                                                     : {
                                                         'name': e.toString(),
                                                         'isChecked': false
                                                       })
-                                            .toList();
-                                        itemsCopy[itemIdx] = {
-                                          ...item,
-                                          'isChecked':
-                                              !(item['isChecked'] ?? false),
-                                        };
-                                        categoriesCopy[catIdx]['items'] =
-                                            itemsCopy;
-                                        categoriesCopy =
-                                            sanitizeCategories(categoriesCopy);
-                                        final updatedTodo = todoModel?.copyWith(
-                                            categories: categoriesCopy);
-                                        if (updatedTodo != null) {
-                                          await toDoService
-                                              .updateTodo(updatedTodo);
-                                          setState(() {
-                                            listToDoModel[index] = updatedTodo;
-                                          });
-                                        }
-                                      } catch (e) {
-                                        if (context.mounted) {
-                                          SnackBarHelper.showErrorSnackBar(
-                                              context,
-                                              "Failed to update item: $e");
-                                        }
-                                      }
-                                    },
-                                    activeColor: Colors.purple,
+                                                .toList();
+                                            itemsCopy[itemIdx] = {
+                                              ...item,
+                                              'isChecked':
+                                                  !(item['isChecked'] ?? false),
+                                            };
+                                            categoriesCopy[catIdx]['items'] =
+                                                itemsCopy;
+                                            categoriesCopy = sanitizeCategories(
+                                                categoriesCopy);
+                                            final updatedTodo =
+                                                todoModel?.copyWith(
+                                                    categories: categoriesCopy);
+                                            if (updatedTodo != null) {
+                                              await toDoService
+                                                  .updateTodo(updatedTodo);
+                                              setState(() {
+                                                listToDoModel[index] =
+                                                    updatedTodo;
+                                              });
+                                            }
+                                          } catch (e) {
+                                            if (context.mounted) {
+                                              SnackBarHelper.showErrorSnackBar(
+                                                  context,
+                                                  "Failed to update item: $e");
+                                            }
+                                          }
+                                        },
+                                        activeColor: Colors.purple,
+                                      ),
+                                      SizedBox(width: 8),
+                                      Expanded(
+                                        child: CustomTextWidget(
+                                          text: itemName,
+                                          fontSize: 14,
+                                          color: Colors.black,
+                                          decoration: isChecked
+                                              ? TextDecoration.lineThrough
+                                              : null,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  SizedBox(width: 8),
-                                  Expanded(
-                                    child: CustomTextWidget(
-                                      text: itemName,
-                                      fontSize: 14,
-                                      color: Colors.black,
-                                      decoration: isChecked
-                                          ? TextDecoration.lineThrough
-                                          : null,
+                                );
+                              }),
+                            ],
+                          );
+                        }),
+                      Divider(),
+                      SpacerWidget(height: 2),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 18, vertical: 10),
+                        child: CustomButtonWidget(
+                          text: "Löschen",
+                          width: context.screenWidth,
+                          color: Colors.red.shade300,
+                          textColor: Colors.white,
+                          onPressed: () async {
+                            var g = await showDialog(
+                                context: context,
+                                builder: (context) =>
+                                    StatefulBuilder(builder: (context, statee) {
+                                      return CustomDialog(
+                                          isLoading: isDeleting,
+                                          title: "Löschen",
+                                          message:
+                                              "Möchtest du diesen Punkt wirklich löschen?",
+                                          confirmText: "Löschen",
+                                          cancelText: "Abbrechen",
+                                          onConfirm: () async {
+                                            statee(() {
+                                              isDeleting = true;
+                                            });
+                                            try {
+                                              // First delete any associated collaboration todos
+                                              final collaborationSnapshot =
+                                                  await FirebaseFirestore
+                                                      .instance
+                                                      .collection(
+                                                          'collaboration_todos')
+                                                      .where('todoId',
+                                                          isEqualTo:
+                                                              todoModel?.id ??
+                                                                  '')
+                                                      .get();
+
+                                              // Delete all associated collaboration todos
+                                              for (var doc
+                                                  in collaborationSnapshot
+                                                      .docs) {
+                                                await doc.reference.delete();
+                                              }
+
+                                              // Then delete the main todo
+                                              await toDoService.deleteTodo(
+                                                todoModel?.id ?? '',
+                                              );
+                                              statee(() {
+                                                listToDoModel.removeAt(index);
+                                                toDoList.remove(todoId);
+                                              });
+                                            } catch (e) {
+                                              if (context.mounted) {
+                                                SnackBarHelper
+                                                    .showErrorSnackBar(
+                                                        context, e.toString());
+                                              }
+                                            } finally {
+                                              statee(() {
+                                                isDeleting = false;
+                                              });
+                                              Navigator.of(context).pop(true);
+                                            }
+                                          },
+                                          onCancel: () {
+                                            Navigator.of(context).pop();
+                                          });
+                                    }));
+                            if (g == true) {
+                              await _loadAndInitCategories();
+                            }
+                          },
+                        ),
+                      ),
+                      // Styled comment section for this todo (not for collab), now inside ExpansionTile
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ...List.generate(todoModel?.comments?.length ?? 0,
+                                (i) {
+                              final c = todoModel?.comments?[i] ?? {};
+                              final user = FirebaseAuth.instance.currentUser;
+                              final isMine =
+                                  user != null && c['userId'] == user.uid;
+                              String userName =
+                                  c['userName'] ?? c['name'] ?? 'Unbekannt';
+                              String avatarLetter = userName.isNotEmpty
+                                  ? userName[0].toUpperCase()
+                                  : 'U';
+                              String formattedTs =
+                                  formatCommentTimestamp(c['timestamp']);
+                              return Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                padding: const EdgeInsets.all(12.0),
+                                margin:
+                                    const EdgeInsets.symmetric(vertical: 6.0),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 16,
+                                      backgroundColor: Color(0xFFD1C4E9),
+                                      child: CustomTextWidget(
+                                        text: avatarLetter,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black,
+                                        fontSize: 16,
+                                      ),
                                     ),
+                                    SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            userName,
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black),
+                                          ),
+                                          if (formattedTs.isNotEmpty)
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: 2.0, bottom: 4.0),
+                                              child: Text(
+                                                formattedTs,
+                                                style: TextStyle(
+                                                    color: Colors.grey,
+                                                    fontSize: 12),
+                                              ),
+                                            ),
+                                          CustomTextWidget(text: c['comment'])
+                                        ],
+                                      ),
+                                    ),
+                                    if (isMine)
+                                      PopupMenuButton<String>(
+                                        onSelected: (value) async {
+                                          if (value == 'edit') {
+                                            setState(() {
+                                              _editingCommentIndex = i;
+                                              _editingController.text =
+                                                  c['comment'] ?? '';
+                                            });
+                                          } else if (value == 'delete') {
+                                            final todoComments =
+                                                List<Map<String, dynamic>>.from(
+                                                    todoModel?.comments ?? []);
+                                            todoComments.removeAt(i);
+                                            final updatedTodo =
+                                                todoModel?.copyWith(
+                                                    comments: todoComments);
+                                            if (updatedTodo != null) {
+                                              setState(() {
+                                                listToDoModel[index] =
+                                                    updatedTodo;
+                                              });
+                                              await toDoService
+                                                  .updateTodo(updatedTodo);
+                                            }
+                                          }
+                                        },
+                                        itemBuilder: (context) => [
+                                          PopupMenuItem(
+                                            value: 'edit',
+                                            child: Row(
+                                              children: [
+                                                Icon(Icons.edit,
+                                                    color: Color(0xFF6B456A),
+                                                    size: 18),
+                                                SizedBox(width: 8),
+                                                CustomTextWidget(
+                                                    color: Color(0xFF6B456A),
+                                                    text: 'Bearbeiten'),
+                                              ],
+                                            ),
+                                          ),
+                                          PopupMenuItem(
+                                            value: 'delete',
+                                            child: Row(
+                                              children: [
+                                                Icon(Icons.delete,
+                                                    color: Colors.red,
+                                                    size: 18),
+                                                SizedBox(width: 8),
+                                                CustomTextWidget(
+                                                    color: Colors.red,
+                                                    text: 'Löschen'),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                  ],
+                                ),
+                              );
+                            }),
+                            SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: CustomTextField(
+                                    controller: _commentController,
+                                    label: 'Kommentar',
+                                    hint: 'Kommentar hinzufügen...',
+                                    maxLines: 1,
+                                    onSubmit: (val) async {
+                                      await _handleAddComment(
+                                          val, todoModel, index);
+                                    },
                                   ),
-                                ],
-                              ),
-                            );
-                          }),
-                        ],
-                      );
-                    }),
-                  Divider(),
-                  SpacerWidget(height: 2),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 18, vertical: 10),
-                    child: CustomButtonWidget(
-                      text: "Löschen",
-                      width: context.screenWidth,
-                      color: Colors.red.shade300,
-                      textColor: Colors.white,
-                      onPressed: () async {
-                        var g = await showDialog(
-                            context: context,
-                            builder: (context) =>
-                                StatefulBuilder(builder: (context, statee) {
-                                  return CustomDialog(
-                                      isLoading: isDeleting,
-                                      title: "Löschen",
-                                      message:
-                                          "Möchtest du diesen Punkt wirklich löschen?",
-                                      confirmText: "Löschen",
-                                      cancelText: "Abbrechen",
-                                      onConfirm: () async {
-                                        statee(() {
-                                          isDeleting = true;
-                                        });
-                                        try {
-                                          // First delete any associated collaboration todos
-                                          final collaborationSnapshot =
-                                              await FirebaseFirestore.instance
-                                                  .collection(
-                                                      'collaboration_todos')
-                                                  .where('todoId',
-                                                      isEqualTo:
-                                                          todoModel?.id ?? '')
-                                                  .get();
-
-                                          // Delete all associated collaboration todos
-                                          for (var doc
-                                              in collaborationSnapshot.docs) {
-                                            await doc.reference.delete();
-                                          }
-
-                                          // Then delete the main todo
-                                          await toDoService.deleteTodo(
-                                            todoModel?.id ?? '',
-                                          );
-                                          statee(() {
-                                            listToDoModel.removeAt(index);
-                                            toDoList.remove(todoId);
-                                          });
-                                        } catch (e) {
-                                          if (context.mounted) {
-                                            SnackBarHelper.showErrorSnackBar(
-                                                context, e.toString());
-                                          }
-                                        } finally {
-                                          statee(() {
-                                            isDeleting = false;
-                                          });
-                                          Navigator.of(context).pop(true);
-                                        }
-                                      },
-                                      onCancel: () {
-                                        Navigator.of(context).pop();
-                                      });
-                                }));
-                        if (g == true) {
-                          await _loadAndInitCategories();
-                        }
-                      },
-                    ),
-                  )
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.send,
+                                      color: Color(0xFF6B456A)),
+                                  onPressed: () async {
+                                    await _handleAddComment(
+                                        _commentController.text,
+                                        todoModel,
+                                        index);
+                                  },
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             );
@@ -1013,5 +1226,28 @@ class _ToDoPageState extends State<ToDoPage> {
         ],
       ),
     ));
+  }
+
+  Future<void> _handleAddComment(
+      String val, ToDoModel? todoModel, int index) async {
+    final commentText = val.trim();
+    final user = FirebaseAuth.instance.currentUser;
+    if (commentText.isNotEmpty && user != null) {
+      final newComment = {
+        'userId': user.uid,
+        'userName': user.displayName ?? 'Unbekannt',
+        'comment': commentText,
+        'timestamp': DateTime.now(),
+      };
+      final todoComments =
+          List<Map<String, dynamic>>.from(todoModel?.comments ?? []);
+      todoComments.add(newComment);
+      final updatedTodo = todoModel?.copyWith(comments: todoComments);
+      if (updatedTodo != null) {
+        await toDoService.updateTodo(updatedTodo);
+        _commentController.clear();
+        await _loadAndInitCategories();
+      }
+    }
   }
 }

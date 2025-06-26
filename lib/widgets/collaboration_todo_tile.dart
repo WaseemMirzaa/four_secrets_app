@@ -105,29 +105,38 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                     : null);
           }
         }
-        // Find latest activity: comment or checkbox
-        Timestamp? latestCommentTs;
+        // Find latest comment not by owner
+        Timestamp? latestNonOwnerCommentTs;
         if (comments.isNotEmpty) {
-          final sorted = List<Map<String, dynamic>>.from(comments)
-            ..sort((a, b) {
-              final ta = a['timestamp'];
-              final tb = b['timestamp'];
-              if (ta is Timestamp && tb is Timestamp) {
-                return tb.compareTo(ta);
-              }
-              return 0;
-            });
-          latestCommentTs = sorted.first['timestamp'] as Timestamp?;
+          final nonOwnerComments =
+              comments.where((c) => c['userId'] != ownerId).toList()
+                ..sort((a, b) {
+                  final ta = a['timestamp'];
+                  final tb = b['timestamp'];
+                  if (ta is Timestamp && tb is Timestamp) {
+                    return tb.compareTo(ta);
+                  }
+                  return 0;
+                });
+          if (nonOwnerComments.isNotEmpty) {
+            latestNonOwnerCommentTs =
+                nonOwnerComments.first['timestamp'] as Timestamp?;
+          }
         }
-        Timestamp? lastActivityTs = data['lastActivityTimestamp'] as Timestamp?;
-        // Use the latest of comment or lastActivityTimestamp
+        // For checkbox, check lastActivityUserId
+        final lastActivityUserId = data['lastActivityUserId'];
+        Timestamp? lastActivityTs =
+            (lastActivityUserId != null && lastActivityUserId != ownerId)
+                ? data['lastActivityTimestamp'] as Timestamp?
+                : null;
+        // Use the latest of these two
         Timestamp? latestTs;
-        if (latestCommentTs != null && lastActivityTs != null) {
-          latestTs = latestCommentTs.compareTo(lastActivityTs) > 0
-              ? latestCommentTs
+        if (latestNonOwnerCommentTs != null && lastActivityTs != null) {
+          latestTs = latestNonOwnerCommentTs.compareTo(lastActivityTs) > 0
+              ? latestNonOwnerCommentTs
               : lastActivityTs;
         } else {
-          latestTs = latestCommentTs ?? lastActivityTs;
+          latestTs = latestNonOwnerCommentTs ?? lastActivityTs;
         }
         bool _hasUnread = false;
         if (latestTs != null && currentUserId != null) {
@@ -149,7 +158,8 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
-                      mainAxisSize: MainAxisSize.min,
+                      mainAxisSize: MainAxisSize.max,
+                      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
@@ -166,6 +176,110 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                               shape: BoxShape.circle,
                             ),
                           ),
+                        if (isOwned) ...[
+                          Expanded(
+                              child: SizedBox(
+                            width: 10,
+                          )),
+                          IconButton(
+                            icon: Icon(Icons.edit,
+                                color: Color(0xFF6B456A), size: 20),
+                            tooltip: 'Bearbeiten',
+                            onPressed: () async {
+                              final categoriesCopy =
+                                  List<Map<String, dynamic>>.from(categories);
+                              final nameController =
+                                  TextEditingController(text: categoryName);
+                              final itemControllers =
+                                  categoriesCopy.isNotEmpty &&
+                                          categoriesCopy[0]['items'] != null
+                                      ? (categoriesCopy[0]['items'] as List)
+                                          .map<TextEditingController>((item) =>
+                                              TextEditingController(
+                                                  text: (item is Map
+                                                          ? item['name']
+                                                          : item.toString()) ??
+                                                      ''))
+                                          .toList()
+                                      : <TextEditingController>[];
+                              final result = await showDialog<bool>(
+                                context: context,
+                                builder: (context) => CollabTodoEditDialog(
+                                  initialName: categoryName,
+                                  itemControllers: itemControllers,
+                                  onSave: (newName, newItemControllers) async {
+                                    final updatedItems = newItemControllers
+                                        .map((c) => {
+                                              'name': c.text,
+                                              'isChecked': false
+                                            })
+                                        .toList();
+                                    final updatedCategories =
+                                        List<Map<String, dynamic>>.from(
+                                            categoriesCopy);
+                                    if (updatedCategories.isNotEmpty) {
+                                      updatedCategories[0]['categoryName'] =
+                                          newName;
+                                      updatedCategories[0]['items'] =
+                                          updatedItems;
+                                    }
+                                    await FirebaseFirestore.instance
+                                        .collection('collaboration_todos')
+                                        .doc(widget.collabId)
+                                        .update({
+                                      'categories': updatedCategories,
+                                      'todoName': newName,
+                                    });
+                                  },
+                                ),
+                              );
+                              if (result == true && context.mounted) {
+                                SnackBarHelper.showSuccessSnackBar(
+                                    context, 'Todo aktualisiert');
+                              }
+                            },
+                          ),
+                          IconButton(
+                            icon: Icon(FontAwesomeIcons.trashCan,
+                                color: Colors.red, size: 20),
+                            tooltip: 'Löschen',
+                            onPressed: () async {
+                              final confirm = await showDialog<bool>(
+                                context: context,
+                                builder: (context) => CustomDialog(
+                                  title: 'Todo löschen',
+                                  message:
+                                      'Möchten Sie dieses Todo wirklich löschen?',
+                                  confirmText: 'Löschen',
+                                  cancelText: 'Abbrechen',
+                                  onConfirm: () async {
+                                    Navigator.pop(context, true);
+                                  },
+                                  onCancel: () {
+                                    Navigator.pop(context, false);
+                                  },
+                                ),
+                              );
+                              if (confirm == true) {
+                                try {
+                                  await FirebaseFirestore.instance
+                                      .collection('collaboration_todos')
+                                      .doc(widget.collabId)
+                                      .delete();
+                                  if (context.mounted) {
+                                    SnackBarHelper.showSuccessSnackBar(
+                                        context, 'Todo gelöscht');
+                                  }
+                                } catch (e) {
+                                  if (context.mounted) {
+                                    SnackBarHelper.showErrorSnackBar(
+                                        context, 'Fehler beim Löschen: $e');
+                                  }
+                                }
+                              }
+                            },
+                          ),
+                        ],
                       ],
                     ),
                     SizedBox(height: 4),

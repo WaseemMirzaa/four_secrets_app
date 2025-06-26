@@ -43,16 +43,40 @@ class SnackBarHelper {
     );
   }
 
+  /// Shows a persistent SnackBar with a close button (for reminders)
+  static void showPersistentSnackBar(BuildContext context, String message,
+      {Color? backgroundColor}) {
+    final snackBar = SnackBar(
+      content: Row(
+        children: [
+          Expanded(child: Text(message)),
+          IconButton(
+            icon: Icon(Icons.close, color: Colors.white),
+            onPressed: () {
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            },
+            tooltip: 'Schließen',
+          ),
+        ],
+      ),
+      backgroundColor: backgroundColor ?? Colors.deepPurple,
+      duration: const Duration(days: 1), // Effectively infinite
+      behavior: SnackBarBehavior.floating,
+      dismissDirection: DismissDirection.horizontal,
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
   /// Creates a custom fade animation for SnackBars
   static Animation<double> _createFadeAnimation(BuildContext context) {
     final AnimationController controller = AnimationController(
       vsync: Navigator.of(context),
       duration: const Duration(milliseconds: 500), // Fade-in duration
     );
-    
+
     // Start the animation
     controller.forward();
-    
+
     // Create a curved animation that fades in quickly and fades out slowly
     return CurvedAnimation(
       parent: controller,

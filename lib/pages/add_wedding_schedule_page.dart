@@ -168,7 +168,6 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        centerTitle: true,
         foregroundColor: Colors.white,
         title: const Text(AppConstants.weddingAddPageTitle),
         backgroundColor: const Color.fromARGB(255, 107, 69, 106),
@@ -233,7 +232,8 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                       ),
                       IconButton(
                         onPressed: _selectEventDate,
-                        icon: Icon(Icons.calendar_today),
+                        icon: Icon(Icons.calendar_today,
+                            color: Color(0xFF6B456A)),
                       ),
                     ],
                   ),
@@ -264,7 +264,7 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                       ),
                       IconButton(
                         onPressed: _selectEventTime,
-                        icon: Icon(Icons.timer),
+                        icon: Icon(Icons.timer, color: Color(0xFF6B456A)),
                       ),
                     ],
                   ),
@@ -398,7 +398,8 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                         ),
                         IconButton(
                           onPressed: _selectReminderDate,
-                          icon: Icon(Icons.calendar_today),
+                          icon: Icon(Icons.calendar_today,
+                              color: Color(0xFF6B456A)),
                         ),
                       ],
                     ),
@@ -427,7 +428,7 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                         ),
                         IconButton(
                           onPressed: _selectReminderTime,
-                          icon: Icon(Icons.timer),
+                          icon: Icon(Icons.timer, color: Color(0xFF6B456A)),
                         ),
                       ],
                     ),

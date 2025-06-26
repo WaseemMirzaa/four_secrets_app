@@ -18,7 +18,6 @@ class Inspirations extends StatelessWidget {
       child: Scaffold(
         drawer: Menue(),
         appBar: AppBar(
-          centerTitle: true,
           // automaticallyImplyLeading: false,
           title: const Text('Münchner Geheimtipp'),
           backgroundColor: const Color.fromARGB(255, 107, 69, 106),

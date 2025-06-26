@@ -65,6 +65,7 @@ class CheckListItem extends StatelessWidget {
                           decoration: taskCompleted
                               ? TextDecoration.lineThrough
                               : TextDecoration.none,
+                          fontSize: 14,
                           decorationThickness: 3,
                         ),
                       ),

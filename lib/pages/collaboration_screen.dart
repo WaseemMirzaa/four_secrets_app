@@ -336,7 +336,6 @@ class _CollaborationScreenState extends State<CollaborationScreen>
             },
           ),
           automaticallyImplyLeading: true,
-          centerTitle: true,
           foregroundColor: Colors.white,
           backgroundColor: Color.fromARGB(255, 107, 69, 106),
           title: const CustomTextWidget(

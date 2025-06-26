@@ -151,7 +151,6 @@ class _AddTodoPageState extends State<AddTodoPage> {
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          centerTitle: true,
           foregroundColor: Colors.white,
           title: const Text(AppConstants.toDoPageTitle),
           backgroundColor: const Color.fromARGB(255, 107, 69, 106),

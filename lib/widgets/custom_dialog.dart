@@ -69,7 +69,7 @@ class CustomDialog extends StatelessWidget {
             Expanded(
               child: CustomButtonWidget(
                 text: confirmText,
-                color: Colors.red.shade600,
+                color: Colors.red.shade300,
                 textColor: confirmTextColor ?? Colors.white,
                 isLoading: isLoading,
                 onPressed: isLoading ? null : onConfirm,

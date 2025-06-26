@@ -50,7 +50,6 @@ class _InspirationDetailPageState extends State<InspirationDetailPage> {
             color: Colors.white,
             onPressed: () => Navigator.of(context).pop(),
           ),
-          centerTitle: true,
           title: const Text(
             AppConstants.inspirationFolderPageTitle,
           ),

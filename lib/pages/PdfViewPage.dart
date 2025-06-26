@@ -13,7 +13,6 @@ class PdfViewPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         foregroundColor: Colors.white,
-        centerTitle: true,
         title: Text(title,
             style: TextStyle(
                 color: Colors.white,

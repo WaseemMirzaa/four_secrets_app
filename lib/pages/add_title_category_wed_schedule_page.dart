@@ -52,7 +52,6 @@ class _AddCustomCategoryWeddingSchedulePageState
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        centerTitle: true,
         foregroundColor: Colors.white,
         title: const Text(
           AppConstants.weddingCustomCategoryAppBarTitle,
@@ -91,6 +90,10 @@ class _AddCustomCategoryWeddingSchedulePageState
                   borderSide: BorderSide.none,
                 ),
               ),
+              onchanged: (_) => setState(() {}),
+              maxLines: 1,
+              keyboardType: TextInputType.text,
+              maxLength: 50,
             ),
             const SizedBox(height: 10),
 
