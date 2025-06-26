@@ -391,11 +391,12 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                                                     context: context,
                                                     builder: (context) =>
                                                         CustomDialog(
-                                                      title: 'Delete Comment',
+                                                      title:
+                                                          'Kommentar löschen',
                                                       message:
-                                                          'Are you sure you want to delete this comment?',
-                                                      confirmText: 'Delete',
-                                                      cancelText: 'Cancel',
+                                                          'Möchten Sie diesen Kommentar wirklich löschen?',
+                                                      confirmText: 'Löschen',
+                                                      cancelText: 'Abbrechen',
                                                       onConfirm: () async {
                                                         Navigator.pop(
                                                             context, true);
@@ -437,14 +438,14 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                                                         SnackBarHelper
                                                             .showSuccessSnackBar(
                                                                 context,
-                                                                'Comment deleted');
+                                                                'Kommentar gelöscht');
                                                       }
                                                     } catch (e) {
                                                       if (context.mounted) {
                                                         SnackBarHelper
                                                             .showErrorSnackBar(
                                                                 context,
-                                                                'Failed to delete comment: $e');
+                                                                'Fehler beim Löschen des Kommentars: $e');
                                                       }
                                                     }
                                                   }
@@ -456,9 +457,14 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                                                   child: Row(
                                                     children: [
                                                       Icon(Icons.edit,
+                                                          color:
+                                                              Color(0xFF6B456A),
                                                           size: 18),
                                                       SizedBox(width: 8),
-                                                      Text('Edit'),
+                                                      CustomTextWidget(
+                                                          color:
+                                                              Color(0xFF6B456A),
+                                                          text: 'Bearbeiten'),
                                                     ],
                                                   ),
                                                 ),
@@ -466,10 +472,15 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                                                   value: 'delete',
                                                   child: Row(
                                                     children: [
-                                                      Icon(Icons.delete,
+                                                      Icon(
+                                                          FontAwesomeIcons
+                                                              .trashCan,
+                                                          color: Colors.red,
                                                           size: 18),
                                                       SizedBox(width: 8),
-                                                      Text('Delete'),
+                                                      CustomTextWidget(
+                                                          color: Colors.red,
+                                                          text: 'Löschen'),
                                                     ],
                                                   ),
                                                 ),

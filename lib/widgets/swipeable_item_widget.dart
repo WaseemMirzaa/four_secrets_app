@@ -10,7 +10,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:see_more/see_more_widget.dart';
 
 // ignore: must_be_immutable
-class SlidableItemWidget extends StatelessWidget {
+class SlidableItemWidget extends StatefulWidget {
   GoogleMapController? mapController;
   final WeddingDayScheduleModel item;
   final int index;
@@ -35,9 +35,17 @@ class SlidableItemWidget extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  _SwipeableItemWidgetState createState() => _SwipeableItemWidgetState();
+}
+
+class _SwipeableItemWidgetState extends State<SlidableItemWidget> {
+  GoogleMapController? mapController;
+  bool _isMapLoading = true;
+
+  @override
   Widget build(BuildContext context) {
     return Container(
-      width: screenWidth,
+      width: widget.screenWidth,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         gradient: LinearGradient(
@@ -60,8 +68,8 @@ class SlidableItemWidget extends StatelessWidget {
                     SizedBox(width: 4),
                     CustomTextWidget(
                       text:
-                          "${item.time.hour.toString().padLeft(2, '0')}:${item.time.minute.toString().padLeft(2, '0')} "
-                          "${item.time.hour >= 12 ? 'Uhr' : 'Uhr'}",
+                          "${widget.item.time.hour.toString().padLeft(2, '0')}:${widget.item.time.minute.toString().padLeft(2, '0')} "
+                          "${widget.item.time.hour >= 12 ? 'Uhr' : 'Uhr'}",
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
                     ),
@@ -84,7 +92,7 @@ class SlidableItemWidget extends StatelessWidget {
                     SizedBox(width: 4),
                     CustomTextWidget(
                       text:
-                          "${item.time.day.toString().padLeft(2, '0')},${item.time.month.toString().padLeft(2, '0')},${item.time.year}",
+                          "${widget.item.time.day.toString().padLeft(2, '0')},${widget.item.time.month.toString().padLeft(2, '0')},${widget.item.time.year}",
                       fontSize: 12,
                     ),
                   ],
@@ -94,7 +102,7 @@ class SlidableItemWidget extends StatelessWidget {
             Row(
               children: [
                 InkWell(
-                  onTap: onShare,
+                  onTap: widget.onShare,
                   child: Padding(
                     padding: const EdgeInsets.all(6.0),
                     child: Icon(
@@ -106,7 +114,7 @@ class SlidableItemWidget extends StatelessWidget {
                 ),
                 SizedBox(width: 4),
                 InkWell(
-                  onTap: onEdit,
+                  onTap: widget.onEdit,
                   child: Padding(
                     padding: const EdgeInsets.all(6.0),
                     child: Icon(
@@ -125,7 +133,7 @@ class SlidableItemWidget extends StatelessWidget {
         childrenPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 16),
         children: [
           CustomTextWidget(
-            text: item.title,
+            text: widget.item.title,
             fontSize: 14,
             fontWeight: FontWeight.bold,
           ),
@@ -136,7 +144,7 @@ class SlidableItemWidget extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
           SpacerWidget(height: 1),
-          CustomTextWidget(text: item.responsiblePerson, fontSize: 14),
+          CustomTextWidget(text: widget.item.responsiblePerson, fontSize: 14),
           SpacerWidget(height: 3),
           SpacerWidget(height: 3),
           CustomTextWidget(
@@ -146,7 +154,7 @@ class SlidableItemWidget extends StatelessWidget {
           ),
           SpacerWidget(height: 1),
           SeeMoreWidget(
-            item.notes,
+            widget.item.notes,
             textStyle: TextStyle(fontSize: 14, color: Colors.black),
             trimLength: 90,
             seeMoreStyle: TextStyle(
@@ -158,22 +166,22 @@ class SlidableItemWidget extends StatelessWidget {
           ),
           SpacerWidget(height: 3),
           SpacerWidget(height: 3),
-          if (item.reminderTime != null)
+          if (widget.item.reminderTime != null)
             CustomTextWidget(
               text: "Erinnerung",
               fontSize: 14,
               fontWeight: FontWeight.bold,
             ),
           SpacerWidget(height: 2),
-          if (item.reminderTime != null)
+          if (widget.item.reminderTime != null)
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Icon(FontAwesomeIcons.clock, size: 18),
                 CustomTextWidget(
                   text:
-                      "${item.reminderTime!.hour.toString().padLeft(2, '0')}:${item.reminderTime!.minute.toString().padLeft(2, '0')} "
-                      "${item.reminderTime!.hour >= 12 ? 'Uhr' : 'Uhr'}",
+                      "${widget.item.reminderTime!.hour.toString().padLeft(2, '0')}:${widget.item.reminderTime!.minute.toString().padLeft(2, '0')} "
+                      "${widget.item.reminderTime!.hour >= 12 ? 'Uhr' : 'Uhr'}",
                   fontSize: 14,
                 ),
                 SizedBox(
@@ -189,7 +197,7 @@ class SlidableItemWidget extends StatelessWidget {
                 ),
                 CustomTextWidget(
                   text:
-                      "${item.reminderTime!.day.toString().padLeft(2, '0')}-${item.reminderTime!.month.toString().padLeft(2, '0')}-${item.reminderTime!.year}",
+                      "${widget.item.reminderTime!.day.toString().padLeft(2, '0')}-${widget.item.reminderTime!.month.toString().padLeft(2, '0')}-${widget.item.reminderTime!.year}",
                   fontSize: 14,
                 ),
               ],
@@ -203,37 +211,53 @@ class SlidableItemWidget extends StatelessWidget {
           SpacerWidget(height: 3),
           ClipRRect(
             borderRadius: BorderRadius.circular(15),
-            child: Container(
-              height: context.screenHeight * 0.2,
-              width: context.screenWidth,
-              decoration: BoxDecoration(boxShadow: [
-                BoxShadow(
-                    color: Colors.grey, blurRadius: 10, offset: Offset(10, 0))
-              ]),
-              child: GoogleMap(
-                initialCameraPosition: CameraPosition(
-                  target: LatLng(item.lat, item.long),
-                  zoom: 14.0,
-                ),
-                onMapCreated: (controller) {
-                  mapController = controller;
-                },
-                markers: {
-                  Marker(
-                    markerId: const MarkerId("selected-location"),
-                    position: LatLng(item.lat, item.long),
+            child: Stack(
+              children: [
+                Container(
+                  height: context.screenHeight * 0.2,
+                  width: context.screenWidth,
+                  decoration: BoxDecoration(boxShadow: [
+                    BoxShadow(
+                        color: Colors.grey,
+                        blurRadius: 10,
+                        offset: Offset(10, 0))
+                  ]),
+                  child: GoogleMap(
+                    initialCameraPosition: CameraPosition(
+                      target: LatLng(widget.item.lat, widget.item.long),
+                      zoom: 14.0,
+                    ),
+                    onMapCreated: (controller) {
+                      mapController = controller;
+                      setState(() {
+                        _isMapLoading = false;
+                      });
+                    },
+                    markers: {
+                      Marker(
+                        markerId: const MarkerId("selected-location"),
+                        position: LatLng(widget.item.lat, widget.item.long),
+                      ),
+                    },
                   ),
-                },
-              ),
+                ),
+                if (_isMapLoading)
+                  Positioned.fill(
+                    child: Container(
+                      color: Colors.white.withOpacity(0.7),
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                  ),
+              ],
             ),
           ),
           SpacerWidget(height: 4),
           CustomButtonWidget(
-            width: screenWidth,
+            width: widget.screenWidth,
             color: Colors.red.shade300,
             textColor: Colors.white,
             text: "Löschen",
-            onPressed: onDelete,
+            onPressed: widget.onDelete,
           ),
           SpacerWidget(height: 1),
         ],

@@ -14,6 +14,7 @@ import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/wedding_schedule_page_widget.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_switch/flutter_switch.dart';
 
 class AddWeddingSchedulePage extends StatefulWidget {
   final WeddingDayScheduleModel? weddingDayScheduleModel;
@@ -342,7 +343,7 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                 SpacerWidget(height: 4),
 
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4)
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 18)
                       .copyWith(right: 0),
                   decoration: BoxDecoration(
                     color: Colors.grey.withValues(alpha: 0.2),
@@ -357,14 +358,20 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                             text:
                                 "${AppConstants.weddingSchedulePageReminder} aktivieren"),
                       ),
-                      Switch(
+                      FlutterSwitch(
+                        height: 25,
+                        width: 50,
+                        activeColor: Color.fromARGB(255, 126, 80, 123),
+                        inactiveColor: Colors.grey,
+                        borderRadius: 15,
                         value: _reminderEnabled,
-                        onChanged: (value) {
+                        onToggle: (bool value) {
                           setState(() {
                             _reminderEnabled = value;
                           });
                         },
                       ),
+                      SizedBox(width: 10),
                     ],
                   ),
                 ),

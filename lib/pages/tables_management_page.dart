@@ -8,6 +8,7 @@ import 'package:four_secrets_wedding_app/menue.dart';
 import 'package:four_secrets_wedding_app/model/checklist_button.dart';
 import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
 import 'package:four_secrets_wedding_app/model/table_dialog_box.dart';
+import 'package:four_secrets_wedding_app/widgets/custom_dialog.dart';
 import 'package:four_secrets_wedding_app/widgets/table_mangemant_widget.dart';
 import '../models/table_model.dart';
 import '../models/guest.dart';
@@ -578,26 +579,24 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
   }
 
   void _showDeleteConfirmation(String tableId) {
-    showCupertinoModalPopup<void>(
+    showDialog(
       context: context,
-      builder: (BuildContext context) => CupertinoActionSheet(
-        title: Text(AppConstants.deleteTableTitle),
-        message: Text(AppConstants.deleteTableConfirmation),
-        actions: <CupertinoActionSheetAction>[
-          CupertinoActionSheetAction(
-            isDestructiveAction: true,
-            onPressed: () {
-              _deleteTable(tableId);
-              Navigator.pop(context);
-            },
-            child: Text(AppConstants.deleteButton),
-          ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          child: Text(AppConstants.cancelButton),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
+      barrierDismissible: false,
+      builder: (context) {
+        return CustomDialog(
+          title: AppConstants.deleteTableTitle,
+          message: AppConstants.deleteTableConfirmation,
+          onConfirm: () async {
+            await _deleteTable(tableId);
+            Navigator.of(context).pop();
+          },
+          onCancel: () {
+            Navigator.of(context).pop();
+          },
+          confirmText: AppConstants.deleteButton,
+          cancelText: AppConstants.cancelButton,
+        );
+      },
     );
   }
 

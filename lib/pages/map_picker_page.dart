@@ -268,15 +268,13 @@ class _MapSelectionPageState extends State<MapSelectionPage> {
         backgroundColor: const Color.fromARGB(255, 107, 69, 106),
       ),
       body: isloading
-          ? Center(
-              child: CircularProgressIndicator(),
-            )
-          : Stack(
+          ? Center(child: CircularProgressIndicator())
+          : Column(
               children: [
-                Column(
-                  children: [
-                    Expanded(
-                      child: GoogleMap(
+                Expanded(
+                  child: Stack(
+                    children: [
+                      GoogleMap(
                         onMapCreated: (controller) =>
                             _mapController = controller,
                         initialCameraPosition: CameraPosition(
@@ -291,93 +289,97 @@ class _MapSelectionPageState extends State<MapSelectionPage> {
                           setState(() {});
                           await _getAddressFromLatLng(position);
                         },
+                        zoomControlsEnabled: true,
                       ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 18, vertical: 18),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 4,
-                            offset: Offset(0, -2),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            "Ausgewählte Adresse:",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
+                      Positioned(
+                        top: 16,
+                        left: 16,
+                        right: 16,
+                        child: CompositedTransformTarget(
+                          link: _layerLink,
+                          child: Container(
+                            height: 60,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            _selectedAddress,
-                            style: const TextStyle(fontSize: 14),
-                          ),
-                          const SizedBox(height: 16),
-                          SizedBox(
-                            width: double.infinity,
-                            child: MyButton(
-                              onPressed: () {
-                                Navigator.pop(context, {
-                                  "lat": _selectedLocation.latitude,
-                                  "long": _selectedLocation.longitude,
-                                  "address": _selectedAddress,
-                                });
+                            child: TextField(
+                              controller: _searchController,
+                              focusNode: _searchFocusNode,
+                              decoration: InputDecoration(
+                                filled: true,
+                                hintText: "Suche Standort...",
+                                fillColor: Colors.white,
+                                prefixIcon: Icon(
+                                  FontAwesomeIcons.magnifyingGlass,
+                                  size: 16,
+                                ),
+                                border: OutlineInputBorder(
+                                    borderSide: BorderSide.none),
+                              ),
+                              onChanged: (value) {
+                                _fetchPlacePredictions(value);
                               },
-                              color: const Color.fromARGB(255, 107, 69, 106),
-                              textColor: Colors.white,
-                              text: "Standort bestätigen",
+                              onTap: () {
+                                if (_placePredictions.isNotEmpty)
+                                  _showOverlay();
+                              },
+                              onEditingComplete: () {
+                                _removeOverlay();
+                              },
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: CompositedTransformTarget(
-                    link: _layerLink,
-                    child: Container(
-                      height: 60,
-                      width: context.screenWidth,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: TextField(
-                        controller: _searchController,
-                        focusNode: _searchFocusNode,
-                        decoration: InputDecoration(
-                          filled: true,
-                          hintText: "Suche Standort...",
-                          fillColor: Colors.white,
-                          prefixIcon: Icon(
-                            FontAwesomeIcons.magnifyingGlass,
-                            size: 16,
-                          ),
-                          border:
-                              OutlineInputBorder(borderSide: BorderSide.none),
                         ),
-                        onChanged: (value) {
-                          _fetchPlacePredictions(value);
-                        },
-                        onTap: () {
-                          if (_placePredictions.isNotEmpty) _showOverlay();
-                        },
-                        onEditingComplete: () {
-                          _removeOverlay();
-                        },
                       ),
-                    ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 4,
+                        offset: Offset(0, -2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Ausgewählte Adresse:",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        _selectedAddress,
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        child: MyButton(
+                          onPressed: () {
+                            Navigator.pop(context, {
+                              "lat": _selectedLocation.latitude,
+                              "long": _selectedLocation.longitude,
+                              "address": _selectedAddress,
+                            });
+                          },
+                          color: const Color.fromARGB(255, 107, 69, 106),
+                          textColor: Colors.white,
+                          text: "Standort bestätigen",
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
