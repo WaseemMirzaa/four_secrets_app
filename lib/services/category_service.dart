@@ -137,12 +137,6 @@ class CategoryService {
       throw Exception('User not logged in');
     }
 
-    // Check for duplicate category name
-    final exists = await categoryExists(categoryName);
-    if (exists) {
-      throw Exception('Eine Kategorie mit diesem Namen existiert bereits');
-    }
-
     final docRef = _firestore
         .collection('users')
         .doc(userId)

@@ -101,9 +101,9 @@ class _AddCustomCategoryWeddingSchedulePageState
                 padding: const EdgeInsets.symmetric(vertical: 5),
                 child: CustomTextField(
                   controller: _itemControllerList[index],
-                  label: "Unterpunkt ${index + 1}",
+                  label: "Programmpunkt ${index + 1}",
                   inputDecoration: InputDecoration(
-                    hintText: "Unterpunkt ${index + 1}",
+                    hintText: "Programmpunkt ${index + 1}",
                     fillColor: Colors.grey.withValues(alpha: 0.2),
                     filled: true,
                     hintStyle:
@@ -126,7 +126,11 @@ class _AddCustomCategoryWeddingSchedulePageState
                           _itemControllerList.removeAt(index);
                         });
                       },
-                      icon: Icon(Icons.delete, color: Colors.black),
+                      icon: Icon(
+                        FontAwesomeIcons.trashCan,
+                        color: Colors.red,
+                        size: 18,
+                      ),
                     ),
                   ),
                 ),

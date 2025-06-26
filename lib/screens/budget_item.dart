@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_switch/flutter_switch.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 // ignore: must_be_immutable
 class BudgetItem extends StatefulWidget {
@@ -37,7 +38,7 @@ class _BudgetItemState extends State<BudgetItem> {
             children: [
               SlidableAction(
                 onPressed: widget.deleteFunction,
-                icon: Icons.delete,
+                icon: FontAwesomeIcons.trashCan,
                 backgroundColor: Colors.red.shade300,
                 borderRadius: BorderRadius.circular(10),
               ),

@@ -11,6 +11,7 @@ class CollaborationTodoModel {
   final List<Map<String, dynamic>> toDoItems;
   final DateTime createdAt;
   final DateTime? lastModified;
+  final List<Map<String, dynamic>>? categories;
 
   CollaborationTodoModel({
     required this.id,
@@ -23,6 +24,7 @@ class CollaborationTodoModel {
     required this.toDoItems,
     required this.createdAt,
     this.lastModified,
+    this.categories,
   });
 
   Map<String, dynamic> toMap() {
@@ -37,6 +39,7 @@ class CollaborationTodoModel {
       'createdAt': Timestamp.fromDate(createdAt),
       'lastModified':
           lastModified != null ? Timestamp.fromDate(lastModified!) : null,
+      if (categories != null) 'categories': categories,
     };
   }
 
@@ -63,6 +66,15 @@ class CollaborationTodoModel {
       }
     }
 
+    // NEW: categories
+    List<Map<String, dynamic>>? categories;
+    if (data['categories'] != null && data['categories'] is List) {
+      categories = List<Map<String, dynamic>>.from(
+        (data['categories'] as List)
+            .map((cat) => Map<String, dynamic>.from(cat)),
+      );
+    }
+
     return CollaborationTodoModel(
       id: doc.id,
       todoId: data['todoId'] ?? '',
@@ -74,6 +86,7 @@ class CollaborationTodoModel {
       toDoItems: processedToDoItems,
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       lastModified: (data['lastModified'] as Timestamp?)?.toDate(),
+      categories: categories,
     );
   }
 
@@ -88,6 +101,7 @@ class CollaborationTodoModel {
     List<Map<String, dynamic>>? toDoItems,
     DateTime? createdAt,
     DateTime? lastModified,
+    List<Map<String, dynamic>>? categories,
   }) {
     return CollaborationTodoModel(
       id: id ?? this.id,
@@ -100,6 +114,7 @@ class CollaborationTodoModel {
       toDoItems: toDoItems ?? this.toDoItems,
       createdAt: createdAt ?? this.createdAt,
       lastModified: lastModified ?? this.lastModified,
+      categories: categories ?? this.categories,
     );
   }
 

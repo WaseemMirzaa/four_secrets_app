@@ -175,7 +175,8 @@ class _CollaboratorDetailsScreenState extends State<CollaboratorDetailsScreen> {
             .get();
         if (mainTodoDoc.exists) {
           final mainTodo = ToDoModel.fromFirestore(mainTodoDoc);
-          final mainItems = List<Map<String, dynamic>>.from(mainTodo.toDoItems);
+          final mainItems =
+              List<Map<String, dynamic>>.from(mainTodo.toDoItems ?? []);
           // Find the item by name (sync by name)
           final mainIndex = mainItems.indexWhere(
               (item) => item['name'] == updatedItems[index]['name']);
@@ -330,13 +331,25 @@ class _CollaboratorDetailsScreenState extends State<CollaboratorDetailsScreen> {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             }
+            // Debug: Print snapshot data
+            print(
+                'CollabDetailsScreen snapshot: \\nHasData: \\${snapshot.hasData}, Docs: \\${snapshot.data?.docs.length}');
             if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                SnackBarHelper.showErrorSnackBar(
-                    context, 'Die Zusammenarbeit wurde vom Besitzer gelöscht.');
-                Navigator.of(context).pop(true);
-              });
-              return const SizedBox.shrink();
+              // Instead of popping, show a visible message
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.info_outline, size: 48, color: Colors.grey),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Keine Details gefunden.\nBitte überprüfe, ob die Zusammenarbeit noch existiert.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                    ),
+                  ],
+                ),
+              );
             }
             final doc = snapshot.data!.docs.first;
             final data = doc.data();

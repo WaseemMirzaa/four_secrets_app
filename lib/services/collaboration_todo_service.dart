@@ -18,8 +18,11 @@ class CollaborationTodoService {
     required String ownerId,
     required String ownerName,
     required List<Map<String, dynamic>> toDoItems,
+    List<Map<String, dynamic>> comments = const [],
+    List<Map<String, dynamic>>? categories,
+    String? collaboratorId,
   }) async {
-    if (userId == null) {
+    if (userId == null && collaboratorId == null) {
       throw Exception('User not logged in');
     }
 
@@ -31,12 +34,11 @@ class CollaborationTodoService {
       todoName: todoName,
       ownerId: ownerId,
       ownerName: ownerName,
-      collaborators: [userId!],
-      comments: [],
-      toDoItems: toDoItems
-          .map((item) => {'name': item['name'] as String, 'isChecked': false})
-          .toList(),
+      collaborators: [collaboratorId ?? userId!],
+      comments: comments,
+      toDoItems: toDoItems,
       createdAt: DateTime.now(),
+      categories: categories,
     );
 
     await docRef.set(todo.toMap());
@@ -111,13 +113,15 @@ class CollaborationTodoService {
       // Update the todo
       await todoDoc.reference.update(updatedTodo.toMap());
 
-      // Send push notification to the todo owner
-      await _pushNotificationService.sendCommentNotification(
-        todoOwnerId: todo.ownerId,
-        commenterName: userName,
-        todoName: todo.todoName,
-        comment: comment,
-      );
+      // Send push notification to the todo owner, but not if the owner is the commenter
+      if (todo.ownerId != userId) {
+        await _pushNotificationService.sendCommentNotification(
+          todoOwnerId: todo.ownerId,
+          commenterName: userName,
+          todoName: todo.todoName,
+          comment: comment,
+        );
+      }
     } catch (e) {
       print('Error adding comment: $e');
       throw Exception('Failed to add comment: $e');

@@ -11,8 +11,6 @@ class TodoService {
   final CategoryService _categoryService = CategoryService();
 
   String? get userId => _auth.currentUser?.uid;
-
-  // // Create initial data for first-time users
   // Future<void> createInitialTodoItems() async {
   //   print('🟢 Starting createInitialTodoItems');
   //   if (userId == null) {
@@ -45,7 +43,59 @@ class TodoService {
   //   if (!isInitialized) {
   //     print('🟢 Creating initial todo categories for user: $userId');
 
-  //     final initialCategories = [];
+  //     final initialCategories = [
+  //       {
+  //         'toDoName': 'Dokumente & Organisatorisches',
+  //         'toDoItems': [
+  //           'Personalausweis oder Reisepass',
+  //           'Ablaufplan',
+  //           'Kontaktdaten wichtiger Dienstleister',
+  //           'Trinkgeld (in Umschlägen vorbereitet)',
+  //         ],
+  //       },
+  //       {
+  //         'toDoName': 'Braut',
+  //         'toDoItems': [
+  //           'Notfallset: Pflaster, Sicherheitsnadeln, Nähset, Kopfschmerztabletten',
+  //           'Make-up zum Nachbessern (Puder, Lippenstift, Taschentücher)',
+  //           'Deo & Parfum',
+  //           'Ersatzstrumpfhose / -schuhe',
+  //           'Mini-Haarspray',
+  //         ],
+  //       },
+  //       {
+  //         'toDoName': 'Bräutigam',
+  //         'toDoItems': [
+  //           'Ersatzhemd (bei warmem Wetter)',
+  //           'Schuhputztuch',
+  //           'Deo',
+  //           'Taschentücher',
+  //         ],
+  //       },
+  //       {
+  //         'toDoName': 'Technik',
+  //         'toDoItems': [
+  //           'Geladene Handys + Powerbank',
+  //           'Eheringe',
+  //           'Traurede',
+  //         ],
+  //       },
+  //       {
+  //         'toDoName': 'Snacks & Getränke',
+  //         'toDoItems': [
+  //           'Kleine Snacks (Nüsse, Riegel)',
+  //           'Wasserflaschen',
+  //           'Strohhalm (für die Braut mit Make-up)',
+  //         ],
+  //       },
+  //       {
+  //         'toDoName': 'Sonstiges',
+  //         'toDoItems': [
+  //           'Kleine Decke (falls Fotos draußen stattfinden)',
+  //           'Regenschirm',
+  //         ],
+  //       }
+  //     ];
 
   //     // Use a batch write for better performance
   //     final batch = _firestore.batch();
@@ -84,42 +134,89 @@ class TodoService {
 
   // Create a new todo list
   Future<ToDoModel> createTodo(
-      String toDoName, List<String> toDoItems, String? categoryId) async {
-    if (userId == null) {
+      {String? toDoName,
+      List<String>? toDoItems,
+      String? categoryId,
+      List<Map<String, dynamic>>? categories}) async {
+    // Defensive: Ensure userId is valid
+    if (userId == null || userId!.isEmpty) {
+      print('ERROR: userId is null or empty in createTodo');
       throw Exception('User not logged in');
     }
-
-    // If categoryId is provided, verify category exists and user has access
-    if (categoryId != null && categoryId.isNotEmpty) {
+    // Defensive: Ensure we never use an empty string in Firestore paths
+    if (_firestore.collection('users').doc(userId).id.isEmpty) {
+      print('ERROR: Firestore user doc id is empty!');
+      throw Exception('Firestore user doc id is empty!');
+    }
+    // Defensive: Ensure categories or toDoItems are provided
+    if ((categories == null || categories.isEmpty) &&
+        (toDoItems == null || toDoItems.isEmpty)) {
+      print('ERROR: No categories or toDoItems provided to createTodo');
+      throw Exception('No todo items or categories provided');
+    }
+    // Defensive: If categoryId is provided, ensure it is not empty and valid
+    if (categoryId != null) {
+      if (categoryId.isEmpty) {
+        print('ERROR: categoryId is an empty string!');
+        throw Exception('Category ID must not be an empty string');
+      }
       final category = await _categoryService.getCategory(categoryId);
       if (category == null) {
         throw Exception('Category not found');
       }
     }
-
+    // Defensive: Ensure no empty category names in categories
+    if (categories != null &&
+        categories.any((cat) => (cat['categoryName'] == null ||
+            cat['categoryName'].toString().trim().isEmpty))) {
+      print('ERROR: One or more category names are empty!');
+      throw Exception('One or more category names are empty!');
+    }
     final docRef =
         _firestore.collection('users').doc(userId).collection('todos').doc();
-
-    // Convert string items to maps with isChecked: false
-    final List<Map<String, dynamic>> itemsWithCheckedState = toDoItems
+    // Convert string items to maps with isChecked: false (for old format)
+    final List<Map<String, dynamic>> itemsWithCheckedState = (toDoItems ?? [])
         .map((item) => {
               'name': item,
               'isChecked': false,
             })
         .toList();
-
     final todo = ToDoModel(
       id: docRef.id,
-      toDoName: toDoName,
+      toDoName: toDoName ?? '',
       toDoItems: itemsWithCheckedState,
       userId: userId!,
       categoryId: categoryId,
       collaborators: [],
       comments: [],
+      categories: categories,
     );
+    try {
+      print('🔥🔥🔥 About to create Firestore docRef');
+      print('🔥🔥🔥 Firestore docRef created: \n${docRef.path}');
+      print('🔥🔥🔥 Data to be sent to Firestore: \n${todo.toMap()}');
+      await docRef.set(todo.toMap());
+      return todo;
+    } catch (e, stack) {
+      print('🔥🔥🔥 Exception creating Firestore docRef or saving: $e');
+      print(stack);
+      rethrow;
+    }
+  }
 
-    await docRef.set(todo.toMap());
-    return todo;
+  Future<bool> checkForDuplicateCategory(String categoryName) async {
+    try {
+      final snapshot = await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('todos')
+          .where('categoryName', isEqualTo: categoryName)
+          .get();
+      return snapshot.docs.isNotEmpty;
+    } catch (e) {
+      print('🔴🔴🔴 Error checking for duplicate category: $e');
+      return false;
+    }
   }
 
   // Get all todo lists accessible to the current user
@@ -231,13 +328,10 @@ class TodoService {
     if (userId == null) {
       throw Exception('User not logged in');
     }
-
-    // Check if user has access to this todo
     final hasAccess = await _collaborationService.hasAccess(todo.id!);
     if (!hasAccess && todo.userId != userId) {
       throw Exception('User does not have access to this todo');
     }
-
     await _firestore
         .collection('users')
         .doc(todo.userId)

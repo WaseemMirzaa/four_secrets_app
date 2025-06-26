@@ -11,6 +11,8 @@ import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:four_secrets_wedding_app/services/todo_service.dart';
 import 'package:four_secrets_wedding_app/services/auth_service.dart';
 import 'package:four_secrets_wedding_app/services/collaboration_service.dart';
+import 'package:four_secrets_wedding_app/widgets/custom_dialog.dart';
+import 'package:four_secrets_wedding_app/widgets/custom_text_field.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_text_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_button_widget.dart';
 import 'package:four_secrets_wedding_app/utils/snackbar_helper.dart';
@@ -18,6 +20,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:four_secrets_wedding_app/pages/collaboration_screen.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:four_secrets_wedding_app/services/collaboration_todo_service.dart';
+import 'package:four_secrets_wedding_app/model/collaboration_todo_model.dart';
+import '../widgets/collaboration_todo_tile.dart';
 
 class ToDoPage extends StatefulWidget {
   const ToDoPage({super.key});
@@ -36,11 +43,17 @@ class _ToDoPageState extends State<ToDoPage> {
   Map<String, dynamic> toDoList = {};
   List<String> selectedItems = [];
   String? selectedCategory;
+  bool isDeleting = false;
+  bool hasNewCollabNotification = false;
+  List<CollaborationTodoModel> acceptedCollaborations = [];
+  List<CollaborationTodoModel> receivedCollaborations = [];
 
   @override
   void initState() {
     super.initState();
     _loadAndInitCategories();
+    _loadCollaborationData();
+    _checkUnreadNotifications();
   }
 
   Future<void> _loadAndInitCategories() async {
@@ -52,11 +65,12 @@ class _ToDoPageState extends State<ToDoPage> {
 
     try {
       final todos = await toDoService.getTodos();
+
       if (mounted) {
         setState(() {
           listToDoModel = todos;
-          toDoList = Map.fromEntries(
-              todos.map((todo) => MapEntry(todo.toDoName, todo.toDoItems)));
+          toDoList = Map.fromEntries(todos
+              .map((todo) => MapEntry(todo.id ?? '', todo.toDoItems ?? [])));
           isLoading = false;
         });
       }
@@ -70,7 +84,51 @@ class _ToDoPageState extends State<ToDoPage> {
     }
   }
 
-  Future<void> _showInviteDialog(String todoId, String todoName) async {
+  Future<void> _loadCollaborationData() async {
+    final myUid = FirebaseAuth.instance.currentUser?.uid;
+    if (myUid == null) return;
+    final firestore = FirebaseFirestore.instance;
+    // Accepted collaborations (where user is a collaborator)
+    final collaboratedSnapshot = await firestore
+        .collection('collaboration_todos')
+        .where('collaborators', arrayContains: myUid)
+        .get();
+    acceptedCollaborations = collaboratedSnapshot.docs.map((doc) {
+      return CollaborationTodoModel.fromFirestore(doc);
+    }).toList();
+    // Received collaborations (where user is the owner and others collaborate)
+    final ownedSnapshot = await firestore
+        .collection('collaboration_todos')
+        .where('ownerId', isEqualTo: myUid)
+        .get();
+    receivedCollaborations = ownedSnapshot.docs
+        .map((doc) => CollaborationTodoModel.fromFirestore(doc))
+        .where((todo) => (todo.collaborators.isNotEmpty))
+        .toList();
+    // Notification logic: if there are any new/received collaborations
+    hasNewCollabNotification = acceptedCollaborations.isNotEmpty;
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _checkUnreadNotifications() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    final fcmToken = await FirebaseMessaging.instance.getToken();
+    if (fcmToken == null) return;
+    final snapshot = await FirebaseFirestore.instance
+        .collection('notifications')
+        .where('token', isEqualTo: fcmToken)
+        .where('read', isEqualTo: false)
+        .get();
+    // Only set to true if there is an unread invitation notification
+    final hasInvite = snapshot.docs
+        .any((doc) => (doc.data()['data']?['type'] ?? '') == 'invitation');
+    setState(() {
+      hasNewCollabNotification = hasInvite;
+    });
+  }
+
+  Future<void> _showInviteDialog() async {
     final TextEditingController searchController = TextEditingController();
     List<Map<String, dynamic>> searchResults = [];
     bool isSearching = false;
@@ -130,22 +188,10 @@ class _ToDoPageState extends State<ToDoPage> {
                             try {
                               final results =
                                   await authService.searchUsers(value);
-                              // Filter out the current user and existing collaborators from results
-                              final todo = listToDoModel.firstWhere(
-                                (t) => t.id == todoId,
-                                orElse: () => ToDoModel(
-                                  id: todoId,
-                                  toDoName: todoName,
-                                  toDoItems: [],
-                                  userId: '',
-                                  collaborators: [],
-                                  comments: [],
-                                ),
-                              );
+                              // Filter out the current user from results (no per-todo collaborators)
                               final filteredResults = results
-                                  .where((user) =>
-                                      user['uid'] != currentUser?.uid &&
-                                      !todo.collaborators.contains(user['uid']))
+                                  .where(
+                                      (user) => user['uid'] != currentUser?.uid)
                                   .toList();
                               setState(() {
                                 searchResults = filteredResults;
@@ -197,9 +243,7 @@ class _ToDoPageState extends State<ToDoPage> {
                                                   () => isSendingInvite = true);
                                               try {
                                                 await collaborationService
-                                                    .sendInvitation(
-                                                  todoId: todoId,
-                                                  todoName: todoName,
+                                                    .sendInvitationForAllTodos(
                                                   inviteeId: user['uid'],
                                                   inviteeName: user['name'],
                                                 );
@@ -210,14 +254,12 @@ class _ToDoPageState extends State<ToDoPage> {
                                                   SnackBarHelper
                                                       .showSuccessSnackBar(
                                                           context,
-                                                          "Einladung erfolgreich gesendet");
+                                                          "Einladung für alle Listen gesendet");
                                                 }
                                               } catch (e) {
-                                                if (context.mounted) {
-                                                  SnackBarHelper.showErrorSnackBar(
-                                                      context,
-                                                      "Fehler beim Senden der Einladung: $e");
-                                                }
+                                                SnackBarHelper.showErrorSnackBar(
+                                                    context,
+                                                    "Fehler beim Senden der Einladung: $e");
                                               } finally {
                                                 if (mounted)
                                                   setState(() =>
@@ -333,9 +375,12 @@ class _ToDoPageState extends State<ToDoPage> {
                                 setState(() => isLoading = true);
                                 try {
                                   await toDoService.createTodo(
-                                    categoryController.text,
-                                    selectedItems,
-                                    '',
+                                    categories: [
+                                      {
+                                        'categoryName': categoryController.text,
+                                        'items': selectedItems,
+                                      },
+                                    ],
                                   );
                                   if (context.mounted) {
                                     Navigator.of(context).pop();
@@ -346,6 +391,7 @@ class _ToDoPageState extends State<ToDoPage> {
                                         "Kategorie erfolgreich erstellt");
                                   }
                                 } catch (e) {
+                                  print("🟢 e: $e");
                                   if (context.mounted) {
                                     SnackBarHelper.showErrorSnackBar(
                                         context, "Fehler beim Erstellen: $e");
@@ -378,8 +424,24 @@ class _ToDoPageState extends State<ToDoPage> {
     );
   }
 
+  List<Map<String, dynamic>> sanitizeCategories(
+      List<Map<String, dynamic>> categories) {
+    return categories.map((cat) {
+      final sanitizedItems = (cat['items'] as List).map((item) {
+        if (item is Map<String, dynamic>) return item;
+        if (item is Map) return Map<String, dynamic>.from(item);
+        return {'name': item.toString(), 'isChecked': false};
+      }).toList();
+      return {
+        'categoryName': cat['categoryName'],
+        'items': sanitizedItems,
+      };
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final myUid = FirebaseAuth.instance.currentUser?.uid;
     return SafeArea(
         child: Scaffold(
       drawer: Menue.getInstance(key),
@@ -389,6 +451,46 @@ class _ToDoPageState extends State<ToDoPage> {
         title: const Text(AppConstants.toDoPageTitle),
         backgroundColor: const Color.fromARGB(255, 107, 69, 106),
         actions: [
+          Stack(
+            children: [
+              IconButton(
+                icon: Icon(Icons.group),
+                tooltip: 'Zusammenarbeit',
+                onPressed: () async {
+                  setState(() {
+                    hasNewCollabNotification = false;
+                  });
+                  var g = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => CollaborationScreen()),
+                  );
+                  if (g == true) {
+                    _loadCollaborationData();
+                  }
+                  _checkUnreadNotifications();
+                },
+              ),
+              if (hasNewCollabNotification)
+                Positioned(
+                  right: 8,
+                  top: 8,
+                  child: Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          IconButton(
+            icon: Icon(Icons.person_add),
+            tooltip: 'Alle Listen teilen',
+            onPressed: _showInviteDialog,
+          ),
           if (selectedItems.isNotEmpty)
             IconButton(
               icon: Icon(Icons.add),
@@ -397,6 +499,9 @@ class _ToDoPageState extends State<ToDoPage> {
         ],
       ),
       floatingActionButton: SpeedDial(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
         icon: Icons.add,
         activeIcon: Icons.close,
         // backgroundColor: cons,
@@ -413,15 +518,7 @@ class _ToDoPageState extends State<ToDoPage> {
                 context,
                 RouteManager.addToDoPage,
                 arguments: {
-                  "toDoModel": ToDoModel(
-                    id: '',
-                    toDoName: '',
-                    toDoItems:
-                        [].map((e) => {'name': e, 'isChecked': false}).toList(),
-                    userId: '',
-                    collaborators: [],
-                    comments: [],
-                  ),
+                  "toDoModel": null,
                   "id": null,
                 },
               );
@@ -447,6 +544,91 @@ class _ToDoPageState extends State<ToDoPage> {
           Image.asset("assets/images/background/todoBg.jpeg"),
           SpacerWidget(height: 5),
           FourSecretsDivider(),
+          // Always show accepted/collaborated section
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Akzeptierte Zusammenarbeiten',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                if (acceptedCollaborations.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12.0),
+                    child: Text('Keine Einträge',
+                        style: TextStyle(color: Colors.grey)),
+                  ),
+                ...acceptedCollaborations.map((collab) {
+                  return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                    stream: FirebaseFirestore.instance
+                        .collection('collaboration_todos')
+                        .doc(collab.id)
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData || !snapshot.data!.exists) {
+                        return SizedBox();
+                      }
+
+                      return CollaborationTodoTile(
+                        collabId: collab.id,
+                        color: Colors.grey.withValues(alpha: 0.2),
+                        labelColor: Color.fromARGB(255, 107, 69, 106)
+                            .withValues(alpha: 0.8),
+                        labelTextColor: Colors.white,
+                        checkboxColor: Color.fromARGB(255, 107, 69, 106),
+                        avatarColor: Color.fromARGB(255, 107, 69, 106)
+                            .withValues(alpha: 0.4),
+                      );
+                    },
+                  );
+                }),
+              ],
+            ),
+          ),
+
+          SpacerWidget(height: 2),
+          FourSecretsDivider(),
+          // Sent Collaborations section
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Gesendete Zusammenarbeiten',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                if (receivedCollaborations.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12.0),
+                    child: Text('Keine Einträge',
+                        style: TextStyle(color: Colors.grey)),
+                  ),
+                ...receivedCollaborations.map((collab) {
+                  return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                    stream: FirebaseFirestore.instance
+                        .collection('collaboration_todos')
+                        .doc(collab.id)
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData || !snapshot.data!.exists) {
+                        return SizedBox();
+                      }
+
+                      return CollaborationTodoTile(
+                        collabId: collab.id,
+                        color: Colors.grey.withValues(alpha: 0.2),
+                        labelColor: Color.fromARGB(255, 107, 69, 106)
+                            .withValues(alpha: 0.8),
+                        labelTextColor: Colors.white,
+                        checkboxColor: Color.fromARGB(255, 107, 69, 106),
+                        avatarColor: Color.fromARGB(255, 107, 69, 106)
+                            .withValues(alpha: 0.4),
+                      );
+                    },
+                  );
+                }),
+              ],
+            ),
+          ),
           if (isLoading)
             Center(
               child: CircularProgressIndicator.adaptive(),
@@ -464,298 +646,367 @@ class _ToDoPageState extends State<ToDoPage> {
               ),
             )
           else
-            ...toDoList.entries.map((entry) {
-              String toDoName = entry.key;
-              List<Map<String, dynamic>> itemsToDo = listToDoModel
-                  .firstWhere((todo) => todo.toDoName == toDoName)
-                  .toDoItems;
-              int index =
-                  listToDoModel.indexWhere((todo) => todo.toDoName == toDoName);
-              if (index == -1) index = 0; // Fallback to first item if not found
-              return Slidable(
-                endActionPane: ActionPane(
-                  motion: const StretchMotion(),
+            SpacerWidget(height: 2),
+          FourSecretsDivider(),
+          ...toDoList.entries.map((entry) {
+            String todoId = entry.key;
+            // Use manual search to avoid linter error
+            ToDoModel? todoModel;
+            for (final todo in listToDoModel) {
+              if ((todo.id ?? '') == todoId) {
+                todoModel = todo;
+                break;
+              }
+            }
+            if (todoModel == null) return SizedBox();
+            String toDoName = todoModel.toDoName ?? '';
+            List<Map<String, dynamic>> itemsToDo = todoModel.toDoItems ?? [];
+            int index = listToDoModel.indexWhere((todo) => todo.id == todoId);
+            if (index == -1) index = 0;
+            return Container(
+              margin: const EdgeInsets.symmetric(
+                horizontal: 15,
+                vertical: 5,
+              ),
+              decoration: BoxDecoration(
+                  color: Colors.grey.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(15)),
+              child: ExpansionTile(
+                shape: OutlineInputBorder(borderSide: BorderSide.none),
+                childrenPadding:
+                    EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                title: Row(
                   children: [
-                    SlidableAction(
-                      padding: EdgeInsets.symmetric(vertical: 10),
-                      onPressed: (_) async {
-                        try {
-                          // First delete any associated collaboration todos
-                          final collaborationSnapshot = await FirebaseFirestore
-                              .instance
-                              .collection('collaboration_todos')
-                              .where('todoId',
-                                  isEqualTo: listToDoModel[index].id)
-                              .get();
-
-                          // Delete all associated collaboration todos
-                          for (var doc in collaborationSnapshot.docs) {
-                            await doc.reference.delete();
-                          }
-
-                          // Then delete the main todo
-                          await toDoService.deleteTodo(
-                            listToDoModel[index].id!,
-                          );
-                          setState(() {
-                            listToDoModel.removeAt(index);
-                            toDoList.remove(toDoName);
-                          });
-                        } catch (e) {
-                          if (context.mounted) {
-                            SnackBarHelper.showErrorSnackBar(
-                                context, e.toString());
-                          }
-                        }
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            (todoModel.categories != null &&
+                                    todoModel.categories!.isNotEmpty &&
+                                    todoModel.categories![0]['categoryName'] !=
+                                        null &&
+                                    todoModel.categories![0]['categoryName']
+                                        .toString()
+                                        .isNotEmpty)
+                                ? todoModel.categories![0]['categoryName']
+                                : toDoName,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          CustomTextWidget(
+                            text:
+                                '${(todoModel.categories != null && todoModel.categories!.isNotEmpty) ? todoModel.categories!.fold(0, (sum, cat) => sum + ((cat['items'] as List?)?.length ?? 0)) : (todoModel.toDoItems?.length ?? 0)} Punkte${((todoModel.categories != null && todoModel.categories!.isNotEmpty) ? todoModel.categories!.fold(0, (sum, cat) => sum + ((cat['items'] as List?)?.length ?? 0)) : (todoModel.toDoItems?.length ?? 0)) != 1 ? 'n' : ''} • ${todoModel.collaborators.length} Mitgestalter${todoModel.collaborators.length != 1 ? '' : ''}',
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        Icons.edit,
+                        size: 20,
+                        color: const Color.fromARGB(255, 107, 69, 106),
+                      ),
+                      onPressed: () {
+                        ToDoModel? model = todoModel;
+                        Navigator.of(context).pushNamed(
+                          RouteManager.addToDoPage,
+                          arguments: {"toDoModel": model, "id": model?.id},
+                        ).then((v) {
+                          _loadAndInitCategories();
+                        });
                       },
-                      icon: Icons.delete,
-                      backgroundColor: Colors.red.shade300,
-                      borderRadius: BorderRadius.circular(10),
                     ),
                   ],
                 ),
-                child: Container(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 15,
-                    vertical: 14,
-                  ),
-                  decoration: BoxDecoration(
-                      color: Colors.grey.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(15)),
-                  child: ExpansionTile(
-                    shape: OutlineInputBorder(borderSide: BorderSide.none),
-                    childrenPadding:
-                        EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                    title: Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8.0, vertical: 4.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                toDoName,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              CustomTextWidget(
-                                text:
-                                    '${itemsToDo.length} Punkte${itemsToDo.length != 1 ? 'n' : ''} • ${listToDoModel[index].collaborators.length} Mitgestalter${listToDoModel[index].collaborators.length != 1 ? '' : ''}',
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ],
+                        SizedBox(width: 8),
+                        if (todoModel?.reminder != null &&
+                            todoModel?.reminder!.isNotEmpty == true)
+                          Builder(
+                            builder: (context) {
+                              final reminder =
+                                  DateTime.tryParse(todoModel?.reminder ?? '');
+                              if (reminder == null) return SizedBox();
+                              return Text(
+                                '${reminder.day.toString().padLeft(2, '0')}.${reminder.month.toString().padLeft(2, '0')}.${reminder.year} - '
+                                '${reminder.hour.toString().padLeft(2, '0')}:${reminder.minute.toString().padLeft(2, '0')}',
+                                style: TextStyle(
+                                    fontSize: 14, color: Colors.deepPurple),
+                              );
+                            },
+                          )
+                        else
+                          Expanded(
+                            child: Text('Kein Reminder gesetzt',
+                                style: TextStyle(
+                                    fontSize: 14, color: Colors.grey)),
                           ),
-                        ),
                         IconButton(
-                          icon: Icon(
-                            Icons.edit,
-                            size: 20,
-                            color: Colors.black,
-                          ),
-                          onPressed: () {
-                            ToDoModel? model = listToDoModel[index];
-                            Navigator.of(context).pushNamed(
-                              RouteManager.addToDoPage,
-                              arguments: {"toDoModel": model, "id": model.id},
-                            ).then((v) {
-                              _loadAndInitCategories();
-                            });
-                          },
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.person_add,
-                            size: 20,
-                            color: Colors.black,
-                          ),
-                          onPressed: () {
-                            _showInviteDialog(
-                              listToDoModel[index].id!,
-                              toDoName,
+                          icon: Icon(Icons.alarm_add, color: Colors.deepPurple),
+                          tooltip: todoModel?.reminder == null
+                              ? 'Add reminder'
+                              : 'Edit reminder',
+                          onPressed: () async {
+                            DateTime now = DateTime.now();
+                            DateTime? pickedDate = await showDatePicker(
+                              context: context,
+                              initialDate: todoModel?.reminder != null &&
+                                      todoModel?.reminder!.isNotEmpty == true
+                                  ? DateTime.tryParse(
+                                          todoModel?.reminder ?? '') ??
+                                      now
+                                  : now,
+                              firstDate: now,
+                              lastDate: DateTime(now.year + 5),
                             );
-                          },
-                        ),
-                      ],
-                    ),
-                    children: [
-                      // Reminder row at the top of children
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8.0, vertical: 4.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            SizedBox(width: 8),
-                            if (listToDoModel[index].reminder != null &&
-                                listToDoModel[index].reminder!.isNotEmpty)
-                              Builder(
-                                builder: (context) {
-                                  final reminder = DateTime.tryParse(
-                                      listToDoModel[index].reminder!);
-                                  if (reminder == null) return SizedBox();
-                                  return Text(
-                                    '${reminder.day.toString().padLeft(2, '0')}.${reminder.month.toString().padLeft(2, '0')}.${reminder.year} - '
-                                    '${reminder.hour.toString().padLeft(2, '0')}:${reminder.minute.toString().padLeft(2, '0')}',
-                                    style: TextStyle(
-                                        fontSize: 14, color: Colors.deepPurple),
-                                  );
-                                },
-                              )
-                            else
-                              Expanded(
-                                child: Text('Kein Reminder gesetzt',
-                                    style: TextStyle(
-                                        fontSize: 14, color: Colors.grey)),
-                              ),
-                            IconButton(
-                              icon: Icon(Icons.alarm_add,
-                                  color: Colors.deepPurple),
-                              tooltip: listToDoModel[index].reminder == null
-                                  ? 'Add reminder'
-                                  : 'Edit reminder',
-                              onPressed: () async {
-                                DateTime now = DateTime.now();
-                                DateTime? pickedDate = await showDatePicker(
-                                  context: context,
-                                  initialDate: listToDoModel[index].reminder !=
-                                              null &&
-                                          listToDoModel[index]
-                                              .reminder!
-                                              .isNotEmpty
-                                      ? DateTime.tryParse(
-                                              listToDoModel[index].reminder!) ??
-                                          now
-                                      : now,
-                                  firstDate: now,
-                                  lastDate: DateTime(now.year + 5),
+                            if (pickedDate != null) {
+                              TimeOfDay? pickedTime = await showTimePicker(
+                                context: context,
+                                initialTime: todoModel?.reminder != null &&
+                                        todoModel?.reminder!.isNotEmpty == true
+                                    ? TimeOfDay.fromDateTime(DateTime.tryParse(
+                                            todoModel?.reminder ?? '') ??
+                                        now)
+                                    : TimeOfDay.now(),
+                              );
+                              if (pickedTime != null) {
+                                final reminderDateTime = DateTime(
+                                  pickedDate.year,
+                                  pickedDate.month,
+                                  pickedDate.day,
+                                  pickedTime.hour,
+                                  pickedTime.minute,
                                 );
-                                if (pickedDate != null) {
-                                  TimeOfDay? pickedTime = await showTimePicker(
-                                    context: context,
-                                    initialTime:
-                                        listToDoModel[index].reminder != null &&
-                                                listToDoModel[index]
-                                                    .reminder!
-                                                    .isNotEmpty
-                                            ? TimeOfDay.fromDateTime(
-                                                DateTime.tryParse(
-                                                        listToDoModel[index]
-                                                            .reminder!) ??
-                                                    now)
-                                            : TimeOfDay.now(),
-                                  );
-                                  if (pickedTime != null) {
-                                    final reminderDateTime = DateTime(
-                                      pickedDate.year,
-                                      pickedDate.month,
-                                      pickedDate.day,
-                                      pickedTime.hour,
-                                      pickedTime.minute,
-                                    );
-                                    try {
-                                      final updatedTodo = listToDoModel[index]
-                                          .copyWith(
-                                              reminder: reminderDateTime
-                                                  .toIso8601String());
-                                      await toDoService.updateTodo(updatedTodo);
-                                      setState(() {
-                                        listToDoModel[index] = updatedTodo;
-                                      });
-                                    } catch (e) {
-                                      if (context.mounted) {
-                                        SnackBarHelper.showErrorSnackBar(
-                                            context,
-                                            "Failed to set reminder: $e");
-                                      }
-                                    }
-                                  }
-                                }
-                              },
-                            ),
-                            if (listToDoModel[index].reminder != null &&
-                                listToDoModel[index].reminder!.isNotEmpty)
-                              IconButton(
-                                icon: Icon(Icons.close,
-                                    size: 20, color: Colors.red),
-                                tooltip: 'Remove reminder',
-                                onPressed: () async {
-                                  try {
-                                    final updatedTodo = listToDoModel[index]
-                                        .copyWith(reminder: null);
+                                try {
+                                  final updatedTodo = todoModel?.copyWith(
+                                      reminder:
+                                          reminderDateTime.toIso8601String());
+                                  if (updatedTodo != null) {
                                     await toDoService.updateTodo(updatedTodo);
+                                    print('Updated todo in Firestore: ' +
+                                        updatedTodo.toMap().toString());
+                                    await _loadAndInitCategories();
                                     setState(() {
                                       listToDoModel[index] = updatedTodo;
                                     });
-                                  } catch (e) {
-                                    if (context.mounted) {
-                                      SnackBarHelper.showErrorSnackBar(context,
-                                          "Failed to remove reminder: $e");
-                                    }
                                   }
-                                },
-                              ),
-                          ],
+                                } catch (e) {
+                                  if (context.mounted) {
+                                    SnackBarHelper.showErrorSnackBar(
+                                        context, "Failed to set reminder: $e");
+                                  }
+                                }
+                              }
+                            }
+                          },
                         ),
-                      ),
-                      ...itemsToDo.map((item) {
-                        return Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  width: context.screenWidth,
-                                  child: Row(
-                                    children: [
-                                      Checkbox(
-                                        value: item['isChecked'] ?? false,
-                                        onChanged: (bool? value) async {
-                                          try {
-                                            final updatedTodo =
-                                                listToDoModel[index]
-                                                    .toggleItemChecked(
-                                                        item['name']);
-                                            await toDoService
-                                                .updateTodo(updatedTodo);
-                                            setState(() {
-                                              listToDoModel[index] =
-                                                  updatedTodo;
-                                            });
-                                          } catch (e) {
-                                            if (context.mounted) {
-                                              SnackBarHelper.showErrorSnackBar(
-                                                  context,
-                                                  "Failed to update item: $e");
-                                            }
-                                          }
-                                        },
-                                        activeColor: const Color.fromARGB(
-                                            255, 107, 69, 106),
-                                      ),
-                                      SizedBox(width: 8),
-                                      Expanded(
-                                        child: CustomTextWidget(
-                                          text: "${item['name']}",
-                                          fontSize: 14,
-                                          color: Colors.black,
-                                          decoration: item['isChecked'] == true
-                                              ? TextDecoration.lineThrough
-                                              : null,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
+                        if (todoModel?.reminder != null &&
+                            todoModel?.reminder!.isNotEmpty == true)
+                          IconButton(
+                            icon:
+                                Icon(Icons.close, size: 20, color: Colors.red),
+                            tooltip: 'Remove reminder',
+                            onPressed: () async {
+                              try {
+                                final updatedTodo =
+                                    todoModel?.copyWith(reminder: null);
+                                if (updatedTodo != null) {
+                                  await toDoService.updateTodo(updatedTodo);
+                                  await _loadAndInitCategories();
+                                  setState(() {
+                                    listToDoModel[index] = updatedTodo;
+                                  });
+                                }
+                              } catch (e) {
+                                if (context.mounted) {
+                                  SnackBarHelper.showErrorSnackBar(
+                                      context, "Failed to remove reminder: $e");
+                                }
+                              }
+                            },
                           ),
-                        );
-                      }).toList(),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              );
-            }).toList(),
+                  if (todoModel?.categories != null &&
+                      todoModel?.categories!.isNotEmpty == true)
+                    ...List.generate(todoModel?.categories!.length ?? 0,
+                        (catIdx) {
+                      var cat = todoModel!.categories![catIdx];
+                      var items = (cat['items'] as List);
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ...List.generate(items.length, (itemIdx) {
+                            var itemRaw = items[itemIdx];
+                            Map<String, dynamic> item;
+                            if (itemRaw is String) {
+                              item = {'name': itemRaw, 'isChecked': false};
+                            } else if (itemRaw is Map<String, dynamic>) {
+                              item = itemRaw;
+                            } else if (itemRaw is Map) {
+                              item = Map<String, dynamic>.from(itemRaw);
+                            } else {
+                              item = {
+                                'name': itemRaw.toString(),
+                                'isChecked': false
+                              };
+                            }
+                            final itemName = item['name'] ?? '';
+                            final isChecked = item['isChecked'] ?? false;
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                children: [
+                                  Checkbox(
+                                    value: isChecked,
+                                    onChanged: (bool? value) async {
+                                      try {
+                                        var categoriesCopy =
+                                            List<Map<String, dynamic>>.from(
+                                                todoModel!.categories!);
+                                        var itemsCopy = (categoriesCopy[catIdx]
+                                                ['items'] as List)
+                                            .map((e) =>
+                                                e is Map<String, dynamic>
+                                                    ? e
+                                                    : {
+                                                        'name': e.toString(),
+                                                        'isChecked': false
+                                                      })
+                                            .toList();
+                                        itemsCopy[itemIdx] = {
+                                          ...item,
+                                          'isChecked':
+                                              !(item['isChecked'] ?? false),
+                                        };
+                                        categoriesCopy[catIdx]['items'] =
+                                            itemsCopy;
+                                        categoriesCopy =
+                                            sanitizeCategories(categoriesCopy);
+                                        final updatedTodo = todoModel?.copyWith(
+                                            categories: categoriesCopy);
+                                        if (updatedTodo != null) {
+                                          await toDoService
+                                              .updateTodo(updatedTodo);
+                                          setState(() {
+                                            listToDoModel[index] = updatedTodo;
+                                          });
+                                        }
+                                      } catch (e) {
+                                        if (context.mounted) {
+                                          SnackBarHelper.showErrorSnackBar(
+                                              context,
+                                              "Failed to update item: $e");
+                                        }
+                                      }
+                                    },
+                                    activeColor: Colors.purple,
+                                  ),
+                                  SizedBox(width: 8),
+                                  Expanded(
+                                    child: CustomTextWidget(
+                                      text: itemName,
+                                      fontSize: 14,
+                                      color: Colors.black,
+                                      decoration: isChecked
+                                          ? TextDecoration.lineThrough
+                                          : null,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
+                        ],
+                      );
+                    }),
+                  Divider(),
+                  SpacerWidget(height: 2),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 18, vertical: 10),
+                    child: CustomButtonWidget(
+                      text: "Löschen",
+                      width: context.screenWidth,
+                      color: Colors.red.shade300,
+                      textColor: Colors.white,
+                      onPressed: () async {
+                        var g = await showDialog(
+                            context: context,
+                            builder: (context) =>
+                                StatefulBuilder(builder: (context, statee) {
+                                  return CustomDialog(
+                                      isLoading: isDeleting,
+                                      title: "Löschen",
+                                      message:
+                                          "Möchtest du diesen Punkt wirklich löschen?",
+                                      confirmText: "Löschen",
+                                      cancelText: "Abbrechen",
+                                      onConfirm: () async {
+                                        statee(() {
+                                          isDeleting = true;
+                                        });
+                                        try {
+                                          // First delete any associated collaboration todos
+                                          final collaborationSnapshot =
+                                              await FirebaseFirestore.instance
+                                                  .collection(
+                                                      'collaboration_todos')
+                                                  .where('todoId',
+                                                      isEqualTo:
+                                                          todoModel?.id ?? '')
+                                                  .get();
+
+                                          // Delete all associated collaboration todos
+                                          for (var doc
+                                              in collaborationSnapshot.docs) {
+                                            await doc.reference.delete();
+                                          }
+
+                                          // Then delete the main todo
+                                          await toDoService.deleteTodo(
+                                            todoModel?.id ?? '',
+                                          );
+                                          statee(() {
+                                            listToDoModel.removeAt(index);
+                                            toDoList.remove(todoId);
+                                          });
+                                        } catch (e) {
+                                          if (context.mounted) {
+                                            SnackBarHelper.showErrorSnackBar(
+                                                context, e.toString());
+                                          }
+                                        } finally {
+                                          statee(() {
+                                            isDeleting = false;
+                                          });
+                                          Navigator.of(context).pop(true);
+                                        }
+                                      },
+                                      onCancel: () {
+                                        Navigator.of(context).pop();
+                                      });
+                                }));
+                        if (g == true) {
+                          await _loadAndInitCategories();
+                        }
+                      },
+                    ),
+                  )
+                ],
+              ),
+            );
+          }).toList(),
           SpacerWidget(height: 1),
           listToDoModel.isEmpty ? AbsorbPointer() : FourSecretsDivider(),
           SpacerWidget(height: 10),

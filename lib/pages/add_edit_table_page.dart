@@ -3,6 +3,7 @@ import '../models/table_model.dart';
 import '../services/table_service.dart';
 import '../widgets/auth_background.dart';
 import '../utils/snackbar_helper.dart';
+import '../widgets/custom_text_field.dart';
 
 class AddEditTablePage extends StatefulWidget {
   final TableModel? table;
@@ -65,41 +66,6 @@ class _AddEditTablePageState extends State<AddEditTablePage> {
     }
   }
 
-  Widget _buildInputField({
-    required TextEditingController controller,
-    required String label,
-    required String hint,
-    TextInputType? keyboardType,
-    String? Function(String?)? validator,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: TextFormField(
-        controller: controller,
-        keyboardType: keyboardType,
-        decoration: InputDecoration(
-          labelText: label,
-          hintText: hint,
-          border: InputBorder.none,
-          labelStyle: const TextStyle(
-            color: Color.fromARGB(255, 107, 69, 106),
-          ),
-        ),
-        validator: validator ??
-            (value) {
-              if (value == null || value.isEmpty) {
-                return 'Dieses Feld ist erforderlich';
-              }
-              return null;
-            },
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -136,13 +102,13 @@ class _AddEditTablePageState extends State<AddEditTablePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 8),
-                  _buildInputField(
+                  CustomTextField(
                     controller: _nameOrNumberController,
                     label: 'Dishesnname',
                     hint: 'Geben Sie den Tischnamen oder die Tischnummer ein',
                   ),
                   const SizedBox(height: 16),
-                  _buildInputField(
+                  CustomTextField(
                     controller: _maxGuestsController,
                     label: 'Max. Gäste',
                     hint: 'Geben Sie die maximale Anzahl an Gästen ein',
@@ -158,10 +124,10 @@ class _AddEditTablePageState extends State<AddEditTablePage> {
                     },
                   ),
                   const SizedBox(height: 16),
-                  _buildInputField(
+                  CustomTextField(
                     controller: _tableTypeController,
                     label: 'Dishesntyp',
-                    hint: 'Geben Sie den Tischtyp ein (z. B. „Normal“, „VIP“)',
+                    hint: 'Geben Sie den Tischtyp ein (z. B. "Normal", "VIP")',
                   ),
                   const SizedBox(height: 24),
                   SizedBox(

@@ -180,62 +180,6 @@ class _AddEditGuestPageState extends State<AddEditGuestPage> {
     }
   }
 
-  Widget _buildGuestTypeSection() {
-    return Row(
-      children: [
-        Expanded(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              // color: Colors.grey[50],
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.black),
-            ),
-            child: DropdownButtonFormField<String>(
-              value: _selectedType,
-              decoration: const InputDecoration(
-                labelText: 'Gasttyp',
-                labelStyle: TextStyle(
-                  color: Color.fromARGB(255, 107, 69, 106),
-                ),
-                border: InputBorder.none,
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Bitte wählen Sie einen Gästetyp';
-                }
-                return null;
-              },
-              items: _guestTypes.map((type) {
-                return DropdownMenuItem(
-                  value: type,
-                  child: Text(type),
-                );
-              }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  _selectedType = value;
-                });
-              },
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        IconButton(
-          onPressed: _showAddTypeDialog,
-          icon: const Icon(
-            Icons.add,
-            color: Colors.white,
-          ),
-          style: IconButton.styleFrom(
-            backgroundColor: const Color.fromARGB(255, 107, 69, 106),
-            padding: const EdgeInsets.all(12),
-          ),
-        ),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -292,7 +236,16 @@ class _AddEditGuestPageState extends State<AddEditGuestPage> {
                       const SizedBox(height: 16),
 
                       // Guest Type Section
-                      _buildGuestTypeSection(),
+                      GuestTypeSectionWidget(
+                        selectedType: _selectedType,
+                        guestTypes: _guestTypes,
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedType = value;
+                          });
+                        },
+                        onAddType: _showAddTypeDialog,
+                      ),
                       const SizedBox(height: 24),
 
                       // Save Button - Aligned to the right
@@ -353,5 +306,72 @@ class _AddEditGuestPageState extends State<AddEditGuestPage> {
 
   pop() {
     Navigator.of(context).pop();
+  }
+}
+
+class GuestTypeSectionWidget extends StatelessWidget {
+  final String? selectedType;
+  final List<String> guestTypes;
+  final void Function(String?)? onChanged;
+  final VoidCallback? onAddType;
+
+  const GuestTypeSectionWidget({
+    Key? key,
+    required this.selectedType,
+    required this.guestTypes,
+    this.onChanged,
+    this.onAddType,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.black),
+            ),
+            child: DropdownButtonFormField<String>(
+              value: selectedType,
+              decoration: const InputDecoration(
+                labelText: 'Gasttyp',
+                labelStyle: TextStyle(
+                  color: Color.fromARGB(255, 107, 69, 106),
+                ),
+                border: InputBorder.none,
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Bitte wählen Sie einen Gästetyp';
+                }
+                return null;
+              },
+              items: guestTypes.map((type) {
+                return DropdownMenuItem(
+                  value: type,
+                  child: Text(type),
+                );
+              }).toList(),
+              onChanged: onChanged,
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        IconButton(
+          onPressed: onAddType,
+          icon: const Icon(
+            Icons.add,
+            color: Colors.white,
+          ),
+          style: IconButton.styleFrom(
+            backgroundColor: const Color.fromARGB(255, 107, 69, 106),
+            padding: const EdgeInsets.all(12),
+          ),
+        ),
+      ],
+    );
   }
 }

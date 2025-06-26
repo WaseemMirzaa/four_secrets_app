@@ -263,13 +263,21 @@ class _CollaborationScreenState extends State<CollaborationScreen>
       });
     }
     try {
-      await _collaborationService.respondToInvitation(invitationId, accept);
+      await _collaborationService.respondToInvitationForAllTodos(
+          invitationId, accept);
       await _loadData();
       if (mounted) {
         SnackBarHelper.showSuccessSnackBar(
           context,
           accept ? 'Einladung akzeptiert' : 'Einladung abgelehnt',
         );
+        if (accept) {
+          Future.delayed(const Duration(milliseconds: 500), () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            }
+          });
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -314,531 +322,6 @@ class _CollaborationScreenState extends State<CollaborationScreen>
     }
   }
 
-  DocumentSnapshot<Map<String, dynamic>>? _firstOrNull(
-      QuerySnapshot<Map<String, dynamic>> snapshot) {
-    return snapshot.docs.isNotEmpty ? snapshot.docs.first : null;
-  }
-
-  Widget _buildSentInvitations() {
-    final pendingInvitations = _sentInvitations
-        .where((invite) => invite['status'] == 'pending')
-        .toList();
-
-    if (pendingInvitations.isEmpty) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: CustomTextWidget(
-            text: 'Keine ausstehenden Einladungen',
-            color: Colors.black,
-          ),
-        ),
-      );
-    }
-
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: pendingInvitations.length,
-      itemBuilder: (context, index) {
-        final invite = pendingInvitations[index];
-        final invitee = _userCache[invite['inviteeId']];
-        final inviteeName = invitee?['name'] ?? 'Unbekannt';
-        final isAccepting = _acceptingInvites.contains(invite['id']);
-        final isCancelling = _cancellingInvites.contains(invite['id']);
-        return Container(
-          decoration: BoxDecoration(
-            color: Colors.grey.shade300,
-            borderRadius: BorderRadius.circular(15),
-          ),
-          margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CustomTextWidget(
-                            text: invite['todoName'],
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                          const SizedBox(height: 4),
-                          CustomTextWidget(
-                            text: 'Eingeladen: $inviteeName',
-                            color: Colors.black,
-                          ),
-                          const SizedBox(height: 4),
-                          // Row(
-                          //   children: [
-                          //     Icon(Icons.people, size: 16, color: Colors.black),
-                          //     SizedBox(width: 4),
-                          //     FutureBuilder<
-                          //         DocumentSnapshot<Map<String, dynamic>>?>(
-                          //       future: _firestore
-                          //           .collection('collaboration_todos')
-                          //           .where('todoId',
-                          //               isEqualTo: invite['todoId'])
-                          //           .get()
-                          //           .then(_firstOrNull),
-                          //       builder: (context, snapshot) {
-                          //         if (!snapshot.hasData ||
-                          //             snapshot.data == null) {
-                          //           return CustomTextWidget(
-                          //             text: '0 Mitarbeiter',
-                          //             color: Colors.black,
-                          //           );
-                          //         }
-                          //         final data = snapshot.data!.data()
-                          //             as Map<String, dynamic>;
-                          //         final collaborators = List<String>.from(
-                          //             data['collaborators'] ?? []);
-                          //         return CustomTextWidget(
-                          //           text: '${collaborators.length} Mitarbeiter',
-                          //           color: Colors.black,
-                          //         );
-                          //       },
-                          //     ),
-                          //     SizedBox(width: 16),
-                          //     Icon(Icons.comment,
-                          //         size: 16, color: Colors.black),
-                          //     SizedBox(width: 4),
-                          //     FutureBuilder<
-                          //         DocumentSnapshot<Map<String, dynamic>>?>(
-                          //       future: _firestore
-                          //           .collection('collaboration_todos')
-                          //           .where('todoId',
-                          //               isEqualTo: invite['todoId'])
-                          //           .get()
-                          //           .then(_firstOrNull),
-                          //       builder: (context, snapshot) {
-                          //         if (!snapshot.hasData ||
-                          //             snapshot.data == null) {
-                          //           return CustomTextWidget(
-                          //             text: '0 Kommentare',
-                          //             color: Colors.black,
-                          //           );
-                          //         }
-                          //         final data = snapshot.data!.data()
-                          //             as Map<String, dynamic>;
-                          //         final comments =
-                          //             List<Map<String, dynamic>>.from(
-                          //                 data['comments'] ?? []);
-                          //         return CustomTextWidget(
-                          //           text: '${comments.length} Kommentare',
-                          //           color: Colors.black,
-                          //         );
-                          //       },
-                          //     ),
-                          //   ],
-                          // ),
-                        ],
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () => _cancelInvitation(invite['id']),
-                      child: Container(
-                        margin: const EdgeInsets.only(left: 10),
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.red.withValues(alpha: 0.3),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: isCancelling
-                            ? Center(
-                                child: SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              )
-                            : Icon(Icons.remove, size: 16, color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildAcceptedCollaborations() {
-    final acceptedInvitations = _sentInvitations
-        .where((invite) => invite['status'] == 'accepted')
-        .toList();
-
-    if (acceptedInvitations.isEmpty) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: CustomTextWidget(
-            text: 'Keine akzeptierten Zusammenarbeiten',
-            color: Colors.black,
-          ),
-        ),
-      );
-    }
-
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: acceptedInvitations.length,
-      itemBuilder: (context, index) {
-        final invite = acceptedInvitations[index];
-        final invitee = _userCache[invite['inviteeId']];
-        final inviteeName = invitee?['name'] ?? 'Unbekannt';
-        return GestureDetector(
-          onTap: () async {
-            var g = await Navigator.pushNamed(
-              context,
-              RouteManager.collaboratorDetailsPage,
-              arguments: {
-                'todoId': invite['todoId'],
-                'todoName': invite['todoName'],
-                'inviteeName': inviteeName,
-              },
-            );
-            if (g == true) {
-              await _loadData();
-            }
-          },
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.grey.shade300,
-              borderRadius: BorderRadius.circular(15),
-            ),
-            margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CustomTextWidget(
-                          text: invite['todoName'],
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                        const SizedBox(height: 4),
-                        CustomTextWidget(
-                          text: 'Eingeladen: $inviteeName',
-                          color: Colors.black,
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Icon(Icons.people, size: 16, color: Colors.black),
-                            SizedBox(width: 4),
-                            FutureBuilder<
-                                DocumentSnapshot<Map<String, dynamic>>?>(
-                              future: _firestore
-                                  .collection('collaboration_todos')
-                                  .where('todoId', isEqualTo: invite['todoId'])
-                                  .get()
-                                  .then(_firstOrNull),
-                              builder: (context, snapshot) {
-                                if (!snapshot.hasData ||
-                                    snapshot.data == null) {
-                                  return CustomTextWidget(
-                                    text: '0 Mitarbeiter',
-                                    color: Colors.black,
-                                  );
-                                }
-                                final data = snapshot.data!.data()
-                                    as Map<String, dynamic>;
-                                final collaborators = List<String>.from(
-                                    data['collaborators'] ?? []);
-                                return CustomTextWidget(
-                                  text: '${collaborators.length} Mitarbeiter',
-                                  color: Colors.black,
-                                );
-                              },
-                            ),
-                            SizedBox(width: 16),
-                            Icon(Icons.comment, size: 16, color: Colors.black),
-                            SizedBox(width: 4),
-                            FutureBuilder<
-                                DocumentSnapshot<Map<String, dynamic>>?>(
-                              future: _firestore
-                                  .collection('collaboration_todos')
-                                  .where('todoId', isEqualTo: invite['todoId'])
-                                  .get()
-                                  .then(_firstOrNull),
-                              builder: (context, snapshot) {
-                                if (!snapshot.hasData ||
-                                    snapshot.data == null) {
-                                  return CustomTextWidget(
-                                    text: '0 Kommentare',
-                                    color: Colors.black,
-                                  );
-                                }
-                                final data = snapshot.data!.data()
-                                    as Map<String, dynamic>;
-                                final comments =
-                                    List<Map<String, dynamic>>.from(
-                                        data['comments'] ?? []);
-                                return CustomTextWidget(
-                                  text: '${comments.length} Kommentare',
-                                  color: Colors.black,
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  Icon(
-                    Icons.arrow_forward_ios,
-                    color: Colors.black,
-                    size: 20,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildReceivedInvitations() {
-    final pendingInvitations = _receivedInvitations
-        .where((invite) => invite['status'] == 'pending')
-        .toList();
-
-    if (pendingInvitations.isEmpty) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: CustomTextWidget(
-            text: 'Keine erhaltenen Einladungen',
-            color: Colors.black,
-          ),
-        ),
-      );
-    }
-
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: pendingInvitations.length,
-      itemBuilder: (context, index) {
-        final invite = pendingInvitations[index];
-        final inviter = _userCache[invite['inviterId']];
-        final inviterName = inviter?['name'] ?? 'Unbekannt';
-        final isAccepting = _acceptingInvites.contains(invite['id']);
-        return Container(
-          decoration: BoxDecoration(
-            color: Colors.grey.shade300,
-            borderRadius: BorderRadius.circular(15),
-          ),
-          margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CustomTextWidget(
-                  text: invite['todoName'],
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-                const SizedBox(height: 8),
-                CustomTextWidget(
-                  text: 'Eingeladen von: $inviterName',
-                  color: Colors.black,
-                ),
-                const SpacerWidget(height: 4),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  spacing: 10,
-                  children: [
-                    Expanded(
-                      child: CustomButtonWidget(
-                        text: 'Ablehnen',
-                        color: Colors.white,
-                        textColor: Colors.red,
-                        onPressed: () =>
-                            _respondToInvitation(invite['id'], false),
-                      ),
-                    ),
-                    Expanded(
-                      child: CustomButtonWidget(
-                        text: 'Akzeptieren',
-                        color: Color.fromARGB(255, 107, 69, 106),
-                        textColor: Colors.white,
-                        onPressed: isAccepting
-                            ? null
-                            : () => _respondToInvitation(invite['id'], true),
-                        isLoading: isAccepting,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildReceivedCollaborations() {
-    final acceptedReceivedInvitations = _receivedInvitations
-        .where((invite) => invite['status'] == 'accepted')
-        .toList();
-
-    if (acceptedReceivedInvitations.isEmpty) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: CustomTextWidget(
-            text: 'Keine akzeptierten Zusammenarbeiten',
-            color: Colors.black,
-          ),
-        ),
-      );
-    }
-
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: acceptedReceivedInvitations.length,
-      itemBuilder: (context, index) {
-        final invite = acceptedReceivedInvitations[index];
-        final inviter = _userCache[invite['inviterId']];
-        final inviterName = inviter?['name'] ?? 'Unbekannt';
-        return GestureDetector(
-          onTap: () async {
-            var g = await Navigator.pushNamed(
-              context,
-              RouteManager.collaboratorDetailsPage,
-              arguments: {
-                'todoId': invite['todoId'],
-                'todoName': invite['todoName'],
-                'inviteeName': inviterName,
-              },
-            );
-            if (g == true) {
-              await _loadData();
-            }
-          },
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.grey.shade300,
-              borderRadius: BorderRadius.circular(15),
-            ),
-            margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CustomTextWidget(
-                          text: invite['todoName'],
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                        const SizedBox(height: 4),
-                        CustomTextWidget(
-                          text: 'Erstellt von: $inviterName',
-                          color: Colors.black,
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Icon(Icons.people, size: 16, color: Colors.black),
-                            SizedBox(width: 4),
-                            FutureBuilder<
-                                DocumentSnapshot<Map<String, dynamic>>?>(
-                              future: _firestore
-                                  .collection('collaboration_todos')
-                                  .where('todoId', isEqualTo: invite['todoId'])
-                                  .get()
-                                  .then(_firstOrNull),
-                              builder: (context, snapshot) {
-                                if (!snapshot.hasData ||
-                                    snapshot.data == null) {
-                                  return CustomTextWidget(
-                                    text: '0 Mitarbeiter',
-                                    color: Colors.black,
-                                  );
-                                }
-                                final data = snapshot.data!.data()
-                                    as Map<String, dynamic>;
-                                final collaborators = List<String>.from(
-                                    data['collaborators'] ?? []);
-                                return CustomTextWidget(
-                                  text: '${collaborators.length} Mitarbeiter',
-                                  color: Colors.black,
-                                );
-                              },
-                            ),
-                            SizedBox(width: 16),
-                            Icon(Icons.comment, size: 16, color: Colors.black),
-                            SizedBox(width: 4),
-                            FutureBuilder<
-                                DocumentSnapshot<Map<String, dynamic>>?>(
-                              future: _firestore
-                                  .collection('collaboration_todos')
-                                  .where('todoId', isEqualTo: invite['todoId'])
-                                  .get()
-                                  .then(_firstOrNull),
-                              builder: (context, snapshot) {
-                                if (!snapshot.hasData ||
-                                    snapshot.data == null) {
-                                  return CustomTextWidget(
-                                    text: '0 Kommentare',
-                                    color: Colors.black,
-                                  );
-                                }
-                                final data = snapshot.data!.data()
-                                    as Map<String, dynamic>;
-                                final comments =
-                                    List<Map<String, dynamic>>.from(
-                                        data['comments'] ?? []);
-                                return CustomTextWidget(
-                                  text: '${comments.length} Kommentare',
-                                  color: Colors.black,
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  Icon(Icons.arrow_forward_ios, color: Colors.black),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -846,6 +329,13 @@ class _CollaborationScreenState extends State<CollaborationScreen>
         backgroundColor: Colors.white,
         drawer: Menue.getInstance(key),
         appBar: AppBar(
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          automaticallyImplyLeading: true,
           centerTitle: true,
           foregroundColor: Colors.white,
           backgroundColor: Color.fromARGB(255, 107, 69, 106),
@@ -884,13 +374,125 @@ class _CollaborationScreenState extends State<CollaborationScreen>
                           child: Text('Ausstehende Einladungen',
                               style: TextStyle(fontWeight: FontWeight.bold)),
                         ),
-                        _buildSentInvitations(),
-                        const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Text('Akzeptierte Zusammenarbeiten',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
-                        ),
-                        _buildAcceptedCollaborations(),
+                        (() {
+                          final pendingInvitations = _sentInvitations
+                              .where((invite) => invite['status'] == 'pending')
+                              .toList();
+                          if (pendingInvitations.isEmpty) {
+                            return const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(16.0),
+                                child: CustomTextWidget(
+                                  text: 'Keine ausstehenden Einladungen',
+                                  color: Colors.black,
+                                ),
+                              ),
+                            );
+                          }
+                          return ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: pendingInvitations.length,
+                            itemBuilder: (context, index) {
+                              final invite = pendingInvitations[index];
+                              final invitee = _userCache[invite['inviteeId']];
+                              final inviteeName =
+                                  invitee?['name'] ?? 'Unbekannt';
+                              final isAccepting =
+                                  _acceptingInvites.contains(invite['id']);
+                              final isCancelling =
+                                  _cancellingInvites.contains(invite['id']);
+                              final todoCount = invite['todoCount'] ?? 1;
+                              final todoNames =
+                                  (invite['todoNames'] as List?)?.join(', ') ??
+                                      '';
+                              return Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade300,
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                margin: const EdgeInsets.symmetric(
+                                    horizontal: 16.0, vertical: 8.0),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                CustomTextWidget(
+                                                  text:
+                                                      'Geteilte Listen: $todoCount',
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.black,
+                                                ),
+                                                if (todoNames.isNotEmpty)
+                                                  CustomTextWidget(
+                                                    text: 'Listen: $todoNames',
+                                                    color: Colors.black,
+                                                  ),
+                                                const SizedBox(height: 4),
+                                                CustomTextWidget(
+                                                  text:
+                                                      'Eingeladen: $inviteeName',
+                                                  color: Colors.black,
+                                                ),
+                                                if (invite['createdAt'] != null)
+                                                  CustomTextWidget(
+                                                    text: 'Gesendet am: '
+                                                        '${(invite['createdAt'] is Timestamp ? (invite['createdAt'] as Timestamp).toDate() : invite['createdAt']).toString().split(" ")[0]}',
+                                                    color: Colors.black54,
+                                                    fontSize: 13,
+                                                  ),
+                                              ],
+                                            ),
+                                          ),
+                                          GestureDetector(
+                                            onTap: () =>
+                                                _cancelInvitation(invite['id']),
+                                            child: Container(
+                                              margin: const EdgeInsets.only(
+                                                  left: 10),
+                                              padding: const EdgeInsets.all(10),
+                                              decoration: BoxDecoration(
+                                                color:
+                                                    Colors.red.withOpacity(0.3),
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                              ),
+                                              child: isCancelling
+                                                  ? Center(
+                                                      child: SizedBox(
+                                                        height: 20,
+                                                        width: 20,
+                                                        child:
+                                                            CircularProgressIndicator(
+                                                          color: Colors.white,
+                                                        ),
+                                                      ),
+                                                    )
+                                                  : Icon(Icons.remove,
+                                                      size: 16,
+                                                      color: Colors.white),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 8),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        })(),
                       ],
                     ),
                   ),
@@ -903,13 +505,123 @@ class _CollaborationScreenState extends State<CollaborationScreen>
                           child: Text('Erhaltene Einladungen',
                               style: TextStyle(fontWeight: FontWeight.bold)),
                         ),
-                        _buildReceivedInvitations(),
-                        const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Text('Akzeptierte Zusammenarbeiten',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
-                        ),
-                        _buildReceivedCollaborations(),
+                        (() {
+                          final pendingInvitations = _receivedInvitations
+                              .where((invite) => invite['status'] == 'pending')
+                              .toList();
+                          if (pendingInvitations.isEmpty) {
+                            return const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(16.0),
+                                child: CustomTextWidget(
+                                  text: 'Keine erhaltenen Einladungen',
+                                  color: Colors.black,
+                                ),
+                              ),
+                            );
+                          }
+                          return ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: pendingInvitations.length,
+                            itemBuilder: (context, index) {
+                              final invite = pendingInvitations[index];
+                              final inviter = _userCache[invite['inviterId']];
+                              final inviterName =
+                                  inviter?['name'] ?? 'Unbekannt';
+                              final isAccepting =
+                                  _acceptingInvites.contains(invite['id']);
+                              return Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade300,
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                margin: const EdgeInsets.symmetric(
+                                    horizontal: 16.0, vertical: 8.0),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      CustomTextWidget(
+                                        text: invite['todoCategories'] != null &&
+                                                (invite['todoCategories'] as List)
+                                                    .expand((cat) =>
+                                                        (cat['categories'] as List? ??
+                                                            []))
+                                                    .map((category) =>
+                                                        category['categoryName'] ??
+                                                        '')
+                                                    .where((name) => name
+                                                        .toString()
+                                                        .trim()
+                                                        .isNotEmpty)
+                                                    .toList()
+                                                    .isNotEmpty
+                                            ? (invite['todoCategories'] as List)
+                                                .expand((cat) =>
+                                                    (cat['categories'] as List? ??
+                                                        []))
+                                                .map((category) =>
+                                                    category['categoryName'] ?? '')
+                                                .where((name) => name.toString().trim().isNotEmpty)
+                                                .join(', ')
+                                            : 'Ohne Kategorie',
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black,
+                                      ),
+                                      const SizedBox(height: 8),
+                                      CustomTextWidget(
+                                        text: 'Eingeladen von: $inviterName',
+                                        color: Colors.black,
+                                      ),
+                                      if (invite['createdAt'] != null)
+                                        CustomTextWidget(
+                                          text: 'Gesendet am: '
+                                              '${(invite['createdAt'] is Timestamp ? (invite['createdAt'] as Timestamp).toDate() : invite['createdAt']).toString().split(" ")[0]}',
+                                          color: Colors.black54,
+                                          fontSize: 13,
+                                        ),
+                                      const SpacerWidget(height: 4),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        spacing: 10,
+                                        children: [
+                                          Expanded(
+                                            child: CustomButtonWidget(
+                                              text: 'Ablehnen',
+                                              color: Colors.white,
+                                              textColor: Colors.red,
+                                              onPressed: () =>
+                                                  _respondToInvitation(
+                                                      invite['id'], false),
+                                            ),
+                                          ),
+                                          Expanded(
+                                            child: CustomButtonWidget(
+                                              text: 'Akzeptieren',
+                                              color: Color.fromARGB(
+                                                  255, 107, 69, 106),
+                                              textColor: Colors.white,
+                                              onPressed: isAccepting
+                                                  ? null
+                                                  : () => _respondToInvitation(
+                                                      invite['id'], true),
+                                              isLoading: isAccepting,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        })(),
                       ],
                     ),
                   ),

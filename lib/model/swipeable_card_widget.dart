@@ -154,10 +154,10 @@ class _SwipeableCardWidgetState extends State<SwipeableCardWidget>
       width: MediaQuery.of(context).size.width,
       margin: const EdgeInsets.symmetric(horizontal: 5),
       decoration: BoxDecoration(
-        color: Colors.white,
-      ),
+          // color: Colors.white,
+          ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(40),
+        // borderRadius: BorderRadius.circular(40),
         child: Image.asset(
           image,
           fit: _BoxFitMode(mode),
@@ -258,7 +258,7 @@ class _SwipeableCardWidgetState extends State<SwipeableCardWidget>
       width: context.screenWidth * 0.67,
       height: widget.height,
       decoration: BoxDecoration(
-        color: Colors.white,
+        // color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -270,8 +270,8 @@ class _SwipeableCardWidgetState extends State<SwipeableCardWidget>
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(40),
-        child: buildImage(context, imagePath, index, "contain"),
+        // borderRadius: BorderRadius.circular(40),
+        child: buildImage(context, imagePath, index, "cover"),
       ),
     );
   }

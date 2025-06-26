@@ -8,6 +8,7 @@ import 'package:four_secrets_wedding_app/menue.dart';
 import 'package:four_secrets_wedding_app/model/checklist_button.dart';
 import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
 import 'package:four_secrets_wedding_app/model/table_dialog_box.dart';
+import 'package:four_secrets_wedding_app/widgets/table_mangemant_widget.dart';
 import '../models/table_model.dart';
 import '../models/guest.dart';
 import '../services/table_service.dart';
@@ -737,9 +738,9 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
                       color: Color.fromARGB(255, 107, 69, 106),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.delete),
+                      icon: const Icon(FontAwesomeIcons.trashCan,
+                          color: Colors.red),
                       onPressed: () => _showDeleteConfirmation(table.id),
-                      color: Colors.red[400],
                     ),
                   ],
                 ),
@@ -956,7 +957,31 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
                       itemCount: _tables.length,
                       shrinkWrap: true,
                       itemBuilder: (context, index) {
-                        return _buildTableCard(_tables[index]);
+                        return TableCardWidget(
+                          table: _tables[index],
+                          assignedGuests:
+                              _tableGuestsMap[_tables[index].id] ?? [],
+                          confirmedGuestCount:
+                              _tableGuestsMap[_tables[index].id]
+                                      ?.where((g) => g['takePart'] == true)
+                                      .length ??
+                                  0,
+                          onEdit: () => _navigateToAddEditTable(_tables[index]),
+                          onDelete: () =>
+                              _showDeleteConfirmation(_tables[index].id),
+                          onAssignGuest: (_tableGuestsMap[_tables[index].id]
+                                          ?.where((g) => g['takePart'] == true)
+                                          .length ??
+                                      0) <
+                                  _tables[index].maxGuests
+                              ? () => _showAssignGuestDialog(_tables[index])
+                              : null,
+                          onRemoveGuest: (guestId) async {
+                            await _tableService.removeGuestFromTable(
+                                _tables[index].id, guestId);
+                            _loadData();
+                          },
+                        );
                       },
                     ),
               FourSecretsDivider(),

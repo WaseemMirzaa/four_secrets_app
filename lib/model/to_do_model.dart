@@ -2,32 +2,33 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ToDoModel {
   final String? id;
-  final String toDoName;
+  final String? toDoName;
   final String userId;
   final String? categoryId;
   final List<String> collaborators;
   final List<Map<String, dynamic>> comments;
-  final List<Map<String, dynamic>>
-      toDoItems; // Changed to store item name and checked state
+  final List<Map<String, dynamic>>? toDoItems;
   final String? reminder; // ISO8601 string or null
+  final List<Map<String, dynamic>>? categories; // New: multi-category support
 
   ToDoModel({
     this.id,
-    required this.toDoName,
+    this.toDoName,
     required this.userId,
     this.categoryId,
     required this.collaborators,
     required this.comments,
-    required this.toDoItems,
+    this.toDoItems,
     this.reminder,
+    this.categories, // New
   });
 
   factory ToDoModel.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
 
     // Convert string items to maps with checked state if needed
-    List<Map<String, dynamic>> convertedItems = [];
-    var rawItems = data['toDoItems'] ?? [];
+    List<Map<String, dynamic>>? convertedItems;
+    var rawItems = data['toDoItems'];
     if (rawItems is List) {
       convertedItems = rawItems.map((item) {
         if (item is String) {
@@ -39,28 +40,42 @@ class ToDoModel {
       }).toList();
     }
 
+    // New: categories
+    List<Map<String, dynamic>>? categories;
+    if (data['categories'] != null && data['categories'] is List) {
+      categories = List<Map<String, dynamic>>.from(
+        (data['categories'] as List)
+            .map((cat) => Map<String, dynamic>.from(cat)),
+      );
+    }
+
     return ToDoModel(
       id: doc.id,
-      toDoName: data['toDoName'] ?? '',
+      toDoName: data['toDoName'],
       userId: data['userId'] ?? '',
       categoryId: data['categoryId'],
       collaborators: List<String>.from(data['collaborators'] ?? []),
       comments: List<Map<String, dynamic>>.from(data['comments'] ?? []),
       toDoItems: convertedItems,
       reminder: data['reminder'],
+      categories: categories,
     );
   }
 
   Map<String, dynamic> toMap() {
-    return {
-      'toDoName': toDoName,
+    final map = {
       'userId': userId,
       if (categoryId != null) 'categoryId': categoryId,
       'collaborators': collaborators,
       'comments': comments,
-      'toDoItems': toDoItems,
+      if (toDoName != null) 'toDoName': toDoName,
+      if (toDoItems != null) 'toDoItems': toDoItems,
       if (reminder != null) 'reminder': reminder,
     };
+    if (categories != null) {
+      map['categories'] = categories;
+    }
+    return map;
   }
 
   ToDoModel copyWith({
@@ -72,6 +87,7 @@ class ToDoModel {
     List<Map<String, dynamic>>? comments,
     List<Map<String, dynamic>>? toDoItems,
     String? reminder,
+    List<Map<String, dynamic>>? categories, // New
   }) {
     return ToDoModel(
       id: id ?? this.id,
@@ -82,6 +98,7 @@ class ToDoModel {
       comments: comments ?? this.comments,
       toDoItems: toDoItems ?? this.toDoItems,
       reminder: reminder ?? this.reminder,
+      categories: categories ?? this.categories,
     );
   }
 
@@ -122,7 +139,7 @@ class ToDoModel {
 
   // Toggle item checked state
   ToDoModel toggleItemChecked(String itemName) {
-    final updatedItems = List<Map<String, dynamic>>.from(toDoItems);
+    final updatedItems = List<Map<String, dynamic>>.from(toDoItems ?? []);
     final itemIndex =
         updatedItems.indexWhere((item) => item['name'] == itemName);
     if (itemIndex != -1) {

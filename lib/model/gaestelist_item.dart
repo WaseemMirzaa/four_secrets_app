@@ -1,6 +1,7 @@
 import 'package:four_secrets_wedding_app/data/enums.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 // ignore: must_be_immutable
 class GaestelistItem extends StatefulWidget {
@@ -38,7 +39,7 @@ class _GaestelistItemState extends State<GaestelistItem> {
           children: [
             SlidableAction(
               onPressed: widget.deleteFunction,
-              icon: Icons.delete,
+              icon: FontAwesomeIcons.trashCan,
               backgroundColor: Colors.red.shade300,
               borderRadius: BorderRadius.circular(10),
             ),

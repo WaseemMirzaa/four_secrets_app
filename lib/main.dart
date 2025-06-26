@@ -10,6 +10,7 @@ import 'package:four_secrets_wedding_app/services/push_notification_service.dart
 import 'package:google_fonts/google_fonts.dart';
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:timezone/data/latest.dart' as tz;
+import 'package:permission_handler/permission_handler.dart';
 
 // This must be a top‐level or @pragma('vm:entry-point') function
 @pragma('vm:entry-point')
@@ -40,6 +41,9 @@ Future<void> main() async {
   } catch (e) {
     debugPrint('Failed to initialize Firebase: $e');
   }
+
+  // Request location permission before running the app, but do not show dialog if denied
+  await Permission.location.request();
 
   // Initialize NotificationService
   try {

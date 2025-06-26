@@ -229,6 +229,7 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
               decorationBuilder: (context, child) => Material(
                 type: MaterialType.card,
                 elevation: 4,
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(8),
                 child: child,
               ),
@@ -259,16 +260,34 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
                   );
                 }
                 return Container(
-                  padding: EdgeInsets.all(16),
-                  child: Text(
-                    "Keine Ergebnisse gefunden",
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 16,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                );
+                    padding: EdgeInsets.all(16),
+                    child: InkWell(
+                      onTap: () async {
+                        var g = await Navigator.of(context).pushNamed(
+                            RouteManager.weddingCategoryCustomAddPage,
+                            arguments: {
+                              "weddingCategoryModel": null,
+                              "index": ""
+                            });
+                        if (g != null) {
+                          _loadAndInitCategories();
+                        }
+                      },
+                      child: Row(
+                        children: [
+                          Icon(
+                            FontAwesomeIcons.plus,
+                            size: 20,
+                            color: Colors.black,
+                          ),
+                          SizedBox(width: 10),
+                          Text(
+                            "Keine Ergebnisse gefunden",
+                            style: TextStyle(color: Colors.black, fontSize: 16),
+                          ),
+                        ],
+                      ),
+                    ));
               },
             ),
             const SpacerWidget(height: 4),
@@ -276,7 +295,11 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
                 child: isLoading
                     ? Center(child: CircularProgressIndicator())
                     : _searchController.text.trim().isNotEmpty
-                        ? _buildSearchResultsList()
+                        ? SearchResultsListWidget(
+                            filteredCategory: filteredCategory,
+                            onItemTap: (item) {
+                              Navigator.of(context).pop(item);
+                            })
                         : filteredCategory.isEmpty
                             ? Center(
                                 child: Column(
@@ -369,7 +392,7 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
                                               ),
                                             ],
                                           ),
-                                          if (index > 5) ...[
+                                          ...[
                                             Row(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
@@ -565,7 +588,8 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
                                                   icon: Icon(
                                                     FontAwesomeIcons.plus,
                                                     size: 20,
-                                                    color: Colors.black,
+                                                    color: Color.fromARGB(
+                                                        255, 93, 58, 92),
                                                   ),
                                                 ),
                                                 IconButton(
@@ -613,7 +637,8 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
                                                     FontAwesomeIcons
                                                         .penToSquare,
                                                     size: 20,
-                                                    color: Colors.black,
+                                                    color: Color.fromARGB(
+                                                        255, 93, 58, 92),
                                                   ),
                                                 ),
                                                 IconButton(
@@ -623,9 +648,9 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
                                                     _loadAndInitCategories();
                                                   },
                                                   icon: Icon(
-                                                    Icons.delete,
-                                                    size: 20,
-                                                    color: Colors.black,
+                                                    FontAwesomeIcons.trashCan,
+                                                    size: 18,
+                                                    color: Colors.red,
                                                   ),
                                                 ),
                                               ],
@@ -657,14 +682,22 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
       ),
     );
   }
+}
 
-  Widget _buildSearchResultsList() {
-    // Build a grouped list: category header, then matching items for that category
+class SearchResultsListWidget extends StatelessWidget {
+  final Map<String, List<String>> filteredCategory;
+  final void Function(String item)? onItemTap;
+  const SearchResultsListWidget({
+    Key? key,
+    required this.filteredCategory,
+    this.onItemTap,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     final List<Widget> results = [];
-
     filteredCategory.forEach((category, items) {
       if (items.isNotEmpty) {
-        // Enhanced Category Header
         results.add(
           Container(
             margin: const EdgeInsets.fromLTRB(16, 20, 16, 12),
@@ -714,8 +747,6 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
             ),
           ),
         );
-
-        // Enhanced Items List
         for (int index = 0; index < items.length; index++) {
           final item = items[index];
           results.add(
@@ -748,11 +779,7 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
               child: Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  onTap: () {
-                    // Add haptic feedback
-                    HapticFeedback.lightImpact();
-                    Navigator.of(context).pop(item);
-                  },
+                  onTap: onItemTap != null ? () => onItemTap!(item) : null,
                   borderRadius: BorderRadius.circular(16),
                   splashColor:
                       Color.fromARGB(255, 107, 69, 106).withValues(alpha: 0.1),
@@ -772,15 +799,12 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
             ),
           );
         }
-
-        // Add spacing between categories
         if (filteredCategory.keys.toList().indexOf(category) <
             filteredCategory.keys.length - 1) {
           results.add(const SizedBox(height: 8));
         }
       }
     });
-
     if (results.isEmpty) {
       return Center(
         child: Column(
@@ -822,7 +846,6 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
         ),
       );
     }
-
     return ListView(
       padding: const EdgeInsets.only(top: 8, bottom: 100),
       physics: const BouncingScrollPhysics(),

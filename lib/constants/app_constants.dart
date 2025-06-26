@@ -230,7 +230,7 @@ class AppConstants {
   static const String weddingSchedulePageTitle = "Programmpunkt / Titel";
   static const String weddingSchedulePageDescription = "Beschreibung";
   static const String weddingSchedulePageResponsiblePerson =
-      "Verantwortliche Person oder Dienstleiste";
+      "Zubtandige Person";
   static const String weddingSchedulePageNotes = "Notizen";
   static const String weddingSchedulePageTime = "Uhrzeit";
   static const String weddingSchedulePageDate = "Uhrzeit auswählen";
@@ -301,8 +301,8 @@ class AppConstants {
       'Element existiert bereits';
   static const String weddingCategoryTitlePageCancelEdit =
       'Bearbeitung abbrechen';
-  static const String weddingCategoryTitlePageAddCategory = 'Hinzufügen';
-  static const String weddingCategoryTitlePageUpdateCategory = 'Bearbeiten';
+  static const String weddingCategoryTitlePageAddCategory = 'Speichern';
+  static const String weddingCategoryTitlePageUpdateCategory = 'Speichern';
   static const String weddingCategoryTitlePageAddItem = 'Artikel hinzufügen';
   static const String weddingCategoryTitlePageAddCategoryError =
       'Bitte geben Sie einen Kategoriename ein';

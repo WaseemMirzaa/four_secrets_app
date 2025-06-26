@@ -14,6 +14,7 @@ import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:four_secrets_wedding_app/services/inspiration_image_service.dart';
 import 'package:four_secrets_wedding_app/utils/snackbar_helper.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_button_widget.dart';
+import 'package:four_secrets_wedding_app/widgets/custom_text_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -284,90 +285,82 @@ class _InspirationFolderState extends State<InspirationFolder> {
         ),
         body: Stack(
           children: [
-            _isLoading
-                ? Center(child: CupertinoActivityIndicator())
-                : RefreshIndicator(
-                    onRefresh: () => loadDataFromFirebase(),
-                    child: CustomScrollView(
-                      slivers: [
-                        SliverToBoxAdapter(
-                          child: Column(
-                            children: [
-                              Image.asset(
-                                  "assets/images/background/inspiration.png"),
-                              SpacerWidget(height: 5),
-                              FourSecretsDivider(),
-                              SpacerWidget(height: 5),
-                            ],
+            RefreshIndicator(
+              onRefresh: () => loadDataFromFirebase(),
+              child: CustomScrollView(
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: Column(
+                      children: [
+                        Image.asset("assets/images/background/inspiration.png"),
+                        SpacerWidget(height: 5),
+                        FourSecretsDivider(),
+                        SpacerWidget(height: 5),
+                      ],
+                    ),
+                  ),
+                  _isLoading
+                      ? SliverToBoxAdapter(
+                          child: Center(
+                            child: CircularProgressIndicator(),
                           ),
-                        ),
-                        SliverPadding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 15, vertical: 15),
-                          sliver: SliverStaggeredGrid.countBuilder(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: 15,
-                            mainAxisSpacing: 15,
-                            itemCount: sp.inspirationImagesList.length,
-                            itemBuilder: (context, index) {
-                              return GestureDetector(
-                                onTap: () async {
-                                  var result = Navigator.of(context).pushNamed(
-                                      RouteManager.inspirationDetailPage,
-                                      arguments: {
-                                        'inspirationImage':
-                                            sp.inspirationImagesList[index],
-                                        'id':
-                                            sp.inspirationImagesList[index].id!,
+                        )
+                      : sp.inspirationImagesList.isEmpty
+                          ? SliverToBoxAdapter(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 15),
+                                child: CustomTextWidget(
+                                    textAlign: TextAlign.center,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    text:
+                                        "Noch Keine Bilder hinzugefügt. Tippe auf das + Symbol unten rechts."),
+                              ),
+                            )
+                          : SliverPadding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 15, vertical: 15),
+                              sliver: SliverStaggeredGrid.countBuilder(
+                                crossAxisCount: 2,
+                                crossAxisSpacing: 15,
+                                mainAxisSpacing: 15,
+                                itemCount: sp.inspirationImagesList.length,
+                                itemBuilder: (context, index) {
+                                  return GestureDetector(
+                                    onTap: () async {
+                                      var result = Navigator.of(context)
+                                          .pushNamed(
+                                              RouteManager
+                                                  .inspirationDetailPage,
+                                              arguments: {
+                                            'inspirationImage':
+                                                sp.inspirationImagesList[index],
+                                            'id': sp
+                                                .inspirationImagesList[index]
+                                                .id!,
+                                          });
+
+                                      print(
+                                          "Returned value: $result"); // <-- You should see this when popped
+
+                                      result.then((v) {
+                                        loadDataFromFirebase();
                                       });
-
-                                  print(
-                                      "Returned value: $result"); // <-- You should see this when popped
-
-                                  result.then((v) {
-                                    loadDataFromFirebase();
-                                  });
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.5),
-                                    borderRadius: BorderRadius.circular(18),
-                                  ),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(18),
-                                    child: _isLoading
-                                        ? Center(
-                                            child: CircularProgressIndicator
-                                                .adaptive(
-                                              backgroundColor:
-                                                  AppTheme.backgroundColor,
-                                              valueColor:
-                                                  AlwaysStoppedAnimation<Color>(
-                                                      AppTheme.primaryColor),
-                                            ),
-                                          )
-                                        : Image.network(
-                                            sp.inspirationImagesList[index]
-                                                .imageUrl,
-                                            fit: BoxFit.cover,
-                                            loadingBuilder: (context, child,
-                                                loadingProgress) {
-                                              if (loadingProgress == null) {
-                                                return child;
-                                              }
-                                              return Center(
-                                                child:
-                                                    CircularProgressIndicator(
-                                                  value: loadingProgress
-                                                              .expectedTotalBytes !=
-                                                          null
-                                                      ? loadingProgress
-                                                              .cumulativeBytesLoaded /
-                                                          (loadingProgress
-                                                                  .expectedTotalBytes ??
-                                                              1)
-                                                      : null,
-                                                  color:
+                                    },
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color:
+                                            Colors.white.withValues(alpha: 0.5),
+                                        borderRadius: BorderRadius.circular(18),
+                                      ),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(18),
+                                        child: _isLoading
+                                            ? Center(
+                                                child: CircularProgressIndicator
+                                                    .adaptive(
+                                                  backgroundColor:
                                                       AppTheme.backgroundColor,
                                                   valueColor:
                                                       AlwaysStoppedAnimation<
@@ -375,49 +368,79 @@ class _InspirationFolderState extends State<InspirationFolder> {
                                                           AppTheme
                                                               .primaryColor),
                                                 ),
-                                              );
-                                            },
-                                            errorBuilder:
-                                                (context, error, stackTrace) {
-                                              return Center(
-                                                child: Text(
-                                                  "Fehler beim Laden",
-                                                  style: TextStyle(
-                                                      color: Colors.red),
-                                                ),
-                                              );
-                                            },
-                                            cacheWidth: 300,
-                                            cacheHeight: 300,
-                                          ),
-                                  ),
+                                              )
+                                            : Image.network(
+                                                sp.inspirationImagesList[index]
+                                                    .imageUrl,
+                                                fit: BoxFit.cover,
+                                                loadingBuilder: (context, child,
+                                                    loadingProgress) {
+                                                  if (loadingProgress == null) {
+                                                    return child;
+                                                  }
+                                                  return Center(
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                      value: loadingProgress
+                                                                  .expectedTotalBytes !=
+                                                              null
+                                                          ? loadingProgress
+                                                                  .cumulativeBytesLoaded /
+                                                              (loadingProgress
+                                                                      .expectedTotalBytes ??
+                                                                  1)
+                                                          : null,
+                                                      color: AppTheme
+                                                          .backgroundColor,
+                                                      valueColor:
+                                                          AlwaysStoppedAnimation<
+                                                                  Color>(
+                                                              AppTheme
+                                                                  .primaryColor),
+                                                    ),
+                                                  );
+                                                },
+                                                errorBuilder: (context, error,
+                                                    stackTrace) {
+                                                  return Center(
+                                                    child: Text(
+                                                      "Fehler beim Laden",
+                                                      style: TextStyle(
+                                                          color: Colors.red),
+                                                    ),
+                                                  );
+                                                },
+                                                cacheWidth: 300,
+                                                cacheHeight: 300,
+                                              ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                                staggeredTileBuilder: (index) =>
+                                    StaggeredTile.extent(
+                                  1,
+                                  index % 2 == 0 ? 150 : 250,
                                 ),
-                              );
-                            },
-                            staggeredTileBuilder: (index) =>
-                                StaggeredTile.extent(
-                              1,
-                              index % 2 == 0 ? 150 : 250,
+                              ),
                             ),
-                          ),
-                        ),
-                        SliverToBoxAdapter(
-                          child: SizedBox(
-                            height: 20,
-                          ),
-                        ),
-                        if (sp.inspirationImagesList.isNotEmpty)
-                          SliverToBoxAdapter(
-                            child: FourSecretsDivider(),
-                          ),
-                        SliverToBoxAdapter(
-                          child: SpacerWidget(
-                            height: 15,
-                          ),
-                        ),
-                      ],
+                  SliverToBoxAdapter(
+                    child: SizedBox(
+                      height: 20,
                     ),
                   ),
+                  if (sp.inspirationImagesList.isNotEmpty)
+                    SliverToBoxAdapter(
+                      child: FourSecretsDivider(),
+                    ),
+                  SliverToBoxAdapter(
+                    child: SpacerWidget(
+                      height: 15,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),

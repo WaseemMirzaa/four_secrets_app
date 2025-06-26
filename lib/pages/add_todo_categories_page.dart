@@ -52,8 +52,8 @@ class _AddTodoCategoriesPageState extends State<AddTodoCategoriesPage> {
         foregroundColor: Colors.white,
         title: Text(
           widget.toDoModel != null
-              ? 'Aufgabenliste bearbeiten'
-              : 'Aufgabenliste hinzufügen',
+              ? 'Eigene Listenname bearbeiten'
+              : 'Eigene Listenname hinzufügen',
           style: const TextStyle(fontSize: 16),
         ),
         backgroundColor: const Color.fromARGB(255, 107, 69, 106),
@@ -66,11 +66,11 @@ class _AddTodoCategoriesPageState extends State<AddTodoCategoriesPage> {
             // Todo list name text field
             CustomTextField(
               controller: _todoNameController,
-              label: 'Name der Aufgabenliste',
+              label: 'Listenname eingeben',
               inputDecoration: InputDecoration(
                 fillColor: Colors.grey.withValues(alpha: 0.2),
                 filled: true,
-                hintText: 'Name der Aufgabenliste eingeben',
+                hintText: 'Listenname eingeben',
                 hintStyle: TextStyle(color: Colors.grey.withValues(alpha: 0.8)),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
@@ -99,9 +99,9 @@ class _AddTodoCategoriesPageState extends State<AddTodoCategoriesPage> {
                 padding: const EdgeInsets.symmetric(vertical: 5),
                 child: CustomTextField(
                   controller: _itemControllerList[index],
-                  label: "Unterpunkt ${index + 1}",
+                  label: "Beschreibung ${index + 1}",
                   inputDecoration: InputDecoration(
-                    hintText: "Unterpunkt ${index + 1}",
+                    hintText: "Beschreibung ${index + 1}",
                     fillColor: Colors.grey.withValues(alpha: 0.2),
                     filled: true,
                     hintStyle:
@@ -124,7 +124,11 @@ class _AddTodoCategoriesPageState extends State<AddTodoCategoriesPage> {
                           _itemControllerList.removeAt(index);
                         });
                       },
-                      icon: Icon(Icons.delete, color: Colors.black),
+                      icon: Icon(
+                        FontAwesomeIcons.trashCan,
+                        color: Colors.red,
+                        size: 18,
+                      ),
                     ),
                   ),
                 ),
@@ -182,9 +186,8 @@ class _AddTodoCategoriesPageState extends State<AddTodoCategoriesPage> {
                   Expanded(
                     child: CustomButtonWidget(
                       isLoading: _isLoading,
-                      text: widget.toDoModel != null
-                          ? 'Aktualisieren'
-                          : 'Erstellen',
+                      text:
+                          widget.toDoModel != null ? 'Speichern' : 'Speichern',
                       textColor: Colors.white,
                       color: const Color.fromARGB(255, 107, 69, 106),
                       onPressed: () async {

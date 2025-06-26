@@ -5,6 +5,7 @@ import 'package:four_secrets_wedding_app/model/footer_buttons.dart';
 import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
 import 'package:flutter/material.dart';
 import 'package:four_secrets_wedding_app/menue.dart';
+import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
 
 // ignore: must_be_immutable
 class BacheloretteParty extends StatelessWidget {
@@ -42,7 +43,6 @@ class BacheloretteParty extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: Menue(),
         appBar: AppBar(
           foregroundColor: Color.fromARGB(255, 255, 255, 255),
           // automaticallyImplyLeading: false,
@@ -67,6 +67,7 @@ class BacheloretteParty extends StatelessWidget {
                     physics: ClampingScrollPhysics(),
                     child: Column(
                       children: [
+                        SpacerWidget(height: 10),
                         SwipeableCardWidget(
                           images: images,
                           height: 330,

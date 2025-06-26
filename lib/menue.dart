@@ -12,6 +12,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'utils/snackbar_helper.dart';
 import 'services/menu_service.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 export 'menue.dart' show MenueState;
 
@@ -45,6 +46,7 @@ class MenueState extends State<Menue> {
   // Initialize later in initState()
   late Map<String, bool> _pressedStates;
   String? currentSelected;
+  bool hasNewCollabNotification = false;
 
   @override
   void initState() {
@@ -69,6 +71,13 @@ class MenueState extends State<Menue> {
     } else {
       _loadUserData();
     }
+    _checkUnreadNotifications();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _checkUnreadNotifications();
   }
 
   void _select(String name) {
@@ -182,6 +191,26 @@ class MenueState extends State<Menue> {
   String _capitalizeFirstLetter(String text) {
     if (text.isEmpty) return text;
     return text[0].toUpperCase() + text.substring(1);
+  }
+
+  Future<void> _checkUnreadNotifications() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    final fcmToken = await FirebaseMessaging.instance.getToken();
+    if (fcmToken == null) return;
+    final snapshot = await FirebaseFirestore.instance
+        .collection('notifications')
+        .where('token', isEqualTo: fcmToken)
+        .where('read', isEqualTo: false)
+        .get();
+
+    // Only set to true if there is an unread invitation notification
+    final hasInvite = snapshot.docs
+        .any((doc) => (doc.data()['data']?['type'] ?? '') == 'invitation');
+
+    setState(() {
+      hasNewCollabNotification = hasInvite;
+    });
   }
 
   @override
@@ -301,77 +330,93 @@ class MenueState extends State<Menue> {
 
           ...listDrawerModel.map((e) {
             bool isSelected = _pressedStates[e.name]!;
-
             return Card(
               margin:
                   const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: ListTile(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 0,
-                ),
-                tileColor: isSelected ? Colors.purple[50] : Colors.white,
-                leading: Icon(e.icon),
-                title: CustomTextWidget(
-                  text: e.name,
-                  fontSize: 16,
-                  color: Colors.black,
-                ),
-                onTap: () {
-                  _select(e.name);
+              child: Stack(
+                children: [
+                  ListTile(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 0,
+                    ),
+                    tileColor: isSelected ? Colors.purple[50] : Colors.white,
+                    leading: Icon(e.icon),
+                    title: CustomTextWidget(
+                      text: e.name,
+                      fontSize: 16,
+                      color: Colors.black,
+                    ),
+                    onTap: () {
+                      _select(e.name);
 
-                  // Optimized navigation without Timer delays
-                  switch (e.name) {
-                    case "Home":
-                      _navigateTo(RouteManager.homePage);
-                      break;
-                    case "Münchner Geheimtipp":
-                      _navigateTo(RouteManager.inspirationsPage);
-                      break;
-                    case "Checkliste":
-                      _navigateTo(RouteManager.checklistPage);
-                      break;
-                    case "Budget":
-                      _navigateTo(RouteManager.budgetPage);
-                      break;
-                    case "Gästeliste":
-                      _navigateTo(RouteManager.gaestelistPage);
-                      break;
-                    case "Tischverwaltung":
-                      _navigateTo(RouteManager.tablesManagementPage);
-                      break;
-                    case "Showroom":
-                      _navigateTo(RouteManager.showroomEventPage);
-                      break;
-                    case "Über mich":
-                      _navigateTo(RouteManager.aboutMePage);
-                      break;
-                    case "Kontakt":
-                      _navigateTo(RouteManager.kontakt);
-                      break;
-                    case "Mitgestalter":
-                      _navigateTo(RouteManager.collaborationPage);
-                      break;
-                    case "Impressum":
-                      _navigateTo(RouteManager.impressum);
-                      break;
-                    case "Hochzeitskit":
-                      _navigateTo(RouteManager.toDoPage);
-                      break;
-                    case "Inspirationen":
-                      _navigateTo(RouteManager.inspirationFolderPage);
-                      break;
-                    case "Tagesablauf":
-                      _navigateTo(RouteManager.weddingSchedulePage);
-                      break;
-                  }
-                },
+                      // Optimized navigation without Timer delays
+                      switch (e.name) {
+                        case "Home":
+                          _navigateTo(RouteManager.homePage);
+                          break;
+                        case "Münchner Geheimtipp":
+                          _navigateTo(RouteManager.inspirationsPage);
+                          break;
+                        case "Checkliste":
+                          _navigateTo(RouteManager.checklistPage);
+                          break;
+                        case "Budget":
+                          _navigateTo(RouteManager.budgetPage);
+                          break;
+                        case "Gästeliste":
+                          _navigateTo(RouteManager.gaestelistPage);
+                          break;
+                        case "Tischverwaltung":
+                          _navigateTo(RouteManager.tablesManagementPage);
+                          break;
+                        case "Showroom":
+                          _navigateTo(RouteManager.showroomEventPage);
+                          break;
+                        case "Über mich":
+                          _navigateTo(RouteManager.aboutMePage);
+                          break;
+                        case "Kontakt":
+                          _navigateTo(RouteManager.kontakt);
+                          break;
+                        case "Mitgestalter":
+                          _navigateTo(RouteManager.collaborationPage);
+                          break;
+                        case "Impressum":
+                          _navigateTo(RouteManager.impressum);
+                          break;
+                        case "Hochzeitskit":
+                          _navigateTo(RouteManager.toDoPage);
+                          break;
+                        case "Inspirationen":
+                          _navigateTo(RouteManager.inspirationFolderPage);
+                          break;
+                        case "Tagesablauf":
+                          _navigateTo(RouteManager.weddingSchedulePage);
+                          break;
+                      }
+                    },
+                  ),
+                  if (e.name == 'Hochzeitskit' && hasNewCollabNotification)
+                    Positioned(
+                      right: 16,
+                      top: 12,
+                      child: Container(
+                        width: 10,
+                        height: 10,
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                ],
               ),
             );
           }),

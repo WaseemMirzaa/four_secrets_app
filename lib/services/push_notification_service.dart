@@ -163,6 +163,7 @@ class PushNotificationService {
         'body': body,
         'data': data ?? {},
         'timestamp': FieldValue.serverTimestamp(),
+        'read': false,
       });
     } catch (e) {
       print('Error sending notification: $e');

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class CheckListItem extends StatelessWidget {
   final String taskName;
@@ -26,7 +27,7 @@ class CheckListItem extends StatelessWidget {
           children: [
             SlidableAction(
               onPressed: deleteFunction,
-              icon: Icons.delete,
+              icon: FontAwesomeIcons.trashCan,
               backgroundColor: Colors.red.shade300,
               borderRadius: BorderRadius.circular(10),
             ),

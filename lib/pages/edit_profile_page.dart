@@ -34,6 +34,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   late TextEditingController _nameController;
   File? _newProfilePicture;
   bool _isLoading = false;
+  bool _isUploadingImage = false;
   final ImageUploadService _imageUploadService = ImageUploadService();
 
   @override
@@ -372,7 +373,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Future<void> _updateProfile() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _isUploadingImage = false;
+    });
 
     try {
       final user = FirebaseAuth.instance.currentUser;
@@ -381,10 +385,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
       // Update profile picture if selected
       String? newProfilePicUrl;
       if (_newProfilePicture != null) {
-        // Upload to the server first
-        final uploadResponse =
-            await _imageUploadService.uploadImage(_newProfilePicture!);
-        newProfilePicUrl = uploadResponse.image.getFullImageUrl();
+        setState(() => _isUploadingImage = true);
+        try {
+          final uploadResponse =
+              await _imageUploadService.uploadImage(_newProfilePicture!);
+          newProfilePicUrl = uploadResponse.image.getFullImageUrl();
+        } catch (e) {
+          setState(() => _isUploadingImage = false);
+          SnackBarHelper.showErrorSnackBar(
+              context, 'Bild-Upload fehlgeschlagen: \n${e.toString()}');
+          setState(() => _isLoading = false);
+          return;
+        }
+        setState(() => _isUploadingImage = false);
       }
 
       // Update user data in Firestore
@@ -434,7 +447,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
       }
     } finally {
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() {
+          _isLoading = false;
+          _isUploadingImage = false;
+        });
       }
     }
   }
@@ -586,6 +602,21 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           ),
                         ),
                       ),
+                      if (_isUploadingImage)
+                        const Positioned.fill(
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: SizedBox(
+                              width: 40,
+                              height: 40,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 3,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                    Color.fromARGB(255, 107, 69, 106)),
+                              ),
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),

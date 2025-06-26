@@ -87,6 +87,7 @@ dependencies:
   flutter_speed_dial: ^7.0.0
   syncfusion_flutter_pdfviewer: ^29.1.38
   flutter_card_swiper: ^7.0.2
+  http: ^1.2.1
   
 
 
