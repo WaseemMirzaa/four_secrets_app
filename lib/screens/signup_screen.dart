@@ -320,7 +320,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         } catch (e) {
           setState(() => _isUploadingImage = false);
           SnackBarHelper.showErrorSnackBar(
-              context, 'Bild-Upload fehlgeschlagen: \\n${e.toString()}');
+              context, 'Bild-Upload fehlgeschlagen: \n${e.toString()}');
           setState(() => _isLoading = false);
           return;
         }

@@ -25,6 +25,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:four_secrets_wedding_app/services/collaboration_todo_service.dart';
 import 'package:four_secrets_wedding_app/model/collaboration_todo_model.dart';
 import '../widgets/collaboration_todo_tile.dart';
+import '../services/non_registered_invite_service.dart';
 
 class ToDoPage extends StatefulWidget {
   const ToDoPage({super.key});
@@ -50,6 +51,12 @@ class _ToDoPageState extends State<ToDoPage> {
   int? _editingCommentIndex;
   TextEditingController _editingController = TextEditingController();
   TextEditingController _commentController = TextEditingController();
+  // Unified comment edit state
+  int? editingCommentIndex;
+  Map<String, dynamic>? editingComment;
+  bool isEditingComment = false;
+  // User cache for comments
+  final Map<String, Map<String, dynamic>> _userCache = {};
 
   @override
   void initState() {
@@ -108,8 +115,7 @@ class _ToDoPageState extends State<ToDoPage> {
         .map((doc) => CollaborationTodoModel.fromFirestore(doc))
         .where((todo) => (todo.collaborators.isNotEmpty))
         .toList();
-    // Notification logic: if there are any new/received collaborations
-    hasNewCollabNotification = acceptedCollaborations.isNotEmpty;
+    // Notification logic: do not set hasNewCollabNotification here
     if (mounted) setState(() {});
   }
 
@@ -193,8 +199,8 @@ class _ToDoPageState extends State<ToDoPage> {
                                   await authService.searchUsers(value);
                               // Filter out the current user from results (no per-todo collaborators)
                               final filteredResults = results
-                                  .where(
-                                      (user) => user['uid'] != currentUser?.uid)
+                                  .where((user) =>
+                                      user['email'] != currentUser?.email)
                                   .toList();
                               setState(() {
                                 searchResults = filteredResults;
@@ -218,62 +224,70 @@ class _ToDoPageState extends State<ToDoPage> {
                         padding: const EdgeInsets.all(8.0),
                         child: CircularProgressIndicator(),
                       ),
-                    if (!isSearching && searchResults.isNotEmpty)
-                      Container(
-                        constraints: BoxConstraints(maxHeight: 200),
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: searchResults.length,
-                          itemBuilder: (context, index) {
-                            final user = searchResults[index];
-                            return ListTile(
-                              title: Text(user['name']),
-                              subtitle: Text(user['email']),
-                              trailing: isSendingInvite
-                                  ? SizedBox(
-                                      width: 24,
-                                      height: 24,
-                                      child: CircularProgressIndicator(
-                                          strokeWidth: 2))
-                                  : IconButton(
-                                      icon: Icon(Icons.person_add,
-                                          color: Color.fromARGB(
-                                              255, 107, 69, 106)),
-                                      onPressed: isSendingInvite
-                                          ? null
-                                          : () async {
-                                              setState(
-                                                  () => isSendingInvite = true);
-                                              try {
-                                                await collaborationService
-                                                    .sendInvitationForAllTodos(
-                                                  inviteeId: user['uid'],
-                                                  inviteeName: user['name'],
-                                                );
-                                                // Refresh the data before closing the dialog
-                                                await _loadAndInitCategories();
-                                                if (context.mounted) {
-                                                  Navigator.of(context).pop();
-                                                  SnackBarHelper
-                                                      .showSuccessSnackBar(
-                                                          context,
-                                                          "Einladung für alle Listen gesendet");
-                                                }
-                                              } catch (e) {
-                                                SnackBarHelper.showErrorSnackBar(
-                                                    context,
-                                                    "Fehler beim Senden der Einladung: $e");
-                                              } finally {
-                                                if (mounted)
+                    (!isSearching && searchResults.isNotEmpty)
+                        ? Container(
+                            constraints: BoxConstraints(maxHeight: 200),
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: searchResults.length,
+                              itemBuilder: (context, index) {
+                                final user = searchResults[index];
+                                return ListTile(
+                                  title: Text(user['name']),
+                                  subtitle: Text(user['email']),
+                                  trailing: isSendingInvite
+                                      ? SizedBox(
+                                          width: 24,
+                                          height: 24,
+                                          child: CircularProgressIndicator(
+                                              strokeWidth: 2))
+                                      : IconButton(
+                                          icon: Icon(Icons.person_add,
+                                              color: Color.fromARGB(
+                                                  255, 107, 69, 106)),
+                                          onPressed: isSendingInvite
+                                              ? null
+                                              : () async {
                                                   setState(() =>
-                                                      isSendingInvite = false);
-                                              }
-                                            },
-                                    ),
-                            );
-                          },
-                        ),
-                      ),
+                                                      isSendingInvite = true);
+                                                  try {
+                                                    await collaborationService
+                                                        .sendInvitationForAllTodos(
+                                                      inviteeId: user['uid'],
+                                                      inviteeName: user['name'],
+                                                    );
+                                                    // Refresh the data before closing the dialog
+                                                    await _loadAndInitCategories();
+                                                    if (context.mounted) {
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                      SnackBarHelper
+                                                          .showSuccessSnackBar(
+                                                              context,
+                                                              "Einladung für alle Listen gesendet");
+                                                    }
+                                                  } catch (e) {
+                                                    SnackBarHelper
+                                                        .showErrorSnackBar(
+                                                            context,
+                                                            "Fehler beim Senden der Einladung: $e");
+                                                  } finally {
+                                                    if (mounted)
+                                                      setState(() =>
+                                                          isSendingInvite =
+                                                              false);
+                                                  }
+                                                },
+                                        ),
+                                );
+                              },
+                            ),
+                          )
+                        : (!isSearching &&
+                                searchController.text.isNotEmpty &&
+                                searchResults.isEmpty)
+                            ? SizedBox.shrink()
+                            : SizedBox.shrink(),
                     Padding(
                       padding: const EdgeInsets.all(15.0),
                       child: Row(
@@ -696,7 +710,13 @@ class _ToDoPageState extends State<ToDoPage> {
                 vertical: 5,
               ),
               decoration: BoxDecoration(
-                  color: Colors.grey.withValues(alpha: 0.2),
+                  // color: Colors.grey.withValues(alpha: 0.2),
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.grey.shade200,
+                      Colors.grey.shade300,
+                    ],
+                  ),
                   borderRadius: BorderRadius.circular(15)),
               child: Column(
                 children: [
@@ -710,8 +730,8 @@ class _ToDoPageState extends State<ToDoPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                (todoModel.categories != null &&
+                              CustomTextWidget(
+                                text: (todoModel.categories != null &&
                                         todoModel.categories!.isNotEmpty &&
                                         todoModel.categories![0]
                                                 ['categoryName'] !=
@@ -721,9 +741,7 @@ class _ToDoPageState extends State<ToDoPage> {
                                             .isNotEmpty)
                                     ? todoModel.categories![0]['categoryName']
                                     : toDoName,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                fontWeight: FontWeight.bold,
                               ),
                               CustomTextWidget(
                                 text:
@@ -1067,154 +1085,495 @@ class _ToDoPageState extends State<ToDoPage> {
                               final user = FirebaseAuth.instance.currentUser;
                               final isMine =
                                   user != null && c['userId'] == user.uid;
-                              String userName =
-                                  c['userName'] ?? c['name'] ?? 'Unbekannt';
-                              String avatarLetter = userName.isNotEmpty
-                                  ? userName[0].toUpperCase()
-                                  : 'U';
                               String formattedTs =
                                   formatCommentTimestamp(c['timestamp']);
-                              return Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                padding: const EdgeInsets.all(12.0),
-                                margin:
-                                    const EdgeInsets.symmetric(vertical: 6.0),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    CircleAvatar(
-                                      radius: 16,
-                                      backgroundColor: Color(0xFFD1C4E9),
-                                      child: CustomTextWidget(
-                                        text: avatarLetter,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    SizedBox(width: 12),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            userName,
-                                            style: TextStyle(
+                              final userId = c['userId'];
+                              if (userId != null &&
+                                  _userCache.containsKey(userId)) {
+                                // Use cached user info
+                                final userData = _userCache[userId]!;
+                                String userName =
+                                    userData['name'] ?? 'Unbekannt';
+                                String? profileUrl =
+                                    userData['profilePictureUrl'] as String?;
+                                String avatarLetter = userName.isNotEmpty
+                                    ? userName[0].toUpperCase()
+                                    : 'U';
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  padding: const EdgeInsets.all(12.0),
+                                  margin:
+                                      const EdgeInsets.symmetric(vertical: 6.0),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 16,
+                                        backgroundColor: Color(0xFFD1C4E9),
+                                        backgroundImage: (profileUrl != null &&
+                                                profileUrl.isNotEmpty)
+                                            ? NetworkImage(profileUrl)
+                                            : null,
+                                        child: (profileUrl == null ||
+                                                profileUrl.isEmpty)
+                                            ? CustomTextWidget(
+                                                text: avatarLetter,
                                                 fontWeight: FontWeight.bold,
-                                                color: Colors.black),
-                                          ),
-                                          if (formattedTs.isNotEmpty)
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  top: 2.0, bottom: 4.0),
-                                              child: Text(
-                                                formattedTs,
-                                                style: TextStyle(
-                                                    color: Colors.grey,
-                                                    fontSize: 12),
+                                                color: Colors.black,
+                                                fontSize: 16,
+                                              )
+                                            : null,
+                                      ),
+                                      SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            CustomTextWidget(
+                                              text: userName,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black,
+                                            ),
+                                            if (formattedTs.isNotEmpty)
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 2.0, bottom: 4.0),
+                                                child: Text(
+                                                  formattedTs,
+                                                  style: TextStyle(
+                                                      color: Colors.grey,
+                                                      fontSize: 12),
+                                                ),
+                                              ),
+                                            CustomTextWidget(text: c['comment'])
+                                          ],
+                                        ),
+                                      ),
+                                      if (isMine)
+                                        PopupMenuButton<String>(
+                                          onSelected: (value) async {
+                                            if (value == 'edit') {
+                                              setState(() {
+                                                editingCommentIndex = i;
+                                                editingComment = c;
+                                                _commentController.text =
+                                                    c['comment'] ?? '';
+                                                isEditingComment = true;
+                                              });
+                                            } else if (value == 'delete') {
+                                              final todoComments = List<
+                                                      Map<String,
+                                                          dynamic>>.from(
+                                                  todoModel?.comments ?? []);
+                                              todoComments.removeAt(i);
+                                              final updatedTodo =
+                                                  todoModel?.copyWith(
+                                                      comments: todoComments);
+                                              if (updatedTodo != null) {
+                                                setState(() {
+                                                  listToDoModel[index] =
+                                                      updatedTodo;
+                                                });
+                                                await toDoService
+                                                    .updateTodo(updatedTodo);
+                                              }
+                                            }
+                                          },
+                                          itemBuilder: (context) => [
+                                            PopupMenuItem(
+                                              value: 'edit',
+                                              child: Row(
+                                                children: [
+                                                  Icon(Icons.edit,
+                                                      color: Color(0xFF6B456A),
+                                                      size: 18),
+                                                  SizedBox(width: 8),
+                                                  CustomTextWidget(
+                                                      color: Color(0xFF6B456A),
+                                                      text: 'Bearbeiten'),
+                                                ],
                                               ),
                                             ),
-                                          CustomTextWidget(text: c['comment'])
-                                        ],
-                                      ),
-                                    ),
-                                    if (isMine)
-                                      PopupMenuButton<String>(
-                                        onSelected: (value) async {
-                                          if (value == 'edit') {
-                                            setState(() {
-                                              _editingCommentIndex = i;
-                                              _editingController.text =
-                                                  c['comment'] ?? '';
-                                            });
-                                          } else if (value == 'delete') {
-                                            final todoComments =
-                                                List<Map<String, dynamic>>.from(
-                                                    todoModel?.comments ?? []);
-                                            todoComments.removeAt(i);
-                                            final updatedTodo =
-                                                todoModel?.copyWith(
-                                                    comments: todoComments);
-                                            if (updatedTodo != null) {
-                                              setState(() {
-                                                listToDoModel[index] =
-                                                    updatedTodo;
-                                              });
-                                              await toDoService
-                                                  .updateTodo(updatedTodo);
-                                            }
-                                          }
-                                        },
-                                        itemBuilder: (context) => [
-                                          PopupMenuItem(
-                                            value: 'edit',
-                                            child: Row(
-                                              children: [
-                                                Icon(Icons.edit,
-                                                    color: Color(0xFF6B456A),
-                                                    size: 18),
-                                                SizedBox(width: 8),
-                                                CustomTextWidget(
-                                                    color: Color(0xFF6B456A),
-                                                    text: 'Bearbeiten'),
-                                              ],
+                                            PopupMenuItem(
+                                              value: 'delete',
+                                              child: Row(
+                                                children: [
+                                                  Icon(Icons.delete,
+                                                      color: Colors.red,
+                                                      size: 18),
+                                                  SizedBox(width: 8),
+                                                  CustomTextWidget(
+                                                      color: Colors.red,
+                                                      text: 'Löschen'),
+                                                ],
+                                              ),
                                             ),
-                                          ),
-                                          PopupMenuItem(
-                                            value: 'delete',
-                                            child: Row(
-                                              children: [
-                                                Icon(Icons.delete,
-                                                    color: Colors.red,
-                                                    size: 18),
-                                                SizedBox(width: 8),
-                                                CustomTextWidget(
-                                                    color: Colors.red,
-                                                    text: 'Löschen'),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                  ],
-                                ),
-                              );
-                            }),
-                            SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: CustomTextField(
-                                    controller: _commentController,
-                                    label: 'Kommentar',
-                                    hint: 'Kommentar hinzufügen...',
-                                    maxLines: 1,
-                                    onSubmit: (val) async {
-                                      await _handleAddComment(
-                                          val, todoModel, index);
-                                    },
+                                          ],
+                                        ),
+                                    ],
                                   ),
-                                ),
-                                IconButton(
-                                  icon: Icon(Icons.send,
-                                      color: Color(0xFF6B456A)),
-                                  onPressed: () async {
-                                    await _handleAddComment(
-                                        _commentController.text,
-                                        todoModel,
-                                        index);
-                                  },
-                                ),
-                              ],
-                            ),
+                                );
+                              } else if (userId != null) {
+                                // Not cached, fetch and cache
+                                FirebaseFirestore.instance
+                                    .collection('users')
+                                    .doc(userId)
+                                    .get()
+                                    .then((doc) {
+                                  if (doc.exists) {
+                                    setState(() {
+                                      _userCache[userId] = doc.data() ?? {};
+                                    });
+                                  } else {
+                                    setState(() {
+                                      _userCache[userId] = {};
+                                    });
+                                  }
+                                });
+                                // Show loading placeholder
+                                String userName = c['userName'] ?? 'Unbekannt';
+                                String avatarLetter = userName.isNotEmpty
+                                    ? userName[0].toUpperCase()
+                                    : 'U';
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  padding: const EdgeInsets.all(12.0),
+                                  margin:
+                                      const EdgeInsets.symmetric(vertical: 6.0),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 16,
+                                        backgroundColor: Color(0xFFD1C4E9),
+                                        child: CustomTextWidget(
+                                          text: avatarLetter,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Container(
+                                                  width: 60,
+                                                  height: 10,
+                                                  color: Colors.grey.shade300,
+                                                ),
+                                              ],
+                                            ),
+                                            if (formattedTs.isNotEmpty)
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 2.0, bottom: 4.0),
+                                                child: Text(
+                                                  formattedTs,
+                                                  style: TextStyle(
+                                                      color: Colors.grey,
+                                                      fontSize: 12),
+                                                ),
+                                              ),
+                                            CustomTextWidget(text: c['comment'])
+                                          ],
+                                        ),
+                                      ),
+                                      if (isMine)
+                                        PopupMenuButton<String>(
+                                          onSelected: (value) async {
+                                            if (value == 'edit') {
+                                              setState(() {
+                                                editingCommentIndex = i;
+                                                editingComment = c;
+                                                _commentController.text =
+                                                    c['comment'] ?? '';
+                                                isEditingComment = true;
+                                              });
+                                            } else if (value == 'delete') {
+                                              final todoComments = List<
+                                                      Map<String,
+                                                          dynamic>>.from(
+                                                  todoModel?.comments ?? []);
+                                              todoComments.removeAt(i);
+                                              final updatedTodo =
+                                                  todoModel?.copyWith(
+                                                      comments: todoComments);
+                                              if (updatedTodo != null) {
+                                                setState(() {
+                                                  listToDoModel[index] =
+                                                      updatedTodo;
+                                                });
+                                                await toDoService
+                                                    .updateTodo(updatedTodo);
+                                              }
+                                            }
+                                          },
+                                          itemBuilder: (context) => [
+                                            PopupMenuItem(
+                                              value: 'edit',
+                                              child: Row(
+                                                children: [
+                                                  Icon(Icons.edit,
+                                                      color: Color(0xFF6B456A),
+                                                      size: 18),
+                                                  SizedBox(width: 8),
+                                                  CustomTextWidget(
+                                                      color: Color(0xFF6B456A),
+                                                      text: 'Bearbeiten'),
+                                                ],
+                                              ),
+                                            ),
+                                            PopupMenuItem(
+                                              value: 'delete',
+                                              child: Row(
+                                                children: [
+                                                  Icon(Icons.delete,
+                                                      color: Colors.red,
+                                                      size: 18),
+                                                  SizedBox(width: 8),
+                                                  CustomTextWidget(
+                                                      color: Colors.red,
+                                                      text: 'Löschen'),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                    ],
+                                  ),
+                                );
+                              } else {
+                                // No userId, fallback
+                                String userName = c['userName'] ?? 'Unbekannt';
+                                String avatarLetter = userName.isNotEmpty
+                                    ? userName[0].toUpperCase()
+                                    : 'U';
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  padding: const EdgeInsets.all(12.0),
+                                  margin:
+                                      const EdgeInsets.symmetric(vertical: 6.0),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 16,
+                                        backgroundColor: Color(0xFFD1C4E9),
+                                        child: CustomTextWidget(
+                                          text: avatarLetter,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            CustomTextWidget(
+                                              text: userName,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black,
+                                            ),
+                                            if (formattedTs.isNotEmpty)
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 2.0, bottom: 4.0),
+                                                child: Text(
+                                                  formattedTs,
+                                                  style: TextStyle(
+                                                      color: Colors.grey,
+                                                      fontSize: 12),
+                                                ),
+                                              ),
+                                            CustomTextWidget(text: c['comment'])
+                                          ],
+                                        ),
+                                      ),
+                                      if (isMine)
+                                        PopupMenuButton<String>(
+                                          onSelected: (value) async {
+                                            if (value == 'edit') {
+                                              setState(() {
+                                                editingCommentIndex = i;
+                                                editingComment = c;
+                                                _commentController.text =
+                                                    c['comment'] ?? '';
+                                                isEditingComment = true;
+                                              });
+                                            } else if (value == 'delete') {
+                                              final todoComments = List<
+                                                      Map<String,
+                                                          dynamic>>.from(
+                                                  todoModel?.comments ?? []);
+                                              todoComments.removeAt(i);
+                                              final updatedTodo =
+                                                  todoModel?.copyWith(
+                                                      comments: todoComments);
+                                              if (updatedTodo != null) {
+                                                setState(() {
+                                                  listToDoModel[index] =
+                                                      updatedTodo;
+                                                });
+                                                await toDoService
+                                                    .updateTodo(updatedTodo);
+                                              }
+                                            }
+                                          },
+                                          itemBuilder: (context) => [
+                                            PopupMenuItem(
+                                              value: 'edit',
+                                              child: Row(
+                                                children: [
+                                                  Icon(Icons.edit,
+                                                      color: Color(0xFF6B456A),
+                                                      size: 18),
+                                                  SizedBox(width: 8),
+                                                  CustomTextWidget(
+                                                      color: Color(0xFF6B456A),
+                                                      text: 'Bearbeiten'),
+                                                ],
+                                              ),
+                                            ),
+                                            PopupMenuItem(
+                                              value: 'delete',
+                                              child: Row(
+                                                children: [
+                                                  Icon(Icons.delete,
+                                                      color: Colors.red,
+                                                      size: 18),
+                                                  SizedBox(width: 8),
+                                                  CustomTextWidget(
+                                                      color: Colors.red,
+                                                      text: 'Löschen'),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                    ],
+                                  ),
+                                );
+                              }
+                            }),
                           ],
                         ),
                       ),
+                      SizedBox(height: 8),
                     ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 15, vertical: 10),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: CustomTextField(
+                            inputDecoration: InputDecoration(
+                                hintStyle: TextStyle(fontSize: 14),
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide.none),
+                                filled: true,
+                                fillColor: Colors.white),
+                            controller: _commentController,
+                            label: isEditingComment
+                                ? 'Kommentar bearbeiten...'
+                                : 'Kommentar',
+                            hint: isEditingComment
+                                ? 'Kommentar bearbeiten...'
+                                : 'Kommentar hinzufügen...',
+                            maxLines: 1,
+                          ),
+                        ),
+                        if (isEditingComment)
+                          Row(
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.check, color: Colors.green),
+                                tooltip: 'Speichern',
+                                onPressed: () async {
+                                  final newText =
+                                      _commentController.text.trim();
+                                  if (newText.isNotEmpty &&
+                                      editingComment != null) {
+                                    final todoComments =
+                                        List<Map<String, dynamic>>.from(
+                                            todoModel?.comments ?? []);
+                                    int idx = todoComments.indexWhere((c) =>
+                                        c['userId'] ==
+                                            editingComment!['userId'] &&
+                                        c['timestamp'] ==
+                                            editingComment!['timestamp'] &&
+                                        c['comment'] ==
+                                            editingComment!['comment']);
+                                    if (idx != -1) {
+                                      todoComments[idx] = {
+                                        ...todoComments[idx],
+                                        'comment': newText,
+                                        'timestamp': DateTime.now(),
+                                      };
+                                      final updatedTodo = todoModel?.copyWith(
+                                          comments: todoComments);
+                                      if (updatedTodo != null) {
+                                        setState(() {
+                                          listToDoModel[index] = updatedTodo;
+                                          editingCommentIndex = null;
+                                          editingComment = null;
+                                          isEditingComment = false;
+                                          _commentController.clear();
+                                        });
+                                        await toDoService
+                                            .updateTodo(updatedTodo);
+                                      }
+                                    }
+                                  }
+                                },
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.close, color: Colors.red),
+                                tooltip: 'Abbrechen',
+                                onPressed: () {
+                                  setState(() {
+                                    editingCommentIndex = null;
+                                    editingComment = null;
+                                    isEditingComment = false;
+                                    _commentController.clear();
+                                  });
+                                },
+                              ),
+                            ],
+                          )
+                        else
+                          IconButton(
+                            icon: Icon(Icons.send, color: Color(0xFF6B456A)),
+                            onPressed: () async {
+                              await _handleAddComment(
+                                  _commentController.text, todoModel, index);
+                            },
+                          ),
+                      ],
+                    ),
                   ),
                 ],
               ),

@@ -335,7 +335,10 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                             });
                           }
                         },
-                        icon: Icon(FontAwesomeIcons.mapLocation),
+                        icon: Icon(
+                          FontAwesomeIcons.mapLocation,
+                          color: Color.fromARGB(255, 126, 80, 123),
+                        ),
                       ),
                     ],
                   ),

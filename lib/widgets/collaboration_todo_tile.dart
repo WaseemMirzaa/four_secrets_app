@@ -105,11 +105,11 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                     : null);
           }
         }
-        // Find latest comment not by owner
-        Timestamp? latestNonOwnerCommentTs;
-        if (comments.isNotEmpty) {
-          final nonOwnerComments =
-              comments.where((c) => c['userId'] != ownerId).toList()
+        // Find latest comment not by current user
+        Timestamp? latestNonCurrentUserCommentTs;
+        if (comments.isNotEmpty && currentUserId != null) {
+          final nonCurrentUserComments =
+              comments.where((c) => c['userId'] != currentUserId).toList()
                 ..sort((a, b) {
                   final ta = a['timestamp'];
                   final tb = b['timestamp'];
@@ -118,25 +118,25 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                   }
                   return 0;
                 });
-          if (nonOwnerComments.isNotEmpty) {
-            latestNonOwnerCommentTs =
-                nonOwnerComments.first['timestamp'] as Timestamp?;
+          if (nonCurrentUserComments.isNotEmpty) {
+            latestNonCurrentUserCommentTs =
+                nonCurrentUserComments.first['timestamp'] as Timestamp?;
           }
         }
         // For checkbox, check lastActivityUserId
         final lastActivityUserId = data['lastActivityUserId'];
         Timestamp? lastActivityTs =
-            (lastActivityUserId != null && lastActivityUserId != ownerId)
+            (lastActivityUserId != null && lastActivityUserId != currentUserId)
                 ? data['lastActivityTimestamp'] as Timestamp?
                 : null;
         // Use the latest of these two
         Timestamp? latestTs;
-        if (latestNonOwnerCommentTs != null && lastActivityTs != null) {
-          latestTs = latestNonOwnerCommentTs.compareTo(lastActivityTs) > 0
-              ? latestNonOwnerCommentTs
+        if (latestNonCurrentUserCommentTs != null && lastActivityTs != null) {
+          latestTs = latestNonCurrentUserCommentTs.compareTo(lastActivityTs) > 0
+              ? latestNonCurrentUserCommentTs
               : lastActivityTs;
         } else {
-          latestTs = latestNonOwnerCommentTs ?? lastActivityTs;
+          latestTs = latestNonCurrentUserCommentTs ?? lastActivityTs;
         }
         bool _hasUnread = false;
         if (latestTs != null && currentUserId != null) {
@@ -147,7 +147,13 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
         return Container(
           margin: const EdgeInsets.symmetric(vertical: 6),
           decoration: BoxDecoration(
-            color: widget.color,
+            // color: widget.color,
+            gradient: LinearGradient(
+              colors: [
+                Colors.grey.shade200,
+                Colors.grey.shade300,
+              ],
+            ),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Column(
@@ -162,9 +168,11 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                       // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(
-                          categoryName,
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                        Flexible(
+                          child: Text(
+                            categoryName,
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
                         ),
                         if (_hasUnread)
                           Container(

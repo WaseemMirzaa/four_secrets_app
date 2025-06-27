@@ -36,6 +36,8 @@ migrate_working_dir/
 /*.apk
 /ios/build/
 /ios/Flutter/.last_build_id
+android/app/build/
+
 
 
 # Symbolication related
@@ -49,4 +51,3 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 android/app/build/outputs/apk/debug/app-debug.apk
-android/app/build/

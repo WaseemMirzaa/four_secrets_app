@@ -91,6 +91,16 @@ class AuthService {
     }
   }
 
+  // Future<Map<String,dynamic>> fetchCurrentUserDetails()async{
+  //   try {
+
+  //       var userResponse = await FirebaseFirestore.instance.collection('users').doc()
+
+  //   } catch (e) {
+
+  //   }
+  // }
+
   Future<UserCredential?> signUp({
     required String email,
     required String password,

@@ -14,6 +14,7 @@ import 'package:four_secrets_wedding_app/widgets/custom_text_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
 import '../widgets/custom_button_widget.dart';
 import '../services/push_notification_service.dart';
+import '../services/non_registered_invite_service.dart';
 
 class CollaborationScreen extends StatefulWidget {
   const CollaborationScreen({Key? key}) : super(key: key);
@@ -68,6 +69,7 @@ class _CollaborationScreenState extends State<CollaborationScreen>
 
     try {
       final myUid = _auth.currentUser?.uid;
+      final myEmail = _auth.currentUser?.email;
       if (myUid == null) return;
 
       // Load sent invitations
@@ -85,7 +87,7 @@ class _CollaborationScreenState extends State<CollaborationScreen>
           .where('inviteeId', isEqualTo: myUid)
           .get();
       _receivedInvitations = receivedSnapshot.docs
-          .map((doc) => {...doc.data(), 'id': doc.id})
+          .map((doc) => {...doc.data(), 'id': doc.id, 'isNonRegistered': false})
           .toList();
 
       // Load owned todos
@@ -257,26 +259,52 @@ class _CollaborationScreenState extends State<CollaborationScreen>
   }
 
   Future<void> _respondToInvitation(String invitationId, bool accept) async {
+    // Find the invite in the received invitations
+    final invite = _receivedInvitations.firstWhere(
+      (element) => element['id'] == invitationId,
+      orElse: () => {},
+    );
+    final isNonRegistered = invite['isNonRegistered'] == true;
     if (accept) {
       setState(() {
         _acceptingInvites.add(invitationId);
       });
     }
     try {
-      await _collaborationService.respondToInvitationForAllTodos(
-          invitationId, accept);
-      await _loadData();
-      if (mounted) {
-        SnackBarHelper.showSuccessSnackBar(
-          context,
-          accept ? 'Einladung akzeptiert' : 'Einladung abgelehnt',
-        );
-        if (accept) {
-          Future.delayed(const Duration(milliseconds: 500), () {
-            if (Navigator.of(context).canPop()) {
-              Navigator.of(context).pop();
-            }
-          });
+      if (isNonRegistered) {
+        // Accept the non-registered invite
+        await _collaborationService.respondToInvitationForAllTodos(
+            invitationId, accept);
+        await _loadData();
+        if (mounted) {
+          SnackBarHelper.showSuccessSnackBar(
+            context,
+            accept ? 'Einladung akzeptiert' : 'Einladung abgelehnt',
+          );
+          if (accept) {
+            Future.delayed(const Duration(milliseconds: 500), () {
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop();
+              }
+            });
+          }
+        }
+      } else {
+        await _collaborationService.respondToInvitationForAllTodos(
+            invitationId, accept);
+        await _loadData();
+        if (mounted) {
+          SnackBarHelper.showSuccessSnackBar(
+            context,
+            accept ? 'Einladung akzeptiert' : 'Einladung abgelehnt',
+          );
+          if (accept) {
+            Future.delayed(const Duration(milliseconds: 500), () {
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop();
+              }
+            });
+          }
         }
       }
     } catch (e) {
@@ -525,9 +553,14 @@ class _CollaborationScreenState extends State<CollaborationScreen>
                             itemCount: pendingInvitations.length,
                             itemBuilder: (context, index) {
                               final invite = pendingInvitations[index];
-                              final inviter = _userCache[invite['inviterId']];
-                              final inviterName =
-                                  inviter?['name'] ?? 'Unbekannt';
+                              final isNonRegistered =
+                                  invite['isNonRegistered'] == true;
+                              final inviter = isNonRegistered
+                                  ? null
+                                  : _userCache[invite['inviterId']];
+                              final inviterName = isNonRegistered
+                                  ? (invite['inviterEmail'] ?? 'Unbekannt')
+                                  : (inviter?['name'] ?? 'Unbekannt');
                               final isAccepting =
                                   _acceptingInvites.contains(invite['id']);
                               return Container(
@@ -544,7 +577,7 @@ class _CollaborationScreenState extends State<CollaborationScreen>
                                         CrossAxisAlignment.start,
                                     children: [
                                       CustomTextWidget(
-                                        text: invite['todoCategories'] != null &&
+                                        text: (invite['todoCategories'] != null &&
                                                 (invite['todoCategories'] as List)
                                                     .expand((cat) =>
                                                         (cat['categories'] as List? ??
@@ -566,7 +599,7 @@ class _CollaborationScreenState extends State<CollaborationScreen>
                                                     category['categoryName'] ?? '')
                                                 .where((name) => name.toString().trim().isNotEmpty)
                                                 .join(', ')
-                                            : 'Ohne Kategorie',
+                                            : 'Ohne Kategorie'),
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
                                         color: Colors.black,
@@ -579,7 +612,7 @@ class _CollaborationScreenState extends State<CollaborationScreen>
                                       if (invite['createdAt'] != null)
                                         CustomTextWidget(
                                           text: 'Gesendet am: '
-                                              '${(invite['createdAt'] is Timestamp ? (invite['createdAt'] as Timestamp).toDate() : invite['createdAt']).toString().split(" ")[0]}',
+                                              '${invite['createdAt'] is Timestamp ? (invite['createdAt'] as Timestamp).toDate().toString().split(" ")[0] : invite['createdAt'].toString().split(" ")[0]}',
                                           color: Colors.black54,
                                           fontSize: 13,
                                         ),
