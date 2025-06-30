@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../widgets/custom_text_field.dart';
-import '../services/collaboration_todo_service.dart';
 import '../utils/snackbar_helper.dart';
 
 class CommentInputField extends StatefulWidget {
@@ -13,6 +12,7 @@ class CommentInputField extends StatefulWidget {
   final bool editMode;
   final Future<void> Function(String value)? onEdit;
   final VoidCallback? onCancel;
+  final bool enabled;
 
   const CommentInputField({
     Key? key,
@@ -25,6 +25,7 @@ class CommentInputField extends StatefulWidget {
     this.editMode = false,
     this.onEdit,
     this.onCancel,
+    this.enabled = true,
   }) : super(key: key);
 
   @override
@@ -71,6 +72,7 @@ class _CommentInputFieldState extends State<CommentInputField> {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
+            enabled: widget.enabled,
             onSubmit: (value) async {
               await _handleSendOrEdit();
             },
@@ -108,9 +110,6 @@ class _CommentInputFieldState extends State<CommentInputField> {
           await widget.onEdit!(value);
         } else if (widget.onSend != null) {
           await widget.onSend!(value);
-        } else {
-          final service = CollaborationTodoService();
-          await service.addComment(widget.collabId, value);
         }
         _controller.clear();
       } catch (e) {

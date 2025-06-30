@@ -432,13 +432,13 @@ class RouteManager {
           type: PageTransitionType.rightToLeft,
         );
 
-      case collaborationTodosPage:
-        return PageTransition(
-          child: const CollaborationTodosScreen(),
-          settings: settings,
-          duration: const Duration(milliseconds: 250),
-          type: PageTransitionType.rightToLeft,
-        );
+      // case collaborationTodosPage:
+      //   return PageTransition(
+      //     child: const CollaborationTodosScreen(),
+      //     settings: settings,
+      //     duration: const Duration(milliseconds: 250),
+      //     type: PageTransitionType.rightToLeft,
+      //   );
 
       case addTodoCategoriesPage:
         final args = settings.arguments as Map<String, dynamic>?;
@@ -454,18 +454,18 @@ class RouteManager {
           type: PageTransitionType.rightToLeft,
         );
 
-      case collaboratorDetailsPage:
-        final args = settings.arguments as Map<String, dynamic>;
-        return PageTransition(
-          child: CollaboratorDetailsScreen(
-            todoId: args['todoId'] as String,
-            todoName: args['todoName'] as String,
-            inviteeName: args['inviteeName'] as String,
-          ),
-          settings: settings,
-          duration: const Duration(milliseconds: 250),
-          type: PageTransitionType.rightToLeft,
-        );
+      // case collaboratorDetailsPage:
+      //   final args = settings.arguments as Map<String, dynamic>;
+      //   return PageTransition(
+      //     child: CollaboratorDetailsScreen(
+      //       todoId: args['todoId'] as String,
+      //       todoName: args['todoName'] as String,
+      //       inviteeName: args['inviteeName'] as String,
+      //     ),
+      //     settings: settings,
+      //     duration: const Duration(milliseconds: 250),
+      //     type: PageTransitionType.rightToLeft,
+      //   );
 
       case customTodoCategoryPage:
         return PageTransition(

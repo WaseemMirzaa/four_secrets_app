@@ -403,29 +403,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
                         );
                       }
                       // If editing, only show the category being edited
-                      Map<String, List<String>> displayTodo;
-                      if (widget.toDoModel != null) {
-                        // Get the category name from the toDoModel
-                        String? editCategory;
-                        if (widget.toDoModel!.categories != null &&
-                            widget.toDoModel!.categories!.isNotEmpty) {
-                          editCategory = widget.toDoModel!.categories!
-                              .first['categoryName'] as String?;
-                        } else if (widget.toDoModel!.toDoName != null &&
-                            (widget.toDoModel!.toDoName ?? '').isNotEmpty) {
-                          editCategory = widget.toDoModel!.toDoName;
-                        }
-                        if (editCategory != null &&
-                            filteredTodo.containsKey(editCategory)) {
-                          displayTodo = {
-                            editCategory: filteredTodo[editCategory]!
-                          };
-                        } else {
-                          displayTodo = {};
-                        }
-                      } else {
-                        displayTodo = filteredTodo;
-                      }
+                      Map<String, List<String>> displayTodo = filteredTodo;
                       return ListView.builder(
                         padding: EdgeInsets.only(bottom: 80),
                         itemCount: displayTodo.entries.length,

@@ -132,77 +132,77 @@ class TodoService {
   //   }
   // }
 
-  // Create a new todo list
-  Future<ToDoModel> createTodo(
-      {String? toDoName,
-      List<String>? toDoItems,
-      String? categoryId,
-      List<Map<String, dynamic>>? categories}) async {
-    // Defensive: Ensure userId is valid
-    if (userId == null || userId!.isEmpty) {
-      print('ERROR: userId is null or empty in createTodo');
-      throw Exception('User not logged in');
-    }
-    // Defensive: Ensure we never use an empty string in Firestore paths
-    if (_firestore.collection('users').doc(userId).id.isEmpty) {
-      print('ERROR: Firestore user doc id is empty!');
-      throw Exception('Firestore user doc id is empty!');
-    }
-    // Defensive: Ensure categories or toDoItems are provided
-    if ((categories == null || categories.isEmpty) &&
-        (toDoItems == null || toDoItems.isEmpty)) {
-      print('ERROR: No categories or toDoItems provided to createTodo');
-      throw Exception('No todo items or categories provided');
-    }
-    // Defensive: If categoryId is provided, ensure it is not empty and valid
-    if (categoryId != null) {
-      if (categoryId.isEmpty) {
-        print('ERROR: categoryId is an empty string!');
-        throw Exception('Category ID must not be an empty string');
-      }
-      final category = await _categoryService.getCategory(categoryId);
-      if (category == null) {
-        throw Exception('Category not found');
-      }
-    }
-    // Defensive: Ensure no empty category names in categories
-    if (categories != null &&
-        categories.any((cat) => (cat['categoryName'] == null ||
-            cat['categoryName'].toString().trim().isEmpty))) {
-      print('ERROR: One or more category names are empty!');
-      throw Exception('One or more category names are empty!');
-    }
-    final docRef =
-        _firestore.collection('users').doc(userId).collection('todos').doc();
-    // Convert string items to maps with isChecked: false (for old format)
-    final List<Map<String, dynamic>> itemsWithCheckedState = (toDoItems ?? [])
-        .map((item) => {
-              'name': item,
-              'isChecked': false,
-            })
-        .toList();
-    final todo = ToDoModel(
-      id: docRef.id,
-      toDoName: toDoName ?? '',
-      toDoItems: itemsWithCheckedState,
-      userId: userId!,
-      categoryId: categoryId,
-      collaborators: [],
-      comments: [],
-      categories: categories,
-    );
-    try {
-      print('🔥🔥🔥 About to create Firestore docRef');
-      print('🔥🔥🔥 Firestore docRef created: \n${docRef.path}');
-      print('🔥🔥🔥 Data to be sent to Firestore: \n${todo.toMap()}');
-      await docRef.set(todo.toMap());
-      return todo;
-    } catch (e, stack) {
-      print('🔥🔥🔥 Exception creating Firestore docRef or saving: $e');
-      print(stack);
-      rethrow;
-    }
-  }
+  // // Create a new todo list
+  // Future<ToDoModel> createTodo(
+  //     {String? toDoName,
+  //     List<String>? toDoItems,
+  //     String? categoryId,
+  //     List<Map<String, dynamic>>? categories}) async {
+  //   // Defensive: Ensure userId is valid
+  //   if (userId == null || userId!.isEmpty) {
+  //     print('ERROR: userId is null or empty in createTodo');
+  //     throw Exception('User not logged in');
+  //   }
+  //   // Defensive: Ensure we never use an empty string in Firestore paths
+  //   if (_firestore.collection('users').doc(userId).id.isEmpty) {
+  //     print('ERROR: Firestore user doc id is empty!');
+  //     throw Exception('Firestore user doc id is empty!');
+  //   }
+  //   // Defensive: Ensure categories or toDoItems are provided
+  //   if ((categories == null || categories.isEmpty) &&
+  //       (toDoItems == null || toDoItems.isEmpty)) {
+  //     print('ERROR: No categories or toDoItems provided to createTodo');
+  //     throw Exception('No todo items or categories provided');
+  //   }
+  //   // Defensive: If categoryId is provided, ensure it is not empty and valid
+  //   if (categoryId != null) {
+  //     if (categoryId.isEmpty) {
+  //       print('ERROR: categoryId is an empty string!');
+  //       throw Exception('Category ID must not be an empty string');
+  //     }
+  //     final category = await _categoryService.getCategory(categoryId);
+  //     if (category == null) {
+  //       throw Exception('Category not found');
+  //     }
+  //   }
+  //   // Defensive: Ensure no empty category names in categories
+  //   if (categories != null &&
+  //       categories.any((cat) => (cat['categoryName'] == null ||
+  //           cat['categoryName'].toString().trim().isEmpty))) {
+  //     print('ERROR: One or more category names are empty!');
+  //     throw Exception('One or more category names are empty!');
+  //   }
+  //   final docRef =
+  //       _firestore.collection('users').doc(userId).collection('todos').doc();
+  //   // Convert string items to maps with isChecked: false (for old format)
+  //   final List<Map<String, dynamic>> itemsWithCheckedState = (toDoItems ?? [])
+  //       .map((item) => {
+  //             'name': item,
+  //             'isChecked': false,
+  //           })
+  //       .toList();
+  //   final todo = ToDoModel(
+  //     id: docRef.id,
+  //     toDoName: toDoName ?? '',
+  //     toDoItems: itemsWithCheckedState,
+  //     userId: userId!,
+  //     categoryId: categoryId,
+  //     collaborators: [],
+  //     comments: [],
+  //     categories: categories,
+  //   );
+  //   try {
+  //     print('🔥🔥🔥 About to create Firestore docRef');
+  //     print('🔥🔥🔥 Firestore docRef created: \n${docRef.path}');
+  //     print('🔥🔥🔥 Data to be sent to Firestore: \n${todo.toMap()}');
+  //     await docRef.set(todo.toMap());
+  //     return todo;
+  //   } catch (e, stack) {
+  //     print('🔥🔥🔥 Exception creating Firestore docRef or saving: $e');
+  //     print(stack);
+  //     rethrow;
+  //   }
+  // }
 
   Future<bool> checkForDuplicateCategory(String categoryName) async {
     try {
@@ -242,58 +242,31 @@ class TodoService {
           .map((doc) => ToDoModel.fromFirestore(doc))
           .toList();
 
-      // Get pending invitations for each todo
-      for (var todo in ownedTodos) {
-        final pendingInvitations = await _firestore
-            .collection('invitations')
-            .where('todoId', isEqualTo: todo.id)
-            .where('status', isEqualTo: 'pending')
-            .get();
-
-        // Add pending invitees to collaborators count
-        final pendingInvitees = pendingInvitations.docs
-            .map((doc) => doc.data()['inviteeId'] as String)
-            .where((inviteeId) => !todo.collaborators.contains(inviteeId))
-            .toList();
-
-        todo.collaborators.addAll(pendingInvitees);
-      }
-
-      // Get collaborated todos from user's own collection
-      final collaboratedTodos = ownedTodos
-          .where((todo) => todo.collaborators.contains(userId))
-          .toList();
-
-      print('🟢 Found ${collaboratedTodos.length} collaborated todos');
-
-      // Get accepted collaborations
-      final collaborationsSnapshot = await _firestore
-          .collection('users')
-          .doc(userId)
-          .collection('collaborations')
-          .where('status', isEqualTo: 'accepted')
+      // Get todos where user is a collaborator or revokedFor
+      final sharedSnapshot = await _firestore
+          .collectionGroup('todos')
+          .where('collaborators', arrayContains: userId)
+          .get();
+      final revokedSnapshot = await _firestore
+          .collectionGroup('todos')
+          .where('revokedFor', arrayContains: userId)
           .get();
 
-      print(
-          '🟢 Found ${collaborationsSnapshot.docs.length} accepted collaborations');
+      final sharedTodos = sharedSnapshot.docs
+          .map((doc) => ToDoModel.fromFirestore(doc))
+          .where((todo) => todo.userId != userId)
+          .toList();
+      final revokedTodos = revokedSnapshot.docs
+          .map((doc) => ToDoModel.fromFirestore(doc))
+          .where((todo) => todo.userId != userId)
+          .toList();
 
-      // Get todo IDs from accepted collaborations
-      final acceptedTodoIds = collaborationsSnapshot.docs
-          .map((doc) => doc.data()['todoId'] as String)
-          .toSet();
-
-      // Add todos from accepted collaborations
-      for (final todo in ownedTodos) {
-        if (acceptedTodoIds.contains(todo.id) &&
-            !collaboratedTodos.contains(todo)) {
-          collaboratedTodos.add(todo);
-        }
+      // Merge and deduplicate
+      final allTodos = <String, ToDoModel>{};
+      for (final todo in [...ownedTodos, ...sharedTodos, ...revokedTodos]) {
+        allTodos[todo.id!] = todo;
       }
-
-      print('🟢 Total collaborated todos: ${collaboratedTodos.length}');
-
-      // Return all todos
-      return ownedTodos;
+      return allTodos.values.toList();
     } catch (e) {
       print('🔴 Error loading todos: $e');
       throw Exception('Failed to load todos: $e');
@@ -506,5 +479,80 @@ class TodoService {
       print('Error getting todo by ID: $e');
       throw Exception('Failed to get todo: $e');
     }
+  }
+
+  Future<void> createTodo({
+    required List<Map<String, dynamic>> categories,
+    String? toDoName,
+    List<Map<String, dynamic>>? toDoItems,
+    String? reminder,
+    List<String>? collaborators,
+    List<Map<String, dynamic>>? comments,
+    String? categoryId,
+    bool isShared = false,
+  }) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) throw Exception('User not authenticated');
+    // Fetch global collaborators for this user
+    final userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .get();
+    final globalCollaborators =
+        List<String>.from(userDoc.data()?['globalCollaborators'] ?? []);
+    final shouldShare = isShared || globalCollaborators.isNotEmpty;
+    final todoData = {
+      'userId': user.uid,
+      'ownerId': user.uid,
+      'categories': categories,
+      if (toDoName != null) 'toDoName': toDoName,
+      if (toDoItems != null) 'toDoItems': toDoItems,
+      if (reminder != null) 'reminder': reminder,
+      'collaborators': globalCollaborators.isNotEmpty
+          ? globalCollaborators
+          : (collaborators ?? []),
+      'comments': comments ?? [],
+      if (categoryId != null) 'categoryId': categoryId,
+      'isShared': shouldShare,
+    };
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .collection('todos')
+        .add(todoData);
+  }
+
+  // Remove all collaborators from a todo list (revoke access for all)
+  Future<void> removeAllCollaborators(String todoId) async {
+    if (userId == null) {
+      throw Exception('User not logged in');
+    }
+    // Check if user is the owner
+    final todoDoc = await _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('todos')
+        .doc(todoId)
+        .get();
+    if (!todoDoc.exists) {
+      throw Exception('Todo not found');
+    }
+    final todo = ToDoModel.fromFirestore(todoDoc);
+    if (todo.userId != userId) {
+      throw Exception('Only the owner can revoke all collaborators');
+    }
+    // Add all current collaborators to revokedFor
+    final prevCollaborators = List<String>.from(todo.collaborators);
+    final updatedTodo = todo.copyWith(
+      collaborators: [],
+      isShared: false,
+      revokedFor: prevCollaborators,
+    );
+    await _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('todos')
+        .doc(todoId)
+        .update(updatedTodo.toMap());
   }
 }

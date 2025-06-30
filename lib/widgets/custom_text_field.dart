@@ -18,6 +18,8 @@ class CustomTextField extends StatelessWidget {
 
   final int? maxLength;
 
+  final bool enabled;
+
   const CustomTextField({
     Key? key,
     required this.controller,
@@ -33,6 +35,7 @@ class CustomTextField extends StatelessWidget {
     this.onSubmit,
     this.hintStyle,
     this.maxLength,
+    this.enabled = true,
   }) : super(key: key);
 
   @override
@@ -46,6 +49,7 @@ class CustomTextField extends StatelessWidget {
       controller: controller,
       maxLines: maxLines ?? 1,
       readOnly: isReadOnly,
+      enabled: enabled,
       onTapOutside: (event) {
         FocusScope.of(context).unfocus();
       },

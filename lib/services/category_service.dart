@@ -174,7 +174,6 @@ class CategoryService {
           .collection('users')
           .doc(userId)
           .collection('categories')
-          .orderBy('createdAt', descending: false)
           .get();
 
       final categories =

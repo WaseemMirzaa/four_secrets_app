@@ -10,6 +10,8 @@ class ToDoModel {
   final List<Map<String, dynamic>>? toDoItems;
   final String? reminder; // ISO8601 string or null
   final List<Map<String, dynamic>>? categories; // New: multi-category support
+  final bool isShared;
+  final List<String> revokedFor;
 
   ToDoModel({
     this.id,
@@ -21,6 +23,8 @@ class ToDoModel {
     this.toDoItems,
     this.reminder,
     this.categories, // New
+    this.isShared = false,
+    this.revokedFor = const [],
   });
 
   factory ToDoModel.fromFirestore(DocumentSnapshot doc) {
@@ -59,6 +63,8 @@ class ToDoModel {
       toDoItems: convertedItems,
       reminder: data['reminder'],
       categories: categories,
+      isShared: data['isShared'] ?? false,
+      revokedFor: List<String>.from(data['revokedFor'] ?? []),
     );
   }
 
@@ -71,6 +77,8 @@ class ToDoModel {
       if (toDoName != null) 'toDoName': toDoName,
       if (toDoItems != null) 'toDoItems': toDoItems,
       if (reminder != null) 'reminder': reminder,
+      'isShared': isShared,
+      'revokedFor': revokedFor,
     };
     if (categories != null) {
       map['categories'] = categories;
@@ -88,6 +96,8 @@ class ToDoModel {
     List<Map<String, dynamic>>? toDoItems,
     String? reminder,
     List<Map<String, dynamic>>? categories, // New
+    bool? isShared,
+    List<String>? revokedFor,
   }) {
     return ToDoModel(
       id: id ?? this.id,
@@ -99,6 +109,8 @@ class ToDoModel {
       toDoItems: toDoItems ?? this.toDoItems,
       reminder: reminder ?? this.reminder,
       categories: categories ?? this.categories,
+      isShared: isShared ?? this.isShared,
+      revokedFor: revokedFor ?? this.revokedFor,
     );
   }
 

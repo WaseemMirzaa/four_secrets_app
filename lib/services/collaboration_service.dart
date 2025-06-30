@@ -2,16 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../model/collaboration_model.dart';
 import '../model/to_do_model.dart';
-import '../model/collaboration_todo_model.dart';
-import 'collaboration_todo_service.dart';
 import 'push_notification_service.dart';
 import 'email_service.dart';
 
 class CollaborationService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final CollaborationTodoService _collaborationTodoService =
-      CollaborationTodoService();
   final PushNotificationService _pushNotificationService =
       PushNotificationService();
 
@@ -27,6 +23,21 @@ class CollaborationService {
     final currentUser = _auth.currentUser;
     if (currentUser == null) {
       throw Exception('User not authenticated');
+    }
+
+    // Remove inviteeId from revokedFor if present
+    final todoRef = _firestore
+        .collection('users')
+        .doc(currentUser.uid)
+        .collection('todos')
+        .doc(todoId);
+    final todoDoc = await todoRef.get();
+    final data = todoDoc.data();
+    if (data != null &&
+        (data['revokedFor'] as List?)?.contains(inviteeId) == true) {
+      await todoRef.update({
+        'revokedFor': FieldValue.arrayRemove([inviteeId]),
+      });
     }
 
     // Get inviter's name
@@ -143,77 +154,38 @@ class CollaborationService {
     }
 
     if (invitation['status'] != 'pending') {
-      throw Exception('Invitation is no longer pending');
+      throw Exception('Invitation is not pending');
     }
 
-    // Update invitation status
-    await _firestore.collection('invitations').doc(invitationId).update({
-      'status': accept ? 'accepted' : 'rejected',
-      'respondedAt': FieldValue.serverTimestamp(),
-    });
+    final ownerId = invitation['inviterId'];
+    final todoId = invitation['todoId'];
 
-    // Send push notification
-    if (accept) {
-      await _pushNotificationService.sendInvitationAcceptedNotification(
-        inviterId: invitation['inviterId'],
-        inviteeName: invitation['inviteeName'],
-        todoName: invitation['todoName'],
-      );
-    } else {
-      await _pushNotificationService.sendInvitationRejectedNotification(
-        inviterId: invitation['inviterId'],
-        inviteeName: invitation['inviteeName'],
-        todoName: invitation['todoName'],
-      );
-    }
+    print(
+        '[Collab Debug] Accepting invite for todoId: $todoId, ownerId: $ownerId, receiver: ${currentUser.uid}');
 
     if (accept) {
-      // Get the original todo
-      final todoId = invitation['todoId'];
-      final inviterId = invitation['inviterId'];
-      final todoName = invitation['todoName'];
-      final inviterName = invitation['inviterName'];
-
-      if (todoId == null ||
-          todoId.isEmpty ||
-          inviterId == null ||
-          inviterId.isEmpty) {
-        throw Exception('Invalid todo or inviter information');
-      }
-
-      final todoDoc = await _firestore
+      // Add the receiver to the collaborators array and set isShared: true
+      final todoRef = _firestore
           .collection('users')
-          .doc(inviterId)
+          .doc(ownerId)
           .collection('todos')
-          .doc(todoId)
-          .get();
-
-      if (!todoDoc.exists) {
-        throw Exception('Todo not found');
-      }
-
-      final todo = ToDoModel.fromFirestore(todoDoc);
-
-      // Debug print to check the structure of toDoItems
-      print('DEBUG: toDoItems in original todo: \\${todo.toDoItems}');
-      print('DEBUG: toDoItems type: \\${todo.toDoItems.runtimeType}');
-
-      // Ensure toDoItems is a List<Map<String, dynamic>>
-      final List<Map<String, dynamic>> safeToDoItems = (todo.toDoItems is List)
-          ? List<Map<String, dynamic>>.from(todo.toDoItems ?? [])
-          : [];
-
-      // Create collaboration todo
-      await _collaborationTodoService.createCollaborationTodo(
-        todoId: todo.id!,
-        todoName: todoName ??
-            todo.toDoName, // Use the name from invitation or fallback to todo name
-        ownerId: inviterId,
-        ownerName: inviterName ??
-            'Unknown', // Use the name from invitation or fallback to Unknown
-        toDoItems: safeToDoItems,
-        comments: List<Map<String, dynamic>>.from(todo.comments ?? []),
-      );
+          .doc(todoId);
+      await todoRef.update({
+        'collaborators': FieldValue.arrayUnion([currentUser.uid]),
+        'isShared': true,
+        'revokedFor': FieldValue.arrayRemove([currentUser.uid]),
+      });
+      // Add the receiver to the owner's globalCollaborators array
+      await _firestore.collection('users').doc(ownerId).update({
+        'globalCollaborators': FieldValue.arrayUnion([currentUser.uid]),
+      });
+      // Fetch and print the updated todo document for debugging
+      final updatedDoc = await todoRef.get();
+      print('[Collab Debug] Updated todo after accepting invite:');
+      print(updatedDoc.data());
+      await invitationDoc.reference.update({'status': 'accepted'});
+    } else {
+      await invitationDoc.reference.update({'status': 'declined'});
     }
   }
 
@@ -425,6 +397,20 @@ class CollaborationService {
       throw Exception('Invitation already sent to this user');
     }
 
+    // Remove inviteeId from revokedFor for each todo if present
+    for (final todo in todos) {
+      if (todo.revokedFor.contains(inviteeId)) {
+        await _firestore
+            .collection('users')
+            .doc(currentUser.uid)
+            .collection('todos')
+            .doc(todo.id)
+            .update({
+          'revokedFor': FieldValue.arrayRemove([inviteeId]),
+        });
+      }
+    }
+
     // Create new invitation for all todos, now including categories
     await _firestore.collection('invitations').add({
       'todoIds': todoIds,
@@ -513,50 +499,60 @@ class CollaborationService {
       return;
     }
 
-    // If accepted, copy ALL todos to the invitee's collaboration collection
+    // If accepted, add the receiver to the collaborators array of each todo
     final inviterId = invitation['inviterId'];
     final todoIds = List<String>.from(invitation['todoIds'] ?? []);
-    final inviterName = invitation['inviterName'];
-    final todoCategories = invitation['todoCategories'] as List?;
-    for (int i = 0; i < todoIds.length; i++) {
-      final todoId = todoIds[i];
-      final todoDoc = await _firestore
+    for (final todoId in todoIds) {
+      final todoRef = _firestore
           .collection('users')
           .doc(inviterId)
           .collection('todos')
-          .doc(todoId)
-          .get();
-      if (!todoDoc.exists) continue;
-      final todo = ToDoModel.fromFirestore(todoDoc);
-      final List<Map<String, dynamic>> safeToDoItems = (todo.toDoItems is List)
-          ? List<Map<String, dynamic>>.from(todo.toDoItems ?? [])
-          : [];
-      // Use categories from invitation if available, else from todo
-      List<Map<String, dynamic>>? categories;
-      if (todoCategories != null) {
-        final catEntry = todoCategories.firstWhere(
-          (c) => c['todoId'] == todoId,
-          orElse: () => null,
-        );
-        if (catEntry != null && catEntry['categories'] is List) {
-          categories = List<Map<String, dynamic>>.from(
-            (catEntry['categories'] as List)
-                .map((c) => Map<String, dynamic>.from(c)),
-          );
-        }
-      } else {
-        categories = todo.categories;
-      }
-      await _collaborationTodoService.createCollaborationTodo(
-        todoId: todo.id!,
-        todoName: todo.toDoName ?? '',
-        ownerId: inviterId,
-        ownerName: inviterName ?? 'Unknown',
-        toDoItems: safeToDoItems,
-        comments: List<Map<String, dynamic>>.from(todo.comments ?? []),
-        collaboratorId: currentUser.uid,
-        categories: categories,
-      );
+          .doc(todoId);
+      await todoRef.update({
+        'collaborators': FieldValue.arrayUnion([currentUser.uid]),
+        'isShared': true,
+      });
+      // Debug print
+      final updatedDoc = await todoRef.get();
+      print('[Collab Debug] Updated todo after accepting invite (multi):');
+      print(updatedDoc.data());
     }
+    // Add the receiver to the owner's globalCollaborators array
+    await _firestore.collection('users').doc(inviterId).update({
+      'globalCollaborators': FieldValue.arrayUnion([currentUser.uid]),
+    });
+  }
+
+  // Remove all collaborators from a todo list (revoke access for all)
+  Future<void> removeAllCollaborators(String todoId) async {
+    if (userId == null) {
+      throw Exception('User not logged in');
+    }
+    // Check if user is the owner
+    final todoDoc = await _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('todos')
+        .doc(todoId)
+        .get();
+    if (!todoDoc.exists) {
+      throw Exception('Todo not found');
+    }
+    final todo = ToDoModel.fromFirestore(todoDoc);
+    if (todo.userId != userId) {
+      throw Exception('Only the owner can revoke all collaborators');
+    }
+    // Add all current collaborators to revokedFor
+    final prevCollaborators = List<String>.from(todo.collaborators);
+    await _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('todos')
+        .doc(todoId)
+        .update({
+      'collaborators': [],
+      'isShared': false,
+      'revokedFor': FieldValue.arrayUnion(prevCollaborators),
+    });
   }
 }

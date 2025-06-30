@@ -39,7 +39,7 @@
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>This app needs photos access to select profile pictures</string>
 	<key>GMSApiKey</key>
-	<string>AIzaSyDy1sDKpTOFoNcqHowgdCHxl_wV9l8CEi4</string>
+	<string>AIzaSyDR_QZaW3xiJfLLNFybEd6e6HunqDkUjJg</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

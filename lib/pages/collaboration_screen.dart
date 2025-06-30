@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:four_secrets_wedding_app/menue.dart';
 import 'package:four_secrets_wedding_app/model/to_do_model.dart';
-import 'package:four_secrets_wedding_app/model/collaboration_todo_model.dart';
 import 'package:four_secrets_wedding_app/pages/coolab_details_screen.dart';
 import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:four_secrets_wedding_app/services/todo_service.dart';
 import 'package:four_secrets_wedding_app/services/collaboration_service.dart';
-import 'package:four_secrets_wedding_app/services/collaboration_todo_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:four_secrets_wedding_app/utils/snackbar_helper.dart';
@@ -27,8 +25,6 @@ class _CollaborationScreenState extends State<CollaborationScreen>
     with SingleTickerProviderStateMixin {
   final TodoService _todoService = TodoService();
   final CollaborationService _collaborationService = CollaborationService();
-  final CollaborationTodoService _collaborationTodoService =
-      CollaborationTodoService();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final TextEditingController _commentController = TextEditingController();
@@ -64,14 +60,10 @@ class _CollaborationScreenState extends State<CollaborationScreen>
 
   Future<void> _loadData() async {
     if (!mounted) return;
-
     setState(() => _isLoading = true);
-
     try {
       final myUid = _auth.currentUser?.uid;
-      final myEmail = _auth.currentUser?.email;
       if (myUid == null) return;
-
       // Load sent invitations
       final sentSnapshot = await _firestore
           .collection('invitations')
@@ -80,7 +72,6 @@ class _CollaborationScreenState extends State<CollaborationScreen>
       _sentInvitations = sentSnapshot.docs
           .map((doc) => {...doc.data(), 'id': doc.id})
           .toList();
-
       // Load received invitations
       final receivedSnapshot = await _firestore
           .collection('invitations')
@@ -89,7 +80,6 @@ class _CollaborationScreenState extends State<CollaborationScreen>
       _receivedInvitations = receivedSnapshot.docs
           .map((doc) => {...doc.data(), 'id': doc.id, 'isNonRegistered': false})
           .toList();
-
       // Load owned todos
       final ownedSnapshot = await _firestore
           .collection('users')
@@ -99,142 +89,21 @@ class _CollaborationScreenState extends State<CollaborationScreen>
       _ownedTodos = ownedSnapshot.docs
           .map((doc) => ToDoModel.fromFirestore(doc))
           .toList();
-
-      // Load collaborated todos
+      // Load collaborated todos (shared with me)
       final collaboratedSnapshot = await _firestore
-          .collection('collaboration_todos')
+          .collectionGroup('todos')
           .where('collaborators', arrayContains: myUid)
           .get();
-      _collaboratedTodos = collaboratedSnapshot.docs.map((doc) {
-        final data = doc.data();
-        print('🔍 Collaboration Todo Data: $data');
-        print('🔍 ToDoItems type: ${data['toDoItems']?.runtimeType}');
-        print('🔍 Comments type: ${data['comments']?.runtimeType}');
-        if (data['comments'] != null &&
-            data['comments'] is List &&
-            (data['comments'] as List).isNotEmpty) {
-          print('🔍 First comment type: ${data['comments'][0]?.runtimeType}');
-        }
-
-        final collaborationTodo = CollaborationTodoModel.fromFirestore(doc);
-
-        // Process comments
-        List<Map<String, dynamic>> processedComments = [];
-        if (data['comments'] != null) {
-          final rawComments = data['comments'];
-          if (rawComments is List) {
-            processedComments = rawComments.map((comment) {
-              if (comment is String) {
-                return {
-                  'id': DateTime.now().millisecondsSinceEpoch.toString(),
-                  'userId': '',
-                  'userName': 'Unknown',
-                  'comment': comment,
-                  'timestamp': Timestamp.now(),
-                };
-              } else if (comment is Map<String, dynamic>) {
-                return comment;
-              } else {
-                return {
-                  'id': DateTime.now().millisecondsSinceEpoch.toString(),
-                  'userId': '',
-                  'userName': 'Unknown',
-                  'comment': comment.toString(),
-                  'timestamp': Timestamp.now(),
-                };
-              }
-            }).toList();
-          }
-        }
-
-        // Process todo items
-        List<Map<String, dynamic>> processedToDoItems = [];
-        if (data['toDoItems'] != null) {
-          final rawItems = data['toDoItems'];
-          if (rawItems is List) {
-            processedToDoItems = rawItems.map((item) {
-              if (item is String) {
-                return {'name': item, 'isChecked': false};
-              } else if (item is Map<String, dynamic>) {
-                return {
-                  'name': item['name'] ?? '',
-                  'isChecked': item['isChecked'] ?? false
-                };
-              } else {
-                return {'name': item.toString(), 'isChecked': false};
-              }
-            }).toList();
-          }
-        }
-
-        return ToDoModel(
-          id: collaborationTodo.id,
-          toDoName: collaborationTodo.todoName == 'Wedding Kit'
-              ? 'Hochzeitskit'
-              : collaborationTodo.todoName,
-          userId: data['ownerId'] ?? '',
-          collaborators: List<String>.from(data['collaborators'] ?? []),
-          comments: processedComments,
-          toDoItems: processedToDoItems,
-        );
-      }).toList();
-
-      // Cache user information
-      final allUserIds = <String>{};
-
-      // Add inviter and invitee IDs from invitations
-      for (final invite in _sentInvitations) {
-        if (invite['inviteeId'] != null && invite['inviteeId'].isNotEmpty) {
-          allUserIds.add(invite['inviteeId']);
-        }
-      }
-      for (final invite in _receivedInvitations) {
-        if (invite['inviterId'] != null && invite['inviterId'].isNotEmpty) {
-          allUserIds.add(invite['inviterId']);
-        }
-      }
-
-      // Add user IDs from todos
-      for (final todo in _ownedTodos) {
-        if (todo.userId.isNotEmpty) {
-          allUserIds.add(todo.userId);
-        }
-        allUserIds.addAll(todo.collaborators.where((id) => id.isNotEmpty));
-      }
-      for (final todo in _collaboratedTodos) {
-        if (todo.userId.isNotEmpty) {
-          allUserIds.add(todo.userId);
-        }
-        allUserIds.addAll(todo.collaborators.where((id) => id.isNotEmpty));
-      }
-
-      // Add owner IDs from collaboration todos
-      for (final todo in _collaboratedTodos) {
-        final doc = await _firestore
-            .collection('collaboration_todos')
-            .doc(todo.id)
-            .get();
-        if (doc.exists) {
-          final data = doc.data();
-          if (data != null && data['ownerId'] != null) {
-            allUserIds.add(data['ownerId']);
-          }
-        }
-      }
-
-      await _preloadUserInfo(allUserIds);
-
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      _collaboratedTodos = collaboratedSnapshot.docs
+          .where((doc) => doc.data()['userId'] != myUid)
+          .map((doc) => ToDoModel.fromFirestore(doc))
+          .toList();
+      setState(() => _isLoading = false);
     } catch (e) {
-      print('Error loading data: $e');
-      if (mounted) {
-        setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading data: $e')),
-        );
-      }
+      setState(() => _isLoading = false);
+      print(e);
+      SnackBarHelper.showErrorSnackBar(
+          context, "Error loading collaboration data: $e");
     }
   }
 
@@ -275,36 +144,28 @@ class _CollaborationScreenState extends State<CollaborationScreen>
         // Accept the non-registered invite
         await _collaborationService.respondToInvitationForAllTodos(
             invitationId, accept);
-        await _loadData();
-        if (mounted) {
-          SnackBarHelper.showSuccessSnackBar(
-            context,
-            accept ? 'Einladung akzeptiert' : 'Einladung abgelehnt',
-          );
-          if (accept) {
-            Future.delayed(const Duration(milliseconds: 500), () {
-              if (Navigator.of(context).canPop()) {
-                Navigator.of(context).pop();
-              }
-            });
-          }
-        }
-      } else {
+      } else if (invite.containsKey('todoIds')) {
+        // Multi-todo invite
         await _collaborationService.respondToInvitationForAllTodos(
             invitationId, accept);
-        await _loadData();
-        if (mounted) {
-          SnackBarHelper.showSuccessSnackBar(
-            context,
-            accept ? 'Einladung akzeptiert' : 'Einladung abgelehnt',
-          );
-          if (accept) {
-            Future.delayed(const Duration(milliseconds: 500), () {
-              if (Navigator.of(context).canPop()) {
-                Navigator.of(context).pop();
-              }
-            });
-          }
+      } else if (invite.containsKey('todoId')) {
+        // Single-todo invite
+        await _collaborationService.respondToInvitation(invitationId, accept);
+      } else {
+        throw Exception('Invalid invitation format');
+      }
+      await _loadData();
+      if (mounted) {
+        SnackBarHelper.showSuccessSnackBar(
+          context,
+          accept ? 'Einladung akzeptiert' : 'Einladung abgelehnt',
+        );
+        if (accept) {
+          Future.delayed(const Duration(milliseconds: 500), () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            }
+          });
         }
       }
     } catch (e) {
@@ -422,9 +283,15 @@ class _CollaborationScreenState extends State<CollaborationScreen>
                             itemCount: pendingInvitations.length,
                             itemBuilder: (context, index) {
                               final invite = pendingInvitations[index];
-                              final invitee = _userCache[invite['inviteeId']];
-                              final inviteeName =
-                                  invitee?['name'] ?? 'Unbekannt';
+                              final inviteeId = invite['inviteeId'] as String?;
+                              String inviteeName = 'Unbekannt';
+                              if (inviteeId != null) {
+                                final invitee = _userCache[inviteeId];
+                                if (invitee != null &&
+                                    invitee['name'] != null) {
+                                  inviteeName = invitee['name']!;
+                                }
+                              }
                               final isAccepting =
                                   _acceptingInvites.contains(invite['id']);
                               final isCancelling =
