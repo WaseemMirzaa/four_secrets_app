@@ -62,12 +62,12 @@ class _CollaborationScreenState extends State<CollaborationScreen>
     if (!mounted) return;
     setState(() => _isLoading = true);
     try {
-      final myUid = _auth.currentUser?.uid;
-      if (myUid == null) return;
+      final myEmail = _auth.currentUser?.email;
+      if (myEmail == null) return;
       // Load sent invitations
       final sentSnapshot = await _firestore
           .collection('invitations')
-          .where('inviterId', isEqualTo: myUid)
+          .where('inviterEmail', isEqualTo: myEmail)
           .get();
       _sentInvitations = sentSnapshot.docs
           .map((doc) => {...doc.data(), 'id': doc.id})
@@ -75,12 +75,13 @@ class _CollaborationScreenState extends State<CollaborationScreen>
       // Load received invitations
       final receivedSnapshot = await _firestore
           .collection('invitations')
-          .where('inviteeId', isEqualTo: myUid)
+          .where('inviteeEmail', isEqualTo: myEmail)
           .get();
       _receivedInvitations = receivedSnapshot.docs
           .map((doc) => {...doc.data(), 'id': doc.id, 'isNonRegistered': false})
           .toList();
       // Load owned todos
+      final myUid = _auth.currentUser?.uid;
       final ownedSnapshot = await _firestore
           .collection('users')
           .doc(myUid)
@@ -92,7 +93,7 @@ class _CollaborationScreenState extends State<CollaborationScreen>
       // Load collaborated todos (shared with me)
       final collaboratedSnapshot = await _firestore
           .collectionGroup('todos')
-          .where('collaborators', arrayContains: myUid)
+          .where('collaborators', arrayContains: myEmail)
           .get();
       _collaboratedTodos = collaboratedSnapshot.docs
           .where((doc) => doc.data()['userId'] != myUid)

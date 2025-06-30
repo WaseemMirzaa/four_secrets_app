@@ -732,13 +732,13 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.edit),
+                      icon: Icon(FontAwesomeIcons.penToSquare),
                       onPressed: () => _navigateToAddEditTable(table),
                       color: Color.fromARGB(255, 107, 69, 106),
                     ),
                     IconButton(
                       icon: const Icon(FontAwesomeIcons.trashCan,
-                          color: Colors.red),
+                          size: 18, color: Colors.red),
                       onPressed: () => _showDeleteConfirmation(table.id),
                     ),
                   ],

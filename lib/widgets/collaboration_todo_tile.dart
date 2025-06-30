@@ -10,6 +10,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_dialog.dart';
 import 'collab_todo_edit_dialog.dart';
 import 'package:four_secrets_wedding_app/model/to_do_model.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class CollaborationTodoTile extends StatefulWidget {
   final String collabId;
@@ -86,45 +87,84 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
     }
   }
 
-  Widget _buildTileContent(
-      BuildContext context, Map<String, dynamic> data, String currentUserId,
-      {required bool isRevoked}) {
-    final categories =
-        List<Map<String, dynamic>>.from(data['categories'] ?? []);
+  Future<void> _markNotificationsAsReadForTodo(String todoId) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    final fcmToken = await FirebaseMessaging.instance.getToken();
+    if (fcmToken == null) return;
+    final snapshot = await FirebaseFirestore.instance
+        .collection('notifications')
+        .where('token', isEqualTo: fcmToken)
+        .where('read', isEqualTo: false)
+        .get();
+    for (final doc in snapshot.docs) {
+      final data = doc.data();
+      if (data['data']?['todoId'] == todoId) {
+        await doc.reference.update({'read': true});
+      }
+    }
+  }
+
+  bool calculateHasUnread(Map<String, dynamic> data, String currentUserEmail) {
     final comments = List<Map<String, dynamic>>.from(data['comments'] ?? []);
-    final ownerName = data['ownerName'] ?? '';
-    final ownerId = data['ownerId'] ?? '';
-    final todoName = data['todoName'] ?? '';
-    final revokedFor = List<String>.from(data['revokedFor'] ?? []);
-    final collaborators = List<String>.from(data['collaborators'] ?? []);
-    final categoryName = (categories.isNotEmpty &&
-            categories[0]['categoryName'] != null &&
-            categories[0]['categoryName'].toString().isNotEmpty)
-        ? categories[0]['categoryName']
-        : todoName;
-    final isOwned = currentUserId != null && ownerId == currentUserId;
-    final isRevoked = !isOwned && revokedFor.contains(currentUserId);
-    // Debug prints for collaboration state
-    debugPrint('[CollabTile] currentUserId: $currentUserId');
-    debugPrint('[CollabTile] collaborators: $collaborators');
-    debugPrint('[CollabTile] revokedFor: $revokedFor');
-    // --- Unread logic for comments and checkbox changes ---
     Timestamp? lastRead;
-    if (data['commentReadTimestamps'] != null && currentUserId != null) {
+    if (data['commentReadTimestamps'] != null && currentUserEmail != null) {
       final map = data['commentReadTimestamps'] as Map<String, dynamic>;
-      if (map[currentUserId] != null) {
-        lastRead = map[currentUserId] is Timestamp
-            ? map[currentUserId]
-            : (map[currentUserId] is int
-                ? Timestamp.fromMillisecondsSinceEpoch(map[currentUserId])
+      if (map[currentUserEmail] != null) {
+        lastRead = map[currentUserEmail] is Timestamp
+            ? map[currentUserEmail]
+            : (map[currentUserEmail] is int
+                ? Timestamp.fromMillisecondsSinceEpoch(map[currentUserEmail])
                 : null);
       }
     }
-    // Find latest comment not by current user
+    // Find latest comment or checkbox activity by someone else
+    Timestamp? latestCommentTs;
+    if (comments.isNotEmpty) {
+      final otherComments =
+          comments.where((c) => c['userId'] != currentUserEmail).toList()
+            ..sort((a, b) {
+              final ta = a['timestamp'];
+              final tb = b['timestamp'];
+              if (ta is Timestamp && tb is Timestamp) {
+                return tb.compareTo(ta);
+              }
+              return 0;
+            });
+      if (otherComments.isNotEmpty) {
+        latestCommentTs = otherComments.first['timestamp'] as Timestamp?;
+      }
+    }
+    // Checkbox activity by someone else
+    final lastActivityUserId = data['lastActivityUserId'];
+    Timestamp? lastActivityTs =
+        (lastActivityUserId != null && lastActivityUserId != currentUserEmail)
+            ? data['lastActivityTimestamp'] as Timestamp?
+            : null;
+    // Use the latest of these two
+    Timestamp? latestTs;
+    if (latestCommentTs != null && lastActivityTs != null) {
+      latestTs = latestCommentTs.compareTo(lastActivityTs) > 0
+          ? latestCommentTs
+          : lastActivityTs;
+    } else {
+      latestTs = latestCommentTs ?? lastActivityTs;
+    }
+    if (latestTs != null && lastRead != null) {
+      return latestTs.compareTo(lastRead) > 0;
+    } else if (latestTs != null && lastRead == null) {
+      return true;
+    }
+    return false;
+  }
+
+  Timestamp? calculateLatestTs(
+      Map<String, dynamic> data, String currentUserEmail) {
+    final comments = List<Map<String, dynamic>>.from(data['comments'] ?? []);
     Timestamp? latestNonCurrentUserCommentTs;
-    if (comments.isNotEmpty && currentUserId != null) {
+    if (comments.isNotEmpty && currentUserEmail != null) {
       final nonCurrentUserComments =
-          comments.where((c) => c['userId'] != currentUserId).toList()
+          comments.where((c) => c['userId'] != currentUserEmail).toList()
             ..sort((a, b) {
               final ta = a['timestamp'];
               final tb = b['timestamp'];
@@ -138,13 +178,11 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
             nonCurrentUserComments.first['timestamp'] as Timestamp?;
       }
     }
-    // For checkbox, check lastActivityUserId
     final lastActivityUserId = data['lastActivityUserId'];
     Timestamp? lastActivityTs =
-        (lastActivityUserId != null && lastActivityUserId != currentUserId)
+        (lastActivityUserId != null && lastActivityUserId != currentUserEmail)
             ? data['lastActivityTimestamp'] as Timestamp?
             : null;
-    // Use the latest of these two
     Timestamp? latestTs;
     if (latestNonCurrentUserCommentTs != null && lastActivityTs != null) {
       latestTs = latestNonCurrentUserCommentTs.compareTo(lastActivityTs) > 0
@@ -153,12 +191,186 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
     } else {
       latestTs = latestNonCurrentUserCommentTs ?? lastActivityTs;
     }
-    bool _hasUnread = false;
-    if (latestTs != null && currentUserId != null) {
-      if (lastRead == null || latestTs.compareTo(lastRead) > 0) {
-        _hasUnread = true;
-      }
-    }
+    return latestTs;
+  }
+
+  Widget _buildCommentTile(
+    String? profilePicUrl,
+    String displayName,
+    Map<String, dynamic> comment,
+    Color avatarColor,
+    String currentUserEmail,
+    int index,
+    TextEditingController editingController,
+    List<Map<String, dynamic>> comments,
+  ) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      padding: const EdgeInsets.all(12.0),
+      margin: const EdgeInsets.symmetric(vertical: 6.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CircleAvatar(
+                radius: 16,
+                backgroundColor: avatarColor,
+                backgroundImage:
+                    (profilePicUrl != null && profilePicUrl.isNotEmpty)
+                        ? NetworkImage(profilePicUrl)
+                        : null,
+                child: (profilePicUrl == null || profilePicUrl.isEmpty)
+                    ? CustomTextWidget(
+                        text: (displayName.isNotEmpty ? displayName[0] : 'U'),
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                        fontSize: 16)
+                    : null,
+              ),
+              SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      displayName,
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.black),
+                    ),
+                    if (comment['timestamp'] != null)
+                      Text(
+                        _formatTimestamp(comment['timestamp']),
+                        style: TextStyle(color: Colors.black, fontSize: 12),
+                      ),
+                  ],
+                ),
+              ),
+              if (comment['userId'] == currentUserEmail)
+                PopupMenuButton<String>(
+                  onSelected: (value) async {
+                    if (value == 'edit') {
+                      setState(() {
+                        editingCommentIndex = index;
+                        editingComment = comment;
+                        editingController.text = comment['comment'] ?? '';
+                        isEditingComment = true;
+                      });
+                    } else if (value == 'delete') {
+                      // Confirm before deleting
+                      final confirm = await showDialog<bool>(
+                        context: context,
+                        builder: (context) => CustomDialog(
+                          title: 'Kommentar löschen',
+                          message:
+                              'Möchten Sie diesen Kommentar wirklich löschen?',
+                          confirmText: 'Löschen',
+                          cancelText: 'Abbrechen',
+                          onConfirm: () async {
+                            Navigator.pop(context, true);
+                          },
+                          onCancel: () {
+                            Navigator.pop(context, false);
+                          },
+                        ),
+                      );
+                      if (confirm == true) {
+                        try {
+                          List<Map<String, dynamic>> updatedComments =
+                              List<Map<String, dynamic>>.from(comments);
+                          updatedComments.removeWhere((c) =>
+                              c['userId'] == comment['userId'] &&
+                              c['timestamp'] == comment['timestamp'] &&
+                              c['comment'] == comment['comment']);
+                          await FirebaseFirestore.instance
+                              .collection(widget.collectionPath)
+                              .doc(widget.collabId)
+                              .update({'comments': updatedComments});
+                          if (context.mounted) {
+                            SnackBarHelper.showSuccessSnackBar(
+                                context, 'Kommentar gelöscht');
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
+                            SnackBarHelper.showErrorSnackBar(context,
+                                'Fehler beim Löschen des Kommentars: $e');
+                          }
+                        }
+                      }
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 'edit',
+                      child: Row(
+                        children: [
+                          Icon(Icons.edit, color: Color(0xFF6B456A), size: 18),
+                          SizedBox(width: 8),
+                          CustomTextWidget(
+                              color: Color(0xFF6B456A), text: 'Bearbeiten'),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 'delete',
+                      child: Row(
+                        children: [
+                          Icon(FontAwesomeIcons.trashCan,
+                              color: Colors.red, size: 18),
+                          SizedBox(width: 8),
+                          CustomTextWidget(color: Colors.red, text: 'Löschen'),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+            ],
+          ),
+          SizedBox(height: 4),
+          Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 4.0),
+            child: CustomTextWidget(
+              text: comment['comment'] ?? '',
+              fontSize: 13,
+              color: Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTileContent(
+      BuildContext context, Map<String, dynamic> data, String currentUserEmail,
+      {required bool isRevoked}) {
+    final categories =
+        List<Map<String, dynamic>>.from(data['categories'] ?? []);
+    final comments = List<Map<String, dynamic>>.from(data['comments'] ?? []);
+    final ownerName = data['ownerName'] ?? '';
+    final ownerId = data['ownerId'] ?? '';
+    final todoName = data['todoName'] ?? '';
+    final revokedFor = List<String>.from(data['revokedFor'] ?? []);
+    final allCollaborators = List<String>.from(data['collaborators'] ?? []);
+    final collaborators =
+        allCollaborators.where((email) => email != currentUserEmail).toList();
+    final categoryName = (categories.isNotEmpty &&
+            categories[0]['categoryName'] != null &&
+            categories[0]['categoryName'].toString().isNotEmpty)
+        ? categories[0]['categoryName']
+        : todoName;
+    final isOwned = currentUserEmail != null && ownerId == currentUserEmail;
+    final isRevoked = !isOwned && revokedFor.contains(currentUserEmail);
+    // Debug prints for collaboration state
+    debugPrint('[CollabTile] currentUserId: $currentUserEmail');
+    debugPrint('[CollabTile] collaborators: $collaborators');
+    debugPrint('[CollabTile] revokedFor: $revokedFor');
+    // --- Unread logic for comments and checkbox changes ---
+    final bool _hasUnread = calculateHasUnread(data, currentUserEmail);
     final editingController = widget.editingController;
     final labelColor = widget.labelColor;
     final labelTextColor = widget.labelTextColor;
@@ -285,7 +497,7 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                   ],
                 ),
                 SizedBox(height: 4),
-                if (showTag)
+                if (showTag && (data['isShared'] ?? false))
                   FutureBuilder<String>(
                     future: _getOwnerName(ownerId, ownerName),
                     builder: (context, snapshot) {
@@ -426,206 +638,65 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                       itemBuilder: (context, index) {
                         final comment = comments[index];
                         final String? commentUserId = comment['userId'];
-                        return FutureBuilder<
-                            DocumentSnapshot<Map<String, dynamic>>>(
-                          future: commentUserId != null
-                              ? FirebaseFirestore.instance
-                                  .collection('users')
-                                  .doc(commentUserId)
-                                  .get()
-                              : null,
-                          builder: (context, userSnapshot) {
-                            String? profilePicUrl;
-                            if (userSnapshot.connectionState ==
-                                    ConnectionState.done &&
-                                userSnapshot.hasData &&
-                                userSnapshot.data!.exists) {
-                              final userData = userSnapshot.data!.data();
-                              profilePicUrl = userData != null
-                                  ? userData['profilePictureUrl'] as String?
-                                  : null;
-                            }
-                            return Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              padding: const EdgeInsets.all(12.0),
-                              margin: const EdgeInsets.symmetric(vertical: 6.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      CircleAvatar(
-                                        radius: 16,
-                                        backgroundColor: avatarColor,
-                                        backgroundImage:
-                                            (profilePicUrl != null &&
-                                                    profilePicUrl.isNotEmpty)
-                                                ? NetworkImage(profilePicUrl)
-                                                : null,
-                                        child: (profilePicUrl == null ||
-                                                profilePicUrl.isEmpty)
-                                            ? CustomTextWidget(
-                                                text: (comment['userName'] ??
-                                                    'U')[0],
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.black,
-                                                fontSize: 16)
-                                            : null,
-                                      ),
-                                      SizedBox(width: 12),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              comment['userName'] ??
-                                                  'Unbekannt',
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.black),
-                                            ),
-                                            if (comment['timestamp'] != null)
-                                              Text(
-                                                _formatTimestamp(
-                                                    comment['timestamp']),
-                                                style: TextStyle(
-                                                    color: Colors.black,
-                                                    fontSize: 12),
-                                              ),
-                                          ],
-                                        ),
-                                      ),
-                                      if (comment['userId'] == currentUserId)
-                                        PopupMenuButton<String>(
-                                          onSelected: (value) async {
-                                            if (value == 'edit') {
-                                              setState(() {
-                                                editingCommentIndex = index;
-                                                editingComment = comment;
-                                                editingController.text =
-                                                    comment['comment'] ?? '';
-                                                isEditingComment = true;
-                                              });
-                                            } else if (value == 'delete') {
-                                              // Confirm before deleting
-                                              final confirm =
-                                                  await showDialog<bool>(
-                                                context: context,
-                                                builder: (context) =>
-                                                    CustomDialog(
-                                                  title: 'Kommentar löschen',
-                                                  message:
-                                                      'Möchten Sie diesen Kommentar wirklich löschen?',
-                                                  confirmText: 'Löschen',
-                                                  cancelText: 'Abbrechen',
-                                                  onConfirm: () async {
-                                                    Navigator.pop(
-                                                        context, true);
-                                                  },
-                                                  onCancel: () {
-                                                    Navigator.pop(
-                                                        context, false);
-                                                  },
-                                                ),
-                                              );
-                                              if (confirm == true) {
-                                                try {
-                                                  List<Map<String, dynamic>>
-                                                      updatedComments = List<
-                                                              Map<String,
-                                                                  dynamic>>.from(
-                                                          comments);
-                                                  updatedComments.removeWhere(
-                                                      (c) =>
-                                                          c['userId'] ==
-                                                              comment[
-                                                                  'userId'] &&
-                                                          c['timestamp'] ==
-                                                              comment[
-                                                                  'timestamp'] &&
-                                                          c['comment'] ==
-                                                              comment[
-                                                                  'comment']);
-                                                  await FirebaseFirestore
-                                                      .instance
-                                                      .collection(
-                                                          widget.collectionPath)
-                                                      .doc(widget.collabId)
-                                                      .update({
-                                                    'comments': updatedComments
-                                                  });
-                                                  if (context.mounted) {
-                                                    SnackBarHelper
-                                                        .showSuccessSnackBar(
-                                                            context,
-                                                            'Kommentar gelöscht');
-                                                  }
-                                                } catch (e) {
-                                                  if (context.mounted) {
-                                                    SnackBarHelper
-                                                        .showErrorSnackBar(
-                                                            context,
-                                                            'Fehler beim Löschen des Kommentars: $e');
-                                                  }
-                                                }
-                                              }
-                                            }
-                                          },
-                                          itemBuilder: (context) => [
-                                            PopupMenuItem(
-                                              value: 'edit',
-                                              child: Row(
-                                                children: [
-                                                  Icon(Icons.edit,
-                                                      color: Color(0xFF6B456A),
-                                                      size: 18),
-                                                  SizedBox(width: 8),
-                                                  CustomTextWidget(
-                                                      color: Color(0xFF6B456A),
-                                                      text: 'Bearbeiten'),
-                                                ],
-                                              ),
-                                            ),
-                                            PopupMenuItem(
-                                              value: 'delete',
-                                              child: Row(
-                                                children: [
-                                                  Icon(
-                                                      FontAwesomeIcons.trashCan,
-                                                      color: Colors.red,
-                                                      size: 18),
-                                                  SizedBox(width: 8),
-                                                  CustomTextWidget(
-                                                      color: Colors.red,
-                                                      text: 'Löschen'),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                    ],
-                                  ),
-                                  SizedBox(height: 4),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 20.0, vertical: 4.0),
-                                    child: CustomTextWidget(
-                                      text: comment['comment'] ?? '',
-                                      fontSize: 13,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        );
+                        final currentUser = FirebaseAuth.instance.currentUser;
+                        final isCurrentUser =
+                            commentUserId == currentUser?.email;
+
+                        if (isCurrentUser) {
+                          String? profilePicUrl = currentUser?.photoURL;
+                          String displayName = currentUser?.displayName ??
+                              (comment['userName'] ?? 'Unbekannt');
+                          return _buildCommentTile(
+                              profilePicUrl,
+                              displayName,
+                              comment,
+                              avatarColor,
+                              currentUserEmail,
+                              index,
+                              widget.editingController,
+                              comments);
+                        } else {
+                          return FutureBuilder<
+                              DocumentSnapshot<Map<String, dynamic>>>(
+                            future: commentUserId != null
+                                ? FirebaseFirestore.instance
+                                    .collection('users')
+                                    .doc(commentUserId)
+                                    .get()
+                                : null,
+                            builder: (context, userSnapshot) {
+                              String? profilePicUrl;
+                              String displayName;
+                              if (userSnapshot.connectionState ==
+                                      ConnectionState.done &&
+                                  userSnapshot.hasData &&
+                                  userSnapshot.data!.exists) {
+                                final userData = userSnapshot.data!.data();
+                                profilePicUrl = userData != null
+                                    ? userData['profilePictureUrl'] as String?
+                                    : null;
+                                displayName = userData != null
+                                    ? (userData['name'] ??
+                                        comment['userName'] ??
+                                        'Unbekannt')
+                                    : (comment['userName'] ?? 'Unbekannt');
+                              } else {
+                                profilePicUrl = null;
+                                displayName =
+                                    comment['userName'] ?? 'Unbekannt';
+                              }
+                              return _buildCommentTile(
+                                  profilePicUrl,
+                                  displayName,
+                                  comment,
+                                  avatarColor,
+                                  currentUserEmail,
+                                  index,
+                                  widget.editingController,
+                                  comments);
+                            },
+                          );
+                        }
                       },
                     ),
                     SizedBox(height: 8),
@@ -637,12 +708,62 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
               setState(() {
                 _isExpanded = expanded;
               });
-              if (expanded && currentUserId != null && latestTs != null) {
-                // Mark as read: update last read timestamp to latest activity
+              if (expanded && currentUserEmail.isNotEmpty) {
+                final doc = await FirebaseFirestore.instance
+                    .collection(widget.collectionPath)
+                    .doc(widget.collabId)
+                    .get();
+                final data = doc.data();
+                if (data == null) return;
+
+                // Find latest comment or checkbox activity by someone else
+                final comments =
+                    List<Map<String, dynamic>>.from(data['comments'] ?? []);
+                Timestamp? latestCommentTs;
+                if (comments.isNotEmpty) {
+                  final otherComments = comments
+                      .where((c) => c['userId'] != currentUserEmail)
+                      .toList()
+                    ..sort((a, b) {
+                      final ta = a['timestamp'];
+                      final tb = b['timestamp'];
+                      if (ta is Timestamp && tb is Timestamp) {
+                        return tb.compareTo(ta);
+                      }
+                      return 0;
+                    });
+                  if (otherComments.isNotEmpty) {
+                    latestCommentTs =
+                        otherComments.first['timestamp'] as Timestamp?;
+                  }
+                }
+                final lastActivityUserId = data['lastActivityUserId'];
+                Timestamp? lastActivityTs = (lastActivityUserId != null &&
+                        lastActivityUserId != currentUserEmail)
+                    ? data['lastActivityTimestamp'] as Timestamp?
+                    : null;
+                Timestamp? latestTs;
+                if (latestCommentTs != null && lastActivityTs != null) {
+                  latestTs = latestCommentTs.compareTo(lastActivityTs) > 0
+                      ? latestCommentTs
+                      : lastActivityTs;
+                } else {
+                  latestTs = latestCommentTs ?? lastActivityTs;
+                }
+
+                // If there is no activity by others, still mark as read to now
+                if (latestTs == null) {
+                  latestTs = Timestamp.now();
+                }
+
                 await FirebaseFirestore.instance
                     .collection(widget.collectionPath)
                     .doc(widget.collabId)
-                    .update({'commentReadTimestamps.$currentUserId': latestTs});
+                    .update({
+                  'commentReadTimestamps.${currentUserEmail}': latestTs
+                });
+                await _markNotificationsAsReadForTodo(widget.collabId);
+                setState(() {});
               }
             },
           ),
@@ -652,7 +773,7 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                 const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
             child: CommentInputField(
               collabId: widget.collabId,
-              controller: editingController,
+              controller: widget.editingController,
               label: isEditingComment
                   ? 'Kommentar bearbeiten...'
                   : 'Kommentar hinzufügen...',
@@ -695,7 +816,7 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                       setState(() {
                         editingCommentIndex = null;
                         editingComment = null;
-                        editingController.clear();
+                        widget.editingController.clear();
                         isEditingComment = false;
                       });
                     }
@@ -705,7 +826,7 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                       setState(() {
                         editingCommentIndex = null;
                         editingComment = null;
-                        editingController.clear();
+                        widget.editingController.clear();
                         isEditingComment = false;
                       });
                     }
@@ -714,7 +835,7 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                 final user = FirebaseAuth.instance.currentUser;
                 if (user == null) return;
                 final newComment = {
-                  'userId': user.uid,
+                  'userId': user.email,
                   'userName': user.displayName ?? 'Unbekannt',
                   'comment': value,
                   'timestamp': DateTime.now(),
@@ -729,8 +850,8 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
               },
               enabled: isOwned ||
                   (!isRevoked &&
-                      collaborators.isNotEmpty &&
-                      collaborators.contains(currentUserId)),
+                      allCollaborators.isNotEmpty &&
+                      allCollaborators.contains(currentUserEmail)),
             ),
           ),
           SpacerWidget(height: 3),
@@ -741,7 +862,7 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
 
   @override
   Widget build(BuildContext context) {
-    final String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
+    final String? currentUserEmail = FirebaseAuth.instance.currentUser?.email;
     // Debug print for collabId and collectionPath
     debugPrint('[CollaborationTodoTile] collabId: '
         '\x1B[33m${widget.collabId}\x1B[0m, '
@@ -749,12 +870,12 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
     // Use static snapshot for revoked users, real-time for others
     return Builder(
       builder: (context) {
-        if (currentUserId == null) return SizedBox();
+        if (currentUserEmail == null) return SizedBox();
         // Use a FutureBuilder for revoked users (static), StreamBuilder for others (live)
         return _CollabTileContent(
           collabId: widget.collabId,
           collectionPath: widget.collectionPath,
-          currentUserId: currentUserId,
+          currentUserEmail: currentUserEmail,
           buildTileContent: _buildTileContent,
         );
       },
@@ -765,13 +886,13 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
 class _CollabTileContent extends StatefulWidget {
   final String collabId;
   final String collectionPath;
-  final String currentUserId;
+  final String currentUserEmail;
   final Widget Function(BuildContext, Map<String, dynamic>, String,
       {required bool isRevoked}) buildTileContent;
   const _CollabTileContent({
     required this.collabId,
     required this.collectionPath,
-    required this.currentUserId,
+    required this.currentUserEmail,
     required this.buildTileContent,
   });
   @override
@@ -792,10 +913,11 @@ class _CollabTileContentState extends State<_CollabTileContent> {
         }
         final data = snapshot.data!.data()!;
         final revokedFor = List<String>.from(data['revokedFor'] ?? []);
-        final isOwned = data['ownerId'] == widget.currentUserId;
-        final isRevoked = !isOwned && revokedFor.contains(widget.currentUserId);
+        final isOwned = data['ownerId'] == widget.currentUserEmail;
+        final isRevoked =
+            !isOwned && revokedFor.contains(widget.currentUserEmail);
         if (isRevoked) {
-          return widget.buildTileContent(context, data, widget.currentUserId,
+          return widget.buildTileContent(context, data, widget.currentUserEmail,
               isRevoked: true);
         } else {
           return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
@@ -809,7 +931,7 @@ class _CollabTileContentState extends State<_CollabTileContent> {
               }
               final liveData = streamSnapshot.data!.data()!;
               return widget.buildTileContent(
-                  context, liveData, widget.currentUserId,
+                  context, liveData, widget.currentUserEmail,
                   isRevoked: false);
             },
           );

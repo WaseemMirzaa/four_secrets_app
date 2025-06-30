@@ -486,6 +486,26 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
                                                                 children: [
                                                                   Expanded(
                                                                     child:
+                                                                        Container(
+                                                                      constraints:
+                                                                          BoxConstraints(
+                                                                        maxWidth:
+                                                                            160,
+                                                                      ),
+                                                                      child:
+                                                                          CustomButtonWidget(
+                                                                        text:
+                                                                            "Abbrechen",
+                                                                        color: Colors
+                                                                            .white,
+                                                                        onPressed:
+                                                                            () =>
+                                                                                Navigator.of(context).pop(),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  Expanded(
+                                                                    child:
                                                                         CustomButtonWidget(
                                                                       text: AppConstants
                                                                           .weddingCategoryTitlePageAddCategory,
@@ -530,26 +550,6 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
                                                                               isLoading = false);
                                                                         }
                                                                       },
-                                                                    ),
-                                                                  ),
-                                                                  Expanded(
-                                                                    child:
-                                                                        Container(
-                                                                      constraints:
-                                                                          BoxConstraints(
-                                                                        maxWidth:
-                                                                            160,
-                                                                      ),
-                                                                      child:
-                                                                          CustomButtonWidget(
-                                                                        text:
-                                                                            "Abbrechen",
-                                                                        color: Colors
-                                                                            .white,
-                                                                        onPressed:
-                                                                            () =>
-                                                                                Navigator.of(context).pop(),
-                                                                      ),
                                                                     ),
                                                                   ),
                                                                 ],

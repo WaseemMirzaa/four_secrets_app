@@ -24,6 +24,7 @@ import 'package:four_secrets_wedding_app/pages/collaboration_screen.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import '../widgets/collaboration_todo_tile.dart';
 import '../services/non_registered_invite_service.dart';
+import '../models/non_registered_user.dart';
 
 class ToDoPage extends StatefulWidget {
   const ToDoPage({super.key});
@@ -68,7 +69,8 @@ class _ToDoPageState extends State<ToDoPage> {
     });
     try {
       final myUid = FirebaseAuth.instance.currentUser?.uid;
-      if (myUid == null) return;
+      final myEmail = FirebaseAuth.instance.currentUser?.email;
+      if (myUid == null || myEmail == null) return;
       // Fetch owned todos
       final ownedSnapshot = await FirebaseFirestore.instance
           .collection('users')
@@ -78,33 +80,35 @@ class _ToDoPageState extends State<ToDoPage> {
       final ownedTodos = ownedSnapshot.docs
           .map((doc) => ToDoModel.fromFirestore(doc))
           .toList();
-      print('[ToDo Debug] Owned todos count: [32m${ownedTodos.length}[0m');
+      print(
+          '[ToDo Debug] Owned todos count: \x1B[32m[32m${ownedTodos.length}\x1B[0m');
       print(
           '[ToDo Debug] Owned todo IDs: ${ownedTodos.map((t) => t.id).toList()}');
       // Fetch shared todos (isShared == true and collaborators contains me, but not owned by me)
       final sharedSnapshot = await FirebaseFirestore.instance
           .collectionGroup('todos')
           .where('isShared', isEqualTo: true)
-          .where('collaborators', arrayContains: myUid)
+          .where('collaborators', arrayContains: myEmail)
           .get();
       final sharedTodos = sharedSnapshot.docs
           .where((doc) => doc.data()['userId'] != myUid)
           .map((doc) => ToDoModel.fromFirestore(doc))
           .toList();
-      print('[ToDo Debug] Shared todos count: [34m${sharedTodos.length}[0m');
+      print(
+          '[ToDo Debug] Shared todos count: \x1B[34m${sharedTodos.length}\x1B[0m');
       print(
           '[ToDo Debug] Shared todo IDs: ${sharedTodos.map((t) => t.id).toList()}');
       // Fetch revoked todos (revokedFor contains me, but not owned by me)
       final revokedSnapshot = await FirebaseFirestore.instance
           .collectionGroup('todos')
-          .where('revokedFor', arrayContains: myUid)
+          .where('revokedFor', arrayContains: myEmail)
           .get();
       final revokedTodos = revokedSnapshot.docs
           .where((doc) => doc.data()['userId'] != myUid)
           .map((doc) => ToDoModel.fromFirestore(doc))
           .toList();
       print(
-          '[ToDo Debug] Revoked todos count: [31m${revokedTodos.length}[0m');
+          '[ToDo Debug] Revoked todos count: \x1B[31m${revokedTodos.length}\x1B[0m');
       print(
           '[ToDo Debug] Revoked todo IDs: ${revokedTodos.map((t) => t.id).toList()}');
       // Combine owned, shared, and revoked, avoid duplicates
@@ -115,8 +119,8 @@ class _ToDoPageState extends State<ToDoPage> {
       // Filter: only show todos where user is owner, collaborator, or revokedFor
       final filteredTodos = allTodos.values.where((todo) {
         final isOwner = todo.userId == myUid;
-        final isCollaborator = todo.collaborators.contains(myUid);
-        final isRevoked = todo.revokedFor.contains(myUid);
+        final isCollaborator = todo.collaborators.contains(myEmail);
+        final isRevoked = todo.revokedFor.contains(myEmail);
         return isOwner || isCollaborator || isRevoked;
       }).toList();
       print('[ToDo Debug] All todos count: ${filteredTodos.length}');
@@ -271,9 +275,25 @@ class _ToDoPageState extends State<ToDoPage> {
                                                   try {
                                                     await collaborationService
                                                         .sendInvitationForAllTodos(
-                                                      inviteeId: user['uid'],
+                                                      inviteeEmail:
+                                                          user['email'],
                                                       inviteeName: user['name'],
                                                     );
+                                                    // Save to non_registered_users collection
+                                                    final nonRegisteredUser =
+                                                        NonRegisteredUser(
+                                                      email: user['email'],
+                                                      name: user['name'],
+                                                      invitedAt: DateTime.now(),
+                                                    );
+                                                    await FirebaseFirestore
+                                                        .instance
+                                                        .collection(
+                                                            'non_registered_users')
+                                                        .doc(nonRegisteredUser
+                                                            .email)
+                                                        .set(nonRegisteredUser
+                                                            .toMap());
                                                     // Refresh the data before closing the dialog
                                                     await _loadAndInitCategories();
                                                     if (context.mounted) {
@@ -285,6 +305,7 @@ class _ToDoPageState extends State<ToDoPage> {
                                                               "Einladung für alle Listen gesendet");
                                                     }
                                                   } catch (e) {
+                                                    print(e);
                                                     SnackBarHelper
                                                         .showErrorSnackBar(
                                                             context,
@@ -304,7 +325,96 @@ class _ToDoPageState extends State<ToDoPage> {
                         : (!isSearching &&
                                 searchController.text.isNotEmpty &&
                                 searchResults.isEmpty)
-                            ? SizedBox.shrink()
+                            ? Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 15.0, vertical: 10),
+                                child: Row(
+                                  children: [
+                                    // E‑Mail-Text
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            searchController.text,
+                                            style: TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.black),
+                                          ),
+                                          Text(
+                                            "Einladen",
+                                            style: TextStyle(
+                                                fontSize: 14,
+                                                color: Colors.black),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    // Lade-Indikator oder Invite-Button
+                                    isSendingInvite
+                                        ? SizedBox(
+                                            width: 24,
+                                            height: 24,
+                                            child: CircularProgressIndicator(
+                                                strokeWidth: 2),
+                                          )
+                                        : IconButton(
+                                            icon: Icon(Icons.person_add,
+                                                color: Color.fromARGB(
+                                                    255, 107, 69, 106)),
+                                            onPressed: () async {
+                                              setState(
+                                                  () => isSendingInvite = true);
+                                              final name = searchController.text
+                                                  .split('@')
+                                                  .first;
+                                              try {
+                                                await collaborationService
+                                                    .sendInvitationForAllTodos(
+                                                  inviteeEmail:
+                                                      searchController.text,
+                                                  inviteeName:
+                                                      name[0].toUpperCase() +
+                                                          name.substring(1),
+                                                );
+                                                // Save to non_registered_users collection
+                                                final nonRegisteredUser =
+                                                    NonRegisteredUser(
+                                                  email: searchController.text,
+                                                  name: name[0].toUpperCase() +
+                                                      name.substring(1),
+                                                  invitedAt: DateTime.now(),
+                                                );
+                                                await FirebaseFirestore.instance
+                                                    .collection(
+                                                        'non_registered_users')
+                                                    .doc(
+                                                        nonRegisteredUser.email)
+                                                    .set(nonRegisteredUser
+                                                        .toMap());
+                                                await _loadAndInitCategories();
+                                                if (context.mounted) {
+                                                  Navigator.of(context).pop();
+                                                  SnackBarHelper
+                                                      .showSuccessSnackBar(
+                                                          context,
+                                                          "Einladung gesendet");
+                                                }
+                                              } catch (e) {
+                                                SnackBarHelper
+                                                    .showErrorSnackBar(
+                                                        context, "Fehler: $e");
+                                              } finally {
+                                                if (mounted)
+                                                  setState(() =>
+                                                      isSendingInvite = false);
+                                              }
+                                            },
+                                          ),
+                                  ],
+                                ),
+                              )
                             : SizedBox.shrink(),
                     Padding(
                       padding: const EdgeInsets.all(15.0),
@@ -502,6 +612,7 @@ class _ToDoPageState extends State<ToDoPage> {
   @override
   Widget build(BuildContext context) {
     final myUid = FirebaseAuth.instance.currentUser?.uid;
+    final myEmail = FirebaseAuth.instance.currentUser?.email;
     return SafeArea(
         child: Scaffold(
             drawer: Menue.getInstance(key),
@@ -553,11 +664,15 @@ class _ToDoPageState extends State<ToDoPage> {
                     onPressed: _showAddSelectedItemsDialog,
                   ),
                 if (listToDoModel.any((todo) =>
-                    todo.userId == FirebaseAuth.instance.currentUser?.uid &&
+                    (((todo as dynamic).ownerEmail != null &&
+                            (todo as dynamic).ownerEmail ==
+                                FirebaseAuth.instance.currentUser?.email) ||
+                        (todo.userId ==
+                            FirebaseAuth.instance.currentUser?.uid)) &&
                     todo.collaborators.isNotEmpty &&
                     (todo.revokedFor.isEmpty ||
-                        !todo.revokedFor
-                            .contains(FirebaseAuth.instance.currentUser?.uid))))
+                        !todo.revokedFor.contains(
+                            FirebaseAuth.instance.currentUser?.email))))
                   IconButton(
                     icon: Icon(Icons.remove_circle_outline),
                     tooltip: 'Zugriff entziehen',
@@ -566,7 +681,11 @@ class _ToDoPageState extends State<ToDoPage> {
                       // Only allow for owners
                       final ownedTodos = listToDoModel
                           .where((todo) =>
-                              todo.userId == myUid &&
+                              (((todo as dynamic).ownerEmail != null &&
+                                      (todo as dynamic).ownerEmail ==
+                                          FirebaseAuth
+                                              .instance.currentUser?.email) ||
+                                  (todo.userId == myUid)) &&
                               (todo.collaborators.isNotEmpty))
                           .toList();
                       if (ownedTodos.isEmpty) {
@@ -703,7 +822,7 @@ class _ToDoPageState extends State<ToDoPage> {
                       if (index == -1) index = 0;
                       final isOwner = todoModel?.userId == myUid;
                       final isCollaborator =
-                          todoModel?.collaborators.contains(myUid) ?? false;
+                          todoModel?.collaborators.contains(myEmail) ?? false;
                       final canComment = isOwner || isCollaborator;
                       // Use correct collectionPath for owned or shared todos
                       final collectionPath = isOwner

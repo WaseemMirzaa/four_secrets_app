@@ -4,6 +4,7 @@ class ToDoModel {
   final String? id;
   final String? toDoName;
   final String userId;
+  final String? ownerEmail;
   final String? categoryId;
   final List<String> collaborators;
   final List<Map<String, dynamic>> comments;
@@ -17,6 +18,7 @@ class ToDoModel {
     this.id,
     this.toDoName,
     required this.userId,
+    this.ownerEmail,
     this.categoryId,
     required this.collaborators,
     required this.comments,
@@ -57,6 +59,7 @@ class ToDoModel {
       id: doc.id,
       toDoName: data['toDoName'],
       userId: data['userId'] ?? '',
+      ownerEmail: data['ownerEmail'],
       categoryId: data['categoryId'],
       collaborators: List<String>.from(data['collaborators'] ?? []),
       comments: List<Map<String, dynamic>>.from(data['comments'] ?? []),
@@ -90,6 +93,7 @@ class ToDoModel {
     String? id,
     String? toDoName,
     String? userId,
+    String? ownerEmail,
     String? categoryId,
     List<String>? collaborators,
     List<Map<String, dynamic>>? comments,
@@ -103,6 +107,7 @@ class ToDoModel {
       id: id ?? this.id,
       toDoName: toDoName ?? this.toDoName,
       userId: userId ?? this.userId,
+      ownerEmail: ownerEmail ?? this.ownerEmail,
       categoryId: categoryId ?? this.categoryId,
       collaborators: collaborators ?? this.collaborators,
       comments: comments ?? this.comments,

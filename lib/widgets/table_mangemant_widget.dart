@@ -107,13 +107,19 @@ class TableCardWidget extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.edit),
+                      icon: Icon(
+                        FontAwesomeIcons.penToSquare,
+                        size: 18,
+                      ),
                       onPressed: onEdit,
                       color: Color.fromARGB(255, 107, 69, 106),
                     ),
                     IconButton(
-                      icon: const Icon(FontAwesomeIcons.trashCan,
-                          color: Colors.red),
+                      icon: const Icon(
+                        FontAwesomeIcons.trashCan,
+                        color: Colors.red,
+                        size: 18,
+                      ),
                       onPressed: onDelete,
                     ),
                   ],
