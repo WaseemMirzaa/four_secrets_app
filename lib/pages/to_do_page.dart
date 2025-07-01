@@ -54,6 +54,7 @@ class _ToDoPageState extends State<ToDoPage> {
   bool isEditingComment = false;
   // User cache for comments
   final Map<String, Map<String, dynamic>> _userCache = {};
+  String? currentlyInvitingEmail;
 
   @override
   void initState() {
@@ -164,6 +165,7 @@ class _ToDoPageState extends State<ToDoPage> {
     List<Map<String, dynamic>> searchResults = [];
     bool isSearching = false;
     bool isSendingInvite = false;
+    String? inviteEmai;
     final currentUser = FirebaseAuth.instance.currentUser;
 
     await showDialog(
@@ -257,7 +259,9 @@ class _ToDoPageState extends State<ToDoPage> {
                                 return ListTile(
                                   title: Text(user['name']),
                                   subtitle: Text(user['email']),
-                                  trailing: isSendingInvite
+                                  trailing: (isSendingInvite &&
+                                          currentlyInvitingEmail ==
+                                              user['email'])
                                       ? SizedBox(
                                           width: 24,
                                           height: 24,
@@ -270,8 +274,11 @@ class _ToDoPageState extends State<ToDoPage> {
                                           onPressed: isSendingInvite
                                               ? null
                                               : () async {
-                                                  setState(() =>
-                                                      isSendingInvite = true);
+                                                  setState(() {
+                                                    isSendingInvite = true;
+                                                    currentlyInvitingEmail =
+                                                        user['email'];
+                                                  });
                                                   try {
                                                     await collaborationService
                                                         .sendInvitationForAllTodos(
@@ -312,9 +319,11 @@ class _ToDoPageState extends State<ToDoPage> {
                                                             "Fehler beim Senden der Einladung: $e");
                                                   } finally {
                                                     if (mounted)
-                                                      setState(() =>
-                                                          isSendingInvite =
-                                                              false);
+                                                      setState(() {
+                                                        isSendingInvite = false;
+                                                        currentlyInvitingEmail =
+                                                            null;
+                                                      });
                                                   }
                                                 },
                                         ),
@@ -609,6 +618,29 @@ class _ToDoPageState extends State<ToDoPage> {
     }
   }
 
+  // Add this helper for the invitation notification stream
+  Stream<bool> get _hasNewCollabNotificationStream async* {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      yield false;
+      return;
+    }
+    final fcmToken = await FirebaseMessaging.instance.getToken();
+    if (fcmToken == null) {
+      yield false;
+      return;
+    }
+    yield* FirebaseFirestore.instance
+        .collection('notifications')
+        .where('token', isEqualTo: fcmToken)
+        .where('read', isEqualTo: false)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs
+          .any((doc) => (doc.data()['data']?['type'] ?? '') == 'invitation');
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final myUid = FirebaseAuth.instance.currentUser?.uid;
@@ -621,37 +653,42 @@ class _ToDoPageState extends State<ToDoPage> {
               title: const Text(AppConstants.toDoPageTitle),
               backgroundColor: const Color.fromARGB(255, 107, 69, 106),
               actions: [
-                Stack(
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.group),
-                      tooltip: 'Zusammenarbeit',
-                      onPressed: () async {
-                        setState(() {
-                          hasNewCollabNotification = false;
-                        });
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => CollaborationScreen()),
-                        );
-                        await _loadAndInitCategories();
-                      },
-                    ),
-                    if (hasNewCollabNotification)
-                      Positioned(
-                        right: 8,
-                        top: 8,
-                        child: Container(
-                          width: 10,
-                          height: 10,
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                          ),
+                StreamBuilder<bool>(
+                  stream: _hasNewCollabNotificationStream,
+                  initialData: false,
+                  builder: (context, snapshot) {
+                    final hasNewCollabNotification = snapshot.data ?? false;
+                    return Stack(
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.group),
+                          tooltip: 'Zusammenarbeit',
+                          onPressed: () async {
+                            // Optionally mark as read here if you want
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => CollaborationScreen()),
+                            );
+                            await _loadAndInitCategories();
+                          },
                         ),
-                      ),
-                  ],
+                        if (hasNewCollabNotification)
+                          Positioned(
+                            right: 8,
+                            top: 8,
+                            child: Container(
+                              width: 10,
+                              height: 10,
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ),
+                      ],
+                    );
+                  },
                 ),
                 IconButton(
                   icon: Icon(Icons.person_add),
@@ -851,28 +888,5 @@ class _ToDoPageState extends State<ToDoPage> {
                 ),
               )
             ])));
-  }
-
-  Future<void> _handleAddComment(
-      String val, ToDoModel? todoModel, int index) async {
-    final commentText = val.trim();
-    final user = FirebaseAuth.instance.currentUser;
-    if (commentText.isNotEmpty && user != null) {
-      final newComment = {
-        'userId': user.uid,
-        'userName': user.displayName ?? 'Unbekannt',
-        'comment': commentText,
-        'timestamp': DateTime.now(),
-      };
-      final todoComments =
-          List<Map<String, dynamic>>.from(todoModel?.comments ?? []);
-      todoComments.add(newComment);
-      final updatedTodo = todoModel?.copyWith(comments: todoComments);
-      if (updatedTodo != null) {
-        await toDoService.updateTodo(updatedTodo);
-        _commentController.clear();
-        await _loadAndInitCategories();
-      }
-    }
   }
 }

@@ -87,15 +87,17 @@ class _CommentInputFieldState extends State<CommentInputField> {
                   child: CircularProgressIndicator(
                       strokeWidth: 2, color: widget.loadingColor))
               : Icon(widget.sendIcon, color: widget.loadingColor),
-          onPressed: _isSending ? null : _handleSendOrEdit,
+          onPressed: (!widget.enabled || _isSending) ? null : _handleSendOrEdit,
         ),
         if (widget.editMode)
           IconButton(
             icon: Icon(Icons.close, color: Colors.red),
-            onPressed: () {
-              _controller.clear();
-              if (widget.onCancel != null) widget.onCancel!();
-            },
+            onPressed: !widget.enabled
+                ? null
+                : () {
+                    _controller.clear();
+                    if (widget.onCancel != null) widget.onCancel!();
+                  },
           ),
       ],
     );

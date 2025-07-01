@@ -203,32 +203,35 @@ class CollaborationService {
 
   // Check if user has access to a todo list
   Future<bool> hasAccess(String todoListId) async {
-    if (userId == null) {
+    final user = _auth.currentUser;
+    if (user == null) {
       return false;
     }
 
-    // Check if user is the owner
-    final todoDoc = await _firestore
-        .collection('users')
-        .doc(userId)
-        .collection('todos')
-        .doc(todoListId)
-        .get();
+    // Fetch all todos in the collection group, then find the one with the matching ID
+    final todoSnapshot = await _firestore.collectionGroup('todos').get();
 
-    if (todoDoc.exists) {
-      return true;
+    QueryDocumentSnapshot<Map<String, dynamic>>? todoDoc;
+    for (final doc in todoSnapshot.docs) {
+      if (doc.id == todoListId) {
+        todoDoc = doc;
+        break;
+      }
     }
 
-    // Check if user has an accepted collaboration for this todoId
-    final collaborationSnapshot = await _firestore
-        .collection('users')
-        .doc(userId)
-        .collection('collaborations')
-        .where('todoId', isEqualTo: todoListId)
-        .where('status', isEqualTo: 'accepted')
-        .get();
+    if (todoDoc == null) return false;
 
-    return collaborationSnapshot.docs.isNotEmpty;
+    final todoData = todoDoc.data();
+    final collaborators = List<String>.from(todoData['collaborators'] ?? []);
+    final revokedFor = List<String>.from(todoData['revokedFor'] ?? []);
+
+    // Allow if owner (by UID), or collaborator (by email, not revoked)
+    if (todoData['userId'] == user.uid ||
+        (collaborators.contains(user.email) &&
+            !revokedFor.contains(user.email))) {
+      return true;
+    }
+    return false;
   }
 
   // Get current user's name
@@ -421,9 +424,10 @@ class CollaborationService {
     // Send email invitation
     if (inviteeEmail.isNotEmpty) {
       final emailService = EmailService();
-      final subject = 'Invitation to collaborate';
-      final message = '$inviterName has invited you to collaborate on: ' +
-          (todoCount == 1 ? todoNames.first : todoNames.join(', '));
+      final subject = 'Einladung zur Zusammenarbeit';
+      final message =
+          '$inviterName hat Sie eingeladen, an folgendem/followenden Element(en) zusammenzuarbeiten: ' +
+              (todoCount == 1 ? todoNames.first : todoNames.join(', '));
       try {
         await emailService.sendEmail(
           email: inviteeEmail,
@@ -534,7 +538,8 @@ class CollaborationService {
       throw Exception('Only the owner can revoke all collaborators');
     }
     // Add all current collaborators to revokedFor
-    final prevCollaborators = List<String>.from(todo.collaborators);
+    final prevCollaborators = List<String>.from(todo.collaborators)
+      ..removeWhere((email) => email == todo.ownerEmail);
     await _firestore
         .collection('users')
         .doc(userId)

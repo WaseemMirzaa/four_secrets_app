@@ -302,7 +302,14 @@ class TodoService {
       throw Exception('User not logged in');
     }
     final hasAccess = await _collaborationService.hasAccess(todo.id!);
-    if (!hasAccess && todo.userId != userId) {
+    final currentUser = _auth.currentUser;
+    // Allow if current user is owner by UID or by email, or collaborator (by email, not revoked)
+    final isCollaborator = todo.collaborators.contains(currentUser?.email) &&
+        !(todo.revokedFor.contains(currentUser?.email));
+    if (!hasAccess &&
+        todo.userId != userId &&
+        todo.ownerEmail != currentUser?.email &&
+        !isCollaborator) {
       throw Exception('User does not have access to this todo');
     }
     await _firestore
@@ -393,7 +400,8 @@ class TodoService {
   }
 
   // Add a collaborator to a todo list
-  Future<void> addCollaborator(String todoId, String collaboratorId) async {
+  Future<void> addCollaborator(String todoId, String collaboratorEmail,
+      {bool addToGlobal = false}) async {
     if (userId == null) {
       throw Exception('User not logged in');
     }
@@ -415,13 +423,19 @@ class TodoService {
       throw Exception('Only the owner can add collaborators');
     }
 
-    final updatedTodo = todo.addCollaborator(collaboratorId);
+    final updatedTodo = todo.addCollaborator(collaboratorEmail);
     await _firestore
         .collection('users')
         .doc(userId)
         .collection('todos')
         .doc(todoId)
         .update(updatedTodo.toMap());
+    // Only add to globalCollaborators if requested
+    if (addToGlobal) {
+      await _firestore.collection('users').doc(userId).update({
+        'globalCollaborators': FieldValue.arrayUnion([collaboratorEmail]),
+      });
+    }
   }
 
   // Remove a collaborator from a todo list
@@ -542,7 +556,13 @@ class TodoService {
       throw Exception('Only the owner can revoke all collaborators');
     }
     // Add all current collaborators to revokedFor
-    final prevCollaborators = List<String>.from(todo.collaborators);
+    final prevCollaborators = List<String>.from(todo.collaborators)
+      ..removeWhere((email) => email == todo.ownerEmail);
+    final userRef = _firestore.collection('users').doc(userId);
+    // Remove all collaborators from globalCollaborators as well
+    await userRef.update({
+      'globalCollaborators': FieldValue.arrayRemove(prevCollaborators),
+    });
     final updatedTodo = todo.copyWith(
       collaborators: [],
       isShared: false,
