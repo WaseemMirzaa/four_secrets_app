@@ -299,6 +299,10 @@ class _CollaborationScreenState extends State<CollaborationScreen>
                               final todoNames =
                                   (invite['todoNames'] as List?)?.join(', ') ??
                                       '';
+                              final currentUserName = FirebaseAuth
+                                      .instance.currentUser?.displayName ??
+                                  invite['inviterName'] ??
+                                  'Ich';
                               return Container(
                                 decoration: BoxDecoration(
                                   color: Colors.grey.shade300,
@@ -334,7 +338,7 @@ class _CollaborationScreenState extends State<CollaborationScreen>
                                                 const SizedBox(height: 4),
                                                 CustomTextWidget(
                                                   text:
-                                                      'Eingeladen: $inviteeName',
+                                                      'Eingeladen: $currentUserName',
                                                   color: Colors.black,
                                                 ),
                                                 if (invite['createdAt'] != null)
