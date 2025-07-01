@@ -11,6 +11,7 @@ import 'package:four_secrets_wedding_app/widgets/custom_dialog.dart';
 import 'collab_todo_edit_dialog.dart';
 import 'package:four_secrets_wedding_app/model/to_do_model.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:four_secrets_wedding_app/services/notification_alaram-service.dart';
 
 class CollaborationTodoTile extends StatefulWidget {
   final String collabId;
@@ -50,6 +51,19 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
   bool _isExpanded = false;
 
   String? _cachedOwnerName;
+  DateTime? _selectedReminderDate;
+  TimeOfDay? _selectedReminderTime;
+  String? _selectedReminderDateText;
+  String? _selectedReminderTimeText;
+  bool _reminderEnabled = false;
+  String? _reminderIso;
+
+  @override
+  void initState() {
+    super.initState();
+    // Reminder state will be initialized in _buildTileContent from Firestore data
+  }
+
   Future<String> _getOwnerName(String ownerEmail, String ownerName) async {
     if (ownerName.isNotEmpty) return ownerName;
     if (_cachedOwnerName != null) return _cachedOwnerName!;
@@ -125,8 +139,8 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
     Timestamp? lastRead;
     if (data['commentReadTimestamps'] != null && currentUserEmail != null) {
       final map = data['commentReadTimestamps'] as Map<String, dynamic>;
-      if (map[currentUserEmail] != null) {
-        var value = map[currentUserEmail];
+      if (map[encodeEmailForFirestore(currentUserEmail)] != null) {
+        var value = map[encodeEmailForFirestore(currentUserEmail)];
         if (value is Timestamp) {
           lastRead = value;
           print('[calculateHasUnread] lastRead (flat): ' + lastRead.toString());
@@ -153,14 +167,23 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
               return 0;
             });
       if (otherComments.isNotEmpty) {
-        latestCommentTs = otherComments.first['timestamp'] as Timestamp?;
+        final ts = otherComments.first['timestamp'];
+        if (ts is Timestamp) {
+          latestCommentTs = ts;
+        } else if (ts is DateTime) {
+          latestCommentTs = Timestamp.fromDate(ts);
+        }
       }
     }
     // Checkbox activity by someone else
     final lastActivityUserId = data['lastActivityUserId'];
     Timestamp? lastActivityTs =
         (lastActivityUserId != null && lastActivityUserId != currentUserEmail)
-            ? data['lastActivityTimestamp'] as Timestamp?
+            ? (data['lastActivityTimestamp'] is Timestamp
+                ? data['lastActivityTimestamp'] as Timestamp?
+                : (data['lastActivityTimestamp'] is DateTime
+                    ? Timestamp.fromDate(data['lastActivityTimestamp'])
+                    : null))
             : null;
     // Use the latest of these two
     Timestamp? latestTs;
@@ -173,8 +196,12 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
     }
     print('[calculateHasUnread] latestTs: ' +
         (latestTs?.toString() ?? 'null') +
+        ' type: ' +
+        (latestTs?.runtimeType.toString() ?? 'null') +
         ', lastRead: ' +
-        (lastRead?.toString() ?? 'null'));
+        (lastRead?.toString() ?? 'null') +
+        ' type: ' +
+        (lastRead?.runtimeType.toString() ?? 'null'));
     if (latestTs != null && lastRead != null) {
       return latestTs.compareTo(lastRead) > 0;
     } else if (latestTs != null && lastRead == null) {
@@ -217,6 +244,53 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
       latestTs = latestNonCurrentUserCommentTs ?? lastActivityTs;
     }
     return latestTs;
+  }
+
+  Future<void> _selectReminderDate() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedReminderDate ?? DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2030),
+    );
+    if (picked != null) {
+      setState(() {
+        _selectedReminderDate = picked;
+        _selectedReminderDateText =
+            "${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}";
+      });
+    }
+  }
+
+  Future<void> _selectReminderTime() async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: _selectedReminderTime ?? TimeOfDay.now(),
+    );
+    if (picked != null) {
+      setState(() {
+        _selectedReminderTime = picked;
+        _selectedReminderTimeText =
+            "${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')} Uhr";
+      });
+    }
+  }
+
+  Future<void> _saveReminder(String collectionPath, String collabId,
+      String? reminderIso, String todoName) async {
+    await FirebaseFirestore.instance
+        .collection(collectionPath)
+        .doc(collabId)
+        .update({'reminder': reminderIso});
+    if (reminderIso != null) {
+      await NotificationService.scheduleAlarmNotification(
+        id: collabId.hashCode,
+        dateTime: DateTime.parse(reminderIso),
+        title: todoName,
+        body: 'Erinnerung für Ihre Aufgabe',
+        payload: collabId,
+      );
+    }
   }
 
   Widget _buildCommentTile(
@@ -417,11 +491,12 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
       Timestamp? lastRead;
       if (data['commentReadTimestamps'] != null && currentUserEmail != null) {
         final map = data['commentReadTimestamps'] as Map<String, dynamic>;
-        if (map[currentUserEmail] != null) {
-          lastRead = map[currentUserEmail] is Timestamp
-              ? map[currentUserEmail]
-              : (map[currentUserEmail] is int
-                  ? Timestamp.fromMillisecondsSinceEpoch(map[currentUserEmail])
+        if (map[encodeEmailForFirestore(currentUserEmail)] != null) {
+          lastRead = map[encodeEmailForFirestore(currentUserEmail)] is Timestamp
+              ? map[encodeEmailForFirestore(currentUserEmail)]
+              : (map[encodeEmailForFirestore(currentUserEmail)] is int
+                  ? Timestamp.fromMillisecondsSinceEpoch(
+                      map[encodeEmailForFirestore(currentUserEmail)])
                   : null);
         }
       }
@@ -465,6 +540,21 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
     final avatarColor = widget.avatarColor;
     final checkboxColor = widget.checkboxColor;
     final showTag = widget.showTag;
+
+    final reminderStr = data['reminder'] as String?;
+    if (reminderStr != null && reminderStr.isNotEmpty) {
+      final reminderDateTime = DateTime.tryParse(reminderStr);
+      if (reminderDateTime != null) {
+        _reminderEnabled = true;
+        _selectedReminderDate = reminderDateTime;
+        _selectedReminderTime = TimeOfDay.fromDateTime(reminderDateTime);
+        _selectedReminderDateText =
+            "${reminderDateTime.day.toString().padLeft(2, '0')}/${reminderDateTime.month.toString().padLeft(2, '0')}/${reminderDateTime.year}";
+        _selectedReminderTimeText =
+            "${reminderDateTime.hour.toString().padLeft(2, '0')}:${reminderDateTime.minute.toString().padLeft(2, '0')} Uhr";
+        _reminderIso = reminderDateTime.toIso8601String();
+      }
+    }
 
     // --- REVOKED VIEW: Show full tile, but all interactive elements disabled ---
     if (isRevoked) {
@@ -713,7 +803,7 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                       .collection(widget.collectionPath)
                       .doc(widget.collabId)
                       .update({
-                    'commentReadTimestamps.${currentUserEmail}':
+                    'commentReadTimestamps.${encodeEmailForFirestore(currentUserEmail)}':
                         Timestamp.now(),
                   });
                   await _markNotificationsAsReadForTodo(widget.collabId);
@@ -935,6 +1025,82 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
               ],
             ),
             children: [
+              // Reminder Row
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: CustomTextWidget(
+                        text: _reminderIso != null && _reminderIso!.isNotEmpty
+                            ? "Erinnerung: ${_selectedReminderDateText ?? ''} ${_selectedReminderTimeText ?? ''}"
+                            : "Erinnerung hinzufügen",
+                        color: Colors.black,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    if (_reminderIso != null && _reminderIso!.isNotEmpty)
+                      IconButton(
+                        icon: Icon(Icons.close, color: Colors.red),
+                        tooltip: 'Erinnerung entfernen',
+                        onPressed: () async {
+                          setState(() {
+                            _selectedReminderDate = null;
+                            _selectedReminderTime = null;
+                            _selectedReminderDateText = null;
+                            _selectedReminderTimeText = null;
+                            _reminderIso = null;
+                          });
+                          await _saveReminder(widget.collectionPath,
+                              widget.collabId, null, categoryName);
+                          await NotificationService.cancel(
+                              widget.collabId.hashCode);
+                        },
+                      ),
+                    IconButton(
+                      icon: Icon(Icons.alarm_sharp, color: Color(0xFF6B456A)),
+                      tooltip: _reminderIso != null && _reminderIso!.isNotEmpty
+                          ? 'Erinnerung ändern'
+                          : 'Erinnerung hinzufügen',
+                      onPressed: () async {
+                        // Pick date
+                        final DateTime? pickedDate = await showDatePicker(
+                          context: context,
+                          initialDate: _selectedReminderDate ?? DateTime.now(),
+                          firstDate: DateTime.now(),
+                          lastDate: DateTime(2030),
+                        );
+                        if (pickedDate == null) return;
+                        // Pick time
+                        final TimeOfDay? pickedTime = await showTimePicker(
+                          context: context,
+                          initialTime: _selectedReminderTime ?? TimeOfDay.now(),
+                        );
+                        if (pickedTime == null) return;
+                        setState(() {
+                          _selectedReminderDate = pickedDate;
+                          _selectedReminderTime = pickedTime;
+                          _selectedReminderDateText =
+                              "${pickedDate.day.toString().padLeft(2, '0')}/${pickedDate.month.toString().padLeft(2, '0')}/${pickedDate.year}";
+                          _selectedReminderTimeText =
+                              "${pickedTime.hour.toString().padLeft(2, '0')}:${pickedTime.minute.toString().padLeft(2, '0')} Uhr";
+                        });
+                        final dt = DateTime(
+                          pickedDate.year,
+                          pickedDate.month,
+                          pickedDate.day,
+                          pickedTime.hour,
+                          pickedTime.minute,
+                        );
+                        _reminderIso = dt.toIso8601String();
+                        await _saveReminder(widget.collectionPath,
+                            widget.collabId, _reminderIso, categoryName);
+                      },
+                    ),
+                  ],
+                ),
+              ),
               if (categories.isNotEmpty)
                 ...List.generate(categories.length, (catIdx) {
                   var cat = categories[catIdx];
@@ -1150,7 +1316,8 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                     .collection(widget.collectionPath)
                     .doc(widget.collabId)
                     .update({
-                  'commentReadTimestamps.${currentUserEmail}': Timestamp.now(),
+                  'commentReadTimestamps.${encodeEmailForFirestore(currentUserEmail)}':
+                      Timestamp.now(),
                 });
                 await _markNotificationsAsReadForTodo(widget.collabId);
                 await Future.delayed(Duration(milliseconds: 200));
@@ -1341,3 +1508,5 @@ class _CollabTileContentState extends State<_CollabTileContent> {
     );
   }
 }
+
+String encodeEmailForFirestore(String email) => email.replaceAll('.', '_dot_');

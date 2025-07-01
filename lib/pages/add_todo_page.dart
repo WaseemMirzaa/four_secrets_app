@@ -17,6 +17,7 @@ import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
 import 'package:four_secrets_wedding_app/utils/snackbar_helper.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:four_secrets_wedding_app/services/notification_alaram-service.dart';
 
 class AddTodoPage extends StatefulWidget {
   final ToDoModel? toDoModel;
@@ -42,6 +43,11 @@ class _AddTodoPageState extends State<AddTodoPage> {
   Map<String, List<String>> filteredTodo = {};
   List<CategoryModel> allTodoModels = []; // Store full models
   bool showFilteredList = false;
+  DateTime? _selectedReminderDate;
+  TimeOfDay? _selectedReminderTime;
+  String? _selectedReminderDateText;
+  String? _selectedReminderTimeText;
+  bool _reminderEnabled = false;
 
   @override
   void initState() {
@@ -75,6 +81,21 @@ class _AddTodoPageState extends State<AddTodoPage> {
           expandedCategory = catName;
         }
         _categoryNameController.text = expandedCategory ?? '';
+        // Load reminder if present
+        if (widget.toDoModel!.reminder != null &&
+            widget.toDoModel!.reminder!.isNotEmpty) {
+          final reminderDateTime =
+              DateTime.tryParse(widget.toDoModel!.reminder!);
+          if (reminderDateTime != null) {
+            _reminderEnabled = true;
+            _selectedReminderDate = reminderDateTime;
+            _selectedReminderTime = TimeOfDay.fromDateTime(reminderDateTime);
+            _selectedReminderDateText =
+                "${reminderDateTime.day.toString().padLeft(2, '0')}/${reminderDateTime.month.toString().padLeft(2, '0')}/${reminderDateTime.year}";
+            _selectedReminderTimeText =
+                "${reminderDateTime.hour.toString().padLeft(2, '0')}:${reminderDateTime.minute.toString().padLeft(2, '0')} Uhr";
+          }
+        }
       });
     }
   }
@@ -370,6 +391,8 @@ class _AddTodoPageState extends State<AddTodoPage> {
               },
             ),
             const SpacerWidget(height: 4),
+            // Reminder Section
+
             Expanded(
               child: isLoading
                   ? Center(
@@ -704,27 +727,74 @@ class _AddTodoPageState extends State<AddTodoPage> {
                         setState(() => isSaving = false);
                         return;
                       }
-                      // Only save the single selected category and its items
                       final categories = [
                         {'categoryName': entry.key, 'items': entry.value}
                       ];
+                      String? reminderIso;
+                      if (_reminderEnabled &&
+                          _selectedReminderDate != null &&
+                          _selectedReminderTime != null) {
+                        final reminderDateTime = DateTime(
+                          _selectedReminderDate!.year,
+                          _selectedReminderDate!.month,
+                          _selectedReminderDate!.day,
+                          _selectedReminderTime!.hour,
+                          _selectedReminderTime!.minute,
+                        );
+                        reminderIso = reminderDateTime.toIso8601String();
+                      }
                       if (widget.toDoModel != null) {
                         // EDITING EXISTING TODO
                         final updatedTodo = widget.toDoModel!.copyWith(
                           categories: categories,
+                          reminder: reminderIso,
                         );
                         await toDoService.updateTodo(updatedTodo);
+                        // Schedule local notification for owner
+                        if (reminderIso != null) {
+                          await NotificationService.scheduleAlarmNotification(
+                            id: updatedTodo.id.hashCode,
+                            dateTime: DateTime.parse(reminderIso),
+                            title: updatedTodo.toDoName ?? categoryName,
+                            body: 'Erinnerung für Ihre Aufgabe',
+                            payload: updatedTodo.id,
+                          );
+                        }
                         SnackBarHelper.showSuccessSnackBar(
                             context, 'Todo erfolgreich aktualisiert');
                         Navigator.of(context).pop(true);
                       } else {
                         // CREATING NEW TODO
-                        print(
-                            'DEBUG: About to call createTodo with categories:');
-                        print(categories);
-                        print('DEBUG: userId in service: ' +
-                            (toDoService.userId ?? 'null'));
-                        await toDoService.createTodo(categories: categories);
+                        await toDoService.createTodo(
+                          categories: categories,
+                          reminder: reminderIso,
+                        );
+                        // Schedule local notification for owner
+                        if (reminderIso != null) {
+                          // Wait for Firestore to generate the ID, then fetch the latest todo
+                          final myUid = toDoService.userId;
+                          if (myUid != null) {
+                            final snapshot = await FirebaseFirestore.instance
+                                .collection('users')
+                                .doc(myUid)
+                                .collection('todos')
+                                .orderBy('toDoName', descending: true)
+                                .limit(1)
+                                .get();
+                            if (snapshot.docs.isNotEmpty) {
+                              final todo =
+                                  ToDoModel.fromFirestore(snapshot.docs.first);
+                              await NotificationService
+                                  .scheduleAlarmNotification(
+                                id: todo.id.hashCode,
+                                dateTime: DateTime.parse(reminderIso),
+                                title: todo.toDoName ?? categoryName,
+                                body: 'Erinnerung für Ihre Aufgabe',
+                                payload: todo.id,
+                              );
+                            }
+                          }
+                        }
                         SnackBarHelper.showSuccessSnackBar(
                             context, 'Todo erfolgreich gespeichert');
                         Navigator.of(context).pop(true);

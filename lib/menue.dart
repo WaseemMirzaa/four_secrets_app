@@ -51,32 +51,43 @@ class MenueState extends State<Menue> {
   Stream<bool> get _hasNewCollabNotificationStream async* {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-      print('No user logged in');
+      print('[Menu Notification Debug] No user logged in.');
       yield false;
       return;
     }
     final fcmToken = await FirebaseMessaging.instance.getToken();
-    print('My FCM Token: ' + (fcmToken ?? 'NULL'));
-    if (fcmToken == null) {
+    final userEmail = user.email;
+    print(
+        '[Menu Notification Debug] Current FCM token: $fcmToken, email: $userEmail');
+    if (fcmToken == null && userEmail == null) {
+      print('[Menu Notification Debug] No FCM token or email.');
       yield false;
       return;
     }
     yield* FirebaseFirestore.instance
         .collection('notifications')
-        .where('token', isEqualTo: fcmToken)
         .where('read', isEqualTo: false)
         .snapshots()
         .map((snapshot) {
       print(
-          'Firestore notification snapshot docs: count = \'${snapshot.docs.length}\'');
-      for (var doc in snapshot.docs) {
-        print('DocID: ' + doc.id + ' | data: ' + doc.data().toString());
-      }
-      // Show red dot if there is any unread invitation or comment notification
-      return snapshot.docs.any((doc) {
-        final type = doc.data()['data']?['type'] ?? '';
-        return type == 'invitation' || type == 'comment';
-      });
+          '[Menu Notification Debug] Checking ${snapshot.docs.length} notification docs...');
+      final matches = snapshot.docs.where((doc) {
+        final data = doc.data();
+        print('[Menu Notification Debug] Notification doc: ' + data.toString());
+        final type = data['data']?['type'] ?? '';
+        final tokenMatch = fcmToken != null && data['token'] == fcmToken;
+        final emailMatch = userEmail != null &&
+            (data['toEmail'] == userEmail ||
+                data['data']?['toEmail'] == userEmail);
+        final result = (type == 'invitation' || type == 'comment') &&
+            (tokenMatch || emailMatch);
+        print(
+            '[Menu Notification Debug] type: $type, tokenMatch: $tokenMatch, emailMatch: $emailMatch, result: $result, doc: ${doc.id}');
+        return result;
+      }).toList();
+      print(
+          '[Menu Notification Debug] Matched notifications count: \'${matches.length}\'');
+      return matches.isNotEmpty;
     });
   }
 
@@ -222,6 +233,31 @@ class MenueState extends State<Menue> {
   String _capitalizeFirstLetter(String text) {
     if (text.isEmpty) return text;
     return text[0].toUpperCase() + text.substring(1);
+  }
+
+  // Mark all collaboration notifications as read
+  Future<void> _markAllCollabNotificationsAsRead() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    final fcmToken = await FirebaseMessaging.instance.getToken();
+    final userEmail = user.email;
+    if (fcmToken == null && userEmail == null) return;
+    final snapshot = await FirebaseFirestore.instance
+        .collection('notifications')
+        .where('read', isEqualTo: false)
+        .get();
+    for (final doc in snapshot.docs) {
+      final data = doc.data();
+      final type = data['data']?['type'] ?? '';
+      final tokenMatch = fcmToken != null && data['token'] == fcmToken;
+      final emailMatch = userEmail != null &&
+          (data['toEmail'] == userEmail ||
+              data['data']?['toEmail'] == userEmail);
+      if ((type == 'invitation' || type == 'comment') &&
+          (tokenMatch || emailMatch)) {
+        await doc.reference.update({'read': true});
+      }
+    }
   }
 
   @override
@@ -411,6 +447,7 @@ class MenueState extends State<Menue> {
                               _navigateTo(RouteManager.impressum);
                               break;
                             case "Hochzeitskit":
+                              _markAllCollabNotificationsAsRead();
                               _navigateTo(RouteManager.toDoPage);
                               break;
                             case "Inspirationen":
@@ -422,6 +459,7 @@ class MenueState extends State<Menue> {
                           }
                         },
                       ),
+                      // Show the red dot only for 'Hochzeitskit'
                       if (e.name == 'Hochzeitskit' && hasNewCollabNotification)
                         Positioned(
                           right: 16,

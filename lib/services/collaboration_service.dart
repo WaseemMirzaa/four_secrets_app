@@ -19,6 +19,7 @@ class CollaborationService {
     required String todoName,
     required String inviteeId,
     required String inviteeName,
+    String? inviteeEmail,
   }) async {
     final currentUser = _auth.currentUser;
     if (currentUser == null) {
@@ -92,16 +93,30 @@ class CollaborationService {
       'inviterName': inviterName,
       'inviteeId': inviteeId,
       'inviteeName': inviteeName,
+      'inviteeEmail': inviteeEmail ?? '',
       'status': 'pending',
       'createdAt': FieldValue.serverTimestamp(),
     });
 
-    // Send push notification
-    await _pushNotificationService.sendInvitationNotification(
-      inviteeId: inviteeId,
-      inviterName: inviterName,
-      todoName: finalTodoName,
-    );
+    // Send push notification (by userId or email)
+    if (inviteeId.isNotEmpty) {
+      await _pushNotificationService.sendInvitationNotification(
+        inviteeId: inviteeId,
+        inviterName: inviterName,
+        todoName: finalTodoName,
+      );
+    } else if ((inviteeEmail ?? '').isNotEmpty) {
+      await _pushNotificationService.sendNotificationByEmail(
+        email: inviteeEmail!,
+        title: 'Neue Zusammenarbeitseinladung',
+        body:
+            '$inviterName hat dich eingeladen, an "$finalTodoName" mitzuarbeiten',
+        data: {
+          'type': 'invitation',
+          'todoName': finalTodoName,
+        },
+      );
+    }
   }
 
   // Get sent invitations for the current user (no orderBy to avoid index requirement)
@@ -158,10 +173,18 @@ class CollaborationService {
     }
 
     final ownerEmail = invitation['inviterEmail'];
+    final String safeOwnerEmail = ownerEmail ?? '';
     final todoId = invitation['todoId'];
 
     print(
         '[Collab Debug] Accepting invite for todoId: $todoId, ownerEmail: $ownerEmail, receiver: ${currentUser.email}');
+
+    String? inviterId = invitation['inviterId'];
+    String? inviterName = invitation['inviterName'] ?? 'Der Einladende';
+    String? todoName = invitation['todoName'] ?? '';
+
+    final String inviteeDisplayName =
+        currentUser.displayName ?? currentUser.email ?? 'Ein Nutzer';
 
     if (accept) {
       // Add the receiver to the collaborators array and set isShared: true
@@ -196,8 +219,46 @@ class CollaborationService {
       print('[Collab Debug] Updated todo after accepting invite:');
       print(updatedDoc.data());
       await invitationDoc.reference.update({'status': 'accepted'});
+      // Send push notification to inviter (by userId or email)
+      if ((inviterId ?? '').isNotEmpty) {
+        await _pushNotificationService.sendInvitationAcceptedNotification(
+          inviterId: inviterId ?? '',
+          inviteeName: inviteeDisplayName,
+          todoName: todoName ?? '',
+        );
+      } else if (safeOwnerEmail.isNotEmpty) {
+        await _pushNotificationService.sendNotificationByEmail(
+          email: safeOwnerEmail,
+          title: 'Einladung akzeptiert',
+          body:
+              '$inviteeDisplayName hat deine Einladung zur Zusammenarbeit an "$todoName" akzeptiert',
+          data: {
+            'type': 'invitation_accepted',
+            'todoName': todoName,
+          },
+        );
+      }
     } else {
       await invitationDoc.reference.update({'status': 'declined'});
+      // Send push notification to inviter (by userId or email)
+      if ((inviterId ?? '').isNotEmpty) {
+        await _pushNotificationService.sendInvitationRejectedNotification(
+          inviterId: inviterId ?? '',
+          inviteeName: inviteeDisplayName,
+          todoName: todoName ?? '',
+        );
+      } else if (safeOwnerEmail.isNotEmpty) {
+        await _pushNotificationService.sendNotificationByEmail(
+          email: safeOwnerEmail,
+          title: 'Einladung abgelehnt',
+          body:
+              '$inviteeDisplayName hat deine Einladung zur Zusammenarbeit an "$todoName" abgelehnt',
+          data: {
+            'type': 'invitation_rejected',
+            'todoName': todoName,
+          },
+        );
+      }
     }
   }
 
@@ -421,8 +482,30 @@ class CollaborationService {
       'createdAt': FieldValue.serverTimestamp(),
     });
 
-    // Send email invitation
+    // Send push notification by email
     if (inviteeEmail.isNotEmpty) {
+      await _pushNotificationService.sendNotificationByEmail(
+        email: inviteeEmail,
+        title: 'Neue Zusammenarbeitseinladung',
+        body:
+            '$inviterName hat dich eingeladen, an ${todoCount == 1 ? todoNames.first : todoNames.join(', ')} mitzuarbeiten',
+        data: {
+          'type': 'invitation',
+          'todoNames': todoNames,
+        },
+      );
+
+      await _pushNotificationService.sendNotificationByEmail(
+        email: inviteeEmail,
+        title: 'Neue Zusammenarbeitseinladung',
+        body:
+            '$inviterName hat dich eingeladen, an ${todoCount == 1 ? todoNames.first : todoNames.join(', ')} mitzuarbeiten',
+        data: {
+          'type': 'invitation',
+          'todoNames': todoNames,
+        },
+      );
+
       final emailService = EmailService();
       final subject = 'Einladung zur Zusammenarbeit';
       final message =
@@ -469,23 +552,29 @@ class CollaborationService {
       'respondedAt': FieldValue.serverTimestamp(),
     });
 
-    // Send push notification (optional, can be updated to use email)
-    // ... existing code ...
+    // Send push notification to inviter (by email)
+    final ownerEmail = invitation['inviterEmail'];
+    final String safeOwnerEmail = ownerEmail ?? '';
+    final inviterName = invitation['inviterName'] ?? 'Der Einladende';
+    final todoNames = List<String>.from(invitation['todoNames'] ?? []);
+    final String inviteeDisplayName =
+        currentUser.displayName ?? currentUser.email ?? 'Ein Nutzer';
+    if (safeOwnerEmail.isNotEmpty) {
+      await _pushNotificationService.sendNotificationByEmail(
+        email: safeOwnerEmail,
+        title: accept ? 'Einladung akzeptiert' : 'Einladung abgelehnt',
+        body:
+            '$inviteeDisplayName hat deine Einladung zur Zusammenarbeit an ${todoNames.length == 1 ? todoNames.first : todoNames.join(', ')} ${accept ? 'akzeptiert' : 'abgelehnt'}',
+        data: {
+          'type': accept ? 'invitation_accepted' : 'invitation_rejected',
+          'todoNames': todoNames,
+        },
+      );
+    }
 
     // If accepted, add the receiver to the collaborators array of each todo
-    final ownerEmail = invitation['inviterEmail'];
-    final todoIds = List<String>.from(invitation['todoIds'] ?? []);
-    // Find the owner's userId by email
-    final ownerQuery = await _firestore
-        .collection('users')
-        .where('email', isEqualTo: ownerEmail)
-        .limit(1)
-        .get();
-    if (ownerQuery.docs.isEmpty) {
-      throw Exception('Owner not found');
-    }
-    final ownerId = ownerQuery.docs.first.id;
-    for (final todoId in todoIds) {
+    final ownerId = invitation['inviterId'];
+    for (final todoId in List<String>.from(invitation['todoIds'] ?? [])) {
       final todoRef = _firestore
           .collection('users')
           .doc(ownerId)

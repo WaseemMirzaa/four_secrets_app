@@ -147,9 +147,10 @@ class PushNotificationService {
     Map<String, dynamic>? data,
   }) async {
     try {
-      // Get the user's FCM token
+      // Get the user's FCM token and email
       final userDoc = await _firestore.collection('users').doc(userId).get();
       final String? fcmToken = userDoc.data()?['fcmToken'];
+      final String? email = userDoc.data()?['email'];
 
       if (fcmToken == null) {
         print('No FCM token found for user $userId');
@@ -159,6 +160,7 @@ class PushNotificationService {
       // Send the notification using Cloud Functions
       await _firestore.collection('notifications').add({
         'token': fcmToken,
+        'toEmail': email,
         'title': title,
         'body': body,
         'data': data ?? {},
@@ -274,6 +276,47 @@ class PushNotificationService {
     } catch (e) {
       print('🔴 Error getting direct FCM token: $e');
       return null;
+    }
+  }
+
+  // Send notification to a specific user by email
+  Future<void> sendNotificationByEmail({
+    required String email,
+    required String title,
+    required String body,
+    Map<String, dynamic>? data,
+  }) async {
+    try {
+      // Query the user by email
+      final query = await _firestore
+          .collection('users')
+          .where('email', isEqualTo: email)
+          .limit(1)
+          .get();
+      if (query.docs.isEmpty) {
+        print('No user found with email $email');
+        return;
+      }
+      final userDoc = query.docs.first;
+      final String? fcmToken = userDoc.data()['fcmToken'];
+
+      if (fcmToken == null) {
+        print('No FCM token found for user with email $email');
+        return;
+      }
+
+      // Send the notification using Cloud Functions
+      await _firestore.collection('notifications').add({
+        'token': fcmToken,
+        'toEmail': email,
+        'title': title,
+        'body': body,
+        'data': data ?? {},
+        'timestamp': FieldValue.serverTimestamp(),
+        'read': false,
+      });
+    } catch (e) {
+      print('Error sending notification by email: $e');
     }
   }
 }

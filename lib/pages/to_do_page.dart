@@ -61,6 +61,7 @@ class _ToDoPageState extends State<ToDoPage> {
     super.initState();
     _loadAndInitCategories();
     _checkUnreadNotifications();
+    _markAllCollabNotificationsAsRead();
   }
 
   Future<void> _loadAndInitCategories() async {
@@ -152,12 +153,37 @@ class _ToDoPageState extends State<ToDoPage> {
         .where('token', isEqualTo: fcmToken)
         .where('read', isEqualTo: false)
         .get();
+    print("notifiation ");
     // Only set to true if there is an unread invitation notification
     final hasInvite = snapshot.docs
         .any((doc) => (doc.data()['data']?['type'] ?? '') == 'invitation');
     setState(() {
       hasNewCollabNotification = hasInvite;
+      print(hasNewCollabNotification);
     });
+  }
+
+  Future<void> _markAllCollabNotificationsAsRead() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    final fcmToken = await FirebaseMessaging.instance.getToken();
+    final userEmail = user.email;
+    if (fcmToken == null && userEmail == null) return;
+    final snapshot = await FirebaseFirestore.instance
+        .collection('notifications')
+        .where('read', isEqualTo: false)
+        .get();
+    for (final doc in snapshot.docs) {
+      final data = doc.data();
+      final type = data['data']?['type'] ?? '';
+      final tokenMatch = fcmToken != null && data['token'] == fcmToken;
+      final emailMatch =
+          userEmail != null && data['data']?['toEmail'] == userEmail;
+      if ((type == 'invitation' || type == 'comment') &&
+          (tokenMatch || emailMatch)) {
+        await doc.reference.update({'read': true});
+      }
+    }
   }
 
   Future<void> _showInviteDialog() async {
@@ -286,6 +312,7 @@ class _ToDoPageState extends State<ToDoPage> {
                                                           user['email'],
                                                       inviteeName: user['name'],
                                                     );
+
                                                     // Save to non_registered_users collection
                                                     final nonRegisteredUser =
                                                         NonRegisteredUser(
@@ -626,18 +653,25 @@ class _ToDoPageState extends State<ToDoPage> {
       return;
     }
     final fcmToken = await FirebaseMessaging.instance.getToken();
-    if (fcmToken == null) {
+    final userEmail = user.email;
+    if (fcmToken == null && userEmail == null) {
       yield false;
       return;
     }
     yield* FirebaseFirestore.instance
         .collection('notifications')
-        .where('token', isEqualTo: fcmToken)
         .where('read', isEqualTo: false)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs
-          .any((doc) => (doc.data()['data']?['type'] ?? '') == 'invitation');
+      return snapshot.docs.any((doc) {
+        final data = doc.data();
+        final type = data['data']?['type'] ?? '';
+        final tokenMatch = fcmToken != null && data['token'] == fcmToken;
+        final emailMatch =
+            userEmail != null && data['data']?['toEmail'] == userEmail;
+        return (type == 'invitation' || type == 'comment') &&
+            (tokenMatch || emailMatch);
+      });
     });
   }
 

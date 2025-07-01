@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:four_secrets_wedding_app/menue.dart';
 import 'package:four_secrets_wedding_app/model/to_do_model.dart';
-import 'package:four_secrets_wedding_app/pages/coolab_details_screen.dart';
-import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:four_secrets_wedding_app/services/todo_service.dart';
 import 'package:four_secrets_wedding_app/services/collaboration_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -12,7 +10,6 @@ import 'package:four_secrets_wedding_app/widgets/custom_text_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
 import '../widgets/custom_button_widget.dart';
 import '../services/push_notification_service.dart';
-import '../services/non_registered_invite_service.dart';
 
 class CollaborationScreen extends StatefulWidget {
   const CollaborationScreen({Key? key}) : super(key: key);
@@ -152,6 +149,7 @@ class _CollaborationScreenState extends State<CollaborationScreen>
       } else if (invite.containsKey('todoId')) {
         // Single-todo invite
         await _collaborationService.respondToInvitation(invitationId, accept);
+        // await _pushNotificationService.sendInvitationAcceptedNotification(inviterId: inviterId, inviteeName: inviteeName, todoName: todoName)
       } else {
         throw Exception('Invalid invitation format');
       }
@@ -474,7 +472,8 @@ class _CollaborationScreenState extends State<CollaborationScreen>
                                       ),
                                       const SizedBox(height: 8),
                                       CustomTextWidget(
-                                        text: 'Eingeladen von: $inviterName',
+                                        text: 'Eingeladene von: '
+                                            '${invite['inviteeName'] ?? invite['inviteeEmail'] ?? 'Unbekannt'}',
                                         color: Colors.black,
                                       ),
                                       if (invite['createdAt'] != null)
