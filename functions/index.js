@@ -35,7 +35,7 @@ exports.sendNotification = functions.firestore
             console.log('Successfully sent notification:', response);
             
             // Delete the notification document after sending
-            await snap.ref.delete();
+            // await snap.ref.delete();
             
             return null;
         } catch (error) {

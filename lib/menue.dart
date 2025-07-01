@@ -235,7 +235,7 @@ class MenueState extends State<Menue> {
     return text[0].toUpperCase() + text.substring(1);
   }
 
-  // Mark all collaboration notifications as read
+  // Mark all collaboration notifications as read (now: delete them)
   Future<void> _markAllCollabNotificationsAsRead() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
@@ -255,7 +255,7 @@ class MenueState extends State<Menue> {
               data['data']?['toEmail'] == userEmail);
       if ((type == 'invitation' || type == 'comment') &&
           (tokenMatch || emailMatch)) {
-        await doc.reference.update({'read': true});
+        await doc.reference.delete();
       }
     }
   }

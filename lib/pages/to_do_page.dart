@@ -153,7 +153,7 @@ class _ToDoPageState extends State<ToDoPage> {
         .where('token', isEqualTo: fcmToken)
         .where('read', isEqualTo: false)
         .get();
-    print("notifiation ");
+    print("notifications");
     // Only set to true if there is an unread invitation notification
     final hasInvite = snapshot.docs
         .any((doc) => (doc.data()['data']?['type'] ?? '') == 'invitation');

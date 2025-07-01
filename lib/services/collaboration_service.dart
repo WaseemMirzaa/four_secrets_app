@@ -197,6 +197,7 @@ class CollaborationService {
       print(updatedDoc.data());
       await invitationDoc.reference.update({'status': 'accepted'});
     } else {
+      // Only update invitation status, do NOT remove from revokedFor or add to collaborators
       await invitationDoc.reference.update({'status': 'declined'});
     }
   }
@@ -369,10 +370,31 @@ class CollaborationService {
       throw Exception('User not authenticated');
     }
 
+    // Prevent sending invitation to self
+    if (inviteeEmail.trim().toLowerCase() ==
+        currentUser.email?.trim().toLowerCase()) {
+      throw Exception('You cannot invite yourself.');
+    }
+
     // Get inviter's name
     final inviterDoc =
         await _firestore.collection('users').doc(currentUser.uid).get();
     final inviterName = inviterDoc.data()?['name'] ?? 'Unknown';
+
+    // Fetch the invitee's FCM token
+    String? inviteeFcmToken;
+    try {
+      final inviteeQuery = await _firestore
+          .collection('users')
+          .where('email', isEqualTo: inviteeEmail)
+          .limit(1)
+          .get();
+      if (inviteeQuery.docs.isNotEmpty) {
+        inviteeFcmToken = inviteeQuery.docs.first.data()['fcmToken'];
+      }
+    } catch (e) {
+      print('Error fetching invitee FCM token: $e');
+    }
 
     // Get all todos for the current user
     final todosSnapshot = await _firestore
@@ -420,6 +442,24 @@ class CollaborationService {
       'status': 'pending',
       'createdAt': FieldValue.serverTimestamp(),
     });
+
+    // Only send notification if inviteeFcmToken is found
+    if (inviteeFcmToken != null && inviteeFcmToken.isNotEmpty) {
+      await _firestore.collection('notifications').add({
+        'token': inviteeFcmToken,
+        'toEmail': inviteeEmail,
+        'title': 'Einladung zur Zusammenarbeit',
+        'body':
+            '$inviterName hat Sie eingeladen, an folgendem/followenden Element(en) zusammenzuarbeiten: ' +
+                (todoCount == 1 ? todoNames.first : todoNames.join(', ')),
+        'data': {'type': 'invitation'},
+        'timestamp': FieldValue.serverTimestamp(),
+        'read': false,
+      });
+    } else {
+      print(
+          'No FCM token found for invitee $inviteeEmail, notification not sent.');
+    }
 
     // Send email invitation
     if (inviteeEmail.isNotEmpty) {
@@ -469,53 +509,53 @@ class CollaborationService {
       'respondedAt': FieldValue.serverTimestamp(),
     });
 
-    // Send push notification (optional, can be updated to use email)
-    // ... existing code ...
-
-    // If accepted, add the receiver to the collaborators array of each todo
-    final ownerEmail = invitation['inviterEmail'];
-    final todoIds = List<String>.from(invitation['todoIds'] ?? []);
-    // Find the owner's userId by email
-    final ownerQuery = await _firestore
-        .collection('users')
-        .where('email', isEqualTo: ownerEmail)
-        .limit(1)
-        .get();
-    if (ownerQuery.docs.isEmpty) {
-      throw Exception('Owner not found');
-    }
-    final ownerId = ownerQuery.docs.first.id;
-    for (final todoId in todoIds) {
-      final todoRef = _firestore
+    if (accept) {
+      // If accepted, add the receiver to the collaborators array of each todo
+      final ownerEmail = invitation['inviterEmail'];
+      final todoIds = List<String>.from(invitation['todoIds'] ?? []);
+      // Find the owner's userId by email
+      final ownerQuery = await _firestore
           .collection('users')
-          .doc(ownerId)
-          .collection('todos')
-          .doc(todoId);
-      // Always add email to collaborators, and set ownerEmail if not present
-      final todoDoc = await todoRef.get();
-      final todoData = todoDoc.data() ?? {};
-      if (currentUser.email != ownerEmail) {
-        final updates = {
-          'collaborators': FieldValue.arrayUnion([currentUser.email]),
-          'isShared': true,
-          'revokedFor': FieldValue.arrayRemove([currentUser.email]),
-        };
-        if (todoData['ownerEmail'] == null && ownerEmail != null) {
-          updates['ownerEmail'] = ownerEmail;
-        }
-        await todoRef.update(updates);
+          .where('email', isEqualTo: ownerEmail)
+          .limit(1)
+          .get();
+      if (ownerQuery.docs.isEmpty) {
+        throw Exception('Owner not found');
       }
-      // Debug print
-      final updatedDoc = await todoRef.get();
-      print('[Collab Debug] Updated todo after accepting invite (multi):');
-      print(updatedDoc.data());
+      final ownerId = ownerQuery.docs.first.id;
+      for (final todoId in todoIds) {
+        final todoRef = _firestore
+            .collection('users')
+            .doc(ownerId)
+            .collection('todos')
+            .doc(todoId);
+        // Always add email to collaborators, and set ownerEmail if not present
+        final todoDoc = await todoRef.get();
+        final todoData = todoDoc.data() ?? {};
+        if (currentUser.email != ownerEmail) {
+          final updates = {
+            'collaborators': FieldValue.arrayUnion([currentUser.email]),
+            'isShared': true,
+            'revokedFor': FieldValue.arrayRemove([currentUser.email]),
+          };
+          if (todoData['ownerEmail'] == null && ownerEmail != null) {
+            updates['ownerEmail'] = ownerEmail;
+          }
+          await todoRef.update(updates);
+        }
+        // Debug print
+        final updatedDoc = await todoRef.get();
+        print('[Collab Debug] Updated todo after accepting invite (multi):');
+        print(updatedDoc.data());
+      }
+      // Add the receiver to the owner's globalCollaborators array (by email)
+      if (currentUser.email != ownerEmail) {
+        await _firestore.collection('users').doc(ownerId).update({
+          'globalCollaborators': FieldValue.arrayUnion([currentUser.email]),
+        });
+      }
     }
-    // Add the receiver to the owner's globalCollaborators array (by email)
-    if (currentUser.email != ownerEmail) {
-      await _firestore.collection('users').doc(ownerId).update({
-        'globalCollaborators': FieldValue.arrayUnion([currentUser.email]),
-      });
-    }
+    // If declined, do NOT add to collaborators or remove from revokedFor
   }
 
   // Remove all collaborators from a todo list (revoke access for all)
