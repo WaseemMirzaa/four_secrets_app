@@ -235,30 +235,30 @@ class MenueState extends State<Menue> {
     return text[0].toUpperCase() + text.substring(1);
   }
 
-  // Mark all collaboration notifications as read (now: delete them)
-  Future<void> _markAllCollabNotificationsAsRead() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-    final fcmToken = await FirebaseMessaging.instance.getToken();
-    final userEmail = user.email;
-    if (fcmToken == null && userEmail == null) return;
-    final snapshot = await FirebaseFirestore.instance
-        .collection('notifications')
-        .where('read', isEqualTo: false)
-        .get();
-    for (final doc in snapshot.docs) {
-      final data = doc.data();
-      final type = data['data']?['type'] ?? '';
-      final tokenMatch = fcmToken != null && data['token'] == fcmToken;
-      final emailMatch = userEmail != null &&
-          (data['toEmail'] == userEmail ||
-              data['data']?['toEmail'] == userEmail);
-      if ((type == 'invitation' || type == 'comment') &&
-          (tokenMatch || emailMatch)) {
-        await doc.reference.delete();
-      }
-    }
-  }
+  // // Mark all collaboration notifications as read (now: delete them)
+  // Future<void> _markAllCollabNotificationsAsRead() async {
+  //   final user = FirebaseAuth.instance.currentUser;
+  //   if (user == null) return;
+  //   final fcmToken = await FirebaseMessaging.instance.getToken();
+  //   final userEmail = user.email;
+  //   if (fcmToken == null && userEmail == null) return;
+  //   final snapshot = await FirebaseFirestore.instance
+  //       .collection('notifications')
+  //       .where('read', isEqualTo: false)
+  //       .get();
+  //   for (final doc in snapshot.docs) {
+  //     final data = doc.data();
+  //     final type = data['data']?['type'] ?? '';
+  //     final tokenMatch = fcmToken != null && data['token'] == fcmToken;
+  //     final emailMatch = userEmail != null &&
+  //         (data['toEmail'] == userEmail ||
+  //             data['data']?['toEmail'] == userEmail);
+  //     if ((type == 'invitation' || type == 'comment') &&
+  //         (tokenMatch || emailMatch)) {
+  //       await doc.reference.delete();
+  //     }
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -447,7 +447,7 @@ class MenueState extends State<Menue> {
                               _navigateTo(RouteManager.impressum);
                               break;
                             case "Hochzeitskit":
-                              _markAllCollabNotificationsAsRead();
+                              // _markAllCollabNotificationsAsRead();
                               _navigateTo(RouteManager.toDoPage);
                               break;
                             case "Inspirationen":

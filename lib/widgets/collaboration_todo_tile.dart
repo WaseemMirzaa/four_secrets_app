@@ -143,14 +143,9 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
         var value = map[encodeEmailForFirestore(currentUserEmail)];
         if (value is Timestamp) {
           lastRead = value;
-          print('[calculateHasUnread] lastRead (flat): ' + lastRead.toString());
         } else if (value is int) {
           lastRead = Timestamp.fromMillisecondsSinceEpoch(value);
-          print('[calculateHasUnread] lastRead (int): ' + lastRead.toString());
-        } else {
-          print('[calculateHasUnread] lastRead (unknown type): ' +
-              value.toString());
-        }
+        } else {}
       }
     }
     // Find latest comment or checkbox activity by someone else
@@ -477,14 +472,7 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
     debugPrint('[CollabTile] revokedFor: $revokedFor');
     // --- Unread logic for comments and checkbox changes ---
     final bool _hasUnread = calculateHasUnread(data, currentUserEmail);
-    print(
-        '[buildTileContent] _hasUnread: \\$_hasUnread\\ for user: \\${currentUserEmail}\\');
-    if (data['commentReadTimestamps'] != null) {
-      print('[buildTileContent] commentReadTimestamps: ' +
-          data['commentReadTimestamps'].toString());
-    } else {
-      print('[buildTileContent] commentReadTimestamps: null');
-    }
+
     // Print the latest activity and lastRead used in calculation
     {
       final comments = List<Map<String, dynamic>>.from(data['comments'] ?? []);

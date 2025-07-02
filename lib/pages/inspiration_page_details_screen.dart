@@ -229,6 +229,13 @@ class _InspirationDetailPageState extends State<InspirationDetailPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Expanded(
+                      child: CustomButtonWidget(
+                    text: "Abbrechen",
+                    color: Colors.white,
+                    onPressed: () => Navigator.of(context).pop(),
+                  )),
+                  SizedBox(width: 24),
+                  Expanded(
                     child: CustomButtonWidget(
                       text: "Speichern",
                       isLoading: isLoading,
@@ -259,13 +266,6 @@ class _InspirationDetailPageState extends State<InspirationDetailPage> {
                       },
                     ),
                   ),
-                  SizedBox(width: 24),
-                  Expanded(
-                      child: CustomButtonWidget(
-                    text: "Abbrechen",
-                    color: Colors.white,
-                    onPressed: () => Navigator.of(context).pop(),
-                  )),
                 ],
               ),
             ],

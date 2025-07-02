@@ -1,6 +1,8 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:four_secrets_wedding_app/menue.dart';
 import 'package:four_secrets_wedding_app/model/to_do_model.dart';
+import 'package:four_secrets_wedding_app/services/email_service.dart';
 import 'package:four_secrets_wedding_app/services/todo_service.dart';
 import 'package:four_secrets_wedding_app/services/collaboration_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -24,6 +26,7 @@ class _CollaborationScreenState extends State<CollaborationScreen>
   final CollaborationService _collaborationService = CollaborationService();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final EmailService _emailService = EmailService();
   final TextEditingController _commentController = TextEditingController();
   List<ToDoModel> _ownedTodos = [];
   List<ToDoModel> _collaboratedTodos = [];
@@ -96,6 +99,12 @@ class _CollaborationScreenState extends State<CollaborationScreen>
           .where((doc) => doc.data()['userId'] != myUid)
           .map((doc) => ToDoModel.fromFirestore(doc))
           .toList();
+      final inviterEmails = _receivedInvitations
+          .map((invite) => invite['inviterEmail'])
+          .whereType<String>()
+          .toSet();
+      await _preloadUserInfo(inviterEmails);
+
       setState(() => _isLoading = false);
     } catch (e) {
       setState(() => _isLoading = false);
@@ -123,6 +132,59 @@ class _CollaborationScreenState extends State<CollaborationScreen>
         }
       }
     }
+  }
+
+  Future<void> _markAllCollabNotificationsAsRead() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    final fcmToken = await FirebaseMessaging.instance.getToken();
+    final userEmail = user.email;
+    if (fcmToken == null && userEmail == null) return;
+    final snapshot = await FirebaseFirestore.instance
+        .collection('notifications')
+        .where('read', isEqualTo: false)
+        .get();
+    for (final doc in snapshot.docs) {
+      final data = doc.data();
+      final type = data['data']?['type'] ?? '';
+      final tokenMatch = fcmToken != null && data['token'] == fcmToken;
+      final emailMatch =
+          userEmail != null && data['data']?['toEmail'] == userEmail;
+      if ((type == 'invitation' || type == 'comment') &&
+          (tokenMatch || emailMatch)) {
+        await doc.reference.update({'read': true});
+      }
+    }
+  }
+
+  // Add this helper for the invitation notification stream
+  Stream<bool> get _hasNewCollabNotificationStream async* {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      yield false;
+      return;
+    }
+    final fcmToken = await FirebaseMessaging.instance.getToken();
+    final userEmail = user.email;
+    if (fcmToken == null && userEmail == null) {
+      yield false;
+      return;
+    }
+    yield* FirebaseFirestore.instance
+        .collection('notifications')
+        .where('read', isEqualTo: false)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.any((doc) {
+        final data = doc.data();
+        final type = data['data']?['type'] ?? '';
+        final tokenMatch = fcmToken != null && data['token'] == fcmToken;
+        final emailMatch =
+            userEmail != null && data['data']?['toEmail'] == userEmail;
+        return (type == 'invitation' || type == 'comment') &&
+            (tokenMatch || emailMatch);
+      });
+    });
   }
 
   Future<void> _respondToInvitation(String invitationId, bool accept) async {
@@ -165,6 +227,12 @@ class _CollaborationScreenState extends State<CollaborationScreen>
               Navigator.of(context).pop();
             }
           });
+        } else {
+          await _pushNotificationService.sendInvitationRejectedNotification(
+            inviterId: invite['inviterId'],
+            inviteeName: invite['inviterName'],
+          );
+          print("Rejected");
         }
       }
     } catch (e) {
@@ -188,7 +256,9 @@ class _CollaborationScreenState extends State<CollaborationScreen>
       _cancellingInvites.add(invitationId);
     });
     try {
-      await _firestore.collection('invitations').doc(invitationId).delete();
+      // Use the service method to handle deletion and notification
+      await _collaborationService.deleteInvitation(invitationId);
+
       await _loadData();
       if (mounted) {
         SnackBarHelper.showSuccessSnackBar(
@@ -234,6 +304,11 @@ class _CollaborationScreenState extends State<CollaborationScreen>
           ),
           bottom: TabBar(
             indicatorColor: Colors.white,
+            onTap: (value) async {
+              if (value == 1) {
+                await _markAllCollabNotificationsAsRead();
+              }
+            },
             indicatorSize: TabBarIndicatorSize.tab,
             indicatorWeight: 5,
             labelColor: Colors.white,
@@ -241,9 +316,32 @@ class _CollaborationScreenState extends State<CollaborationScreen>
             unselectedLabelColor: Colors.white,
             labelStyle: TextStyle(fontWeight: FontWeight.bold),
             unselectedLabelStyle: TextStyle(fontWeight: FontWeight.normal),
-            tabs: const [
+            tabs: [
               Tab(text: 'Gesendet'),
-              Tab(text: 'Empfangen'),
+              Tab(
+                  child: StreamBuilder<bool>(
+                      stream: _hasNewCollabNotificationStream,
+                      initialData: false,
+                      builder: (context, snapshot) {
+                        final hasNewCollabNotification = snapshot.data ?? false;
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          spacing: 10,
+                          children: [
+                            CustomTextWidget(
+                              text: 'Empfangen',
+                              color: Colors.white,
+                            ),
+                            if (hasNewCollabNotification)
+                              Container(
+                                height: 10,
+                                width: 10,
+                                decoration: BoxDecoration(
+                                    color: Colors.red, shape: BoxShape.circle),
+                              ),
+                          ],
+                        );
+                      })),
             ],
           ),
         ),
@@ -477,7 +575,7 @@ class _CollaborationScreenState extends State<CollaborationScreen>
                                       const SizedBox(height: 8),
                                       CustomTextWidget(
                                         text: 'Eingeladene von: '
-                                            '${invite['inviteeName'] ?? invite['inviteeEmail'] ?? 'Unbekannt'}',
+                                            '${invite['inviterName'] ?? invite['inviterEmail'] ?? 'Unbekannt'}',
                                         color: Colors.black,
                                       ),
                                       if (invite['createdAt'] != null)

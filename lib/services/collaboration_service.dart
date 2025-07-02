@@ -10,7 +10,7 @@ class CollaborationService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final PushNotificationService _pushNotificationService =
       PushNotificationService();
-
+  final EmailService _emailService = EmailService();
   String? get userId => _auth.currentUser?.uid;
 
   // Send collaboration invitation
@@ -199,6 +199,15 @@ class CollaborationService {
     } else {
       // Only update invitation status, do NOT remove from revokedFor or add to collaborators
       await invitationDoc.reference.update({'status': 'declined'});
+      // Notify the inviter that their invitation was declined
+      if (invitation['inviterId'] != null) {
+        await _pushNotificationService.sendNotification(
+          userId: invitation['inviterId'],
+          title: 'Einladung abgelehnt',
+          body: '${currentUser.email} hat deine Einladung abgelehnt.',
+          data: {'type': 'invitation_declined'},
+        );
+      }
     }
   }
 
@@ -271,18 +280,9 @@ class CollaborationService {
 
     // Delete the invitation
     await _firestore.collection('invitations').doc(invitationId).delete();
-
-    // Send push notification to invitee
-    await _pushNotificationService.sendNotification(
-      userId: invitation['inviteeId'],
-      title: 'Invitation Revoked',
-      body:
-          'Your invitation to collaborate on "${invitation['todoName']}" has been revoked',
-      data: {
-        'type': 'invitation_revoked',
-        'todoName': invitation['todoName'],
-      },
-    );
+    await _emailService.sendRevokeAccessEmail(
+        email: invitation['inviteeEmail'],
+        inviterName: invitation['inviterName']);
   }
 
   // Leave a collaboration
@@ -333,8 +333,17 @@ class CollaborationService {
 
       for (var doc in invitations.docs) {
         await doc.reference.delete();
+        await _emailService.sendRevokeAccessEmail(
+            email: doc.data()['inviteeEmail'],
+            inviterName: doc.data()['inviterName']);
+        await _pushNotificationService.sendNotification(
+          userId: doc.data()['inviteeId'],
+          title: 'Einladung storniert',
+          body:
+              'Ihre Einladung zur Zusammenarbeit auf "${doc.data()['todoName']}" wurde storniert',
+          data: {'type': 'invitation_revoked'},
+        );
       }
-      print('Deleted ${invitations.docs.length} pending invitations');
     } catch (e) {
       print('Error leaving collaboration: $e');
       throw Exception('Error leaving collaboration: $e');
@@ -434,7 +443,7 @@ class CollaborationService {
       'todoIds': todoIds,
       'todoNames': todoNames,
       'todoCount': todoCount,
-      'todoCategories': todoCategories, // <-- include categories
+      'todoCategories': todoCategories,
       'inviterEmail': currentUser.email,
       'inviterName': inviterName,
       'inviteeEmail': inviteeEmail,
@@ -462,22 +471,22 @@ class CollaborationService {
     }
 
     // Send email invitation
-    if (inviteeEmail.isNotEmpty) {
-      final emailService = EmailService();
-      final subject = 'Einladung zur Zusammenarbeit';
-      final message =
-          '$inviterName hat Sie eingeladen, an folgendem/followenden Element(en) zusammenzuarbeiten: ' +
-              (todoCount == 1 ? todoNames.first : todoNames.join(', '));
-      try {
-        await emailService.sendEmail(
-          email: inviteeEmail,
-          subject: subject,
-          message: message,
-        );
-      } catch (e) {
-        print('Failed to send invitation email: $e');
-      }
-    }
+    // if (inviteeEmail.isNotEmpty) {
+    //   final emailService = EmailService();
+    //   final subject = 'Einladung zur Zusammenarbeit';
+    //   final message =
+    //       '$inviterName hat Sie eingeladen, an folgendem/followenden Element(en) zusammenzuarbeiten: ' +
+    //           (todoCount == 1 ? todoNames.first : todoNames.join(', '));
+    //   try {
+    //     await emailService.sendEmail(
+    //       email: inviteeEmail,
+    //       subject: subject,
+    //       message: message,
+    //     );
+    //   } catch (e) {
+    //     print('Failed to send invitation email: $e');
+    //   }
+    // }
   }
 
   // Respond to an invitation (for ALL todos)
@@ -541,6 +550,13 @@ class CollaborationService {
           if (todoData['ownerEmail'] == null && ownerEmail != null) {
             updates['ownerEmail'] = ownerEmail;
           }
+          await _pushNotificationService.sendNotification(
+            userId: todoId,
+            title: 'Zugriff erhalten',
+            body:
+                'Du hast Zugriff auf die Liste "${todoData['toDoName']}" erhalten',
+            data: {'type': 'access_granted'},
+          );
           await todoRef.update(updates);
         }
         // Debug print
@@ -554,6 +570,17 @@ class CollaborationService {
           'globalCollaborators': FieldValue.arrayUnion([currentUser.email]),
         });
       }
+    } else {
+      // Notify the inviter that their invitation was declined
+      if (invitation['inviterId'] != null) {
+        await _pushNotificationService.sendNotification(
+          userId: invitation['inviterId'],
+          title: 'Einladung abgelehnt',
+          body: '${currentUser.email} hat deine Einladung abgelehnt.',
+          data: {'type': 'invitation_declined'},
+        );
+      }
+      print("${invitation['inviterId']}  ");
     }
     // If declined, do NOT add to collaborators or remove from revokedFor
   }

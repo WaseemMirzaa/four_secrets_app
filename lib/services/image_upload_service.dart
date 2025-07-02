@@ -5,7 +5,7 @@ import 'package:path/path.dart';
 import '../models/image_upload_response.dart';
 
 class ImageUploadService {
-  static const String baseUrl = 'http://164.92.175.72';
+  static const String baseUrl = 'http://164.92.175.72:8080';
   static const String deleteEndpoint = '/api/images/delete';
   static const String uploadEndpoint = '/api/images/upload';
 
@@ -46,7 +46,8 @@ class ImageUploadService {
       throw Exception('Failed to upload image: $e');
     }
   }
-   /// Upload and optionally replace an existing image on the server
+
+  /// Upload and optionally replace an existing image on the server
   Future<ImageUploadResponse> uploadImageAndUpdateImage(
     File imageFile, {
     String? previousImageUrl, // ← NOW OPTIONAL
@@ -74,15 +75,14 @@ class ImageUploadService {
       if (response.statusCode == 200 || response.statusCode == 201) {
         return ImageUploadResponse.fromJson(json.decode(response.body));
       } else {
-        throw Exception('Upload & update failed: ${response.statusCode} – ${response.body}');
+        throw Exception(
+            'Upload & update failed: ${response.statusCode} – ${response.body}');
       }
     } catch (e) {
       print('Error in uploadImageAndUpdateImage: $e');
       rethrow;
     }
   }
-
-
 
   /// Delete an image from the server
   Future<ImageDeleteResponse> deleteImage(String imageUrl) async {
@@ -107,6 +107,4 @@ class ImageUploadService {
       rethrow;
     }
   }
-
-
 }

@@ -211,16 +211,13 @@ class PushNotificationService {
   Future<void> sendInvitationRejectedNotification({
     required String inviterId,
     required String inviteeName,
-    required String todoName,
   }) async {
     await sendNotification(
       userId: inviterId,
       title: 'Einladung abgelehnt',
-      body:
-          '$inviteeName hat deine Einladung zur Zusammenarbeit an "$todoName" abgelehnt',
+      body: '$inviteeName hat deine Einladung zur Zusammenarbeit',
       data: {
         'type': 'invitation_rejected',
-        'todoName': todoName,
       },
     );
   }

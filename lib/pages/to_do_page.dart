@@ -8,6 +8,7 @@ import 'package:four_secrets_wedding_app/model/category_model.dart';
 import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
 import 'package:four_secrets_wedding_app/model/to_do_model.dart';
 import 'package:four_secrets_wedding_app/routes/routes.dart';
+import 'package:four_secrets_wedding_app/services/email_service.dart';
 import 'package:four_secrets_wedding_app/services/todo_service.dart';
 import 'package:four_secrets_wedding_app/services/auth_service.dart';
 import 'package:four_secrets_wedding_app/services/collaboration_service.dart';
@@ -36,6 +37,7 @@ class ToDoPage extends StatefulWidget {
 class _ToDoPageState extends State<ToDoPage> {
   final toDoService = TodoService();
   final authService = AuthService();
+  final emailService = EmailService();
   final key = GlobalKey<MenueState>();
   final collaborationService = CollaborationService();
   bool isLoading = false;
@@ -61,7 +63,7 @@ class _ToDoPageState extends State<ToDoPage> {
     super.initState();
     _loadAndInitCategories();
     _checkUnreadNotifications();
-    _markAllCollabNotificationsAsRead();
+    // _markAllCollabNotificationsAsRead();
   }
 
   Future<void> _loadAndInitCategories() async {
@@ -161,29 +163,6 @@ class _ToDoPageState extends State<ToDoPage> {
       hasNewCollabNotification = hasInvite;
       print(hasNewCollabNotification);
     });
-  }
-
-  Future<void> _markAllCollabNotificationsAsRead() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-    final fcmToken = await FirebaseMessaging.instance.getToken();
-    final userEmail = user.email;
-    if (fcmToken == null && userEmail == null) return;
-    final snapshot = await FirebaseFirestore.instance
-        .collection('notifications')
-        .where('read', isEqualTo: false)
-        .get();
-    for (final doc in snapshot.docs) {
-      final data = doc.data();
-      final type = data['data']?['type'] ?? '';
-      final tokenMatch = fcmToken != null && data['token'] == fcmToken;
-      final emailMatch =
-          userEmail != null && data['data']?['toEmail'] == userEmail;
-      if ((type == 'invitation' || type == 'comment') &&
-          (tokenMatch || emailMatch)) {
-        await doc.reference.update({'read': true});
-      }
-    }
   }
 
   Future<void> _showInviteDialog() async {
@@ -312,6 +291,11 @@ class _ToDoPageState extends State<ToDoPage> {
                                                           user['email'],
                                                       inviteeName: user['name'],
                                                     );
+                                                    await emailService
+                                                        .sendInvitationEmail(
+                                                      email: user['email'],
+                                                      inviterName: user['name'],
+                                                    );
 
                                                     // Save to non_registered_users collection
                                                     final nonRegisteredUser =
@@ -411,6 +395,13 @@ class _ToDoPageState extends State<ToDoPage> {
                                                   inviteeEmail:
                                                       searchController.text,
                                                   inviteeName:
+                                                      name[0].toUpperCase() +
+                                                          name.substring(1),
+                                                );
+                                                await emailService
+                                                    .sendInvitationEmail(
+                                                  email: searchController.text,
+                                                  inviterName:
                                                       name[0].toUpperCase() +
                                                           name.substring(1),
                                                 );
@@ -704,7 +695,9 @@ class _ToDoPageState extends State<ToDoPage> {
                               MaterialPageRoute(
                                   builder: (context) => CollaborationScreen()),
                             );
+
                             await _loadAndInitCategories();
+                            setState(() {});
                           },
                         ),
                         if (hasNewCollabNotification)
@@ -780,6 +773,31 @@ class _ToDoPageState extends State<ToDoPage> {
                         try {
                           for (final todo in ownedTodos) {
                             await toDoService.removeAllCollaborators(todo.id!);
+                            final userQuery = await FirebaseFirestore.instance
+                                .collection('users')
+                                .where('email', isEqualTo: todo.ownerEmail)
+                                .limit(1)
+                                .get();
+                            String? ownerUid;
+                            if (userQuery.docs.isNotEmpty) {
+                              ownerUid = userQuery.docs.first.id;
+                            } else {
+                              // fallback: use email as UID (legacy)
+                              ownerUid = todo.ownerEmail;
+                            }
+                            final doc = await FirebaseFirestore.instance
+                                .collection('users')
+                                .doc(ownerUid)
+                                .get();
+                            final name = doc.data()?['name'] ?? todo.ownerEmail;
+
+                            print(name);
+                            if (todo.ownerEmail != null) {
+                              await emailService.sendRevokeAccessEmail(
+                                email: todo.ownerEmail!,
+                                inviterName: name,
+                              );
+                            }
                           }
                           SnackBarHelper.showSuccessSnackBar(
                               context, 'Zugriff erfolgreich entzogen.');

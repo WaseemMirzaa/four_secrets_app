@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:four_secrets_wedding_app/services/push_notification_service.dart';
 import '../model/to_do_model.dart';
 import 'collaboration_service.dart';
 import 'category_service.dart';
@@ -9,7 +10,8 @@ class TodoService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final CollaborationService _collaborationService = CollaborationService();
   final CategoryService _categoryService = CategoryService();
-
+  final PushNotificationService _notificationService =
+      PushNotificationService();
   String? get userId => _auth.currentUser?.uid;
   // Future<void> createInitialTodoItems() async {
   //   print('🟢 Starting createInitialTodoItems');
@@ -568,6 +570,24 @@ class TodoService {
       isShared: false,
       revokedFor: prevCollaborators,
     );
+    // Send notification to all collaborators (not the owner)
+    for (final collaboratorEmail in prevCollaborators) {
+      // Find userId by email
+      final userQuery = await _firestore
+          .collection('users')
+          .where('email', isEqualTo: collaboratorEmail)
+          .limit(1)
+          .get();
+      if (userQuery.docs.isNotEmpty) {
+        final collaboratorId = userQuery.docs.first.id;
+        await _notificationService.sendNotification(
+          userId: collaboratorId,
+          title: 'Zugriff entzogen',
+          body: 'Der Zugriff auf die Liste "${todo.toDoName}" wurde entzogen',
+          data: {'type': 'access_revoked'},
+        );
+      }
+    }
     await _firestore
         .collection('users')
         .doc(userId)
