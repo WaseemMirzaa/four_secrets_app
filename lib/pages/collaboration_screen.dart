@@ -227,13 +227,7 @@ class _CollaborationScreenState extends State<CollaborationScreen>
               Navigator.of(context).pop();
             }
           });
-        } else {
-          await _pushNotificationService.sendInvitationRejectedNotification(
-            inviterId: invite['inviterId'],
-            inviteeName: invite['inviterName'],
-          );
-          print("Rejected");
-        }
+        } 
       }
     } catch (e) {
       if (mounted) {
@@ -256,8 +250,7 @@ class _CollaborationScreenState extends State<CollaborationScreen>
       _cancellingInvites.add(invitationId);
     });
     try {
-      // Use the service method to handle deletion and notification
-      await _collaborationService.deleteInvitation(invitationId);
+      await _firestore.collection('invitations').doc(invitationId).delete();
 
       await _loadData();
       if (mounted) {
