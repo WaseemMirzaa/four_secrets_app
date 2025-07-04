@@ -2,6 +2,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:four_secrets_wedding_app/models/drawer_model.dart';
+import 'package:four_secrets_wedding_app/widgets/custom_text_widget.dart';
+import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
 import '../config/theme/app_theme.dart';
 import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:four_secrets_wedding_app/services/auth_service.dart';
@@ -9,15 +12,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'utils/snackbar_helper.dart';
 import 'services/menu_service.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 export 'menue.dart' show MenueState;
 
 class Menue extends StatefulWidget {
-  const Menue({Key? key}) : super(key: key);
+  Menue({Key? key}) : super(key: key);
 
   // Static method to get the singleton menu instance
-  static Widget getInstance() {
-    return MenuService().getMenu();
+  static Widget getInstance(Key keyWidget) {
+    return MenuService().getMenu(keyWidget);
   }
 
   // Static method to preload user data
@@ -39,6 +43,53 @@ class MenueState extends State<Menue> {
   String? _userName;
   String? _profilePictureUrl;
   bool _isLoading = true;
+  // Initialize later in initState()
+  late Map<String, bool> _pressedStates;
+  String? currentSelected;
+
+  // Helper: get the notification stream for unread invitations or comments
+  Stream<bool> get _hasNewCollabNotificationStream async* {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      print('[Menu Notification Debug] No user logged in.');
+      yield false;
+      return;
+    }
+    final fcmToken = await FirebaseMessaging.instance.getToken();
+    final userEmail = user.email;
+    print(
+        '[Menu Notification Debug] Current FCM token: $fcmToken, email: $userEmail');
+    if (fcmToken == null && userEmail == null) {
+      print('[Menu Notification Debug] No FCM token or email.');
+      yield false;
+      return;
+    }
+    yield* FirebaseFirestore.instance
+        .collection('notifications')
+        .where('read', isEqualTo: false)
+        .snapshots()
+        .map((snapshot) {
+      print(
+          '[Menu Notification Debug] Checking ${snapshot.docs.length} notification docs...');
+      final matches = snapshot.docs.where((doc) {
+        final data = doc.data();
+        print('[Menu Notification Debug] Notification doc: ' + data.toString());
+        final type = data['data']?['type'] ?? '';
+        final tokenMatch = fcmToken != null && data['token'] == fcmToken;
+        final emailMatch = userEmail != null &&
+            (data['toEmail'] == userEmail ||
+                data['data']?['toEmail'] == userEmail);
+        final result = (type == 'invitation' || type == 'comment') &&
+            (tokenMatch || emailMatch);
+        print(
+            '[Menu Notification Debug] type: $type, tokenMatch: $tokenMatch, emailMatch: $emailMatch, result: $result, doc: ${doc.id}');
+        return result;
+      }).toList();
+      print(
+          '[Menu Notification Debug] Matched notifications count: \'${matches.length}\'');
+      return matches.isNotEmpty;
+    });
+  }
 
   @override
   void initState() {
@@ -46,6 +97,17 @@ class MenueState extends State<Menue> {
 
     // Check if data is already loaded in the service
     final menuService = MenuService();
+    _pressedStates = {
+      for (var item in listDrawerModel) item.name: false,
+      'Profil bearbeiten': false,
+      'Logout': false,
+    };
+    _loadUserData();
+
+    // Load saved selection from MenuService or default to Home
+    currentSelected = menuService.selectedItem ?? listDrawerModel[0].name;
+    _pressedStates[currentSelected!] = true;
+
     if (menuService.isDataLoaded) {
       _userName = menuService.userName;
       _profilePictureUrl = menuService.profilePictureUrl;
@@ -53,6 +115,23 @@ class MenueState extends State<Menue> {
     } else {
       _loadUserData();
     }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+  }
+
+  void _select(String name) {
+    if (!mounted) return;
+    setState(() {
+      _pressedStates.updateAll((_, __) => false);
+      _pressedStates[name] = true;
+      currentSelected = name;
+      if (name != 'Logout') {
+        MenuService().selectedItem = name; // Save only non-logout selections
+      }
+    });
   }
 
   // Method to update user data from outside
@@ -67,6 +146,7 @@ class MenueState extends State<Menue> {
   }
 
   Future<void> _loadUserData() async {
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
     });
@@ -109,39 +189,16 @@ class MenueState extends State<Menue> {
     }
   }
 
-  bool isPressedBtn0 = false; // Home
-  bool isPressedBtn1 = false; // Profil bearbeiten
-  bool isPressedBtn2 = false; // Inspirationen
-  bool isPressedBtn3 = false; // Budget
-  bool isPressedBtn4 = false; // Checkliste
-  bool isPressedBtn5 = false; // Gästeliste
-  bool isPressedBtn6 = false; // Tischverwaltung
-  bool isPressedBtn7 = false; // Showroom
-  bool isPressedBtn8 = false; // About me
-  bool isPressedBtn9 = false; // Kontakt
-  bool isPressedBtn10 = false; // Impressum
-  bool isPressedBtn11 = false; // Logout
-
-  void buttonIsPressed(int buttonNumber) {
-    setState(() {
-      isPressedBtn0 = buttonNumber == 0;
-      isPressedBtn1 = buttonNumber == 1;
-      isPressedBtn2 = buttonNumber == 2;
-      isPressedBtn3 = buttonNumber == 3;
-      isPressedBtn4 = buttonNumber == 4;
-      isPressedBtn5 = buttonNumber == 5;
-      isPressedBtn6 = buttonNumber == 6;
-      isPressedBtn7 = buttonNumber == 7;
-      isPressedBtn8 = buttonNumber == 8;
-      isPressedBtn9 = buttonNumber == 9;
-      isPressedBtn10 = buttonNumber == 10;
-      isPressedBtn11 = buttonNumber == 11;
-    });
+  // Optimized navigation method to eliminate Timer delays
+  void _navigateTo(String routeName) {
+    if (!mounted) return;
+    Navigator.of(context).pushNamed(routeName);
   }
 
   Future<void> _handleLogout(BuildContext context) async {
     try {
       await _authService.signOut();
+      MenuService().selectedItem = null;
       if (mounted) {
         Navigator.of(context).pushNamedAndRemoveUntil(
           RouteManager.signinPage,
@@ -178,6 +235,31 @@ class MenueState extends State<Menue> {
     return text[0].toUpperCase() + text.substring(1);
   }
 
+  // // Mark all collaboration notifications as read (now: delete them)
+  // Future<void> _markAllCollabNotificationsAsRead() async {
+  //   final user = FirebaseAuth.instance.currentUser;
+  //   if (user == null) return;
+  //   final fcmToken = await FirebaseMessaging.instance.getToken();
+  //   final userEmail = user.email;
+  //   if (fcmToken == null && userEmail == null) return;
+  //   final snapshot = await FirebaseFirestore.instance
+  //       .collection('notifications')
+  //       .where('read', isEqualTo: false)
+  //       .get();
+  //   for (final doc in snapshot.docs) {
+  //     final data = doc.data();
+  //     final type = data['data']?['type'] ?? '';
+  //     final tokenMatch = fcmToken != null && data['token'] == fcmToken;
+  //     final emailMatch = userEmail != null &&
+  //         (data['toEmail'] == userEmail ||
+  //             data['data']?['toEmail'] == userEmail);
+  //     if ((type == 'invitation' || type == 'comment') &&
+  //         (tokenMatch || emailMatch)) {
+  //       await doc.reference.delete();
+  //     }
+  //   }
+  // }
+
   @override
   Widget build(BuildContext context) {
     // Set status bar color to black
@@ -186,481 +268,298 @@ class MenueState extends State<Menue> {
       statusBarIconBrightness: Brightness.light,
     ));
 
-    return Drawer(
-      width: 225,
-      backgroundColor: Colors.white70,
-      child: ListView(
-        children: [
-          SizedBox(
-            height: 180,
-            child: DrawerHeader(
-              padding: const EdgeInsets.all(16.0),
-              margin: const EdgeInsets.all(0.0),
-              decoration: const BoxDecoration(
-                color: Color.fromARGB(255, 107, 69, 106),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  if (!_isLoading)
-                    CircleAvatar(
-                      radius: 55,
-                      backgroundColor: Colors.white,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2.0),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              spreadRadius: 1,
-                              blurRadius: 3,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: ClipOval(
-                          child: (_profilePictureUrl != null &&
-                                  _profilePictureUrl!.isNotEmpty
-                              ? Image.network(
-                                  _profilePictureUrl!,
-                                  width: 100,
-                                  height: 100,
-                                  fit: BoxFit.cover,
-                                  // loadingBuilder:
-                                  //     (context, child, loadingProgress) {
-                                  //   if (loadingProgress == null) {
-                                  //     return child;
-                                  //   }
-                                  //   return Center(
-                                  //     child: CircularProgressIndicator(
-                                  //       color: const Color.fromARGB(
-                                  //           255, 107, 69, 106),
-                                  //       value: loadingProgress
-                                  //                   .expectedTotalBytes !=
-                                  //               null
-                                  //           ? loadingProgress
-                                  //                   .cumulativeBytesLoaded /
-                                  //               loadingProgress
-                                  //                   .expectedTotalBytes!
-                                  //           : null,
-                                  //     ),
-                                  //   );
-                                  // },
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Container(
-                                      width: 100,
-                                      height: 100,
-                                    );
-                                  },
-                                )
-                              : Image.asset(
-                                  'assets/images/logo/secrets-logo.jpg',
-                                  width: 100,
-                                  height: 100,
-                                  fit: BoxFit.cover,
-                                )),
-                        ),
-                      ),
-                    ),
-                  const SizedBox(height: 6),
-                  Center(
-                    child: Text(
-                      _isLoading ? '' : (_userName ?? ''),
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+    return StreamBuilder<bool>(
+      stream: _hasNewCollabNotificationStream,
+      initialData: false,
+      builder: (context, snapshot) {
+        print('StreamBuilder notification snapshot.data: \'${snapshot.data}\'');
+        final hasNewCollabNotification = snapshot.data ?? false;
+        return Drawer(
+          width: 225,
+          backgroundColor: Colors.white70,
+          child: ListView(
+            children: [
+              SizedBox(
+                height: 180,
+                child: DrawerHeader(
+                  padding: const EdgeInsets.all(16.0),
+                  margin: const EdgeInsets.all(0.0),
+                  decoration: const BoxDecoration(
+                    color: Color.fromARGB(255, 107, 69, 106),
                   ),
-                ],
-              ),
-            ),
-          ),
-          // 1. Home
-          Card(
-            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: ListTile(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 0,
-              ),
-              tileColor: isPressedBtn0 ? Colors.purple[50] : Colors.white,
-              leading: const Icon(Icons.home),
-              title: const Text(
-                'Home',
-                style: TextStyle(fontSize: 18),
-              ),
-              onTap: () {
-                buttonIsPressed(0);
-                Timer(
-                  const Duration(milliseconds: 100),
-                  () {
-                    Navigator.of(context).pushNamed(RouteManager.homePage);
-                  },
-                );
-              },
-            ),
-          ),
-          // 2. Inspirationen
-          Card(
-            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: ListTile(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 0,
-              ),
-              tileColor: isPressedBtn2 ? Colors.purple[50] : Colors.white,
-              leading: const Icon(Icons.auto_stories),
-              title: const Text(
-                'Inspirationen',
-                style: TextStyle(fontSize: 18),
-              ),
-              onTap: () {
-                buttonIsPressed(2);
-                Timer(
-                  const Duration(milliseconds: 100),
-                  () {
-                    Navigator.of(context)
-                        .pushNamed(RouteManager.inspirationsPage);
-                  },
-                );
-              },
-            ),
-          ),
-          // 3. Checkliste
-          Card(
-            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: ListTile(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 0,
-              ),
-              tileColor: isPressedBtn4 ? Colors.purple[50] : Colors.white,
-              leading: const Icon(Icons.checklist),
-              title: const Text(
-                'Checkliste',
-                style: TextStyle(fontSize: 18),
-              ),
-              onTap: () {
-                buttonIsPressed(4);
-                Timer(
-                  const Duration(milliseconds: 100),
-                  () {
-                    Navigator.of(context).pushNamed(RouteManager.checklistPage);
-                  },
-                );
-              },
-            ),
-          ),
-          // 4. Budget
-          Card(
-            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: ListTile(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 0,
-              ),
-              tileColor: isPressedBtn3 ? Colors.purple[50] : Colors.white,
-              leading: const Icon(Icons.euro_rounded),
-              title: const Text(
-                'Budget',
-                style: TextStyle(fontSize: 18),
-              ),
-              onTap: () {
-                buttonIsPressed(3);
-                Timer(
-                  const Duration(milliseconds: 100),
-                  () {
-                    Navigator.of(context).pushNamed(RouteManager.budgetPage);
-                  },
-                );
-              },
-            ),
-          ),
-          // 5. Gästeliste
-          Card(
-            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: ListTile(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 0,
-              ),
-              tileColor: isPressedBtn5 ? Colors.purple[50] : Colors.white,
-              leading: const Icon(Icons.group),
-              title: const Text(
-                'Gästeliste',
-                style: TextStyle(fontSize: 18),
-              ),
-              onTap: () {
-                buttonIsPressed(5);
-                Timer(
-                  const Duration(milliseconds: 100),
-                  () {
-                    Navigator.of(context)
-                        .pushNamed(RouteManager.gaestelistPage);
-                  },
-                );
-              },
-            ),
-          ),
-          // 6. Tischverwaltung
-          Card(
-            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: ListTile(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 0,
-              ),
-              tileColor: isPressedBtn6 ? Colors.purple[50] : Colors.white,
-              leading: const Icon(Icons.table_bar),
-              title: const Text('Tischverwaltung'),
-              onTap: () {
-                buttonIsPressed(6);
-                Timer(
-                  const Duration(milliseconds: 100),
-                  () {
-                    Navigator.of(context)
-                        .pushNamed(RouteManager.tablesManagementPage);
-                  },
-                );
-              },
-            ),
-          ),
-          // 7. Showroom
-          Card(
-            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: ListTile(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 0,
-              ),
-              tileColor: isPressedBtn7 ? Colors.purple[50] : Colors.white,
-              leading: const Icon(Icons.celebration),
-              title: const Text(
-                'Showroom',
-                style: TextStyle(fontSize: 18),
-              ),
-              onTap: () {
-                buttonIsPressed(7);
-                Timer(
-                  const Duration(milliseconds: 100),
-                  () {
-                    Navigator.of(context)
-                        .pushNamed(RouteManager.showroomEventPage);
-                  },
-                );
-              },
-            ),
-          ),
-          // 8. About me
-          Card(
-            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: ListTile(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 0,
-              ),
-              tileColor: isPressedBtn8 ? Colors.purple[50] : Colors.white,
-              leading: const Icon(
-                Icons.account_box_sharp,
-              ),
-              title: const Text(
-                'About me',
-                style: TextStyle(fontSize: 18),
-              ),
-              onTap: () {
-                buttonIsPressed(8);
-                Timer(
-                  const Duration(milliseconds: 100),
-                  () {
-                    Navigator.of(context).pushNamed(RouteManager.aboutMePage);
-                  },
-                );
-              },
-            ),
-          ),
-          // 9. Kontakt
-          Card(
-            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: ListTile(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 0,
-              ),
-              tileColor: isPressedBtn9 ? Colors.purple[50] : Colors.white,
-              leading: Icon(FontAwesomeIcons.mapLocationDot),
-              title: const Text(
-                'Kontakt',
-                style: TextStyle(fontSize: 18),
-              ),
-              onTap: () {
-                buttonIsPressed(9);
-                Timer(
-                  const Duration(milliseconds: 100),
-                  () {
-                    Navigator.of(context).pushNamed(RouteManager.kontakt);
-                  },
-                );
-              },
-            ),
-          ),
-          // 10. Impressum
-          Card(
-            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: ListTile(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 0,
-              ),
-              tileColor: isPressedBtn10 ? Colors.purple[50] : Colors.white,
-              leading: Icon(
-                FontAwesomeIcons.circleInfo,
-              ),
-              title: const Text(
-                'Impressum',
-                style: TextStyle(fontSize: 18),
-              ),
-              onTap: () {
-                buttonIsPressed(10);
-                Timer(
-                  const Duration(milliseconds: 100),
-                  () {
-                    Navigator.of(context).pushNamed(RouteManager.impressum);
-                  },
-                );
-              },
-            ),
-          ),
-          // 11. Profil bearbeiten
-          Card(
-            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: ListTile(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 0,
-              ),
-              tileColor: isPressedBtn1 ? Colors.purple[50] : Colors.white,
-              leading: const Icon(
-                Icons.person,
-              ),
-              title: const Text(
-                'Profil bearbeiten',
-                style: TextStyle(fontSize: 18),
-              ),
-              onTap: () {
-                buttonIsPressed(1);
-                Timer(
-                  const Duration(milliseconds: 100),
-                  () => _navigateToEditProfile(),
-                );
-              },
-            ),
-          ),
-          const Divider(
-            color: Colors.grey,
-            thickness: 0.5,
-            indent: 8,
-            endIndent: 8,
-          ),
-          // 12. Log Out
-          Card(
-            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 8),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: ListTile(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 0,
-              ),
-              tileColor: isPressedBtn11 ? Colors.purple[50] : Colors.white,
-              leading: const Icon(
-                Icons.logout,
-                color: Colors.red,
-              ),
-              title: const Text(
-                'Logout',
-                style: TextStyle(
-                  fontSize: 18,
-                  color: Colors.red,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      _isLoading
+                          ? Center(
+                              child: CircularProgressIndicator(
+                              color: Colors.white,
+                            ))
+                          : CircleAvatar(
+                              radius: 55,
+                              backgroundColor: Colors.white,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                      color: Colors.white, width: 2.0),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color:
+                                          Colors.black.withValues(alpha: 0.2),
+                                      spreadRadius: 1,
+                                      blurRadius: 3,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: ClipOval(
+                                  child: (_profilePictureUrl != null &&
+                                          _profilePictureUrl!.isNotEmpty
+                                      ? Image.network(
+                                          _profilePictureUrl!,
+                                          width: 100,
+                                          height: 100,
+                                          fit: BoxFit.cover,
+                                          loadingBuilder: (context, child,
+                                              loadingProgress) {
+                                            if (loadingProgress == null) {
+                                              return child;
+                                            }
+                                            return Center(
+                                              child: CircularProgressIndicator(
+                                                color: const Color.fromARGB(
+                                                    255, 107, 69, 106),
+                                                value: loadingProgress
+                                                            .expectedTotalBytes !=
+                                                        null
+                                                    ? loadingProgress
+                                                            .cumulativeBytesLoaded /
+                                                        loadingProgress
+                                                            .expectedTotalBytes!
+                                                    : null,
+                                              ),
+                                            );
+                                          },
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                            return Container(
+                                              width: 100,
+                                              height: 100,
+                                              child: Image.asset(
+                                                'assets/images/logo/secrets-logo.jpg',
+                                                width: 100,
+                                                height: 100,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            );
+                                          },
+                                        )
+                                      : Image.asset(
+                                          'assets/images/logo/secrets-logo.jpg',
+                                          width: 100,
+                                          height: 100,
+                                          fit: BoxFit.cover,
+                                        )),
+                                ),
+                              ),
+                            ),
+                      const SizedBox(height: 6),
+                      Center(
+                        child: Text(
+                          _isLoading ? '' : (_userName ?? ''),
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              onTap: () {
-                buttonIsPressed(11);
-                Timer(
-                  const Duration(milliseconds: 100),
-                  () => _handleLogout(context),
+
+              ...listDrawerModel.map((e) {
+                bool isSelected = _pressedStates[e.name]!;
+                return Card(
+                  margin: const EdgeInsets.only(
+                      left: 8, right: 8, top: 5, bottom: 0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Stack(
+                    children: [
+                      ListTile(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 0,
+                        ),
+                        tileColor:
+                            isSelected ? Colors.purple[50] : Colors.white,
+                        leading: Icon(e.icon),
+                        title: CustomTextWidget(
+                          text: e.name,
+                          fontSize: 16,
+                          color: Colors.black,
+                        ),
+                        onTap: () {
+                          _select(e.name);
+
+                          // Optimized navigation without Timer delays
+                          switch (e.name) {
+                            case "Home":
+                              _navigateTo(RouteManager.homePage);
+                              break;
+                            case "Münchner Geheimtipp":
+                              _navigateTo(RouteManager.inspirationsPage);
+                              break;
+                            case "Checkliste":
+                              _navigateTo(RouteManager.checklistPage);
+                              break;
+                            case "Budget":
+                              _navigateTo(RouteManager.budgetPage);
+                              break;
+                            case "Gästeliste":
+                              _navigateTo(RouteManager.gaestelistPage);
+                              break;
+                            case "Tischverwaltung":
+                              _navigateTo(RouteManager.tablesManagementPage);
+                              break;
+                            case "Showroom":
+                              _navigateTo(RouteManager.showroomEventPage);
+                              break;
+                            case "Über mich":
+                              _navigateTo(RouteManager.aboutMePage);
+                              break;
+                            case "Kontakt":
+                              _navigateTo(RouteManager.kontakt);
+                              break;
+                            case "Mitgestalter":
+                              _navigateTo(RouteManager.collaborationPage);
+                              break;
+                            case "Impressum":
+                              _navigateTo(RouteManager.impressum);
+                              break;
+                            case "Hochzeitskit":
+                              // _markAllCollabNotificationsAsRead();
+                              _navigateTo(RouteManager.toDoPage);
+                              break;
+                            case "Inspirationen":
+                              _navigateTo(RouteManager.inspirationFolderPage);
+                              break;
+                            case "Tagesablauf":
+                              _navigateTo(RouteManager.weddingSchedulePage);
+                              break;
+                          }
+                        },
+                      ),
+                      // Show the red dot only for 'Hochzeitskit'
+                      if (e.name == 'Hochzeitskit' && hasNewCollabNotification)
+                        Positioned(
+                          right: 16,
+                          top: 12,
+                          child: Container(
+                            width: 10,
+                            height: 10,
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 );
-              },
-            ),
+              }),
+
+              const Divider(
+                color: Colors.grey,
+                thickness: 0.5,
+                indent: 8,
+                endIndent: 8,
+              ),
+              // 12. Profil bearbeiten
+              Card(
+                margin:
+                    const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: ListTile(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 0,
+                  ),
+                  tileColor: _pressedStates['Profil bearbeiten']!
+                      ? Colors.purple[50]
+                      : Colors.white,
+                  leading: const Icon(
+                    Icons.person,
+                  ),
+                  title: CustomTextWidget(
+                    text: 'Profil bearbeiten',
+                    fontSize: 16,
+                    color: Colors.black,
+                  ),
+                  onTap: () {
+                    _select('Profil bearbeiten');
+                    _navigateToEditProfile();
+                  },
+                ),
+              ),
+              const Divider(
+                color: Colors.grey,
+                thickness: 0.5,
+                indent: 8,
+                endIndent: 8,
+              ),
+              // 12. Log Out
+              Card(
+                margin:
+                    const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: ListTile(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 0,
+                  ),
+                  tileColor: _pressedStates['Logout']!
+                      ? Colors.purple[50]
+                      : Colors.white,
+                  leading: const Icon(
+                    Icons.logout,
+                    color: Colors.red,
+                  ),
+                  title: CustomTextWidget(
+                    text: 'Logout',
+                    fontSize: 16,
+                    color: Colors.red,
+                  ),
+                  onTap: () {
+                    _select('Logout');
+                    _handleLogout(context);
+                  },
+                ),
+              ),
+              const SpacerWidget(height: 10),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

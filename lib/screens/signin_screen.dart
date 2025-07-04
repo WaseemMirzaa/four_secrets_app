@@ -220,7 +220,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     Text(
                       AppConstants.signInSubtitle,
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                         fontSize: 16,
                       ),
                     ),
@@ -284,7 +284,7 @@ class _SignInScreenState extends State<SignInScreen> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           disabledBackgroundColor:
-                              Colors.white.withOpacity(0.6),
+                              Colors.white.withValues(alpha: 0.6),
                         ),
                         child: _isLoading
                             ? const SizedBox(
@@ -319,9 +319,8 @@ class _SignInScreenState extends State<SignInScreen> {
                           },
                           activeColor: Colors.white,
                           checkColor: const Color.fromARGB(255, 107, 69, 106),
-                          fillColor:
-                              MaterialStateProperty.resolveWith((states) {
-                            if (states.contains(MaterialState.selected)) {
+                          fillColor: WidgetStateProperty.resolveWith((states) {
+                            if (states.contains(WidgetState.selected)) {
                               return Colors.white;
                             }
                             return Colors.transparent;

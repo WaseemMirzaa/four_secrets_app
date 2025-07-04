@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:four_secrets_wedding_app/data/about_me_data.dart';
 import 'package:four_secrets_wedding_app/data/about_me_images.dart';
-import 'package:four_secrets_wedding_app/model/carousel_slider_widget.dart';
+import 'package:four_secrets_wedding_app/model/swipeable_card_widget.dart';
 import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
 import 'package:four_secrets_wedding_app/model/url_email_instagram.dart';
 import 'package:four_secrets_wedding_app/routes/routes.dart';
@@ -22,7 +22,6 @@ class AboutMe extends StatefulWidget {
 
 class _AboutMeState extends State<AboutMe> {
   late List<String> images = AboutMeImages.getImages();
-  int activeIndex = 0;
   String modeUrl = "default";
   var videoAsset = AboutMeData.map["videoAsset"] != null
       ? AboutMeData.map["videoAsset"]!
@@ -61,14 +60,16 @@ class _AboutMeState extends State<AboutMe> {
     );
   }
 
+  final key = GlobalKey<MenueState>();
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: Menue.getInstance(),
+        drawer: Menue.getInstance(key),
         appBar: AppBar(
           foregroundColor: Color.fromARGB(255, 255, 255, 255),
-          title: const Text('About me'),
+          title: const Text('Über mich'),
           backgroundColor: const Color.fromARGB(255, 107, 69, 106),
         ),
         body: SingleChildScrollView(
@@ -251,12 +252,10 @@ class _AboutMeState extends State<AboutMe> {
               FourSecretsDivider(),
               Column(
                 children: [
-                  CarouselSliderWidget(
-                      images: images,
-                      activeIndex: activeIndex,
-                      height: 470,
-                      viewportFraction: 0.72,
-                      enlargeFactor: 0.4),
+                  SwipeableCardWidget(
+                    images: images,
+                    height: 450,
+                  ),
                 ],
               ),
               FourSecretsDivider(),
@@ -300,17 +299,12 @@ class _AboutMeState extends State<AboutMe> {
                     ),
                     onPressed: () {
                       if (videoAsset.isNotEmpty || videoUri.isNotEmpty) {
-                        Timer(
-                          const Duration(milliseconds: 100),
-                          () {
-                            Navigator.of(context).pushNamed(
-                              RouteManager.videoPlayer2,
-                              arguments: {
-                                'asset': videoAsset,
-                                'uri': videoUri,
-                                'ratio': videoRatio,
-                              },
-                            );
+                        Navigator.of(context).pushNamed(
+                          RouteManager.videoPlayer2,
+                          arguments: {
+                            'asset': videoAsset,
+                            'uri': videoUri,
+                            'ratio': videoRatio,
                           },
                         );
                       }

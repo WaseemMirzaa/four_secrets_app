@@ -6,11 +6,12 @@ class WeddingDesigner extends StatelessWidget {
   WeddingDesigner({super.key});
   final List items = WeddingDesignerCardItems.getCardItems();
 
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: Menue.getInstance(),
+        drawer: Menue(),
         appBar: AppBar(
           foregroundColor: Color.fromARGB(255, 255, 255, 255),
           // automaticallyImplyLeading: false,

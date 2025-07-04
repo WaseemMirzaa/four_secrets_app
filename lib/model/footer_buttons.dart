@@ -83,17 +83,12 @@ class FooterButtons extends StatelessWidget {
             ),
             onPressed: () {
               if (videoAsset.isNotEmpty || videoUri.isNotEmpty) {
-                Timer(
-                  const Duration(milliseconds: 100),
-                  () {
-                    Navigator.of(context).pushNamed(
-                      RouteManager.videoPlayer2,
-                      arguments: {
-                        'asset': videoAsset,
-                        'uri': videoUri,
-                        'ratio': videoRatio,
-                      },
-                    );
+                Navigator.of(context).pushNamed(
+                  RouteManager.videoPlayer2,
+                  arguments: {
+                    'asset': videoAsset,
+                    'uri': videoUri,
+                    'ratio': videoRatio,
                   },
                 );
               }

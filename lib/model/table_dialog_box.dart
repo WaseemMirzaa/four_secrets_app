@@ -120,6 +120,16 @@ class _TableDialogBoxState extends State<TableDialogBox> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   // save button
+                  MyButton(
+                    onPressed: widget.onCancel,
+                    text: "Stornieren",
+                    color: Colors.white,
+                  ),
+                  const SizedBox(
+                    width: 35,
+                  ),
+                  // cancel buttonk
+
                   widget.isLoading
                       ? Container(
                           width: 100,
@@ -140,16 +150,11 @@ class _TableDialogBoxState extends State<TableDialogBox> {
                             ),
                           ),
                         )
-                      : MyButton(onPressed: widget.onSave, text: "Speichern"),
-                  const SizedBox(
-                    width: 35,
-                  ),
-                  // cancel buttonk
-                  MyButton(
-                    onPressed: widget.isLoading ? null : widget.onCancel,
-                    text: "Stornieren",
-                    color: widget.isLoading ? Colors.grey : null,
-                  ),
+                      : MyButton(
+                          onPressed: widget.onSave,
+                          color: Color.fromARGB(255, 107, 69, 106),
+                          textColor: Colors.white,
+                          text: "Speichern"),
                 ],
               ),
             ],

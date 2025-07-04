@@ -2,33 +2,48 @@ import 'package:flutter/material.dart';
 import 'package:four_secrets_wedding_app/menue.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MenuService {
   // Singleton instance
   static final MenuService _instance = MenuService._internal();
-  
-  // Factory constructor to return the same instance
   factory MenuService() => _instance;
-  
-  // Internal constructor
   MenuService._internal();
-  
-  // Global key for the menu
-  final GlobalKey<MenueState> menuKey = GlobalKey<MenueState>();
-  
-  // Cached menu instance
-  Menue? _menuInstance;
-  
+
+  final menuKey = GlobalKey<MenueState>();
+
   // Cached user data
   String? userName;
   String? profilePictureUrl;
   bool isDataLoaded = false;
+  String? _selectedItem;
   
-  // Get the menu widget
-  Widget getMenu() {
-    // Create the menu instance if it doesn't exist
-    _menuInstance ??= Menue(key: menuKey);
-    return _menuInstance!;
+  String? get selectedItem => _selectedItem;
+  set selectedItem(String? value) {
+    _selectedItem = value;
+    _saveSelectedItem(value); // Save to SharedPreferences
+  }
+
+  Future<void> _saveSelectedItem(String? item) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (item != null) {
+      await prefs.setString('selectedItem', item);
+    } else {
+      await prefs.remove('selectedItem');
+    }
+  }
+
+
+  Future<void> loadSelectedItem() async {
+    final prefs = await SharedPreferences.getInstance();
+    _selectedItem = prefs.getString('selectedItem');
+  }
+
+
+
+// Each call makes a fresh Menue widget but with the same key
+  Widget getMenu(Key key) {
+    return Menue(key: key);
   }
   
   // Preload user data

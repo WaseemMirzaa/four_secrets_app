@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:four_secrets_wedding_app/model/checklist_button.dart';
+import 'package:four_secrets_wedding_app/widgets/custom_button_widget.dart';
 
 // ignore: must_be_immutable
 class DialogBox extends StatelessWidget {
@@ -52,41 +53,33 @@ class DialogBox extends StatelessWidget {
                 ),
               ),
               // Buttons row
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // save button
-                  isLoading
-                      ? Container(
-                          width: 100,
-                          height: 36,
-                          decoration: BoxDecoration(
-                            color: Color.fromARGB(255, 107, 69, 106),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Center(
-                            child: SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor:
-                                    AlwaysStoppedAnimation<Color>(Colors.white),
-                              ),
-                            ),
-                          ),
-                        )
-                      : MyButton(onPressed: onSave, text: "Speichern"),
-                  const SizedBox(
-                    width: 35,
-                  ),
-                  // cancel button
-                  MyButton(
-                    onPressed: isLoading ? null : onCancel,
-                    text: "Stornieren",
-                    color: isLoading ? Colors.grey : null,
-                  ),
-                ],
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 15),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                        child: CustomButtonWidget(
+                      text: "Stornieren",
+                      color: Colors.white,
+                      textColor: Colors.black,
+                      onPressed: onCancel,
+                    )),
+
+                    const SizedBox(
+                      width: 25,
+                    ),
+                    // cancel button
+                    Expanded(
+                        child: CustomButtonWidget(
+                      text: "Speichern",
+                      isLoading: isLoading,
+                      textColor: Colors.white,
+                      color: Color.fromARGB(255, 107, 69, 106),
+                      onPressed: onSave,
+                    )),
+                  ],
+                ),
               ),
             ],
           ),

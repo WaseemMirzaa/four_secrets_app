@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:four_secrets_wedding_app/menue.dart';
 import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:four_secrets_wedding_app/services/notificaiton_helper.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class HomePage extends StatefulWidget {
@@ -16,6 +17,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   bool isPressedBtn1 = false;
+  final key = GlobalKey<MenueState>();
 
   @override
   void initState() {
@@ -37,7 +39,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: Menue.getInstance(), // Use the singleton instance
+        drawer: Menue.getInstance(key), // Use the singleton instance
         body: CustomScrollView(
           physics: ClampingScrollPhysics(),
           slivers: <Widget>[
@@ -108,6 +110,28 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
+
+            //         SliverToBoxAdapter(
+            //           child: Column(children: [
+            //              ElevatedButton(
+            //   onPressed: () => NotificationDebugHelper.testImmediateNotification(),
+            //   child: Text('Test Immediate Notification'),
+            // ),
+            // ElevatedButton(
+            //   onPressed: () => NotificationDebugHelper.testScheduledNotification(),
+            //   child: Text('Test Scheduled Notification'),
+            // ),
+            // ElevatedButton(
+            //   onPressed: () => NotificationDebugHelper.runFullTest(),
+            //   child: Text('Run Full Test Suite'),
+            // ),
+            // ElevatedButton(
+            //   onPressed: () => NotificationDebugHelper.checkPermissions(),
+            //   child: Text('Check Permissions'),
+            // ),
+            //           ],),
+            //         ),
+
             const SliverToBoxAdapter(
               child: SizedBox(
                 height: 40,

@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:four_secrets_wedding_app/data/showroom_event_data.dart';
 import 'package:four_secrets_wedding_app/data/showroom_event_images.dart';
-import 'package:four_secrets_wedding_app/model/carousel_slider_widget.dart';
+import 'package:four_secrets_wedding_app/model/swipeable_card_widget.dart';
 import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
 import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:expandable_text/expandable_text.dart';
@@ -27,11 +27,13 @@ class ShowroomEvent extends StatelessWidget {
       ? ShowroomEventData.map["videoRatio"]!
       : "";
 
+  final key = GlobalKey<MenueState>();
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: Menue.getInstance(),
+        drawer: Menue(),
         appBar: AppBar(
           // automaticallyImplyLeading: false,
           foregroundColor: Color.fromARGB(255, 255, 255, 255),
@@ -106,12 +108,10 @@ class ShowroomEvent extends StatelessWidget {
                   FourSecretsDivider(
                       // padValue: 0,
                       ),
-                  CarouselSliderWidget(
-                      images: images,
-                      activeIndex: activeIndex,
-                      height: 480,
-                      viewportFraction: 0.8,
-                      enlargeFactor: 0.4),
+                  SwipeableCardWidget(
+                    images: images,
+                    height: 480,
+                  ),
                   SizedBox(
                     height: 15,
                   ),
@@ -125,17 +125,12 @@ class ShowroomEvent extends StatelessWidget {
                         ),
                         onPressed: () {
                           if (videoAsset.isNotEmpty || videoUri.isNotEmpty) {
-                            Timer(
-                              const Duration(milliseconds: 100),
-                              () {
-                                Navigator.of(context).pushNamed(
-                                  RouteManager.videoPlayer2,
-                                  arguments: {
-                                    'asset': videoAsset,
-                                    'uri': videoUri,
-                                    'ratio': videoRatio,
-                                  },
-                                );
+                            Navigator.of(context).pushNamed(
+                              RouteManager.videoPlayer2,
+                              arguments: {
+                                'asset': videoAsset,
+                                'uri': videoUri,
+                                'ratio': videoRatio,
                               },
                             );
                           }

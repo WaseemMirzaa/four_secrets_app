@@ -27,6 +27,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _confirmPasswordController = TextEditingController();
   File? _profilePicture;
   bool _isLoading = false;
+  bool _isUploadingImage = false;
   final ImageUploadService _imageUploadService = ImageUploadService();
 
   Future<void> _pickImage() async {
@@ -85,57 +86,77 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                     // Profile Picture Selector
                     Center(
-                      child: GestureDetector(
-                        onTap: _pickImage,
-                        child: Stack(
-                          children: [
-                            Container(
-                              width: 100,
-                              height: 100,
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: Colors.white,
-                                  width: 2,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          GestureDetector(
+                            onTap: _pickImage,
+                            child: Stack(
+                              children: [
+                                Container(
+                                  width: 100,
+                                  height: 100,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.2),
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Colors.white,
+                                      width: 2,
+                                    ),
+                                    image: _profilePicture != null
+                                        ? DecorationImage(
+                                            image: FileImage(_profilePicture!),
+                                            fit: BoxFit.cover,
+                                          )
+                                        : null,
+                                  ),
+                                  child: _profilePicture == null
+                                      ? Icon(
+                                          Icons.person,
+                                          size: 50,
+                                          color: Colors.white.withOpacity(0.7),
+                                        )
+                                      : null,
                                 ),
-                                image: _profilePicture != null
-                                    ? DecorationImage(
-                                        image: FileImage(_profilePicture!),
-                                        fit: BoxFit.cover,
-                                      )
-                                    : null,
-                              ),
-                              child: _profilePicture == null
-                                  ? Icon(
-                                      Icons.person,
-                                      size: 50,
-                                      color: Colors.white.withOpacity(0.7),
-                                    )
-                                  : null,
-                            ),
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: Container(
-                                padding: const EdgeInsets.all(4),
-                                decoration: BoxDecoration(
-                                  color: Color.fromARGB(255, 107, 69, 106),
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 2,
+                                Positioned(
+                                  bottom: 0,
+                                  right: 0,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: BoxDecoration(
+                                      color: Color.fromARGB(255, 107, 69, 106),
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: Colors.white,
+                                        width: 2,
+                                      ),
+                                    ),
+                                    child: const Icon(
+                                      Icons.camera_alt,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
                                   ),
                                 ),
-                                child: const Icon(
-                                  Icons.camera_alt,
-                                  color: Colors.white,
-                                  size: 20,
+                              ],
+                            ),
+                          ),
+                          if (_isUploadingImage)
+                            const Positioned.fill(
+                              child: Align(
+                                alignment: Alignment.center,
+                                child: SizedBox(
+                                  width: 40,
+                                  height: 40,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 3,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Color.fromARGB(255, 107, 69, 106)),
+                                  ),
                                 ),
                               ),
                             ),
-                          ],
-                        ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -283,36 +304,39 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Future<void> _handleSignUp() async {
     if (!_formKey.currentState!.validate()) return;
 
-    // Profile picture is now optional
-    // Removed the check for profile picture
-
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _isUploadingImage = false;
+    });
 
     try {
-      // Create user with or without profile picture
       String? profilePictureUrl;
-
       if (_profilePicture != null) {
-        // Upload image only if selected
-        final uploadResponse =
-            await _imageUploadService.uploadImage(_profilePicture!);
-        profilePictureUrl = uploadResponse.image.getFullImageUrl();
+        setState(() => _isUploadingImage = true);
+        try {
+          final uploadResponse =
+              await _imageUploadService.uploadImage(_profilePicture!);
+          profilePictureUrl = uploadResponse.image.getFullImageUrl();
+        } catch (e) {
+          setState(() => _isUploadingImage = false);
+          SnackBarHelper.showErrorSnackBar(
+              context, 'Bild-Upload fehlgeschlagen: \n${e.toString()}');
+          setState(() => _isLoading = false);
+          return;
+        }
+        setState(() => _isUploadingImage = false);
       }
 
-      // Create the user with optional image URL
       final userCredential = await AuthService().signUp(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
         name: _nameController.text.trim(),
-        profilePicture: _profilePicture, // Can be null now
-        profilePictureUrl: profilePictureUrl, // Can be null now
+        profilePicture: _profilePicture,
+        profilePictureUrl: profilePictureUrl,
       );
 
       if (mounted) {
-        // Send verification email
         await FirebaseAuth.instance.currentUser!.sendEmailVerification();
-
-        // Navigate to verification screen
         Navigator.of(context).pushNamedAndRemoveUntil(
           RouteManager.emailVerificationPage,
           (route) => false,
@@ -320,7 +344,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
       }
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
-
       String errorMessage;
       switch (e.code) {
         case 'email-already-in-use':
@@ -339,9 +362,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
           errorMessage = AppConstants.networkRequestFailedError;
           break;
         default:
-          errorMessage = '${AppConstants.signUpFailedError}${e.message ?? 'Please try again'}';
+          errorMessage =
+              '${AppConstants.signUpFailedError}${e.message ?? 'Please try again'}';
       }
-
       SnackBarHelper.showErrorSnackBar(context, errorMessage);
     } catch (e) {
       if (!mounted) return;
@@ -349,7 +372,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
           context, 'Ein Fehler ist aufgetreten: ${e.toString()}');
     } finally {
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() {
+          _isLoading = false;
+          _isUploadingImage = false;
+        });
       }
     }
   }

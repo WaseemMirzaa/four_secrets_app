@@ -32,6 +32,13 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+/android/app/build/
+/*.apk
+/ios/build/
+/ios/Flutter/.last_build_id
+android/app/build/
+
+
 
 # Symbolication related
 app.*.symbols
@@ -43,3 +50,4 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+android/app/build/outputs/apk/debug/app-debug.apk

@@ -3,6 +3,7 @@ import 'package:four_secrets_wedding_app/screens/budget_item.dart';
 import 'package:four_secrets_wedding_app/screens/dialog_box.dart';
 import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
 import 'package:flutter/material.dart';
+import 'package:four_secrets_wedding_app/utils/snackbar_helper.dart';
 
 class Budget extends StatefulWidget {
   Budget({super.key});
@@ -19,6 +20,8 @@ class _BudgetState extends State<Budget> {
   int wholeBudget = 0;
   int _tempBudget = 0;
   int _maxWholeBudget = 999999;
+
+  final key = GlobalKey<MenueState>();
 
   List budgetList = [
     ["Fotograph", 0],
@@ -88,14 +91,19 @@ class _BudgetState extends State<Budget> {
   }
 
   void saveNewTask() {
-    setState(() {
-      if (_controller.text.isNotEmpty) {
+    if (_controller.text.isNotEmpty) {
+      setState(() {
         budgetList.add([_controller.text, 0]);
         _controller.clear();
-      }
+      });
       Navigator.of(context).pop();
-      // createNewTask();
-    });
+    } else {
+      // Show error message using the app-wide error snackbar
+      SnackBarHelper.showErrorSnackBar(
+        context,
+        'Bitte geben Sie einen Namen für den Budgetposten ein.',
+      );
+    }
   }
 
   void onDelete(int index) {
@@ -115,7 +123,7 @@ class _BudgetState extends State<Budget> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: Menue.getInstance(),
+        drawer: Menue.getInstance(key),
         appBar: AppBar(
           foregroundColor: Color.fromARGB(255, 255, 255, 255),
           title: const Text('Budget'),

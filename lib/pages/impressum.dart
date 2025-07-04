@@ -2,13 +2,13 @@ import 'package:four_secrets_wedding_app/menue.dart';
 import 'package:flutter/material.dart';
 
 class Impressum extends StatelessWidget {
-  const Impressum({super.key});
+  Impressum({super.key});
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: Menue.getInstance(),
+        drawer: Menue(),
         appBar: AppBar(
           foregroundColor: Color.fromARGB(255, 255, 255, 255),
           // automaticallyImplyLeading: false,

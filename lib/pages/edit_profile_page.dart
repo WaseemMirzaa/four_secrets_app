@@ -8,6 +8,7 @@ import 'package:four_secrets_wedding_app/models/user_model.dart';
 import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:four_secrets_wedding_app/services/auth_service.dart';
 import 'package:four_secrets_wedding_app/services/image_upload_service.dart';
+import 'package:four_secrets_wedding_app/widgets/custom_dialog.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
 import '../utils/snackbar_helper.dart';
@@ -28,10 +29,13 @@ class EditProfilePage extends StatefulWidget {
 }
 
 class _EditProfilePageState extends State<EditProfilePage> {
+  final key = GlobalKey<MenueState>();
+
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   File? _newProfilePicture;
   bool _isLoading = false;
+  bool _isUploadingImage = false;
   final ImageUploadService _imageUploadService = ImageUploadService();
 
   @override
@@ -227,11 +231,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                     // Validate inputs
                                     if (currentPasswordController
                                         .text.isEmpty) {
-                                      SnackBarHelper.showErrorSnackBar(context,
-                                          AppConstants.emptyCurrentPasswordError);
+                                      SnackBarHelper.showErrorSnackBar(
+                                          context,
+                                          AppConstants
+                                              .emptyCurrentPasswordError);
                                       return;
                                     }
-
+//check list againt user id 1 images2 checklist 3 data waiting
                                     if (newPasswordController.text.length < 6) {
                                       SnackBarHelper.showErrorSnackBar(context,
                                           AppConstants.newPasswordLengthError);
@@ -240,8 +246,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
                                     if (newPasswordController.text !=
                                         confirmPasswordController.text) {
-                                      SnackBarHelper.showErrorSnackBar(context,
-                                          AppConstants.newPasswordMismatchError);
+                                      SnackBarHelper.showErrorSnackBar(
+                                          context,
+                                          AppConstants
+                                              .newPasswordMismatchError);
                                       return;
                                     }
 
@@ -289,23 +297,24 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
                                       SnackBarHelper.showSuccessSnackBar(
                                           context,
-                                          AppConstants.passwordUpdateSuccessMessage);
+                                          AppConstants
+                                              .passwordUpdateSuccessMessage);
                                     } catch (e) {
                                       if (!mounted) return;
 
-                                      String errorMessage =
-                                          AppConstants.passwordUpdateFailedError;
+                                      String errorMessage = AppConstants
+                                          .passwordUpdateFailedError;
 
                                       if (e
                                           .toString()
                                           .contains('wrong-password')) {
-                                        errorMessage =
-                                            AppConstants.wrongCurrentPasswordError;
+                                        errorMessage = AppConstants
+                                            .wrongCurrentPasswordError;
                                       } else if (e
                                           .toString()
                                           .contains('too-many-requests')) {
-                                        errorMessage =
-                                            AppConstants.tooManyPasswordRequestsError;
+                                        errorMessage = AppConstants
+                                            .tooManyPasswordRequestsError;
                                       }
 
                                       SnackBarHelper.showErrorSnackBar(
@@ -365,7 +374,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Future<void> _updateProfile() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _isUploadingImage = false;
+    });
 
     try {
       final user = FirebaseAuth.instance.currentUser;
@@ -374,10 +386,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
       // Update profile picture if selected
       String? newProfilePicUrl;
       if (_newProfilePicture != null) {
-        // Upload to the server first
-        final uploadResponse =
-            await _imageUploadService.uploadImage(_newProfilePicture!);
-        newProfilePicUrl = uploadResponse.image.getFullImageUrl();
+        setState(() => _isUploadingImage = true);
+        try {
+          final uploadResponse =
+              await _imageUploadService.uploadImage(_newProfilePicture!);
+          newProfilePicUrl = uploadResponse.image.getFullImageUrl();
+        } catch (e) {
+          setState(() => _isUploadingImage = false);
+          SnackBarHelper.showErrorSnackBar(
+              context, 'Bild-Upload fehlgeschlagen: \n${e.toString()}');
+          setState(() => _isLoading = false);
+          return;
+        }
+        setState(() => _isUploadingImage = false);
       }
 
       // Update user data in Firestore
@@ -422,12 +443,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
       }
     } catch (e) {
       if (mounted) {
-        SnackBarHelper.showErrorSnackBar(context,
-            '${AppConstants.profileUpdateFailedError}${e.toString()}');
+        SnackBarHelper.showErrorSnackBar(
+            context, '${AppConstants.profileUpdateFailedError}${e.toString()}');
       }
     } finally {
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() {
+          _isLoading = false;
+          _isUploadingImage = false;
+        });
       }
     }
   }
@@ -437,29 +461,18 @@ class _EditProfilePageState extends State<EditProfilePage> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text(AppConstants.deleteAccountTitle),
-          content: const Text(
-            AppConstants.deleteAccountConfirmation,
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Stornieren'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: const Text(
-                AppConstants.deleteButton,
-                style: TextStyle(color: Colors.red),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-                _deleteAccount();
-              },
-            ),
-          ],
+        return CustomDialog(
+          title: AppConstants.deleteAccountTitle,
+          message: AppConstants.deleteAccountConfirmation,
+          confirmText: AppConstants.deleteButton,
+          cancelText: 'Stornieren',
+          onConfirm: () {
+            Navigator.of(context).pop();
+            _deleteAccount();
+          },
+          onCancel: () {
+            Navigator.of(context).pop();
+          },
         );
       },
     );
@@ -504,7 +517,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
     final headerHeight = screenHeight / 3;
 
     return Scaffold(
-      drawer: Menue.getInstance(),
+      backgroundColor: Colors.white,
+      drawer: Menue.getInstance(key),
       appBar: AppBar(
         systemOverlayStyle: const SystemUiOverlayStyle(
           statusBarColor: Colors.black,
@@ -578,6 +592,21 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           ),
                         ),
                       ),
+                      if (_isUploadingImage)
+                        const Positioned.fill(
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: SizedBox(
+                              width: 40,
+                              height: 40,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 3,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                    Color.fromARGB(255, 107, 69, 106)),
+                              ),
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),

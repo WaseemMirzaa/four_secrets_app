@@ -1,9 +1,15 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:four_secrets_wedding_app/Pdf/generate_table_pdf.dart';
 import 'package:four_secrets_wedding_app/menue.dart';
 import 'package:four_secrets_wedding_app/model/checklist_button.dart';
 import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
 import 'package:four_secrets_wedding_app/model/table_dialog_box.dart';
+import 'package:four_secrets_wedding_app/widgets/custom_dialog.dart';
+import 'package:four_secrets_wedding_app/widgets/table_mangemant_widget.dart';
 import '../models/table_model.dart';
 import '../models/guest.dart';
 import '../services/table_service.dart';
@@ -13,6 +19,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:four_secrets_wedding_app/utils/snackbar_helper.dart';
 import 'package:four_secrets_wedding_app/constants/app_constants.dart';
+import 'package:four_secrets_wedding_app/pages/PdfViewPage.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 class TablesManagementPage extends StatefulWidget {
   const TablesManagementPage({Key? key}) : super(key: key);
@@ -25,6 +34,7 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
   final TableService _tableService = TableService();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final key = GlobalKey<MenueState>();
 
   List<TableModel> _tables = [];
   List<Map<String, dynamic>> _guests = [];
@@ -55,7 +65,8 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
       });
     } catch (e) {
       if (mounted) {
-        SnackBarHelper.showErrorSnackBar(context, '${AppConstants.loadDataError}$e');
+        SnackBarHelper.showErrorSnackBar(
+            context, '${AppConstants.loadDataError}$e');
       }
     }
   }
@@ -99,9 +110,9 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
     final maxGuestsController = TextEditingController();
     var selectedTableType; // Default value
     final tableTypes = [
-      AppConstants.tableTypeRound, 
-      AppConstants.tableTypeOval, 
-      AppConstants.tableTypeRectangular, 
+      AppConstants.tableTypeRound,
+      AppConstants.tableTypeOval,
+      AppConstants.tableTypeRectangular,
       AppConstants.tableTypeSquare
     ];
     bool _isLoading = false; // Track loading state
@@ -142,8 +153,8 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
                 setState(() {
                   _isLoading = false;
                 });
-                SnackBarHelper.showErrorSnackBar(context,
-                    AppConstants.enterValidGuestsError);
+                SnackBarHelper.showErrorSnackBar(
+                    context, AppConstants.enterValidGuestsError);
                 return;
               }
 
@@ -343,7 +354,8 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
                                                         SnackBarHelper
                                                             .showInfoSnackBar(
                                                                 context,
-                                                                AppConstants.maxCapacityWarning);
+                                                                AppConstants
+                                                                    .maxCapacityWarning);
                                                         capacityWarningShown =
                                                             true;
                                                       }
@@ -502,11 +514,13 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
                                           if (selectedGuestIds.length == 1) {
                                             SnackBarHelper.showSuccessSnackBar(
                                                 context,
-                                                AppConstants.oneGuestAssignedSuccess);
+                                                AppConstants
+                                                    .oneGuestAssignedSuccess);
                                           } else {
                                             SnackBarHelper.showSuccessSnackBar(
                                                 context,
-                                                AppConstants.multipleGuestsAssignedSuccess);
+                                                AppConstants
+                                                    .multipleGuestsAssignedSuccess);
                                           }
                                         } catch (e) {
                                           if (!mounted) return;
@@ -565,26 +579,24 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
   }
 
   void _showDeleteConfirmation(String tableId) {
-    showCupertinoModalPopup<void>(
+    showDialog(
       context: context,
-      builder: (BuildContext context) => CupertinoActionSheet(
-        title: Text(AppConstants.deleteTableTitle),
-        message: Text(AppConstants.deleteTableConfirmation),
-        actions: <CupertinoActionSheetAction>[
-          CupertinoActionSheetAction(
-            isDestructiveAction: true,
-            onPressed: () {
-              _deleteTable(tableId);
-              Navigator.pop(context);
-            },
-            child: Text(AppConstants.deleteButton),
-          ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          child: Text(AppConstants.cancelButton),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
+      barrierDismissible: false,
+      builder: (context) {
+        return CustomDialog(
+          title: AppConstants.deleteTableTitle,
+          message: AppConstants.deleteTableConfirmation,
+          onConfirm: () async {
+            await _deleteTable(tableId);
+            Navigator.of(context).pop();
+          },
+          onCancel: () {
+            Navigator.of(context).pop();
+          },
+          confirmText: AppConstants.deleteButton,
+          cancelText: AppConstants.cancelButton,
+        );
+      },
     );
   }
 
@@ -654,6 +666,7 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
     bool isOvalTable = table.tableType.toLowerCase() == 'oval';
 
     return Card(
+      color: Colors.grey.shade300,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
@@ -719,14 +732,14 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.edit),
+                      icon: Icon(FontAwesomeIcons.penToSquare),
                       onPressed: () => _navigateToAddEditTable(table),
                       color: Color.fromARGB(255, 107, 69, 106),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.delete),
+                      icon: const Icon(FontAwesomeIcons.trashCan,
+                          size: 18, color: Colors.red),
                       onPressed: () => _showDeleteConfirmation(table.id),
-                      color: Colors.red[400],
                     ),
                   ],
                 ),
@@ -828,12 +841,46 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: Menue.getInstance(),
+        // backgroundColor: Colors.white,
+        drawer: Menue.getInstance(key),
         appBar: AppBar(
           foregroundColor: Color.fromARGB(255, 255, 255, 255),
           title: Text(AppConstants.tableManagementTitle),
           backgroundColor: const Color.fromARGB(255, 107, 69, 106),
           actions: [
+            IconButton(
+              icon: Icon(
+                FontAwesomeIcons.download,
+                size: 20,
+              ),
+              tooltip: AppConstants.addTableTooltip,
+              onPressed: () async {
+                await _downloadPdf();
+              },
+            ),
+            // View PDF button
+            IconButton(
+              icon: Icon(
+                FontAwesomeIcons.eye,
+                size: 20,
+              ),
+              tooltip: 'View PDF',
+              onPressed: () async {
+                Uint8List? pdfBytes = await generateTableManagementPdf(
+                  _tables,
+                  _tableGuestsMap,
+                );
+
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => PdfViewPage(
+                      pdfBytes: pdfBytes!,
+                      title: 'Tischverwaltung',
+                    ),
+                  ),
+                );
+              },
+            ),
             // Add table button in app bar
             IconButton(
               icon: const Icon(Icons.assignment_outlined),
@@ -857,6 +904,8 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
                 child: Image.asset(
                   AppConstants.tableManagementBackground,
                   fit: BoxFit.cover,
+                  filterQuality: FilterQuality.medium,
+                  cacheWidth: MediaQuery.of(context).size.width.toInt(),
                 ),
               ),
               FourSecretsDivider(),
@@ -907,7 +956,31 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
                       itemCount: _tables.length,
                       shrinkWrap: true,
                       itemBuilder: (context, index) {
-                        return _buildTableCard(_tables[index]);
+                        return TableCardWidget(
+                          table: _tables[index],
+                          assignedGuests:
+                              _tableGuestsMap[_tables[index].id] ?? [],
+                          confirmedGuestCount:
+                              _tableGuestsMap[_tables[index].id]
+                                      ?.where((g) => g['takePart'] == true)
+                                      .length ??
+                                  0,
+                          onEdit: () => _navigateToAddEditTable(_tables[index]),
+                          onDelete: () =>
+                              _showDeleteConfirmation(_tables[index].id),
+                          onAssignGuest: (_tableGuestsMap[_tables[index].id]
+                                          ?.where((g) => g['takePart'] == true)
+                                          .length ??
+                                      0) <
+                                  _tables[index].maxGuests
+                              ? () => _showAssignGuestDialog(_tables[index])
+                              : null,
+                          onRemoveGuest: (guestId) async {
+                            await _tableService.removeGuestFromTable(
+                                _tables[index].id, guestId);
+                            _loadData();
+                          },
+                        );
                       },
                     ),
               FourSecretsDivider(),
@@ -923,5 +996,63 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
 
   void onCancel() {
     Navigator.of(context).pop();
+  }
+
+  Future<void> _downloadPdf() async {
+    try {
+      final pdfBytes =
+          await generateTableManagementPdf(_tables, _tableGuestsMap);
+      final now = DateTime.now();
+      final filename =
+          'Tischverwaltung_${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}_${now.hour.toString().padLeft(2, '0')}-${now.minute.toString().padLeft(2, '0')}-${now.second.toString().padLeft(2, '0')}.pdf';
+
+      // Get documents directory for saving
+      final documentsDir = await getApplicationDocumentsDirectory();
+      final downloadsDir = Directory('${documentsDir.path}/Downloads');
+
+      // Create Downloads directory if it doesn't exist
+      if (!await downloadsDir.exists()) {
+        await downloadsDir.create(recursive: true);
+      }
+
+      final file = File('${downloadsDir.path}/$filename');
+      print(file.path);
+      // Write PDF bytes to file
+      await file.writeAsBytes(pdfBytes);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Expanded(
+                  child: Text('PDF erfolgreich gespeichert: $filename'),
+                ),
+                IconButton(
+                  icon: Icon(Icons.visibility, color: Colors.white),
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => PdfViewPage(
+                          pdfBytes: pdfBytes,
+                          title: 'Tischverwaltung',
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+            backgroundColor: Color.fromARGB(255, 107, 69, 106),
+            duration: Duration(seconds: 5),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.showErrorSnackBar(
+            context, 'Fehler beim Herunterladen: $e');
+      }
+    }
   }
 }
