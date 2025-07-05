@@ -103,7 +103,7 @@ class EmailService {
     }
   }
 
-  Future<EmailSendResponse> sendRevokeAccessEmail({
+  Future<EmailSendResponse?> sendRevokeAccessEmail({
     required String email,
     required String inviterName,
   }) async {
@@ -124,12 +124,12 @@ class EmailService {
         print(jsonResponse['status']);
         return EmailSendResponse.fromJson(jsonResponse);
       } else {
-        throw Exception(
-            'Failed to send revoke access email: \\${response.statusCode} - \\${response.body}');
+        // throw Exception(
+        //     'Failed to send revoke access email: \\${response.statusCode} - \\${response.body}');
       }
     } catch (e) {
       print('Error sending revoke access email: $e');
-      throw Exception('Failed to send revoke access email: $e');
+      // throw Exception('Failed to send revoke access email: $e');
     }
   }
 }

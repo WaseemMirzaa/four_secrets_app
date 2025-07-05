@@ -62,37 +62,65 @@ class _ToDoPageState extends State<ToDoPage> {
   }
 
   Future<void> _loadAndInitCategories() async {
-    if (!mounted) return;
+    print(
+        '[LOAD_LOG] ${DateTime.now().millisecondsSinceEpoch}: _loadAndInitCategories started');
+    if (!mounted) {
+      print(
+          '[LOAD_LOG] ${DateTime.now().millisecondsSinceEpoch}: Widget not mounted, returning');
+      return;
+    }
+    print(
+        '[LOAD_LOG] ${DateTime.now().millisecondsSinceEpoch}: Setting isLoading = true');
     setState(() {
       isLoading = true;
     });
+    print(
+        '[LOAD_LOG] ${DateTime.now().millisecondsSinceEpoch}: isLoading setState completed');
     try {
+      print(
+          '[LOAD_LOG] ${DateTime.now().millisecondsSinceEpoch}: Getting current user info');
       final myUid = FirebaseAuth.instance.currentUser?.uid;
       final myEmail = FirebaseAuth.instance.currentUser?.email;
-      if (myUid == null || myEmail == null) return;
+      if (myUid == null || myEmail == null) {
+        print(
+            '[LOAD_LOG] ${DateTime.now().millisecondsSinceEpoch}: User not authenticated, returning');
+        return;
+      }
+      print(
+          '[LOAD_LOG] ${DateTime.now().millisecondsSinceEpoch}: User authenticated, fetching owned todos');
       // Fetch owned todos
       final ownedSnapshot = await FirebaseFirestore.instance
           .collection('users')
           .doc(myUid)
           .collection('todos')
           .get();
+      print(
+          '[LOAD_LOG] ${DateTime.now().millisecondsSinceEpoch}: Owned todos query completed');
       final ownedTodos = ownedSnapshot.docs
           .map((doc) => ToDoModel.fromFirestore(doc))
           .toList();
       print(
+          '[LOAD_LOG] ${DateTime.now().millisecondsSinceEpoch}: Owned todos mapped to models');
+      print(
           '[ToDo Debug] Owned todos count: \x1B[32m[32m${ownedTodos.length}\x1B[0m');
       print(
           '[ToDo Debug] Owned todo IDs: ${ownedTodos.map((t) => t.id).toList()}');
+      print(
+          '[LOAD_LOG] ${DateTime.now().millisecondsSinceEpoch}: Starting shared todos query');
       // Fetch shared todos (isShared == true and collaborators contains me, but not owned by me)
       final sharedSnapshot = await FirebaseFirestore.instance
           .collectionGroup('todos')
           .where('isShared', isEqualTo: true)
           .where('collaborators', arrayContains: myEmail)
           .get();
+      print(
+          '[LOAD_LOG] ${DateTime.now().millisecondsSinceEpoch}: Shared todos query completed');
       final sharedTodos = sharedSnapshot.docs
           .where((doc) => doc.data()['userId'] != myUid)
           .map((doc) => ToDoModel.fromFirestore(doc))
           .toList();
+      print(
+          '[LOAD_LOG] ${DateTime.now().millisecondsSinceEpoch}: Shared todos mapped to models');
       print(
           '[ToDo Debug] Shared todos count: \x1B[34m${sharedTodos.length}\x1B[0m');
       print(
@@ -110,11 +138,15 @@ class _ToDoPageState extends State<ToDoPage> {
           '[ToDo Debug] Revoked todos count: \x1B[31m${revokedTodos.length}\x1B[0m');
       print(
           '[ToDo Debug] Revoked todo IDs: ${revokedTodos.map((t) => t.id).toList()}');
+      print(
+          '[LOAD_LOG] ${DateTime.now().millisecondsSinceEpoch}: Starting todos combination and filtering');
       // Combine owned, shared, and revoked, avoid duplicates
       final allTodos = <String, ToDoModel>{};
       for (final todo in [...ownedTodos, ...sharedTodos, ...revokedTodos]) {
         allTodos[todo.id ?? ''] = todo;
       }
+      print(
+          '[LOAD_LOG] ${DateTime.now().millisecondsSinceEpoch}: Todos combined, starting filtering');
       // Filter: only show todos where user is owner, collaborator, or revokedFor
       final filteredTodos = allTodos.values.where((todo) {
         final isOwner = todo.userId == myUid;
@@ -122,16 +154,24 @@ class _ToDoPageState extends State<ToDoPage> {
         final isRevoked = todo.revokedFor.contains(myEmail);
         return isOwner || isCollaborator || isRevoked;
       }).toList();
+      print(
+          '[LOAD_LOG] ${DateTime.now().millisecondsSinceEpoch}: Filtering completed');
       print('[ToDo Debug] All todos count: ${filteredTodos.length}');
       print(
           '[ToDo Debug] All todo IDs: ${filteredTodos.map((t) => t.id).toList()}');
+      print(
+          '[LOAD_LOG] ${DateTime.now().millisecondsSinceEpoch}: Starting final setState');
       setState(() {
         listToDoModel = filteredTodos;
         toDoList = Map.fromEntries(filteredTodos
             .map((todo) => MapEntry(todo.id ?? '', todo.toDoItems ?? [])));
         isLoading = false;
       });
+      print(
+          '[LOAD_LOG] ${DateTime.now().millisecondsSinceEpoch}: Final setState completed - _loadAndInitCategories finished successfully');
     } catch (e) {
+      print(
+          '[LOAD_LOG] ${DateTime.now().millisecondsSinceEpoch}: Error in _loadAndInitCategories: $e');
       setState(() {
         isLoading = false;
       });
@@ -165,6 +205,8 @@ class _ToDoPageState extends State<ToDoPage> {
     List<Map<String, dynamic>> searchResults = [];
     bool isSearching = false;
     bool isSendingInvite = false;
+    String? currentlyInvitingEmail;
+    Set<String> sentInvitations = {}; // Track successfully sent invitations
     String? inviteEmai;
     final currentUser = FirebaseAuth.instance.currentUser;
 
@@ -239,6 +281,7 @@ class _ToDoPageState extends State<ToDoPage> {
                             }
                           } else {
                             setState(() => searchResults = []);
+                            // isSearching = false;
                           }
                         },
                       ),
@@ -259,80 +302,180 @@ class _ToDoPageState extends State<ToDoPage> {
                                 return ListTile(
                                   title: Text(user['name']),
                                   subtitle: Text(user['email']),
-                                  trailing: (isSendingInvite &&
-                                          currentlyInvitingEmail ==
-                                              user['email'])
-                                      ? SizedBox(
-                                          width: 24,
-                                          height: 24,
-                                          child: CircularProgressIndicator(
-                                              strokeWidth: 2))
-                                      : IconButton(
-                                          icon: Icon(Icons.person_add,
-                                              color: Color.fromARGB(
-                                                  255, 107, 69, 106)),
-                                          onPressed: isSendingInvite
-                                              ? null
-                                              : () async {
-                                                  setState(() {
-                                                    isSendingInvite = true;
-                                                    currentlyInvitingEmail =
-                                                        user['email'];
-                                                  });
-                                                  try {
-                                                    await collaborationService
-                                                        .sendInvitationForAllTodos(
-                                                      inviteeEmail:
-                                                          user['email'],
-                                                      inviteeName: user['name'],
-                                                    );
-                                                    await emailService
-                                                        .sendInvitationEmail(
-                                                      email: user['email'],
-                                                      inviterName: user['name'],
-                                                    );
+                                  trailing: sentInvitations
+                                          .contains(user['email'])
+                                      ? Container(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 8, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: Colors.green,
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                          child: Text(
+                                            'Gesendet',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        )
+                                      : (isSendingInvite &&
+                                              currentlyInvitingEmail ==
+                                                  user['email'])
+                                          ? SizedBox(
+                                              width: 24,
+                                              height: 24,
+                                              child: CircularProgressIndicator(
+                                                  strokeWidth: 2))
+                                          : IconButton(
+                                              icon: Icon(Icons.person_add,
+                                                  color: Color.fromARGB(
+                                                      255, 107, 69, 106)),
+                                              onPressed: isSendingInvite
+                                                  ? null
+                                                  : () async {
+                                                      print(
+                                                          '[INVITE_LOG] ${DateTime.now().millisecondsSinceEpoch}: Starting setState for isSendingInvite = true');
+                                                      setState(() {
+                                                        isSendingInvite = true;
+                                                        currentlyInvitingEmail =
+                                                            user['email'];
+                                                      });
+                                                      print(
+                                                          '[INVITE_LOG] ${DateTime.now().millisecondsSinceEpoch}: setState completed for isSendingInvite = true');
+                                                      try {
+                                                        print(
+                                                            '[INVITE_LOG] ${DateTime.now().millisecondsSinceEpoch}: Starting sendInvitationForAllTodos');
+                                                        // Send main invitation (this is the critical part)
+                                                        await collaborationService
+                                                            .sendInvitationForAllTodos(
+                                                          inviteeEmail:
+                                                              user['email'],
+                                                          inviteeName:
+                                                              user['name'],
+                                                        );
+                                                        print(
+                                                            '[INVITE_LOG] ${DateTime.now().millisecondsSinceEpoch}: sendInvitationForAllTodos completed');
 
-                                                    // Save to non_registered_users collection
-                                                    final nonRegisteredUser =
-                                                        NonRegisteredUser(
-                                                      email: user['email'],
-                                                      name: user['name'],
-                                                      invitedAt: DateTime.now(),
-                                                    );
-                                                    await FirebaseFirestore
-                                                        .instance
-                                                        .collection(
-                                                            'non_registered_users')
-                                                        .doc(nonRegisteredUser
-                                                            .email)
-                                                        .set(nonRegisteredUser
-                                                            .toMap());
-                                                    // Refresh the data before closing the dialog
-                                                    await _loadAndInitCategories();
-                                                    if (context.mounted) {
-                                                      Navigator.of(context)
-                                                          .pop();
-                                                      SnackBarHelper
-                                                          .showSuccessSnackBar(
-                                                              context,
-                                                              "Einladung für alle Listen gesendet");
-                                                    }
-                                                  } catch (e) {
-                                                    print(e);
-                                                    SnackBarHelper
-                                                        .showErrorSnackBar(
-                                                            context,
-                                                            "Fehler beim Senden der Einladung: $e");
-                                                  } finally {
-                                                    if (mounted)
+                                                        print(
+                                                            '[INVITE_LOG] ${DateTime.now().millisecondsSinceEpoch}: Starting save to non_registered_users collection');
+                                                        // Save to non_registered_users collection
+                                                        final nonRegisteredUser =
+                                                            NonRegisteredUser(
+                                                          email: user['email'],
+                                                          name: user['name'],
+                                                          invitedAt:
+                                                              DateTime.now(),
+                                                        );
+                                                        print(
+                                                            '[INVITE_LOG] ${DateTime.now().millisecondsSinceEpoch}: NonRegisteredUser object created');
+                                                        await FirebaseFirestore
+                                                            .instance
+                                                            .collection(
+                                                                'non_registered_users')
+                                                            .doc(
+                                                                nonRegisteredUser
+                                                                    .email)
+                                                            .set(
+                                                                nonRegisteredUser
+                                                                    .toMap());
+                                                        print(
+                                                            '[INVITE_LOG] ${DateTime.now().millisecondsSinceEpoch}: Firestore save completed');
+
+                                                        print(
+                                                            '[INVITE_LOG] ${DateTime.now().millisecondsSinceEpoch}: Starting email notification');
+                                                        // Try to send email notification (but don't fail if this fails)
+                                                        try {
+                                                          emailService
+                                                              .sendInvitationEmail(
+                                                            email:
+                                                                user['email'],
+                                                            inviterName:
+                                                                user['name'],
+                                                          );
+                                                          print(
+                                                              '[INVITE_LOG] ${DateTime.now().millisecondsSinceEpoch}: Email notification sent successfully');
+                                                        } catch (emailError) {
+                                                          print(
+                                                              '[INVITE_LOG] ${DateTime.now().millisecondsSinceEpoch}: Email sending failed but invitation was successful: $emailError');
+                                                        }
+
+                                                        // Refresh the data
+
+                                                        // Reset loader state and mark as sent
+                                                        if (mounted) {
+                                                          setState(() {
+                                                            isSendingInvite =
+                                                                false;
+                                                            currentlyInvitingEmail =
+                                                                null;
+                                                            sentInvitations.add(
+                                                                user['email']);
+                                                          });
+
+                                                          // Show green success snackbar
+                                                          ScaffoldMessenger.of(
+                                                                  context)
+                                                              .showSnackBar(
+                                                            SnackBar(
+                                                              content: Text(
+                                                                  '✓ Einladung für alle Listen gesendet'),
+                                                              backgroundColor:
+                                                                  Colors.green,
+                                                              duration:
+                                                                  Duration(
+                                                                      seconds:
+                                                                          2),
+                                                            ),
+                                                          );
+                                                          if (mounted) {
+                                                            print(
+                                                                '[INVITE_LOG] ${DateTime.now().millisecondsSinceEpoch}: Starting _loadAndInitCategories');
+                                                            await _loadAndInitCategories();
+                                                            print(
+                                                                '[INVITE_LOG] ${DateTime.now().millisecondsSinceEpoch}: _loadAndInitCategories completed');
+
+                                                            print(
+                                                                '[INVITE_LOG] ${DateTime.now().millisecondsSinceEpoch}: Popping dialog');
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop();
+                                                            print(
+                                                                '[INVITE_LOG] ${DateTime.now().millisecondsSinceEpoch}: Dialog popped successfully');
+                                                          }
+                                                        }
+                                                      } catch (e) {
+                                                        print(
+                                                            '[INVITE_LOG] ${DateTime.now().millisecondsSinceEpoch}: Main invitation failed: $e');
+                                                        // if (mounted) {
+                                                        print(
+                                                            '[INVITE_LOG] ${DateTime.now().millisecondsSinceEpoch}: Starting error setState');
+                                                        setState(() {
+                                                          isSendingInvite =
+                                                              false;
+                                                          currentlyInvitingEmail =
+                                                              null;
+                                                        });
+                                                        print(
+                                                            '[INVITE_LOG] ${DateTime.now().millisecondsSinceEpoch}: Error setState completed');
+                                                        SnackBarHelper
+                                                            .showErrorSnackBar(
+                                                                context,
+                                                                "Fehler beim Senden der Einladung: $e");
+                                                        print(
+                                                            '[INVITE_LOG] ${DateTime.now().millisecondsSinceEpoch}: Error snackbar shown');
+                                                        // }
+                                                      }
+
                                                       setState(() {
                                                         isSendingInvite = false;
                                                         currentlyInvitingEmail =
                                                             null;
                                                       });
-                                                  }
-                                                },
-                                        ),
+                                                    },
+                                            ),
                                 );
                               },
                             ),
@@ -366,74 +509,142 @@ class _ToDoPageState extends State<ToDoPage> {
                                         ],
                                       ),
                                     ),
-                                    // Lade-Indikator oder Invite-Button
-                                    isSendingInvite
-                                        ? SizedBox(
-                                            width: 24,
-                                            height: 24,
-                                            child: CircularProgressIndicator(
-                                                strokeWidth: 2),
+                                    // Success message, loader, or invite button
+                                    sentInvitations
+                                            .contains(searchController.text)
+                                        ? Container(
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 8, vertical: 4),
+                                            decoration: BoxDecoration(
+                                              color: Colors.green,
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            child: Text(
+                                              'Gesendet',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
                                           )
-                                        : IconButton(
-                                            icon: Icon(Icons.person_add,
-                                                color: Color.fromARGB(
-                                                    255, 107, 69, 106)),
-                                            onPressed: () async {
-                                              setState(
-                                                  () => isSendingInvite = true);
-                                              final name = searchController.text
-                                                  .split('@')
-                                                  .first;
-                                              try {
-                                                await collaborationService
-                                                    .sendInvitationForAllTodos(
-                                                  inviteeEmail:
-                                                      searchController.text,
-                                                  inviteeName:
-                                                      name[0].toUpperCase() +
-                                                          name.substring(1),
-                                                );
-                                                await emailService
-                                                    .sendInvitationEmail(
-                                                  email: searchController.text,
-                                                  inviterName:
-                                                      name[0].toUpperCase() +
-                                                          name.substring(1),
-                                                );
-                                                // Save to non_registered_users collection
-                                                final nonRegisteredUser =
-                                                    NonRegisteredUser(
-                                                  email: searchController.text,
-                                                  name: name[0].toUpperCase() +
-                                                      name.substring(1),
-                                                  invitedAt: DateTime.now(),
-                                                );
-                                                await FirebaseFirestore.instance
-                                                    .collection(
-                                                        'non_registered_users')
-                                                    .doc(
-                                                        nonRegisteredUser.email)
-                                                    .set(nonRegisteredUser
-                                                        .toMap());
-                                                await _loadAndInitCategories();
-                                                if (context.mounted) {
-                                                  Navigator.of(context).pop();
-                                                  SnackBarHelper
-                                                      .showSuccessSnackBar(
-                                                          context,
-                                                          "Einladung gesendet");
-                                                }
-                                              } catch (e) {
-                                                SnackBarHelper
-                                                    .showErrorSnackBar(
-                                                        context, "Fehler: $e");
-                                              } finally {
-                                                if (mounted)
+                                        : isSendingInvite
+                                            ? SizedBox(
+                                                width: 24,
+                                                height: 24,
+                                                child:
+                                                    CircularProgressIndicator(
+                                                        strokeWidth: 2),
+                                              )
+                                            : IconButton(
+                                                icon: Icon(Icons.person_add,
+                                                    color: Color.fromARGB(
+                                                        255, 107, 69, 106)),
+                                                onPressed: () async {
                                                   setState(() =>
-                                                      isSendingInvite = false);
-                                              }
-                                            },
-                                          ),
+                                                      isSendingInvite = true);
+                                                  final name = searchController
+                                                      .text
+                                                      .split('@')
+                                                      .first;
+                                                  try {
+                                                    final userName =
+                                                        name[0].toUpperCase() +
+                                                            name.substring(1);
+
+                                                    // Send main invitation (this is the critical part)
+                                                    await collaborationService
+                                                        .sendInvitationForAllTodos(
+                                                      inviteeEmail:
+                                                          searchController.text,
+                                                      inviteeName: userName,
+                                                    );
+
+                                                    // Save to non_registered_users collection
+                                                    final nonRegisteredUser =
+                                                        NonRegisteredUser(
+                                                      email:
+                                                          searchController.text,
+                                                      name: userName,
+                                                      invitedAt: DateTime.now(),
+                                                    );
+                                                    await FirebaseFirestore
+                                                        .instance
+                                                        .collection(
+                                                            'non_registered_users')
+                                                        .doc(nonRegisteredUser
+                                                            .email)
+                                                        .set(nonRegisteredUser
+                                                            .toMap());
+
+                                                    // Try to send email notification (but don't fail if this fails)
+                                                    try {
+                                                      emailService
+                                                          .sendInvitationEmail(
+                                                        email: searchController
+                                                            .text,
+                                                        inviterName: userName,
+                                                      );
+                                                    } catch (emailError) {
+                                                      print(
+                                                          'Email sending failed but invitation was successful: $emailError');
+                                                    }
+
+                                                    // Refresh the data
+
+                                                    // Reset loader state and mark as sent
+                                                    // if (mounted) {
+                                                    setState(() {
+                                                      isSendingInvite = false;
+                                                      sentInvitations.add(
+                                                          searchController
+                                                              .text);
+                                                    });
+
+                                                    // Show green success snackbar
+                                                    ScaffoldMessenger.of(
+                                                            context)
+                                                        .showSnackBar(
+                                                      SnackBar(
+                                                        content: Text(
+                                                            '✓ Einladung gesendet'),
+                                                        backgroundColor:
+                                                            Colors.green,
+                                                        duration: Duration(
+                                                            seconds: 2),
+                                                      ),
+                                                    );
+
+                                                    _loadAndInitCategories();
+                                                    // Close dialog after showing success message
+                                                    Future.delayed(
+                                                        Duration(
+                                                            milliseconds: 500),
+                                                        () {
+                                                      if (mounted &&
+                                                          Navigator.canPop(
+                                                              context)) {
+                                                        Navigator.of(context)
+                                                            .pop();
+                                                      }
+                                                    });
+                                                    // }
+                                                  } catch (e) {
+                                                    print(
+                                                        'Main invitation failed: $e');
+                                                    // if (mounted) {
+                                                    setState(() =>
+                                                        isSendingInvite =
+                                                            false);
+                                                    SnackBarHelper
+                                                        .showErrorSnackBar(
+                                                            context,
+                                                            "Fehler: $e");
+                                                    // }
+                                                  }
+                                                },
+                                              ),
                                   ],
                                 ),
                               )

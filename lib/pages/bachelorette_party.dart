@@ -3,6 +3,7 @@ import 'package:four_secrets_wedding_app/data/bachelorette_images.dart';
 import 'package:four_secrets_wedding_app/model/swipeable_card_widget.dart';
 import 'package:four_secrets_wedding_app/model/footer_buttons.dart';
 import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
+import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:four_secrets_wedding_app/menue.dart';
 import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
@@ -44,10 +45,38 @@ class BacheloretteParty extends StatelessWidget {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          foregroundColor: Color.fromARGB(255, 255, 255, 255),
+          foregroundColor: const Color.fromARGB(255, 255, 255, 255),
           // automaticallyImplyLeading: false,
-          title: const Text('Bachelorette-Party'),
+          title: const Text(
+            'Bachelorette-Party',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           backgroundColor: const Color.fromARGB(255, 107, 69, 106),
+          actions: [
+            // White video icon button in top right
+            if (videoAsset.isNotEmpty || videoUri.isNotEmpty)
+              IconButton(
+                icon: const Icon(
+                  Icons.play_circle,
+                  color: Colors.white,
+                  size: 28,
+                ),
+                onPressed: () {
+                  Navigator.of(context).pushNamed(
+                    RouteManager.videoPlayer2,
+                    arguments: {
+                      'asset': videoAsset,
+                      'uri': videoUri,
+                      'ratio': videoRatio,
+                    },
+                  );
+                },
+                tooltip: 'Video abspielen',
+              ),
+          ],
         ),
         body: Container(
           height: double.infinity,

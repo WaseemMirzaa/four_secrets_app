@@ -261,10 +261,10 @@ class CollaborationService {
 
   // Delete an invitation
   Future<void> deleteInvitation(String invitationId) async {
-    final currentUser = _auth.currentUser;
-    if (currentUser == null) {
-      throw Exception('User not authenticated');
-    }
+    // final currentUser = _auth.currentUser;
+    // if (currentUser == null) {
+    //   throw Exception('User not authenticated');
+    // }
 
     // Get the invitation
     final invitationDoc =
@@ -274,13 +274,15 @@ class CollaborationService {
     }
 
     final invitation = invitationDoc.data()!;
-    if (invitation['inviterId'] != currentUser.uid) {
-      throw Exception('Not authorized to delete this invitation');
-    }
+    print('Invitation Data = $invitation');
+    // print('Invitation Data curr uid  = ${currentUser.uid}');
+    // if (invitation['inviterId'] != currentUser.uid) {
+    //   throw Exception('Not authorized to delete this invitation');
+    // }
 
     // Delete the invitation
-    await _firestore.collection('invitations').doc(invitationId).delete();
-    await _emailService.sendRevokeAccessEmail(
+     _firestore.collection('invitations').doc(invitationId).delete();
+     _emailService.sendRevokeAccessEmail(
         email: invitation['inviteeEmail'],
         inviterName: invitation['inviterName']);
   }

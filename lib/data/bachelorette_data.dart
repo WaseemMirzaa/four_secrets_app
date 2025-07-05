@@ -1,6 +1,6 @@
 class BacheloretteData {
   static final Map<String, String> map = {
-    "videoAsset": "assets/videos/bachelorette.mp4", // Uri geht vor Asset video
+    "videoAsset": "assets/videos/1.mp4", // Uri geht vor Asset video
     "videoUri": "",
     "videoRatio": "0.65",
     "email": "info@4-secrets.de",
