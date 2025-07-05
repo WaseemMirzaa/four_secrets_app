@@ -1,31 +1,26 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:four_secrets_wedding_app/constants/app_constants.dart';
-import 'package:four_secrets_wedding_app/extension.dart';
 import 'package:four_secrets_wedding_app/menue.dart';
-import 'package:four_secrets_wedding_app/model/category_model.dart';
 import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
 import 'package:four_secrets_wedding_app/model/to_do_model.dart';
+import 'package:four_secrets_wedding_app/pages/collaboration_screen.dart';
 import 'package:four_secrets_wedding_app/routes/routes.dart';
-import 'package:four_secrets_wedding_app/services/email_service.dart';
-import 'package:four_secrets_wedding_app/services/todo_service.dart';
 import 'package:four_secrets_wedding_app/services/auth_service.dart';
 import 'package:four_secrets_wedding_app/services/collaboration_service.dart';
-import 'package:four_secrets_wedding_app/widgets/custom_dialog.dart';
-import 'package:four_secrets_wedding_app/widgets/custom_text_field.dart';
-import 'package:four_secrets_wedding_app/widgets/custom_text_widget.dart';
-import 'package:four_secrets_wedding_app/widgets/custom_button_widget.dart';
+import 'package:four_secrets_wedding_app/services/email_service.dart';
+import 'package:four_secrets_wedding_app/services/todo_service.dart';
 import 'package:four_secrets_wedding_app/utils/snackbar_helper.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:four_secrets_wedding_app/widgets/custom_button_widget.dart';
+import 'package:four_secrets_wedding_app/widgets/custom_dialog.dart';
+import 'package:four_secrets_wedding_app/widgets/custom_text_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:four_secrets_wedding_app/pages/collaboration_screen.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import '../widgets/collaboration_todo_tile.dart';
-import '../services/non_registered_invite_service.dart';
+
 import '../models/non_registered_user.dart';
+import '../widgets/collaboration_todo_tile.dart';
 
 class ToDoPage extends StatefulWidget {
   const ToDoPage({super.key});
@@ -909,14 +904,14 @@ class _ToDoPageState extends State<ToDoPage> {
                       int index =
                           listToDoModel.indexWhere((todo) => todo.id == todoId);
                       if (index == -1) index = 0;
-                      final isOwner = todoModel?.userId == myUid;
+                      final isOwner = todoModel.userId == myUid;
                       final isCollaborator =
-                          todoModel?.collaborators.contains(myEmail) ?? false;
+                          todoModel.collaborators.contains(myEmail) ?? false;
                       final canComment = isOwner || isCollaborator;
                       // Use correct collectionPath for owned or shared todos
                       final collectionPath = isOwner
                           ? 'users/$myUid/todos'
-                          : 'users/${todoModel?.userId}/todos';
+                          : 'users/${todoModel.userId}/todos';
                       // Show tag: 'Owned' for owner, 'Shared by' for collaborator
                       return CollaborationTodoTile(
                         collabId: todoModel.id ?? '',

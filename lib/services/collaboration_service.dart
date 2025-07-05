@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../model/collaboration_model.dart';
+
 import '../model/to_do_model.dart';
-import 'push_notification_service.dart';
 import 'email_service.dart';
+import 'push_notification_service.dart';
 
 class CollaborationService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -54,7 +54,7 @@ class CollaborationService {
         .get();
 
     if (existingInvitation.docs.isNotEmpty) {
-      throw Exception('Invitation already sent to this user');
+      throw Exception('Einladung wurde bereits an diesen Benutzer gesendet');
     }
 
     String finalTodoName = todoName;
@@ -435,7 +435,7 @@ class CollaborationService {
         .where('status', isEqualTo: 'pending')
         .get();
     if (existingInvitation.docs.isNotEmpty) {
-      throw Exception('Invitation already sent to this email');
+      throw Exception('Einladung wurde bereits an diese E-Mail gesendet');
     }
 
     // Create new invitation for all todos, now including categories
