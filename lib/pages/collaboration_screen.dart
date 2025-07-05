@@ -1,17 +1,18 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:four_secrets_wedding_app/menue.dart';
 import 'package:four_secrets_wedding_app/model/to_do_model.dart';
+import 'package:four_secrets_wedding_app/services/collaboration_service.dart';
 import 'package:four_secrets_wedding_app/services/email_service.dart';
 import 'package:four_secrets_wedding_app/services/todo_service.dart';
-import 'package:four_secrets_wedding_app/services/collaboration_service.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:four_secrets_wedding_app/utils/snackbar_helper.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_text_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
-import '../widgets/custom_button_widget.dart';
+
 import '../services/push_notification_service.dart';
+import '../widgets/custom_button_widget.dart';
 
 class CollaborationScreen extends StatefulWidget {
   const CollaborationScreen({Key? key}) : super(key: key);
@@ -22,27 +23,37 @@ class CollaborationScreen extends StatefulWidget {
 
 class _CollaborationScreenState extends State<CollaborationScreen>
     with SingleTickerProviderStateMixin {
-  final TodoService _todoService = TodoService();
-  final CollaborationService _collaborationService = CollaborationService();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final EmailService _emailService = EmailService();
-  final TextEditingController _commentController = TextEditingController();
-  List<ToDoModel> _ownedTodos = [];
-  List<ToDoModel> _collaboratedTodos = [];
-  List<Map<String, dynamic>> _sentInvitations = [];
-  List<Map<String, dynamic>> _receivedInvitations = [];
-  Map<String, Map<String, String>> _userCache = {};
-  bool _isLoading = true;
-
-  late TabController _tabController;
   final key = GlobalKey<MenueState>();
-  final PushNotificationService _pushNotificationService =
-      PushNotificationService();
+
   final Set<String> _acceptingInvites =
       {}; // Track loading state for accepting invites
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   final Set<String> _cancellingInvites =
       {}; // Track loading state for cancelling invites
+
+  List<ToDoModel> _collaboratedTodos = [];
+  final CollaborationService _collaborationService = CollaborationService();
+  final TextEditingController _commentController = TextEditingController();
+  final EmailService _emailService = EmailService();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  bool _isLoading = true;
+  List<ToDoModel> _ownedTodos = [];
+  final PushNotificationService _pushNotificationService =
+      PushNotificationService();
+
+  List<Map<String, dynamic>> _receivedInvitations = [];
+  List<Map<String, dynamic>> _sentInvitations = [];
+  late TabController _tabController;
+  final TodoService _todoService = TodoService();
+  Map<String, Map<String, String>> _userCache = {};
+
+  @override
+  void dispose() {
+    _commentController.dispose();
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -51,11 +62,34 @@ class _CollaborationScreenState extends State<CollaborationScreen>
     _loadData();
   }
 
-  @override
-  void dispose() {
-    _commentController.dispose();
-    _tabController.dispose();
-    super.dispose();
+  // Add this helper for the invitation notification stream
+  Stream<bool> get _hasNewCollabNotificationStream async* {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      yield false;
+      return;
+    }
+    final fcmToken = await FirebaseMessaging.instance.getToken();
+    final userEmail = user.email;
+    if (fcmToken == null && userEmail == null) {
+      yield false;
+      return;
+    }
+    yield* FirebaseFirestore.instance
+        .collection('notifications')
+        .where('read', isEqualTo: false)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.any((doc) {
+        final data = doc.data();
+        final type = data['data']?['type'] ?? '';
+        final tokenMatch = fcmToken != null && data['token'] == fcmToken;
+        final emailMatch =
+            userEmail != null && data['data']?['toEmail'] == userEmail;
+        return (type == 'invitation' || type == 'comment') &&
+            (tokenMatch || emailMatch);
+      });
+    });
   }
 
   Future<void> _loadData() async {
@@ -157,96 +191,216 @@ class _CollaborationScreenState extends State<CollaborationScreen>
     }
   }
 
-  // Add this helper for the invitation notification stream
-  Stream<bool> get _hasNewCollabNotificationStream async* {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      yield false;
-      return;
-    }
-    final fcmToken = await FirebaseMessaging.instance.getToken();
-    final userEmail = user.email;
-    if (fcmToken == null && userEmail == null) {
-      yield false;
-      return;
-    }
-    yield* FirebaseFirestore.instance
-        .collection('notifications')
-        .where('read', isEqualTo: false)
-        .snapshots()
-        .map((snapshot) {
-      return snapshot.docs.any((doc) {
-        final data = doc.data();
-        final type = data['data']?['type'] ?? '';
-        final tokenMatch = fcmToken != null && data['token'] == fcmToken;
-        final emailMatch =
-            userEmail != null && data['data']?['toEmail'] == userEmail;
-        return (type == 'invitation' || type == 'comment') &&
-            (tokenMatch || emailMatch);
-      });
-    });
-  }
+  // Future<void> _respondToInvitation(String invitationId, bool accept) async {
+  //   // Find the invite in the received invitations
+  //   final invite = _receivedInvitations.firstWhere(
+  //     (element) => element['id'] == invitationId,
+  //     orElse: () => {},
+  //   );
+  //   final isNonRegistered = invite['isNonRegistered'] == true;
+  //   if (accept) {
+  //     setState(() {
+  //       _acceptingInvites.add(invitationId);
+  //     });
+  //   }
+  //   try {
+  //     if (isNonRegistered) {
+  //       // Accept the non-registered invite
+  //       await _collaborationService.respondToInvitationForAllTodos(
+  //           invitationId, accept);
+  //     } else if (invite.containsKey('todoIds')) {
+  //       // Multi-todo invite
+  //       await _collaborationService.respondToInvitationForAllTodos(
+  //           invitationId, accept);
+  //     } else if (invite.containsKey('todoId')) {
+  //       // Single-todo invite
+  //       await _collaborationService.respondToInvitation(invitationId, accept);
+  //       // await _pushNotificationService.sendInvitationAcceptedNotification(inviterId: inviterId, inviteeName: inviteeName, todoName: todoName)
+  //     } else {
+  //       throw Exception('Invalid invitation format');
+  //     }
+  //     await _loadData();
+  //     if (mounted) {
+  //       SnackBarHelper.showSuccessSnackBar(
+  //         context,
+  //         accept ? 'Einladung akzeptiert' : 'Einladung abgelehnt',
+  //       );
+  //       if (accept) {
+  //         Future.delayed(const Duration(milliseconds: 500), () {
+  //           if (Navigator.of(context).canPop()) {
+  //             Navigator.of(context).pop();
+  //           }
+  //         });
+  //       } else {
+  //         // await _pushNotificationService.sendInvitationRejectedNotification(
+  //         //   inviterId: invite['inviterId'],
+  //         //   inviteeName: invite['inviterName'],
+  //         // );
+  //         final currentUser = _auth.currentUser;
+  //         final currentUserName = currentUser?.displayName ??
+  //             currentUser?.email?.split('@').first ??
+  //             'Jemand';
 
+  //         await _pushNotificationService.sendInvitationRejectedNotification(
+  //           inviterId: invite['inviterId'],
+  //           inviteeName:
+  //               currentUserName, // Now using the correct name of who is rejecting
+  //         );
+  //         print(
+  //             'Sending rejection notification to inviter: ${invite['inviterId']}');
+  //         print('Current user name: $currentUserName');
+  //         print("Rejected");
+  //       }
+  //     }
+  //   } catch (e) {
+  //     if (mounted) {
+  //       SnackBarHelper.showErrorSnackBar(
+  //         context,
+  //         'Fehler beim Antworten auf die Einladung: $e',
+  //       );
+  //     }
+  //   } finally {
+  //     if (accept) {
+  //       setState(() {
+  //         _acceptingInvites.remove(invitationId);
+  //       });
+  //     }
+  //   }
+  // }
   Future<void> _respondToInvitation(String invitationId, bool accept) async {
-    // Find the invite in the received invitations
+    print('[DEBUG] Processing invitation $invitationId, accept: $accept');
+
     final invite = _receivedInvitations.firstWhere(
       (element) => element['id'] == invitationId,
       orElse: () => {},
     );
+
+    print('[DEBUG] Invite data: ${invite.toString()}');
+
+    if (invite.isEmpty) {
+      print('[ERROR] No invitation found');
+      if (mounted) {
+        SnackBarHelper.showErrorSnackBar(
+          context,
+          'Einladung nicht gefunden',
+        );
+      }
+      return;
+    }
+
     final isNonRegistered = invite['isNonRegistered'] == true;
     if (accept) {
-      setState(() {
-        _acceptingInvites.add(invitationId);
-      });
+      setState(() => _acceptingInvites.add(invitationId));
     }
+
     try {
-      if (isNonRegistered) {
-        // Accept the non-registered invite
+      // Handle all invitation types
+      if (isNonRegistered ||
+          invite.containsKey('todoIds') ||
+          invite.containsKey('todoId')) {
         await _collaborationService.respondToInvitationForAllTodos(
             invitationId, accept);
-      } else if (invite.containsKey('todoIds')) {
-        // Multi-todo invite
-        await _collaborationService.respondToInvitationForAllTodos(
-            invitationId, accept);
-      } else if (invite.containsKey('todoId')) {
-        // Single-todo invite
-        await _collaborationService.respondToInvitation(invitationId, accept);
-        // await _pushNotificationService.sendInvitationAcceptedNotification(inviterId: inviterId, inviteeName: inviteeName, todoName: todoName)
       } else {
-        throw Exception('Invalid invitation format');
+        // Default case - don't throw exception
+        print('[DEBUG] Handling basic invitation response');
+        await _collaborationService.respondToInvitation(invitationId, accept);
       }
+
       await _loadData();
+
       if (mounted) {
         SnackBarHelper.showSuccessSnackBar(
           context,
           accept ? 'Einladung akzeptiert' : 'Einladung abgelehnt',
         );
+
+        // Send notification when rejecting
+        if (!accept) {
+          print('[DEBUG] Preparing rejection notification');
+          final currentUser = _auth.currentUser;
+          final currentUserName = currentUser?.displayName ??
+              currentUser?.email?.split('@').first ??
+              'Jemand';
+
+          // Try to get inviterId from multiple possible sources
+          String? inviterId;
+
+          // 1. First try direct invitation field
+          inviterId = invite['inviterId'];
+
+          // 2. If not found, try to get from first todo's ownerId
+          if (inviterId == null &&
+              invite['todoIds'] != null &&
+              invite['todoIds'].isNotEmpty) {
+            try {
+              final todoId = invite['todoIds'][0];
+              final todoDoc = await _firestore
+                  .collection('users')
+                  .doc(invite['inviterId'] ?? invite['ownerId'])
+                  .collection('todos')
+                  .doc(todoId)
+                  .get();
+
+              if (todoDoc.exists) {
+                inviterId = todoDoc.data()?['ownerId'];
+              }
+            } catch (e) {
+              print('[ERROR] Failed to get todo owner: $e');
+            }
+          }
+
+          // 3. If still not found, try to lookup by email
+          if (inviterId == null && invite['inviterEmail'] != null) {
+            try {
+              final users = await _firestore
+                  .collection('users')
+                  .where('email', isEqualTo: invite['inviterEmail'])
+                  .limit(1)
+                  .get();
+
+              if (users.docs.isNotEmpty) {
+                inviterId = users.docs.first.id;
+              }
+            } catch (e) {
+              print('[ERROR] Failed to lookup user by email: $e');
+            }
+          }
+
+          if (inviterId == null) {
+            print('[ERROR] Could not determine inviterId for notification');
+            if (mounted) {
+              SnackBarHelper.showErrorSnackBar(
+                context,
+                'Could not identify sender for notification',
+              );
+            }
+          } else {
+            await _pushNotificationService.sendInvitationRejectedNotification(
+              inviterId: inviterId,
+              inviteeName: currentUserName,
+            );
+            print('[DEBUG] Sent rejection notification to $inviterId');
+          }
+        }
         if (accept) {
           Future.delayed(const Duration(milliseconds: 500), () {
             if (Navigator.of(context).canPop()) {
               Navigator.of(context).pop();
             }
           });
-        } else {
-          await _pushNotificationService.sendInvitationRejectedNotification(
-            inviterId: invite['inviterId'],
-            inviteeName: invite['inviterName'],
-          );
-          print("Rejected");
         }
       }
     } catch (e) {
+      print('[ERROR] In invitation response: $e');
       if (mounted) {
         SnackBarHelper.showErrorSnackBar(
           context,
-          'Fehler beim Antworten auf die Einladung: $e',
+          'Fehler: ${e.toString()}',
         );
       }
     } finally {
       if (accept) {
-        setState(() {
-          _acceptingInvites.remove(invitationId);
-        });
+        setState(() => _acceptingInvites.remove(invitationId));
       }
     }
   }

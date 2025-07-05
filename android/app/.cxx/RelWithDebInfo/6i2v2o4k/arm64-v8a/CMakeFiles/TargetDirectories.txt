@@ -1,0 +1,2 @@
+C:/Users/Dell/Desktop/workspace/code/four_secrets_app/android/app/.cxx/RelWithDebInfo/6i2v2o4k/arm64-v8a/CMakeFiles/edit_cache.dir
+C:/Users/Dell/Desktop/workspace/code/four_secrets_app/android/app/.cxx/RelWithDebInfo/6i2v2o4k/arm64-v8a/CMakeFiles/rebuild_cache.dir
