@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -75,6 +76,8 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
 
   Future<void> _downloadWeddingSchedulePdf() async {
     try {
+      print('🔵 ===== WEDDING SCHEDULE DOWNLOAD STARTED =====');
+
       final sortedScheduleList = weddingDayScheduleService
           .weddingDayScheduleList
           .where((e) => e.time != null)
@@ -99,22 +102,64 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
           return bDateTime.compareTo(aDateTime);
         });
 
+      print('🔵 Schedule list length: ${sortedScheduleList.length}');
+
+      print('🔵 Generating PDF bytes...');
       final pdfBytes =
           await generateWeddingSchedulePdfBytes(sortedScheduleList);
+      print('🔵 PDF bytes generated: ${pdfBytes.length} bytes');
+
       final filename =
           NativeDownloadService.generateTimestampedFilename('Tagesablauf');
+      print('🔵 Generated filename: $filename');
 
       // Use native download service
-      await NativeDownloadService.downloadPdf(
+      print('🔵 Calling native download service...');
+      final result = await NativeDownloadService.downloadPdf(
         context: context,
         pdfBytes: pdfBytes,
         filename: filename,
         successMessage: 'Tagesablauf PDF erfolgreich heruntergeladen',
       );
+
+      print('🔵 Download result: $result');
     } catch (e) {
+      print('🔴 Error in _downloadWeddingSchedulePdf: $e');
+      print('🔴 Stack trace: ${StackTrace.current}');
       if (mounted) {
         SnackBarHelper.showErrorSnackBar(
             context, 'Fehler beim Herunterladen: $e');
+      }
+    }
+  }
+
+  /// Simple test download function to verify download functionality
+  Future<void> _testDownload() async {
+    try {
+      print('🔵 ===== TEST DOWNLOAD STARTED =====');
+
+      // Create a simple test PDF content
+      final testContent = 'Test PDF Content - ${DateTime.now()}';
+      final testBytes = Uint8List.fromList(testContent.codeUnits);
+      final filename =
+          'test_download_${DateTime.now().millisecondsSinceEpoch}.txt';
+
+      print('🔵 Test file: $filename');
+      print('🔵 Test content length: ${testBytes.length} bytes');
+
+      // Use native download service
+      final result = await NativeDownloadService.downloadPdf(
+        context: context,
+        pdfBytes: testBytes,
+        filename: filename,
+        successMessage: 'Test download completed',
+      );
+
+      print('🔵 Test download result: $result');
+    } catch (e) {
+      print('🔴 Error in test download: $e');
+      if (mounted) {
+        SnackBarHelper.showErrorSnackBar(context, 'Test download failed: $e');
       }
     }
   }

@@ -1001,19 +1001,31 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
 
   Future<void> _downloadPdf() async {
     try {
+      print('🔵 ===== TABLE MANAGEMENT DOWNLOAD STARTED =====');
+      print('🔵 Tables count: ${_tables.length}');
+
+      print('🔵 Generating PDF bytes...');
       final pdfBytes =
           await generateTableManagementPdf(_tables, _tableGuestsMap);
+      print('🔵 PDF bytes generated: ${pdfBytes.length} bytes');
+
       final filename =
           NativeDownloadService.generateTimestampedFilename('Tischverwaltung');
+      print('🔵 Generated filename: $filename');
 
       // Use native download service
-      await NativeDownloadService.downloadPdf(
+      print('🔵 Calling native download service...');
+      final result = await NativeDownloadService.downloadPdf(
         context: context,
         pdfBytes: pdfBytes,
         filename: filename,
         successMessage: 'Tischverwaltung PDF erfolgreich heruntergeladen',
       );
+
+      print('🔵 Download result: $result');
     } catch (e) {
+      print('🔴 Error in _downloadPdf: $e');
+      print('🔴 Stack trace: ${StackTrace.current}');
       if (mounted) {
         SnackBarHelper.showErrorSnackBar(
             context, 'Fehler beim Herunterladen: $e');

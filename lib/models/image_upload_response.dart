@@ -69,6 +69,6 @@ class ImageData {
   }
 
   String getFullImageUrl() {
-    return 'http://164.92.175.72${url}';
+    return 'http://164.92.175.72:8080${url}';
   }
 }
