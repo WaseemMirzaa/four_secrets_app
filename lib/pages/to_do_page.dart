@@ -846,9 +846,18 @@ class _ToDoPageState extends State<ToDoPage> {
                   label: 'Mit leerer Liste starten',
                   labelStyle: TextStyle(fontSize: 16),
                   onTap: () async {
-                    Navigator.pushNamed(
-                        context, RouteManager.customTodoCategoryPage);
-                    _loadAndInitCategories();
+                    var g = await Navigator.pushNamed(
+                      context,
+                      RouteManager.addToDoPage,
+                      arguments: {
+                        "toDoModel": null,
+                        "id": null,
+                        "showOnlyCustomCategories": true,
+                      },
+                    );
+                    if (g == true) {
+                      _loadAndInitCategories();
+                    }
                   },
                 ),
               ],

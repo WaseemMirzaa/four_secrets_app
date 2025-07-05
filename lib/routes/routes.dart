@@ -223,6 +223,8 @@ class RouteManager {
           child: AddTodoPage(
             toDoModel: args['toDoModel'] as ToDoModel?,
             id: args['id'] as String?,
+            showOnlyCustomCategories:
+                args['showOnlyCustomCategories'] as bool? ?? false,
           ),
           settings: settings,
           duration: const Duration(milliseconds: 250),

@@ -103,6 +103,7 @@ class CategoryService {
           'createdAt': FieldValue.serverTimestamp(),
           'userId': userId,
         });
+        
       }
 
       // Set the initialization flag to true
@@ -184,6 +185,39 @@ class CategoryService {
     } catch (e) {
       print('Error loading categories: $e');
       throw Exception('Failed to load categories: $e');
+    }
+  }
+
+  // Get only custom categories (excluding initial default categories)
+  Future<List<CategoryModel>> getCustomCategories() async {
+    if (userId == null) {
+      throw Exception('User not logged in');
+    }
+
+    try {
+      // Get all categories first
+      final allCategories = await getCategories();
+
+      // Define the initial category names to exclude
+      final initialCategoryNames = {
+        "Dokumente & Organisatorisches",
+        "Braut",
+        "Bräutigam",
+        "Technik",
+        "Snacks & Getränke",
+        "Sonstiges"
+      };
+
+      // Filter out initial categories, keeping only custom ones
+      final customCategories = allCategories
+          .where((category) =>
+              !initialCategoryNames.contains(category.categoryName))
+          .toList();
+
+      return customCategories;
+    } catch (e) {
+      print('Error loading custom categories: $e');
+      throw Exception('Failed to load custom categories: $e');
     }
   }
 

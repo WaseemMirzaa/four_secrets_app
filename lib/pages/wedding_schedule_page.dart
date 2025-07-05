@@ -4,6 +4,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:four_secrets_wedding_app/Pdf/share_single_pdf.dart';
 import 'package:four_secrets_wedding_app/Pdf/shcedule_pdf.dart';
+import 'package:four_secrets_wedding_app/services/native_download_service.dart';
 import 'package:four_secrets_wedding_app/constants/app_constants.dart';
 import 'package:four_secrets_wedding_app/extension.dart';
 import 'package:four_secrets_wedding_app/menue.dart';
@@ -100,52 +101,16 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
 
       final pdfBytes =
           await generateWeddingSchedulePdfBytes(sortedScheduleList);
-      final now = DateTime.now();
       final filename =
-          'Tagesablauf_${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}_${now.hour.toString().padLeft(2, '0')}-${now.minute.toString().padLeft(2, '0')}-${now.second.toString().padLeft(2, '0')}.pdf';
+          NativeDownloadService.generateTimestampedFilename('Tagesablauf');
 
-      // Get documents directory for saving
-      final documentsDir = await getApplicationDocumentsDirectory();
-      final downloadsDir = Directory('${documentsDir.path}/Downloads');
-
-      // Create Downloads directory if it doesn't exist
-      if (!await downloadsDir.exists()) {
-        await downloadsDir.create(recursive: true);
-      }
-
-      final file = File('${downloadsDir.path}/$filename');
-      print(file.path);
-      // Write PDF bytes to file
-      await file.writeAsBytes(pdfBytes);
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                Expanded(
-                  child: Text('PDF erfolgreich gespeichert: $filename'),
-                ),
-                IconButton(
-                  icon: Icon(Icons.visibility, color: Colors.white),
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => PdfViewPage(
-                          pdfBytes: pdfBytes,
-                          title: 'Tagesablauf',
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-            backgroundColor: Color.fromARGB(255, 107, 69, 106),
-            duration: Duration(seconds: 5),
-          ),
-        );
-      }
+      // Use native download service
+      await NativeDownloadService.downloadPdf(
+        context: context,
+        pdfBytes: pdfBytes,
+        filename: filename,
+        successMessage: 'Tagesablauf PDF erfolgreich heruntergeladen',
+      );
     } catch (e) {
       if (mounted) {
         SnackBarHelper.showErrorSnackBar(

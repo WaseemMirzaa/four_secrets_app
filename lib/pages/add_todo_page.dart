@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:four_secrets_wedding_app/constants/app_constants.dart';
 import 'package:four_secrets_wedding_app/extension.dart';
@@ -11,7 +9,6 @@ import 'package:four_secrets_wedding_app/services/category_service.dart';
 import 'package:four_secrets_wedding_app/services/todo_service.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_button_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_dialog.dart';
-import 'package:four_secrets_wedding_app/widgets/custom_text_field.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_text_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
 import 'package:four_secrets_wedding_app/utils/snackbar_helper.dart';
@@ -22,7 +19,12 @@ import 'package:four_secrets_wedding_app/services/notification_alaram-service.da
 class AddTodoPage extends StatefulWidget {
   final ToDoModel? toDoModel;
   final String? id;
-  const AddTodoPage({super.key, required this.toDoModel, required this.id});
+  final bool showOnlyCustomCategories;
+  const AddTodoPage(
+      {super.key,
+      required this.toDoModel,
+      required this.id,
+      this.showOnlyCustomCategories = false});
 
   @override
   State<AddTodoPage> createState() => _AddTodoPageState();
@@ -52,52 +54,51 @@ class _AddTodoPageState extends State<AddTodoPage> {
   @override
   void initState() {
     super.initState();
-    _loadAndInitCategories();
 
     // Handle incoming todo data if present
     if (widget.toDoModel != null) {
       print("🟢 widget.toDoModel: ");
-      setState(() {
-        // Multi-category support for editing
-        if (widget.toDoModel!.categories != null) {
-          for (final cat in widget.toDoModel!.categories!) {
-            final catName = cat['categoryName'] as String;
-            final itemsRaw = cat['items'] ?? [];
-            final items = (itemsRaw as List)
-                .map((item) => item is String ? item : item['name'] as String)
-                .toList();
-            selectedItemsByCategory[catName] = List<String>.from(items);
-            // Expand the first category by default
-            expandedCategory ??= catName;
-          }
-        } else if (widget.toDoModel!.toDoName != null &&
-            (widget.toDoModel!.toDoName ?? '').isNotEmpty) {
-          final catName = widget.toDoModel!.toDoName!;
-          final items = widget.toDoModel!.toDoItems
-                  ?.map((item) => item['name'] as String)
-                  .toList() ??
-              [];
+      // Multi-category support for editing
+      if (widget.toDoModel!.categories != null) {
+        for (final cat in widget.toDoModel!.categories!) {
+          final catName = cat['categoryName'] as String;
+          final itemsRaw = cat['items'] ?? [];
+          final items = (itemsRaw as List)
+              .map((item) => item is String ? item : item['name'] as String)
+              .toList();
           selectedItemsByCategory[catName] = List<String>.from(items);
-          expandedCategory = catName;
+          // Expand the first category by default
+          expandedCategory ??= catName;
         }
-        _categoryNameController.text = expandedCategory ?? '';
-        // Load reminder if present
-        if (widget.toDoModel!.reminder != null &&
-            widget.toDoModel!.reminder!.isNotEmpty) {
-          final reminderDateTime =
-              DateTime.tryParse(widget.toDoModel!.reminder!);
-          if (reminderDateTime != null) {
-            _reminderEnabled = true;
-            _selectedReminderDate = reminderDateTime;
-            _selectedReminderTime = TimeOfDay.fromDateTime(reminderDateTime);
-            _selectedReminderDateText =
-                "${reminderDateTime.day.toString().padLeft(2, '0')}/${reminderDateTime.month.toString().padLeft(2, '0')}/${reminderDateTime.year}";
-            _selectedReminderTimeText =
-                "${reminderDateTime.hour.toString().padLeft(2, '0')}:${reminderDateTime.minute.toString().padLeft(2, '0')} Uhr";
-          }
+      } else if (widget.toDoModel!.toDoName != null &&
+          (widget.toDoModel!.toDoName ?? '').isNotEmpty) {
+        final catName = widget.toDoModel!.toDoName!;
+        final items = widget.toDoModel!.toDoItems
+                ?.map((item) => item['name'] as String)
+                .toList() ??
+            [];
+        selectedItemsByCategory[catName] = List<String>.from(items);
+        expandedCategory = catName;
+      }
+      _categoryNameController.text = expandedCategory ?? '';
+      // Load reminder if present
+      if (widget.toDoModel!.reminder != null &&
+          widget.toDoModel!.reminder!.isNotEmpty) {
+        final reminderDateTime = DateTime.tryParse(widget.toDoModel!.reminder!);
+        if (reminderDateTime != null) {
+          _reminderEnabled = true;
+          _selectedReminderDate = reminderDateTime;
+          _selectedReminderTime = TimeOfDay.fromDateTime(reminderDateTime);
+          _selectedReminderDateText =
+              "${reminderDateTime.day.toString().padLeft(2, '0')}/${reminderDateTime.month.toString().padLeft(2, '0')}/${reminderDateTime.year}";
+          _selectedReminderTimeText =
+              "${reminderDateTime.hour.toString().padLeft(2, '0')}:${reminderDateTime.minute.toString().padLeft(2, '0')} Uhr";
         }
-      });
+      }
     }
+
+    // Load categories after setting up selected items
+    _loadAndInitCategories();
   }
 
   Future<void> _loadAndInitCategories() async {
@@ -108,7 +109,34 @@ class _AddTodoPageState extends State<AddTodoPage> {
     try {
       print('🟢 Starting to load and initialize categories');
       await categoryService.createInitialCategories();
-      final loadTodo = await categoryService.getCategories();
+
+      List<CategoryModel> loadTodo;
+
+      // If editing a todo, only load the specific category being edited
+      if (widget.toDoModel != null && selectedItemsByCategory.isNotEmpty) {
+        print('🟢 Editing mode: Loading only selected category');
+        final categoryName = selectedItemsByCategory.keys.first;
+
+        // Find the specific category model
+        final allCategories = await categoryService.getCategories();
+        final specificCategory = allCategories.firstWhere(
+          (cat) => cat.categoryName == categoryName,
+          orElse: () => CategoryModel(
+            id: '',
+            categoryName: categoryName,
+            todos: selectedItemsByCategory[categoryName] ?? [],
+            createdAt: DateTime.now(),
+            userId: '',
+          ),
+        );
+        loadTodo = [specificCategory];
+      } else {
+        // Load categories based on the showOnlyCustomCategories flag
+        loadTodo = widget.showOnlyCustomCategories
+            ? await categoryService.getCustomCategories()
+            : await categoryService.getCategories();
+      }
+
       print('🟢 Initial todo items created successfully');
       print('🟢 Todos loaded successfully: ' +
           loadTodo.length.toString() +
@@ -131,6 +159,18 @@ class _AddTodoPageState extends State<AddTodoPage> {
           isLoading = false;
         });
       }
+    }
+  }
+
+  String _getAppBarTitle() {
+    if (widget.toDoModel != null && selectedItemsByCategory.isNotEmpty) {
+      // Editing mode - show the category name being edited
+      final categoryName = selectedItemsByCategory.keys.first;
+      return "Bearbeiten: $categoryName";
+    } else if (widget.showOnlyCustomCategories) {
+      return "Eigene To-Do Listen";
+    } else {
+      return AppConstants.toDoPageTitle;
     }
   }
 
@@ -173,7 +213,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
         backgroundColor: Colors.white,
         appBar: AppBar(
           foregroundColor: Colors.white,
-          title: const Text(AppConstants.toDoPageTitle),
+          title: Text(_getAppBarTitle()),
           backgroundColor: const Color.fromARGB(255, 107, 69, 106),
         ),
         floatingActionButton: FloatingActionButton(
@@ -200,7 +240,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
               suggestionsCallback: (pattern) async {
                 if (pattern.isEmpty) return [];
                 setState(() => isSearching = true);
-                await Future.delayed(const Duration(milliseconds: 150));
+                await Future.delayed(const Duration(milliseconds: 50));
                 final lower = pattern.toLowerCase();
                 final Set<String> allSuggestions = {};
                 allTodo.forEach((cat, items) {
@@ -432,7 +472,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
                         itemCount: displayTodo.entries.length,
                         itemBuilder: (context, index) {
                           String toDoName =
-                              displayTodo.entries.elementAt(index).key ?? '';
+                              displayTodo.entries.elementAt(index).key;
                           List<String> itemsToDo = displayTodo[toDoName]!;
                           final isExpanded = expandedCategory == toDoName;
                           return Container(
@@ -506,13 +546,58 @@ class _AddTodoPageState extends State<AddTodoPage> {
                                                           "Möchten Sie diese Liste wirklich löschen?",
                                                       confirmText: "Löschen",
                                                       cancelText: "Abbrechen",
-                                                      onConfirm: () {
+                                                      onConfirm: () async {
                                                         statee(() {
                                                           isSaving = true;
                                                         });
+                                                        try {
+                                                          // Find the category model to get the ID
+                                                          CategoryModel?
+                                                              categoryToDelete =
+                                                              allTodoModels
+                                                                  .firstWhere(
+                                                            (m) =>
+                                                                m.categoryName ==
+                                                                toDoName,
+                                                            orElse: () =>
+                                                                CategoryModel(
+                                                              id: '',
+                                                              categoryName:
+                                                                  toDoName,
+                                                              todos: [],
+                                                              createdAt:
+                                                                  DateTime
+                                                                      .now(),
+                                                              userId: '',
+                                                            ),
+                                                          );
+
+                                                          if (categoryToDelete
+                                                              .id.isNotEmpty) {
+                                                            // Actually delete from database
+                                                            await categoryService
+                                                                .deleteCategory(
+                                                                    categoryToDelete
+                                                                        .id);
+                                                            SnackBarHelper
+                                                                .showSuccessSnackBar(
+                                                                    context,
+                                                                    'Kategorie erfolgreich gelöscht');
+                                                          }
+                                                        } catch (e) {
+                                                          print(
+                                                              '🔴 Error deleting category: $e');
+                                                          SnackBarHelper
+                                                              .showErrorSnackBar(
+                                                                  context,
+                                                                  'Fehler beim Löschen: $e');
+                                                        } finally {
+                                                          statee(() {
+                                                            isSaving = false;
+                                                          });
+                                                        }
                                                         Navigator.of(context)
                                                             .pop(true);
-                                                        _loadAndInitCategories();
                                                       },
                                                       onCancel: () {
                                                         statee(() {
@@ -714,18 +799,21 @@ class _AddTodoPageState extends State<AddTodoPage> {
                     }
                     setState(() => isSaving = true);
                     try {
-                      // Check for duplicate category name before creating
+                      // Check for duplicate category name before creating (only for new todos)
                       final entry = selectedItemsByCategory.entries.first;
                       final categoryName = entry.key;
-                      final exists = await toDoService
-                          .checkForDuplicateCategory(categoryName);
 
-                      if (exists) {
-                        print('🔴🔴🔴 Kategorie existiert bereits!');
-                        SnackBarHelper.showErrorSnackBar(
-                            context, 'Kategorie existiert bereits!');
-                        setState(() => isSaving = false);
-                        return;
+                      if (widget.toDoModel == null) {
+                        final exists = await toDoService
+                            .checkForDuplicateCategory(categoryName);
+
+                        if (exists) {
+                          print('🔴🔴🔴 Kategorie existiert bereits!');
+                          SnackBarHelper.showErrorSnackBar(
+                              context, 'Kategorie existiert bereits!');
+                          setState(() => isSaving = false);
+                          return;
+                        }
                       }
                       final categories = [
                         {'categoryName': entry.key, 'items': entry.value}

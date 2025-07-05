@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:four_secrets_wedding_app/Pdf/generate_table_pdf.dart';
+import 'package:four_secrets_wedding_app/services/native_download_service.dart';
 import 'package:four_secrets_wedding_app/menue.dart';
 import 'package:four_secrets_wedding_app/model/checklist_button.dart';
 import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
@@ -1002,52 +1003,16 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
     try {
       final pdfBytes =
           await generateTableManagementPdf(_tables, _tableGuestsMap);
-      final now = DateTime.now();
       final filename =
-          'Tischverwaltung_${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}_${now.hour.toString().padLeft(2, '0')}-${now.minute.toString().padLeft(2, '0')}-${now.second.toString().padLeft(2, '0')}.pdf';
+          NativeDownloadService.generateTimestampedFilename('Tischverwaltung');
 
-      // Get documents directory for saving
-      final documentsDir = await getApplicationDocumentsDirectory();
-      final downloadsDir = Directory('${documentsDir.path}/Downloads');
-
-      // Create Downloads directory if it doesn't exist
-      if (!await downloadsDir.exists()) {
-        await downloadsDir.create(recursive: true);
-      }
-
-      final file = File('${downloadsDir.path}/$filename');
-      print(file.path);
-      // Write PDF bytes to file
-      await file.writeAsBytes(pdfBytes);
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                Expanded(
-                  child: Text('PDF erfolgreich gespeichert: $filename'),
-                ),
-                IconButton(
-                  icon: Icon(Icons.visibility, color: Colors.white),
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => PdfViewPage(
-                          pdfBytes: pdfBytes,
-                          title: 'Tischverwaltung',
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-            backgroundColor: Color.fromARGB(255, 107, 69, 106),
-            duration: Duration(seconds: 5),
-          ),
-        );
-      }
+      // Use native download service
+      await NativeDownloadService.downloadPdf(
+        context: context,
+        pdfBytes: pdfBytes,
+        filename: filename,
+        successMessage: 'Tischverwaltung PDF erfolgreich heruntergeladen',
+      );
     } catch (e) {
       if (mounted) {
         SnackBarHelper.showErrorSnackBar(
