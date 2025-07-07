@@ -1,13 +1,11 @@
-import 'dart:async';
-
-import 'package:four_secrets_wedding_app/data/showroom_event_data.dart';
-import 'package:four_secrets_wedding_app/data/showroom_event_images.dart';
-import 'package:four_secrets_wedding_app/model/swipeable_card_widget.dart';
-import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
-import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:expandable_text/expandable_text.dart';
 import 'package:flutter/material.dart';
+import 'package:four_secrets_wedding_app/data/showroom_event_data.dart';
+import 'package:four_secrets_wedding_app/data/showroom_event_images.dart';
 import 'package:four_secrets_wedding_app/menue.dart';
+import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
+import 'package:four_secrets_wedding_app/model/swipeable_card_widget.dart';
+import 'package:four_secrets_wedding_app/routes/routes.dart';
 
 // ignore: must_be_immutable
 class ShowroomEvent extends StatelessWidget {

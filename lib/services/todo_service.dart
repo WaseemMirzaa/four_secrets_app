@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:four_secrets_wedding_app/services/email_service.dart';
 import 'package:four_secrets_wedding_app/services/push_notification_service.dart';
+
 import '../model/to_do_model.dart';
-import 'collaboration_service.dart';
 import 'category_service.dart';
+import 'collaboration_service.dart';
 
 class TodoService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -441,6 +443,36 @@ class TodoService {
   }
 
   // Remove a collaborator from a todo list
+  // Future<void> removeCollaborator(String todoId, String collaboratorId) async {
+  //   if (userId == null) {
+  //     throw Exception('User not logged in');
+  //   }
+
+  //   // Check if user is the owner
+  //   final todoDoc = await _firestore
+  //       .collection('users')
+  //       .doc(userId)
+  //       .collection('todos')
+  //       .doc(todoId)
+  //       .get();
+
+  //   if (!todoDoc.exists) {
+  //     throw Exception('Todo not found');
+  //   }
+
+  //   final todo = ToDoModel.fromFirestore(todoDoc);
+  //   if (todo.userId != userId) {
+  //     throw Exception('Only the owner can remove collaborators');
+  //   }
+
+  //   final updatedTodo = todo.removeCollaborator(collaboratorId);
+  //   await _firestore
+  //       .collection('users')
+  //       .doc(userId)
+  //       .collection('todos')
+  //       .doc(todoId)
+  //       .update(updatedTodo.toMap());
+  // }
   Future<void> removeCollaborator(String todoId, String collaboratorId) async {
     if (userId == null) {
       throw Exception('User not logged in');
@@ -463,13 +495,55 @@ class TodoService {
       throw Exception('Only the owner can remove collaborators');
     }
 
-    final updatedTodo = todo.removeCollaborator(collaboratorId);
+    // Remove collaborator and add to revokedFor
+    final updatedCollaborators = List<String>.from(todo.collaborators)
+      ..remove(collaboratorId);
+    final updatedRevokedFor = List<String>.from(todo.revokedFor)
+      ..add(collaboratorId); // Add to revokedFor if not already present
+    final updatedTodo = todo.copyWith(
+      collaborators: updatedCollaborators,
+      revokedFor: updatedRevokedFor,
+      isShared: updatedCollaborators
+          .isNotEmpty, // Update isShared based on remaining collaborators
+    );
+
+    // Update Firestore
     await _firestore
         .collection('users')
         .doc(userId)
         .collection('todos')
         .doc(todoId)
         .update(updatedTodo.toMap());
+
+    // Remove from globalCollaborators
+    await _firestore.collection('users').doc(userId).update({
+      'globalCollaborators': FieldValue.arrayRemove([collaboratorId]),
+    });
+
+    // Send push notification to the collaborator
+    final userQuery = await _firestore
+        .collection('users')
+        .where('email', isEqualTo: collaboratorId)
+        .limit(1)
+        .get();
+    if (userQuery.docs.isNotEmpty) {
+      final collaboratorUid = userQuery.docs.first.id;
+      await _notificationService.sendNotification(
+        userId: collaboratorUid,
+        title: 'Zugriff entzogen',
+        body: 'Der Zugriff auf die Liste "${todo.toDoName}" wurde entzogen',
+        data: {'type': 'access_revoked'},
+      );
+    }
+
+    // Send revocation email
+    final userDoc = await _firestore.collection('users').doc(userId).get();
+    final inviterName = userDoc.data()?['name'] ?? todo.ownerEmail ?? 'Unknown';
+    final emailService = EmailService();
+    await emailService.sendRevokeAccessEmail(
+      email: collaboratorId,
+      inviterName: inviterName,
+    );
   }
 
   // Get a todo by its ID

@@ -15,7 +15,6 @@ import 'package:four_secrets_wedding_app/services/email_service.dart';
 import 'package:four_secrets_wedding_app/services/todo_service.dart';
 import 'package:four_secrets_wedding_app/utils/snackbar_helper.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_button_widget.dart';
-import 'package:four_secrets_wedding_app/widgets/custom_dialog.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_text_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
 
@@ -42,15 +41,15 @@ class _ToDoPageState extends State<ToDoPage> {
   String? selectedCategory;
   bool isDeleting = false;
   bool hasNewCollabNotification = false;
-  int? _editingCommentIndex;
-  TextEditingController _editingController = TextEditingController();
-  TextEditingController _commentController = TextEditingController();
+  // int? _editingCommentIndex;
+  // TextEditingController _editingController = TextEditingController();
+  // TextEditingController _commentController = TextEditingController();
   // Unified comment edit state
   int? editingCommentIndex;
   Map<String, dynamic>? editingComment;
   bool isEditingComment = false;
   // User cache for comments
-  final Map<String, Map<String, dynamic>> _userCache = {};
+  // final Map<String, Map<String, dynamic>> _userCache = {};
   String? currentlyInvitingEmail;
 
   @override
@@ -165,7 +164,7 @@ class _ToDoPageState extends State<ToDoPage> {
     List<Map<String, dynamic>> searchResults = [];
     bool isSearching = false;
     bool isSendingInvite = false;
-    String? inviteEmai;
+    // String? inviteEmai;
     final currentUser = FirebaseAuth.instance.currentUser;
 
     await showDialog(
@@ -732,68 +731,314 @@ class _ToDoPageState extends State<ToDoPage> {
                     (todo.revokedFor.isEmpty ||
                         !todo.revokedFor.contains(
                             FirebaseAuth.instance.currentUser?.email))))
+                  // IconButton(
+                  //   icon: Icon(Icons.remove_circle_outline),
+                  //   tooltip: 'Zugriff entziehen',
+                  //   onPressed: () async {
+                  //     final myUid = FirebaseAuth.instance.currentUser?.uid;
+                  //     // Only allow for owners
+                  //     final ownedTodos = listToDoModel
+                  //         .where((todo) =>
+                  //             (((todo as dynamic).ownerEmail != null &&
+                  //                     (todo as dynamic).ownerEmail ==
+                  //                         FirebaseAuth
+                  //                             .instance.currentUser?.email) ||
+                  //                 (todo.userId == myUid)) &&
+                  //             (todo.collaborators.isNotEmpty))
+                  //         .toList();
+                  //     if (ownedTodos.isEmpty) {
+                  //       SnackBarHelper.showErrorSnackBar(context,
+                  //           'Keine geteilten Listen zum Entziehen gefunden.');
+                  //       return;
+                  //     }
+                  //     final confirm = await showDialog<bool>(
+                  //       context: context,
+                  //       builder: (context) => CustomDialog(
+                  //         title: 'Zugriff entziehen',
+                  //         message:
+                  //             'Möchten Sie den Zugriff für alle Mitwirkenden auf alle geteilten Listen entziehen?',
+                  //         confirmText: 'Entziehen',
+                  //         cancelText: 'Abbrechen',
+                  //         onConfirm: () => Navigator.pop(context, true),
+                  //         onCancel: () => Navigator.pop(context, false),
+                  //       ),
+                  //     );
+                  //     if (confirm == true) {
+                  //       try {
+                  //         for (final todo in ownedTodos) {
+                  //           await toDoService.removeAllCollaborators(todo.id!);
+                  //           final userQuery = await FirebaseFirestore.instance
+                  //               .collection('users')
+                  //               .where('email', isEqualTo: todo.ownerEmail)
+                  //               .limit(1)
+                  //               .get();
+                  //           String? ownerUid;
+                  //           if (userQuery.docs.isNotEmpty) {
+                  //             ownerUid = userQuery.docs.first.id;
+                  //           } else {
+                  //             // fallback: use email as UID (legacy)
+                  //             ownerUid = todo.ownerEmail;
+                  //           }
+                  //           final doc = await FirebaseFirestore.instance
+                  //               .collection('users')
+                  //               .doc(ownerUid)
+                  //               .get();
+                  //           final name = doc.data()?['name'] ?? todo.ownerEmail;
+
+                  //           print(name);
+                  //           if (todo.ownerEmail != null) {
+                  //             await emailService.sendRevokeAccessEmail(
+                  //               email: todo.ownerEmail!,
+                  //               inviterName: name,
+                  //             );
+                  //           }
+                  //         }
+                  //         SnackBarHelper.showSuccessSnackBar(
+                  //             context, 'Zugriff erfolgreich entzogen.');
+                  //         await _loadAndInitCategories();
+                  //       } catch (e) {
+                  //         SnackBarHelper.showErrorSnackBar(
+                  //             context, 'Fehler: $e');
+                  //       }
+                  //     }
+                  //   },
+                  // ),
                   IconButton(
                     icon: Icon(Icons.remove_circle_outline),
                     tooltip: 'Zugriff entziehen',
                     onPressed: () async {
                       final myUid = FirebaseAuth.instance.currentUser?.uid;
-                      // Only allow for owners
+                      final myEmail = FirebaseAuth.instance.currentUser?.email;
+
+                      // Fetch owned todos with collaborators
                       final ownedTodos = listToDoModel
                           .where((todo) =>
                               (((todo as dynamic).ownerEmail != null &&
                                       (todo as dynamic).ownerEmail ==
-                                          FirebaseAuth
-                                              .instance.currentUser?.email) ||
+                                          myEmail) ||
                                   (todo.userId == myUid)) &&
-                              (todo.collaborators.isNotEmpty))
+                              todo.collaborators.isNotEmpty)
                           .toList();
+
                       if (ownedTodos.isEmpty) {
                         SnackBarHelper.showErrorSnackBar(context,
                             'Keine geteilten Listen zum Entziehen gefunden.');
                         return;
                       }
+
+                      // Collect all unique collaborators across all owned todos
+                      final allCollaborators = <String>{};
+                      for (final todo in ownedTodos) {
+                        allCollaborators.addAll(todo.collaborators);
+                      }
+                      // Remove the owner's email from collaborators, if present
+                      allCollaborators.remove(myEmail);
+
+                      if (allCollaborators.isEmpty) {
+                        SnackBarHelper.showErrorSnackBar(context,
+                            'Keine Mitwirkenden zum Entziehen gefunden.');
+                        return;
+                      }
+
+                      // Fetch collaborator names from Firestore or non_registered_users
+                      final collaboratorNames = <String, String>{};
+                      for (final collaborator in allCollaborators) {
+                        final userQuery = await FirebaseFirestore.instance
+                            .collection('users')
+                            .where('email', isEqualTo: collaborator)
+                            .limit(1)
+                            .get();
+                        if (userQuery.docs.isNotEmpty) {
+                          collaboratorNames[collaborator] =
+                              userQuery.docs.first.data()['name'] ??
+                                  collaborator;
+                        } else {
+                          final nonRegisteredQuery = await FirebaseFirestore
+                              .instance
+                              .collection('non_registered_users')
+                              .doc(collaborator)
+                              .get();
+                          collaboratorNames[collaborator] =
+                              nonRegisteredQuery.data()?['name'] ??
+                                  collaborator;
+                        }
+                      }
+
+                      // Create a map to track selected collaborators for revocation
+                      final selectedCollaborators = <String, bool>{};
+                      for (final collaborator in allCollaborators) {
+                        selectedCollaborators[collaborator] = false;
+                      }
+
+                      // Show dialog with checkboxes for collaborators
                       final confirm = await showDialog<bool>(
                         context: context,
-                        builder: (context) => CustomDialog(
-                          title: 'Zugriff entziehen',
-                          message:
-                              'Möchten Sie den Zugriff für alle Mitwirkenden auf alle geteilten Listen entziehen?',
-                          confirmText: 'Entziehen',
-                          cancelText: 'Abbrechen',
-                          onConfirm: () => Navigator.pop(context, true),
-                          onCancel: () => Navigator.pop(context, false),
+                        builder: (context) => StatefulBuilder(
+                          builder: (context, setDialogState) {
+                            return AlertDialog(
+                              contentPadding: EdgeInsets.zero,
+                              content: ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Container(
+                                  width: double.maxFinite,
+                                  color: Colors.grey.shade100,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Container(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 15, vertical: 10),
+                                        width: double.infinity,
+                                        child: Center(
+                                          child: Text(
+                                            'Zugriff entziehen',
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        constraints:
+                                            BoxConstraints(maxHeight: 300),
+                                        child: ListView.builder(
+                                          shrinkWrap: true,
+                                          itemCount: allCollaborators.length,
+                                          itemBuilder: (context, index) {
+                                            final collaborator =
+                                                allCollaborators
+                                                    .elementAt(index);
+                                            final displayName =
+                                                collaboratorNames[
+                                                        collaborator] ??
+                                                    collaborator;
+                                            return CheckboxListTile(
+                                              title: Text(displayName),
+                                              subtitle: Text(collaborator),
+                                              value: selectedCollaborators[
+                                                  collaborator],
+                                              activeColor: Color.fromARGB(
+                                                  255, 107, 69, 106),
+                                              onChanged: (bool? value) {
+                                                setDialogState(() {
+                                                  selectedCollaborators[
+                                                          collaborator] =
+                                                      value ?? false;
+                                                });
+                                              },
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(15.0),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Expanded(
+                                              child: CustomButtonWidget(
+                                                text: 'Änderungen speichern',
+                                                textColor: Colors.white,
+                                                onPressed: () async {
+                                                  final selectedEmails =
+                                                      selectedCollaborators
+                                                          .entries
+                                                          .where((entry) =>
+                                                              entry.value)
+                                                          .map((entry) =>
+                                                              entry.key)
+                                                          .toList();
+                                                  if (selectedEmails.isEmpty) {
+                                                    SnackBarHelper
+                                                        .showErrorSnackBar(
+                                                            context,
+                                                            'Bitte wählen Sie mindestens einen Benutzer aus.');
+                                                    return;
+                                                  }
+                                                  Navigator.pop(context, true);
+                                                },
+                                              ),
+                                            ),
+                                            SizedBox(width: 10),
+                                            Expanded(
+                                              child: CustomButtonWidget(
+                                                text: 'Abbrechen',
+                                                color: Colors.white,
+                                                textColor: Colors.black,
+                                                onPressed: () => Navigator.pop(
+                                                    context, false),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       );
                       if (confirm == true) {
                         try {
-                          for (final todo in ownedTodos) {
-                            await toDoService.removeAllCollaborators(todo.id!);
-                            final userQuery = await FirebaseFirestore.instance
-                                .collection('users')
-                                .where('email', isEqualTo: todo.ownerEmail)
-                                .limit(1)
-                                .get();
-                            String? ownerUid;
-                            if (userQuery.docs.isNotEmpty) {
-                              ownerUid = userQuery.docs.first.id;
-                            } else {
-                              // fallback: use email as UID (legacy)
-                              ownerUid = todo.ownerEmail;
-                            }
-                            final doc = await FirebaseFirestore.instance
-                                .collection('users')
-                                .doc(ownerUid)
-                                .get();
-                            final name = doc.data()?['name'] ?? todo.ownerEmail;
+                          // Get selected collaborators to revoke
+                          final selectedEmails = selectedCollaborators.entries
+                              .where((entry) => entry.value)
+                              .map((entry) => entry.key)
+                              .toList();
 
-                            print(name);
-                            if (todo.ownerEmail != null) {
-                              await emailService.sendRevokeAccessEmail(
-                                email: todo.ownerEmail!,
-                                inviterName: name,
-                              );
+                          if (selectedEmails.isEmpty) {
+                            SnackBarHelper.showErrorSnackBar(context,
+                                'Keine Benutzer zum Entziehen ausgewählt.');
+                            return;
+                          }
+
+                          // Create a batch to perform all operations at once
+                          final batch = FirebaseFirestore.instance.batch();
+                          final userDocRef = FirebaseFirestore.instance
+                              .collection('users')
+                              .doc(myUid);
+
+                          // Revoke access for all selected collaborators across all owned todos
+                          for (final collaborator in selectedEmails) {
+                            // Remove from globalCollaborators
+                            batch.update(userDocRef, {
+                              'globalCollaborators':
+                                  FieldValue.arrayRemove([collaborator]),
+                            });
+
+                            // Process each todo
+                            for (final todo in ownedTodos) {
+                              if (todo.collaborators.contains(collaborator)) {
+                                final todoDocRef =
+                                    userDocRef.collection('todos').doc(todo.id);
+
+                                // Prepare updates
+                                final updatedCollaborators =
+                                    List<String>.from(todo.collaborators)
+                                      ..remove(collaborator);
+                                final updatedRevokedFor =
+                                    List<String>.from(todo.revokedFor)
+                                      ..add(collaborator);
+
+                                batch.update(todoDocRef, {
+                                  'collaborators': updatedCollaborators,
+                                  'revokedFor': updatedRevokedFor,
+                                  'isShared': updatedCollaborators.isNotEmpty,
+                                });
+                              }
                             }
                           }
+
+                          // Commit all changes at once
+                          await batch.commit();
+
                           SnackBarHelper.showSuccessSnackBar(
                               context, 'Zugriff erfolgreich entzogen.');
                           await _loadAndInitCategories();
