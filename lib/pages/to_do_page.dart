@@ -942,6 +942,16 @@ class _ToDoPageState extends State<ToDoPage> {
                                           children: [
                                             Expanded(
                                               child: CustomButtonWidget(
+                                                text: 'Abbrechen',
+                                                color: Colors.white,
+                                                textColor: Colors.black,
+                                                onPressed: () => Navigator.pop(
+                                                    context, false),
+                                              ),
+                                            ),
+                                            SizedBox(width: 10),
+                                            Expanded(
+                                              child: CustomButtonWidget(
                                                 text: 'Änderungen speichern',
                                                 textColor: Colors.white,
                                                 onPressed: () async {
@@ -962,16 +972,6 @@ class _ToDoPageState extends State<ToDoPage> {
                                                   }
                                                   Navigator.pop(context, true);
                                                 },
-                                              ),
-                                            ),
-                                            SizedBox(width: 10),
-                                            Expanded(
-                                              child: CustomButtonWidget(
-                                                text: 'Abbrechen',
-                                                color: Colors.white,
-                                                textColor: Colors.black,
-                                                onPressed: () => Navigator.pop(
-                                                    context, false),
                                               ),
                                             ),
                                           ],
