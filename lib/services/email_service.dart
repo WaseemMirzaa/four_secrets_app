@@ -4,7 +4,7 @@ import '../models/email_send_response.dart';
 
 class EmailService {
   // New Brevo API server base URL
-  static const String baseUrl = 'http://164.92.175.72:8080';
+  static const String baseUrl = 'http://164.92.175.72:3001';
   static const String sendCustomEndpoint = '/api/email/send-custom';
   static const String sendInvitationEndpoint = '/api/email/send-invitation';
   static const String sendDeclinedInvitationEndpoint =

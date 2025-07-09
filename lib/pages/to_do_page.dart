@@ -872,6 +872,8 @@ class _ToDoPageState extends State<ToDoPage> {
     });
   }
 
+  var hideItem = true;
+
   @override
   Widget build(BuildContext context) {
     final myUid = FirebaseAuth.instance.currentUser?.uid;
@@ -943,78 +945,81 @@ class _ToDoPageState extends State<ToDoPage> {
                     (todo.revokedFor.isEmpty ||
                         !todo.revokedFor.contains(
                             FirebaseAuth.instance.currentUser?.email))))
-                  IconButton(
-                    icon: Icon(Icons.remove_circle_outline),
-                    tooltip: 'Zugriff entziehen',
-                    onPressed: () async {
-                      final myUid = FirebaseAuth.instance.currentUser?.uid;
-                      // Only allow for owners
-                      final ownedTodos = listToDoModel
-                          .where((todo) =>
-                              (((todo as dynamic).ownerEmail != null &&
-                                      (todo as dynamic).ownerEmail ==
-                                          FirebaseAuth
-                                              .instance.currentUser?.email) ||
-                                  (todo.userId == myUid)) &&
-                              (todo.collaborators.isNotEmpty))
-                          .toList();
-                      if (ownedTodos.isEmpty) {
-                        SnackBarHelper.showErrorSnackBar(context,
-                            'Keine geteilten Listen zum Entziehen gefunden.');
-                        return;
-                      }
-                      final confirm = await showDialog<bool>(
-                        context: context,
-                        builder: (context) => CustomDialog(
-                          title: 'Zugriff entziehen',
-                          message:
-                              'Möchten Sie den Zugriff für alle Mitwirkenden auf alle geteilten Listen entziehen?',
-                          confirmText: 'Entziehen',
-                          cancelText: 'Abbrechen',
-                          onConfirm: () => Navigator.pop(context, true),
-                          onCancel: () => Navigator.pop(context, false),
-                        ),
-                      );
-                      if (confirm == true) {
-                        try {
-                          for (final todo in ownedTodos) {
-                            await toDoService.removeAllCollaborators(todo.id!);
-                            final userQuery = await FirebaseFirestore.instance
-                                .collection('users')
-                                .where('email', isEqualTo: todo.ownerEmail)
-                                .limit(1)
-                                .get();
-                            String? ownerUid;
-                            if (userQuery.docs.isNotEmpty) {
-                              ownerUid = userQuery.docs.first.id;
-                            } else {
-                              // fallback: use email as UID (legacy)
-                              ownerUid = todo.ownerEmail;
-                            }
-                            final doc = await FirebaseFirestore.instance
-                                .collection('users')
-                                .doc(ownerUid)
-                                .get();
-                            final name = doc.data()?['name'] ?? todo.ownerEmail;
-
-                            print(name);
-                            if (todo.ownerEmail != null) {
-                              await emailService.sendRevokeAccessEmail(
-                                email: todo.ownerEmail!,
-                                inviterName: name,
-                              );
-                            }
-                          }
-                          SnackBarHelper.showSuccessSnackBar(
-                              context, 'Zugriff erfolgreich entzogen.');
-                          await _loadAndInitCategories();
-                        } catch (e) {
-                          SnackBarHelper.showErrorSnackBar(
-                              context, 'Fehler: $e');
+                  if (hideItem == false)
+                    IconButton(
+                      icon: Icon(Icons.remove_circle_outline),
+                      tooltip: 'Zugriff entziehen',
+                      onPressed: () async {
+                        final myUid = FirebaseAuth.instance.currentUser?.uid;
+                        // Only allow for owners
+                        final ownedTodos = listToDoModel
+                            .where((todo) =>
+                                (((todo as dynamic).ownerEmail != null &&
+                                        (todo as dynamic).ownerEmail ==
+                                            FirebaseAuth
+                                                .instance.currentUser?.email) ||
+                                    (todo.userId == myUid)) &&
+                                (todo.collaborators.isNotEmpty))
+                            .toList();
+                        if (ownedTodos.isEmpty) {
+                          SnackBarHelper.showErrorSnackBar(context,
+                              'Keine geteilten Listen zum Entziehen gefunden.');
+                          return;
                         }
-                      }
-                    },
-                  ),
+                        final confirm = await showDialog<bool>(
+                          context: context,
+                          builder: (context) => CustomDialog(
+                            title: 'Zugriff entziehen',
+                            message:
+                                'Möchten Sie den Zugriff für alle Mitwirkenden auf alle geteilten Listen entziehen?',
+                            confirmText: 'Entziehen',
+                            cancelText: 'Abbrechen',
+                            onConfirm: () => Navigator.pop(context, true),
+                            onCancel: () => Navigator.pop(context, false),
+                          ),
+                        );
+                        if (confirm == true) {
+                          try {
+                            for (final todo in ownedTodos) {
+                              await toDoService
+                                  .removeAllCollaborators(todo.id!);
+                              final userQuery = await FirebaseFirestore.instance
+                                  .collection('users')
+                                  .where('email', isEqualTo: todo.ownerEmail)
+                                  .limit(1)
+                                  .get();
+                              String? ownerUid;
+                              if (userQuery.docs.isNotEmpty) {
+                                ownerUid = userQuery.docs.first.id;
+                              } else {
+                                // fallback: use email as UID (legacy)
+                                ownerUid = todo.ownerEmail;
+                              }
+                              final doc = await FirebaseFirestore.instance
+                                  .collection('users')
+                                  .doc(ownerUid)
+                                  .get();
+                              final name =
+                                  doc.data()?['name'] ?? todo.ownerEmail;
+
+                              print(name);
+                              if (todo.ownerEmail != null) {
+                                await emailService.sendRevokeAccessEmail(
+                                  email: todo.ownerEmail!,
+                                  inviterName: name,
+                                );
+                              }
+                            }
+                            SnackBarHelper.showSuccessSnackBar(
+                                context, 'Zugriff erfolgreich entzogen.');
+                            await _loadAndInitCategories();
+                          } catch (e) {
+                            SnackBarHelper.showErrorSnackBar(
+                                context, 'Fehler: $e');
+                          }
+                        }
+                      },
+                    ),
               ],
             ),
             floatingActionButton: SpeedDial(
