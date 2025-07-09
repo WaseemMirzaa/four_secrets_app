@@ -1,0 +1,252 @@
+================================================================================
+4 SECRETS WEDDING - FIREBASE CLOUD FUNCTIONS CURL COMMANDS
+================================================================================
+
+🔗 Base URL: https://us-central1-secrets-wedding.cloudfunctions.net/emailService
+📧 Email Service: GMX SMTP (mail.gmx.net:587)
+🚀 Status: ✅ LIVE AND WORKING
+📅 Last Updated: 2025-07-05
+
+================================================================================
+📋 BASIC API ENDPOINTS
+================================================================================
+
+1. HEALTH CHECK
+curl https://us-central1-secrets-wedding.cloudfunctions.net/emailService/health
+
+2. EMAIL SERVICE STATUS
+curl https://us-central1-secrets-wedding.cloudfunctions.net/emailService/api/email/status
+
+3. GET ALL SENT EMAILS
+curl https://us-central1-secrets-wedding.cloudfunctions.net/emailService/api/email/sent
+
+4. GET SPECIFIC EMAIL BY ID
+curl https://us-central1-secrets-wedding.cloudfunctions.net/emailService/api/email/EMAIL_ID_HERE
+
+================================================================================
+📧 EMAIL SENDING ENDPOINTS
+================================================================================
+
+5. SEND WEDDING INVITATION
+curl -X POST https://us-central1-secrets-wedding.cloudfunctions.net/emailService/api/email/send-invitation \
+  -H "Content-Type: application/json" \
+  -d '{"email": "recipient@example.com", "inviterName": "John Doe"}'
+
+6. SEND DECLINED INVITATION NOTIFICATION
+curl -X POST https://us-central1-secrets-wedding.cloudfunctions.net/emailService/api/email/declined-invitation \
+  -H "Content-Type: application/json" \
+  -d '{"email": "admin@example.com", "declinerName": "Jane Smith"}'
+
+7. SEND ACCESS REVOKED NOTIFICATION
+curl -X POST https://us-central1-secrets-wedding.cloudfunctions.net/emailService/api/email/revoke-access \
+  -H "Content-Type: application/json" \
+  -d '{"email": "user@example.com", "inviterName": "Admin User"}'
+
+8. SEND CUSTOM EMAIL
+curl -X POST https://us-central1-secrets-wedding.cloudfunctions.net/emailService/api/email/send-custom \
+  -H "Content-Type: application/json" \
+  -d '{"email": "test@example.com", "subject": "Custom Subject", "message": "Your custom message here"}'
+
+9. SEND WELCOME EMAIL
+curl -X POST https://us-central1-secrets-wedding.cloudfunctions.net/emailService/api/email/send-welcome \
+  -H "Content-Type: application/json" \
+  -d '{"email": "newuser@example.com", "userName": "New User"}'
+
+================================================================================
+🧪 REAL TEST EXAMPLES (READY TO USE)
+================================================================================
+
+# Test Wedding Invitation (Real Email)
+curl -X POST https://us-central1-secrets-wedding.cloudfunctions.net/emailService/api/email/send-invitation \
+  -H "Content-Type: application/json" \
+  -d '{"email": "unicorndev.02.1997@gmail.com", "inviterName": "Wedding Planner"}'
+
+# Test Declined Invitation
+curl -X POST https://us-central1-secrets-wedding.cloudfunctions.net/emailService/api/email/declined-invitation \
+  -H "Content-Type: application/json" \
+  -d '{"email": "unicorndev.02.1997@gmail.com", "declinerName": "Test Decliner"}'
+
+# Test Access Revoked
+curl -X POST https://us-central1-secrets-wedding.cloudfunctions.net/emailService/api/email/revoke-access \
+  -H "Content-Type: application/json" \
+  -d '{"email": "unicorndev.02.1997@gmail.com", "inviterName": "Admin"}'
+
+# Test Custom Email
+curl -X POST https://us-central1-secrets-wedding.cloudfunctions.net/emailService/api/email/send-custom \
+  -H "Content-Type: application/json" \
+  -d '{"email": "unicorndev.02.1997@gmail.com", "subject": "Test from Firebase", "message": "This is a test email from Firebase Cloud Functions! 🚀"}'
+
+# Test Welcome Email
+curl -X POST https://us-central1-secrets-wedding.cloudfunctions.net/emailService/api/email/send-welcome \
+  -H "Content-Type: application/json" \
+  -d '{"email": "unicorndev.02.1997@gmail.com", "userName": "Test User"}'
+
+================================================================================
+📱 MOBILE APP INTEGRATION EXAMPLES
+================================================================================
+
+# Send invitation from mobile app
+curl -X POST https://us-central1-secrets-wedding.cloudfunctions.net/emailService/api/email/send-invitation \
+  -H "Content-Type: application/json" \
+  -H "User-Agent: 4SecretsWeddingApp/1.0" \
+  -d '{"email": "friend@example.com", "inviterName": "Mobile User"}'
+
+# Send custom message from app
+curl -X POST https://us-central1-secrets-wedding.cloudfunctions.net/emailService/api/email/send-custom \
+  -H "Content-Type: application/json" \
+  -H "User-Agent: 4SecretsWeddingApp/1.0" \
+  -d '{"email": "support@example.com", "subject": "App Feedback", "message": "Great app! Love the wedding planning features."}'
+
+================================================================================
+📊 EXPECTED RESPONSE FORMATS
+================================================================================
+
+SUCCESS RESPONSE:
+{
+  "success": true,
+  "message": "Wedding invitation sent successfully",
+  "messageId": "<unique-message-id@gmx.de>",
+  "previewUrl": false,
+  "service": "SMTP Email Service",
+  "timestamp": "2025-07-05T22:37:12.120Z"
+}
+
+ERROR RESPONSE:
+{
+  "error": "Missing required fields",
+  "message": "email and inviterName are required",
+  "timestamp": "2025-07-05T22:37:12.120Z"
+}
+
+HEALTH CHECK RESPONSE:
+{
+  "status": "ok",
+  "service": "4 Secrets Wedding Email Service - Firebase",
+  "timestamp": "2025-07-05T22:36:49.115Z",
+  "version": "1.0.0"
+}
+
+EMAIL STATUS RESPONSE:
+{
+  "status": "Email API is working",
+  "connected": true,
+  "service": "Firebase Cloud Functions SMTP",
+  "timestamp": "2025-07-05T22:37:00.856Z"
+}
+
+================================================================================
+🔧 TECHNICAL DETAILS
+================================================================================
+
+✅ SMTP Configuration:
+- Server: mail.gmx.net:587
+- Authentication: 4secrets-wedding@gmx.de
+- Security: STARTTLS
+- Status: ✅ WORKING
+
+✅ Firebase Configuration:
+- Project: secrets-wedding
+- Runtime: Node.js 20
+- Location: us-central1
+- Memory: 256MB
+
+✅ Email Features:
+- German language templates
+- Beautiful HTML formatting
+- Wedding-themed branding
+- App download links
+- Email tracking and logging
+
+✅ Supported Email Types:
+- Wedding invitations
+- Declined notifications
+- Access revoked alerts
+- Custom messages
+- Welcome emails
+
+================================================================================
+🧪 BATCH TESTING SCRIPT
+================================================================================
+
+Save as 'test-firebase-functions.sh':
+
+#!/bin/bash
+echo "🧪 Testing Firebase Cloud Functions..."
+
+BASE_URL="https://us-central1-secrets-wedding.cloudfunctions.net/emailService"
+
+echo "1. Health Check:"
+curl -s "$BASE_URL/health" | jq .
+
+echo -e "\n2. Email Status:"
+curl -s "$BASE_URL/api/email/status" | jq .
+
+echo -e "\n3. Send Invitation:"
+curl -s -X POST "$BASE_URL/api/email/send-invitation" \
+  -H "Content-Type: application/json" \
+  -d '{"email": "test@example.com", "inviterName": "Batch Test"}' | jq .
+
+echo -e "\n4. Get Sent Emails:"
+curl -s "$BASE_URL/api/email/sent" | jq .
+
+echo -e "\n✅ All tests completed!"
+
+Run with: chmod +x test-firebase-functions.sh && ./test-firebase-functions.sh
+
+================================================================================
+📧 EMAIL CONTENT PREVIEW
+================================================================================
+
+WEDDING INVITATION EMAIL:
+Subject: Du wurdest eingeladen, bei einer Hochzeits-Checkliste mitzuarbeiten 💍
+Content: German wedding invitation with app download links
+
+DECLINED INVITATION EMAIL:
+Subject: Einladung zur Hochzeits-Checkliste wurde abgelehnt
+Content: Notification that invitation was declined
+
+ACCESS REVOKED EMAIL:
+Subject: Zugriff auf Hochzeits-Checkliste wurde entfernt
+Content: Notification that access was removed
+
+CUSTOM EMAIL:
+Subject: [Your custom subject]
+Content: [Your custom message]
+
+WELCOME EMAIL:
+Subject: Willkommen bei 4 Secrets Wedding! 💍
+Content: Welcome message with app features
+
+================================================================================
+🚀 DEPLOYMENT STATUS
+================================================================================
+
+✅ Firebase Cloud Functions: DEPLOYED
+✅ GMX SMTP Integration: WORKING
+✅ Real Email Delivery: CONFIRMED
+✅ All API Endpoints: FUNCTIONAL
+✅ Error Handling: IMPLEMENTED
+✅ Email Tracking: ACTIVE
+
+🔗 Firebase Console: https://console.firebase.google.com/project/secrets-wedding/overview
+📧 All emails sent from: 4secrets-wedding@gmx.de
+📱 Ready for mobile app integration
+
+================================================================================
+📞 SUPPORT & TROUBLESHOOTING
+================================================================================
+
+If any endpoint returns an error:
+1. Check the request format (JSON)
+2. Verify required fields are included
+3. Ensure Content-Type header is set
+4. Check Firebase function logs in console
+
+For email delivery issues:
+1. Check spam/junk folders
+2. Verify recipient email address
+3. Check Firebase function logs
+4. Verify GMX SMTP credentials
+
+🎉 ALL SYSTEMS OPERATIONAL - READY FOR PRODUCTION USE!
+================================================================================
