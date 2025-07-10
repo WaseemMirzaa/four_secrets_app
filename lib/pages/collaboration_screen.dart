@@ -389,7 +389,6 @@ class _CollaborationScreenState extends State<CollaborationScreen>
             }
           });
         }
-        } 
       }
     } catch (e) {
       print('[ERROR] In invitation response: $e');
@@ -411,7 +410,8 @@ class _CollaborationScreenState extends State<CollaborationScreen>
       _cancellingInvites.add(invitationId);
     });
     try {
-      await _firestore.collection('invitations').doc(invitationId).delete();
+      // Use the service method to handle deletion and notification
+      await _collaborationService.deleteInvitation(invitationId);
 
       await _loadData();
       if (mounted) {
