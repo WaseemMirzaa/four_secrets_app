@@ -70,11 +70,13 @@ class _VideoPlayer2State extends State<VideoPlayer2> {
           title: Text(
             "Zurück",
             style: TextStyle(
+              color: Colors.white,
               fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
           ),
           toolbarHeight: 60,
+          foregroundColor: Colors.white,
           backgroundColor: Color.fromARGB(255, 107, 69, 106),
         ),
         body: Container(

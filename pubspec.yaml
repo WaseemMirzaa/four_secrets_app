@@ -143,10 +143,10 @@ flutter:
     
 
   # Videos
-#    - assets/videos/hair_makeup.mp4
+    - assets/videos/2.mp4
     - assets/videos/bachelorette.mp4
     - assets/videos/akupunktur.mp4
-#    - assets/videos/about_me.mp4
+    - assets/videos/1.mp4
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

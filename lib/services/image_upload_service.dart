@@ -5,7 +5,7 @@ import 'package:path/path.dart';
 import '../models/image_upload_response.dart';
 
 class ImageUploadService {
-  static const String baseUrl = 'http://164.92.175.72:8080';
+  static const String baseUrl = 'http://164.92.175.72:3001';
   static const String deleteEndpoint = '/api/images/delete';
   static const String uploadEndpoint = '/api/images/upload';
 

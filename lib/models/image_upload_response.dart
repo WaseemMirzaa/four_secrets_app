@@ -18,27 +18,19 @@ class ImageUploadResponse {
   }
 }
 
-
 class ImageDeleteResponse {
- 
   final String message;
-  
 
   ImageDeleteResponse({
-   
     required this.message,
-   
   });
 
   factory ImageDeleteResponse.fromJson(Map<String, dynamic> json) {
     return ImageDeleteResponse(
-      
       message: json['message'] as String,
-     
     );
   }
 }
-
 
 class ImageData {
   final String filename;
@@ -69,6 +61,6 @@ class ImageData {
   }
 
   String getFullImageUrl() {
-    return 'http://164.92.175.72:8080${url}';
+    return 'http://164.92.175.72:3001${url}';
   }
 }

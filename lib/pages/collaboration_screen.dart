@@ -27,6 +27,7 @@ class _CollaborationScreenState extends State<CollaborationScreen>
 
   final Set<String> _acceptingInvites =
       {}; // Track loading state for accepting invites
+  List<Map<String, dynamic>>? pendingInvitations;
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final Set<String> _cancellingInvites =
@@ -93,11 +94,17 @@ class _CollaborationScreenState extends State<CollaborationScreen>
   }
 
   Future<void> _loadData() async {
-    if (!mounted) return;
+    // if (!mounted) return;
+    print(
+        '[COLLAB_LOG] ${DateTime.now().millisecondsSinceEpoch}: _loadData started');
     setState(() => _isLoading = true);
     try {
       final myEmail = _auth.currentUser?.email;
-      if (myEmail == null) return;
+      if (myEmail == null) {
+        print(
+            '[COLLAB_LOG] ${DateTime.now().millisecondsSinceEpoch}: No user email, returning');
+        return;
+      }
       // Load sent invitations
       final sentSnapshot = await _firestore
           .collection('invitations')
@@ -133,18 +140,30 @@ class _CollaborationScreenState extends State<CollaborationScreen>
           .where((doc) => doc.data()['userId'] != myUid)
           .map((doc) => ToDoModel.fromFirestore(doc))
           .toList();
+      print(
+          '[COLLAB_LOG] ${DateTime.now().millisecondsSinceEpoch}: Loading sent invitations: ${_sentInvitations.length}');
+      print(
+          '[COLLAB_LOG] ${DateTime.now().millisecondsSinceEpoch}: Loading received invitations: ${_receivedInvitations.length}');
+
       final inviterEmails = _receivedInvitations
           .map((invite) => invite['inviterEmail'])
           .whereType<String>()
           .toSet();
       await _preloadUserInfo(inviterEmails);
 
+      // if (mounted) {
       setState(() => _isLoading = false);
+      print(
+          '[COLLAB_LOG] ${DateTime.now().millisecondsSinceEpoch}: _loadData completed successfully');
+      // }
     } catch (e) {
+      print(
+          '[COLLAB_LOG] ${DateTime.now().millisecondsSinceEpoch}: Error in _loadData: $e');
+      // if (mounted) {
       setState(() => _isLoading = false);
-      print(e);
       SnackBarHelper.showErrorSnackBar(
           context, "Error loading collaboration data: $e");
+      // }
     }
   }
 
@@ -405,22 +424,48 @@ class _CollaborationScreenState extends State<CollaborationScreen>
     }
   }
 
-  Future<void> _cancelInvitation(String invitationId) async {
-    setState(() {
-      _cancellingInvites.add(invitationId);
-    });
+  Future<void> _cancelInvitation(
+      String invitationId, Map<String, dynamic> invite) async {
+    print(
+        '[COLLAB_LOG] ${DateTime.now().millisecondsSinceEpoch}: Starting _cancelInvitation for ID: $invitationId');
+    // setState(() {
+    //   _cancellingInvites.add(invitationId);
+    // });
     try {
+      print(
+          '[COLLAB_LOG] ${DateTime.now().millisecondsSinceEpoch}: Calling deleteInvitation service');
       // Use the service method to handle deletion and notification
       await _collaborationService.deleteInvitation(invitationId);
+      setState(() {
+        pendingInvitations!.remove(invite);
+      });
+      // print(
+      //     '[COLLAB_LOG] ${DateTime.now().millisecondsSinceEpoch}: deleteInvitation completed, reloading data');
+      // setState(() {
+      //   _cancellingInvites.remove(invitationId);
+      // });
+      // // Reload data to refresh the list
+      // await _loadData();
+      // print(
+      //     '[COLLAB_LOG] ${DateTime.now().millisecondsSinceEpoch}: Data reloaded after deletion');
 
-      await _loadData();
-      if (mounted) {
-        SnackBarHelper.showSuccessSnackBar(
-          context,
-          'Einladung storniert',
-        );
-      }
+      // if (mounted) {
+      setState(() {
+        _cancellingInvites.remove(invitationId);
+      });
+      SnackBarHelper.showSuccessSnackBar(
+        context,
+        'Einladung storniert',
+      );
+      print(
+          '[COLLAB_LOG] ${DateTime.now().millisecondsSinceEpoch}: Success snackbar shown');
+      // }
     } catch (e) {
+      setState(() {
+        pendingInvitations!.remove(invite);
+      });
+      print(
+          '[COLLAB_LOG] ${DateTime.now().millisecondsSinceEpoch}: Error in _cancelInvitation: $e');
       if (mounted) {
         SnackBarHelper.showErrorSnackBar(
           context,
@@ -428,9 +473,13 @@ class _CollaborationScreenState extends State<CollaborationScreen>
         );
       }
     } finally {
+      // if (mounted) {
       setState(() {
         _cancellingInvites.remove(invitationId);
       });
+      print(
+          '[COLLAB_LOG] ${DateTime.now().millisecondsSinceEpoch}: _cancelInvitation completed');
+      // }
     }
   }
 
@@ -514,10 +563,13 @@ class _CollaborationScreenState extends State<CollaborationScreen>
                               style: TextStyle(fontWeight: FontWeight.bold)),
                         ),
                         (() {
-                          final pendingInvitations = _sentInvitations
-                              .where((invite) => invite['status'] == 'pending')
-                              .toList();
-                          if (pendingInvitations.isEmpty) {
+                          if (pendingInvitations == null) {
+                            pendingInvitations = _sentInvitations
+                                .where(
+                                    (invite) => invite['status'] == 'pending')
+                                .toList();
+                          }
+                          if (pendingInvitations?.isEmpty ?? true) {
                             return const Center(
                               child: Padding(
                                 padding: EdgeInsets.all(16.0),
@@ -531,9 +583,10 @@ class _CollaborationScreenState extends State<CollaborationScreen>
                           return ListView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            itemCount: pendingInvitations.length,
+                            itemCount: pendingInvitations!.length,
                             itemBuilder: (context, index) {
-                              final invite = pendingInvitations[index];
+                              final invite = pendingInvitations![index];
+                              print('inviteeIdEEEE: ${invite}');
                               final inviteeId = invite['inviteeId'] as String?;
                               String inviteeName = 'Unbekannt';
                               if (inviteeId != null) {
@@ -547,7 +600,9 @@ class _CollaborationScreenState extends State<CollaborationScreen>
                                   _acceptingInvites.contains(invite['id']);
                               final isCancelling =
                                   _cancellingInvites.contains(invite['id']);
-                              final todoCount = invite['todoCount'] ?? 1;
+                              final _emailInvitee =
+                                  invite['inviteeEmail'] ?? '';
+                              // final todoCount = invite['todoCount'] ?? 1;
                               final todoNames =
                                   (invite['todoNames'] as List?)?.join(', ') ??
                                       '';
@@ -557,7 +612,12 @@ class _CollaborationScreenState extends State<CollaborationScreen>
                                   'Ich';
                               return Container(
                                 decoration: BoxDecoration(
-                                  color: Colors.grey.shade300,
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Colors.grey.shade200,
+                                      Colors.grey.shade300,
+                                    ],
+                                  ),
                                   borderRadius: BorderRadius.circular(15),
                                 ),
                                 margin: const EdgeInsets.symmetric(
@@ -575,22 +635,15 @@ class _CollaborationScreenState extends State<CollaborationScreen>
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: [
+                                                // if (todoNames.isNotEmpty)
+                                                //   CustomTextWidget(
+                                                //     text: 'Listen: $todoNames',
+                                                //     color: Colors.black,
+                                                //   ),
+                                                // const SizedBox(height: 4),
                                                 CustomTextWidget(
                                                   text:
-                                                      'Geteilte Listen: $todoCount',
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.black,
-                                                ),
-                                                if (todoNames.isNotEmpty)
-                                                  CustomTextWidget(
-                                                    text: 'Listen: $todoNames',
-                                                    color: Colors.black,
-                                                  ),
-                                                const SizedBox(height: 4),
-                                                CustomTextWidget(
-                                                  text:
-                                                      'Eingeladen: $currentUserName',
+                                                      'Eingeladen: $_emailInvitee',
                                                   color: Colors.black,
                                                 ),
                                                 if (invite['createdAt'] != null)
@@ -604,15 +657,17 @@ class _CollaborationScreenState extends State<CollaborationScreen>
                                             ),
                                           ),
                                           GestureDetector(
-                                            onTap: () =>
-                                                _cancelInvitation(invite['id']),
+                                            onTap: () {
+                                              _cancelInvitation(
+                                                  invite['id'], invite);
+                                            },
                                             child: Container(
                                               margin: const EdgeInsets.only(
                                                   left: 10),
                                               padding: const EdgeInsets.all(10),
                                               decoration: BoxDecoration(
                                                 color:
-                                                    Colors.red.withOpacity(0.3),
+                                                    Colors.red.withOpacity(0.6),
                                                 borderRadius:
                                                     BorderRadius.circular(20),
                                               ),
@@ -634,7 +689,7 @@ class _CollaborationScreenState extends State<CollaborationScreen>
                                           ),
                                         ],
                                       ),
-                                      const SizedBox(height: 8),
+                                      // const SizedBox(height: 8),
                                     ],
                                   ),
                                 ),
@@ -687,7 +742,12 @@ class _CollaborationScreenState extends State<CollaborationScreen>
                                   _acceptingInvites.contains(invite['id']);
                               return Container(
                                 decoration: BoxDecoration(
-                                  color: Colors.grey.shade300,
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Colors.grey.shade200,
+                                      Colors.grey.shade300,
+                                    ],
+                                  ),
                                   borderRadius: BorderRadius.circular(15),
                                 ),
                                 margin: const EdgeInsets.symmetric(
@@ -698,35 +758,6 @@ class _CollaborationScreenState extends State<CollaborationScreen>
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      CustomTextWidget(
-                                        text: (invite['todoCategories'] != null &&
-                                                (invite['todoCategories'] as List)
-                                                    .expand((cat) =>
-                                                        (cat['categories'] as List? ??
-                                                            []))
-                                                    .map((category) =>
-                                                        category['categoryName'] ??
-                                                        '')
-                                                    .where((name) => name
-                                                        .toString()
-                                                        .trim()
-                                                        .isNotEmpty)
-                                                    .toList()
-                                                    .isNotEmpty
-                                            ? (invite['todoCategories'] as List)
-                                                .expand((cat) =>
-                                                    (cat['categories'] as List? ??
-                                                        []))
-                                                .map((category) =>
-                                                    category['categoryName'] ?? '')
-                                                .where((name) => name.toString().trim().isNotEmpty)
-                                                .join(', ')
-                                            : 'Ohne Kategorie'),
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black,
-                                      ),
-                                      const SizedBox(height: 8),
                                       CustomTextWidget(
                                         text: 'Eingeladene von: '
                                             '${invite['inviterName'] ?? invite['inviterEmail'] ?? 'Unbekannt'}',

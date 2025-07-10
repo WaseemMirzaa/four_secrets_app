@@ -3,6 +3,7 @@ import 'package:four_secrets_wedding_app/data/hair_makeup_images.dart';
 import 'package:four_secrets_wedding_app/model/swipeable_card_widget.dart';
 import 'package:four_secrets_wedding_app/model/footer_buttons.dart';
 import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
+import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:four_secrets_wedding_app/menue.dart';
 
@@ -48,6 +49,27 @@ class HairMakeUp extends StatelessWidget {
           // automaticallyImplyLeading: false,
           title: const Text('Hair & Make-Up'),
           backgroundColor: Color.fromARGB(255, 107, 69, 106),
+          actions: [
+            // Video icon button in top right
+            if (videoAsset.isNotEmpty || videoUri.isNotEmpty)
+              IconButton(
+                icon: const Icon(
+                  Icons.play_circle,
+                  size: 28,
+                ),
+                onPressed: () {
+                  Navigator.of(context).pushNamed(
+                    RouteManager.videoPlayer2,
+                    arguments: {
+                      'asset': videoAsset,
+                      'uri': videoUri,
+                      'ratio': videoRatio,
+                    },
+                  );
+                },
+                tooltip: 'Video abspielen',
+              ),
+          ],
         ),
         body: Container(
           height: double.infinity,
