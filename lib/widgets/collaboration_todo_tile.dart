@@ -1,17 +1,16 @@
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:four_secrets_wedding_app/model/to_do_model.dart';
+import 'package:four_secrets_wedding_app/services/notification_alaram-service.dart';
 import 'package:four_secrets_wedding_app/widgets/comment_input_field.dart';
+import 'package:four_secrets_wedding_app/widgets/custom_dialog.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_text_widget.dart';
+
 import '../utils/snackbar_helper.dart';
 import '../widgets/spacer_widget.dart';
-import '../pages/to_do_page.dart' show CommentInputField;
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:four_secrets_wedding_app/widgets/custom_dialog.dart';
-import 'collab_todo_edit_dialog.dart';
-import 'package:four_secrets_wedding_app/model/to_do_model.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:four_secrets_wedding_app/services/notification_alaram-service.dart';
 
 class CollaborationTodoTile extends StatefulWidget {
   final String collabId;
@@ -137,7 +136,7 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
   bool calculateHasUnread(Map<String, dynamic> data, String currentUserEmail) {
     final comments = List<Map<String, dynamic>>.from(data['comments'] ?? []);
     Timestamp? lastRead;
-    if (data['commentReadTimestamps'] != null && currentUserEmail != null) {
+    if (data['commentReadTimestamps'] != null) {
       final map = data['commentReadTimestamps'] as Map<String, dynamic>;
       if (map[encodeEmailForFirestore(currentUserEmail)] != null) {
         var value = map[encodeEmailForFirestore(currentUserEmail)];
@@ -209,7 +208,7 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
       Map<String, dynamic> data, String currentUserEmail) {
     final comments = List<Map<String, dynamic>>.from(data['comments'] ?? []);
     Timestamp? latestNonCurrentUserCommentTs;
-    if (comments.isNotEmpty && currentUserEmail != null) {
+    if (comments.isNotEmpty) {
       final nonCurrentUserComments =
           comments.where((c) => c['userId'] != currentUserEmail).toList()
             ..sort((a, b) {
@@ -463,8 +462,8 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
             categories[0]['categoryName'].toString().isNotEmpty)
         ? categories[0]['categoryName']
         : todoName;
-    final isOwned = (data['isShared'] == false) ||
-        (currentUserEmail != null && ownerId == currentUserEmail);
+    final isOwned =
+        (data['isShared'] == false) || (ownerId == currentUserEmail);
     final isRevokedFlag = !isOwned && revokedFor.contains(currentUserEmail);
     // Debug prints for collaboration state
     debugPrint('[CollabTile] currentUserId: $currentUserEmail');
@@ -477,7 +476,7 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
     {
       final comments = List<Map<String, dynamic>>.from(data['comments'] ?? []);
       Timestamp? lastRead;
-      if (data['commentReadTimestamps'] != null && currentUserEmail != null) {
+      if (data['commentReadTimestamps'] != null) {
         final map = data['commentReadTimestamps'] as Map<String, dynamic>;
         if (map[encodeEmailForFirestore(currentUserEmail)] != null) {
           lastRead = map[encodeEmailForFirestore(currentUserEmail)] is Timestamp

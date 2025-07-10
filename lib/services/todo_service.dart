@@ -613,6 +613,62 @@ class TodoService {
   }
 
   // Remove all collaborators from a todo list (revoke access for all)
+  // Future<void> removeAllCollaborators(String todoId) async {
+  //   if (userId == null) {
+  //     throw Exception('User not logged in');
+  //   }
+  //   // Check if user is the owner
+  //   final todoDoc = await _firestore
+  //       .collection('users')
+  //       .doc(userId)
+  //       .collection('todos')
+  //       .doc(todoId)
+  //       .get();
+  //   if (!todoDoc.exists) {
+  //     throw Exception('Todo not found');
+  //   }
+  //   final todo = ToDoModel.fromFirestore(todoDoc);
+  //   if (todo.userId != userId) {
+  //     throw Exception('Only the owner can revoke all collaborators');
+  //   }
+  //   // Add all current collaborators to revokedFor
+  //   final prevCollaborators = List<String>.from(todo.collaborators)
+  //     ..removeWhere((email) => email == todo.ownerEmail);
+  //   final userRef = _firestore.collection('users').doc(userId);
+  //   // Remove all collaborators from globalCollaborators as well
+  //   await userRef.update({
+  //     'globalCollaborators': FieldValue.arrayRemove(prevCollaborators),
+  //   });
+  //   final updatedTodo = todo.copyWith(
+  //     collaborators: [],
+  //     isShared: false,
+  //     revokedFor: prevCollaborators,
+  //   );
+  //   // Send notification to all collaborators (not the owner)
+  //   for (final collaboratorEmail in prevCollaborators) {
+  //     // Find userId by email
+  //     final userQuery = await _firestore
+  //         .collection('users')
+  //         .where('email', isEqualTo: collaboratorEmail)
+  //         .limit(1)
+  //         .get();
+  //     if (userQuery.docs.isNotEmpty) {
+  //       final collaboratorId = userQuery.docs.first.id;
+  //       await _notificationService.sendNotification(
+  //         userId: collaboratorId,
+  //         title: 'Zugriff entzogen',
+  //         body: 'Der Zugriff auf die Liste "${todo.toDoName}" wurde entzogen',
+  //         data: {'type': 'access_revoked'},
+  //       );
+  //     }
+  //   }
+  //   await _firestore
+  //       .collection('users')
+  //       .doc(userId)
+  //       .collection('todos')
+  //       .doc(todoId)
+  //       .update(updatedTodo.toMap());
+  // }
   Future<void> removeAllCollaborators(String todoId) async {
     if (userId == null) {
       throw Exception('User not logged in');

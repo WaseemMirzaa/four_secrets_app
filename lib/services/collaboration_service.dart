@@ -260,11 +260,37 @@ class CollaborationService {
   }
 
   // Delete an invitation
+  // Future<void> deleteInvitation(String invitationId) async {
+  //   // final currentUser = _auth.currentUser;
+  //   // if (currentUser == null) {
+  //   //   throw Exception('User not authenticated');
+  //   // }
+
+  //   // Get the invitation
+  //   final invitationDoc =
+  //       await _firestore.collection('invitations').doc(invitationId).get();
+  //   if (!invitationDoc.exists) {
+  //     throw Exception('Invitation not found');
+  //   }
+
+  //   final invitation = invitationDoc.data()!;
+  //   print('Invitation Data = $invitation');
+  //   // print('Invitation Data curr uid  = ${currentUser.uid}');
+  //   // if (invitation['inviterId'] != currentUser.uid) {
+  //   //   throw Exception('Not authorized to delete this invitation');
+  //   // }
+
+  //   // Delete the invitation
+  //    _firestore.collection('invitations').doc(invitationId).delete();
+  //    _emailService.sendRevokeAccessEmail(
+  //       email: invitation['inviteeEmail'],
+  //       inviterName: invitation['inviterName']);
+  // }
   Future<void> deleteInvitation(String invitationId) async {
-    // final currentUser = _auth.currentUser;
-    // if (currentUser == null) {
-    //   throw Exception('User not authenticated');
-    // }
+    final currentUser = _auth.currentUser;
+    if (currentUser == null) {
+      throw Exception('User not authenticated');
+    }
 
     // Get the invitation
     final invitationDoc =
@@ -275,16 +301,81 @@ class CollaborationService {
 
     final invitation = invitationDoc.data()!;
     print('Invitation Data = $invitation');
-    // print('Invitation Data curr uid  = ${currentUser.uid}');
-    // if (invitation['inviterId'] != currentUser.uid) {
-    //   throw Exception('Not authorized to delete this invitation');
-    // }
+    if (invitation['inviterId'] != currentUser.uid &&
+        invitation['inviterEmail'] != currentUser.email) {
+      throw Exception('Not authorized to delete this invitation');
+    }
+
+    final todoIds = List<String>.from(invitation['todoIds'] ?? []);
+    final inviteeEmail = invitation['inviteeEmail'] as String;
+    final inviterName = invitation['inviterName'] as String? ?? 'Unknown';
+
+    // Use a batch for atomic updates
+    final batch = _firestore.batch();
+
+    // Update each to-do: remove invitee from collaborators, add to revokedFor
+    for (final todoId in todoIds) {
+      final todoRef = _firestore
+          .collection('users')
+          .doc(currentUser.uid)
+          .collection('todos')
+          .doc(todoId);
+      final todoDoc = await todoRef.get();
+      if (!todoDoc.exists) {
+        print('Todo $todoId not found, skipping');
+        continue;
+      }
+      final todo = ToDoModel.fromFirestore(todoDoc);
+      if (todo.userId != currentUser.uid) {
+        throw Exception('Only the owner can revoke access for todo $todoId');
+      }
+      final updatedCollaborators = List<String>.from(todo.collaborators)
+        ..remove(inviteeEmail);
+      final updatedRevokedFor = List<String>.from(todo.revokedFor)
+        ..add(inviteeEmail);
+      final updatedTodo = todo.copyWith(
+        collaborators: updatedCollaborators,
+        revokedFor: updatedRevokedFor,
+        isShared: updatedCollaborators.isNotEmpty,
+      );
+      batch.update(todoRef, updatedTodo.toMap());
+    }
 
     // Delete the invitation
-     _firestore.collection('invitations').doc(invitationId).delete();
-     _emailService.sendRevokeAccessEmail(
-        email: invitation['inviteeEmail'],
-        inviterName: invitation['inviterName']);
+    batch.delete(_firestore.collection('invitations').doc(invitationId));
+
+    // Remove from globalCollaborators
+    final userRef = _firestore.collection('users').doc(currentUser.uid);
+    batch.update(userRef, {
+      'globalCollaborators': FieldValue.arrayRemove([inviteeEmail]),
+    });
+
+    // Commit the batch
+    try {
+      await batch.commit();
+      print(
+          '[COLLAB_LOG] ${DateTime.now().millisecondsSinceEpoch}: Batch committed successfully');
+    } catch (e) {
+      print(
+          '[COLLAB_LOG] ${DateTime.now().millisecondsSinceEpoch}: Error committing batch: $e');
+      rethrow;
+    }
+
+    // Send revocation email to the invitee
+    try {
+      await _emailService.sendRevokeAccessEmail(
+        email: inviteeEmail,
+        inviterName: inviterName,
+      );
+      print(
+          '[EMAIL_LOG] ${DateTime.now().millisecondsSinceEpoch}: Revoke access email sent to $inviteeEmail');
+    } catch (e) {
+      print(
+          '[EMAIL_LOG] ${DateTime.now().millisecondsSinceEpoch}: Error sending revoke access email to $inviteeEmail: $e');
+    }
+
+    print(
+        '[COLLAB_LOG] ${DateTime.now().millisecondsSinceEpoch}: Invitation $invitationId revoked successfully');
   }
 
   // Leave a collaboration

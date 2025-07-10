@@ -1,18 +1,16 @@
-import 'dart:io';
 import 'dart:convert';
-import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:four_secrets_wedding_app/services/notification_alaram-service.dart';
 import 'package:four_secrets_wedding_app/services/push_notification_service.dart';
 import 'package:four_secrets_wedding_app/services/wedding_day_schedule_service.dart';
-import 'package:path/path.dart' as path;
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../models/user_model.dart';
-import 'image_service.dart';
-import 'permission_service.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;

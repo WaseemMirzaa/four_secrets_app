@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:four_secrets_wedding_app/utils/snackbar_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -26,7 +25,6 @@ class NotificationService {
       requestAlertPermission: true,
       requestBadgePermission: true,
       requestSoundPermission: true,
-      
     );
 
     // 4️⃣ Combine platform settings
@@ -47,17 +45,16 @@ class NotificationService {
     await _createNotificationChannel();
 
     // 7️⃣ Request Android notification & exact-alarms permissions (Android 13+)
-    final androidImpl = _plugin
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>();
+    final androidImpl = _plugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
     if (androidImpl != null) {
       final notifGranted = await androidImpl.areNotificationsEnabled();
       debugPrint('Android notification permission granted: $notifGranted');
-      
+
       if (!notifGranted!) {
         await androidImpl.requestNotificationsPermission();
       }
-      
+
       final alarmsGranted = await androidImpl.requestExactAlarmsPermission();
       debugPrint('Exact alarms permission granted: $alarmsGranted');
     }
@@ -105,8 +102,8 @@ class NotificationService {
   }) async {
     // Android: loud sound, vibration, fullScreenIntent
     var androidDetails = AndroidNotificationDetails(
-      'wedding_schedule_channel',            // channel id
-      'Wedding Alarms',                      // channel name
+      'wedding_schedule_channel', // channel id
+      'Wedding Alarms', // channel name
       channelDescription: 'Alarm reminders for wedding events',
       importance: Importance.max,
       priority: Priority.high,
@@ -153,7 +150,8 @@ class NotificationService {
   static Future<void> cancelAllScheduledNotifications() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final List<String> ids = prefs.getStringList('scheduled_notification_ids') ?? [];
+      final List<String> ids =
+          prefs.getStringList('scheduled_notification_ids') ?? [];
 
       for (String id in ids) {
         await _plugin.cancel(int.parse(id));
@@ -181,7 +179,8 @@ class NotificationService {
 
       // Check if the scheduled date is in the future
       if (scheduledDate.isBefore(now)) {
-        debugPrint("❌ Cannot schedule notification for past time: $scheduledDate");
+        debugPrint(
+            "❌ Cannot schedule notification for past time: $scheduledDate");
         return;
       }
 
@@ -222,7 +221,8 @@ class NotificationService {
 
       // Store the scheduled notification ID
       final prefs = await SharedPreferences.getInstance();
-      final List<String> ids = prefs.getStringList('scheduled_notification_ids') ?? [];
+      final List<String> ids =
+          prefs.getStringList('scheduled_notification_ids') ?? [];
       if (!ids.contains(id.toString())) {
         ids.add(id.toString());
         await prefs.setStringList('scheduled_notification_ids', ids);
@@ -246,9 +246,9 @@ class NotificationService {
   /// Get all pending notifications (for debugging)
   static Future<void> getPendingNotifications() async {
     try {
-      final List<PendingNotificationRequest> pendingNotifications = 
+      final List<PendingNotificationRequest> pendingNotifications =
           await _plugin.pendingNotificationRequests();
-      
+
       debugPrint('📋 Pending notifications: ${pendingNotifications.length}');
       for (var notification in pendingNotifications) {
         debugPrint('  - ID: ${notification.id}, Title: ${notification.title}');
