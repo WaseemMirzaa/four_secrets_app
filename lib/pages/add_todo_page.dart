@@ -54,36 +54,70 @@ class _AddTodoPageState extends State<AddTodoPage> {
   @override
   void initState() {
     super.initState();
+    print("🔵 ===== INIT STATE START =====");
+    print("🔵 widget.toDoModel != null: ${widget.toDoModel != null}");
+    print(
+        "🔵 widget.showOnlyCustomCategories: ${widget.showOnlyCustomCategories}");
 
     // Handle incoming todo data if present
     if (widget.toDoModel != null) {
-      print("🟢 widget.toDoModel: ");
+      print("🟢 widget.toDoModel: ${widget.toDoModel.toString()}");
+      print("🟢 widget.toDoModel.categories: ${widget.toDoModel!.categories}");
+      print("🟢 widget.toDoModel.toDoName: ${widget.toDoModel!.toDoName}");
+      print("🟢 widget.toDoModel.toDoItems: ${widget.toDoModel!.toDoItems}");
+
       // Multi-category support for editing
       if (widget.toDoModel!.categories != null) {
+        print("🟢 Processing multi-category data...");
         for (final cat in widget.toDoModel!.categories!) {
+          print("🟢 Processing category: $cat");
           final catName = cat['categoryName'] as String;
           final itemsRaw = cat['items'] ?? [];
+          print("🟢 Category name: $catName");
+          print("🟢 Items raw: $itemsRaw");
+
           final items = (itemsRaw as List)
               .map((item) => item is String ? item : item['name'] as String)
               .toList();
+          print("🟢 Items processed: $items");
+
           selectedItemsByCategory[catName] = List<String>.from(items);
+          print(
+              "🟢 Added to selectedItemsByCategory[$catName]: ${selectedItemsByCategory[catName]}");
+
           // Expand the first category by default
           expandedCategory ??= catName;
+          print("🟢 Expanded category set to: $expandedCategory");
         }
       } else if (widget.toDoModel!.toDoName != null &&
           (widget.toDoModel!.toDoName ?? '').isNotEmpty) {
+        print("🟢 Processing single-category data...");
         final catName = widget.toDoModel!.toDoName!;
         final items = widget.toDoModel!.toDoItems
                 ?.map((item) => item['name'] as String)
                 .toList() ??
             [];
+        print("🟢 Single category name: $catName");
+        print("🟢 Single category items: $items");
+
         selectedItemsByCategory[catName] = List<String>.from(items);
         expandedCategory = catName;
+        print(
+            "🟢 Single category added to selectedItemsByCategory[$catName]: ${selectedItemsByCategory[catName]}");
+        print("🟢 Expanded category set to: $expandedCategory");
       }
+
+      print("🟢 Final selectedItemsByCategory: $selectedItemsByCategory");
+      print("🟢 Final expandedCategory: $expandedCategory");
+
       _categoryNameController.text = expandedCategory ?? '';
+      print(
+          "🟢 Category name controller text set to: ${_categoryNameController.text}");
+
       // Load reminder if present
       if (widget.toDoModel!.reminder != null &&
           widget.toDoModel!.reminder!.isNotEmpty) {
+        print("🟢 Processing reminder: ${widget.toDoModel!.reminder}");
         final reminderDateTime = DateTime.tryParse(widget.toDoModel!.reminder!);
         if (reminderDateTime != null) {
           _reminderEnabled = true;
@@ -93,69 +127,165 @@ class _AddTodoPageState extends State<AddTodoPage> {
               "${reminderDateTime.day.toString().padLeft(2, '0')}/${reminderDateTime.month.toString().padLeft(2, '0')}/${reminderDateTime.year}";
           _selectedReminderTimeText =
               "${reminderDateTime.hour.toString().padLeft(2, '0')}:${reminderDateTime.minute.toString().padLeft(2, '0')} Uhr";
+          print(
+              "🟢 Reminder processed successfully: $_selectedReminderDateText $_selectedReminderTimeText");
+        } else {
+          print(
+              "🔴 Failed to parse reminder datetime: ${widget.toDoModel!.reminder}");
         }
+      } else {
+        print("🟢 No reminder data found");
       }
+    } else {
+      print("🟢 No toDoModel provided - creating new todo");
     }
 
+    print("🔵 ===== CALLING _loadAndInitCategories =====");
     // Load categories after setting up selected items
     _loadAndInitCategories();
   }
 
   Future<void> _loadAndInitCategories() async {
-    if (!mounted) return;
+    print("🔵 ===== _loadAndInitCategories START =====");
+    print("🔵 mounted: $mounted");
+
+    if (!mounted) {
+      print("🔴 Component not mounted, returning early");
+      return;
+    }
+
     setState(() {
       isLoading = true;
     });
+    print("🔵 Set isLoading = true");
+
     try {
       print('🟢 Starting to load and initialize categories');
       await categoryService.createInitialCategories();
+      print('🟢 Initial categories created');
 
       List<CategoryModel> loadTodo;
 
       // If editing a todo, load the specific category with ALL its items
+      print("🔵 Checking editing conditions:");
+      print("🔵 widget.toDoModel != null: ${widget.toDoModel != null}");
+      print(
+          "🔵 selectedItemsByCategory.isNotEmpty: ${selectedItemsByCategory.isNotEmpty}");
+      print("🔵 selectedItemsByCategory: $selectedItemsByCategory");
+
       if (widget.toDoModel != null && selectedItemsByCategory.isNotEmpty) {
-        print('🟢 Editing mode: Loading category with ALL items');
+        print('🟢 ===== EDITING MODE ACTIVATED =====');
+        print('🟢 Loading category with ALL items');
         final categoryName = selectedItemsByCategory.keys.first;
+        print('🟢 Target category name: "$categoryName"');
 
         // Load both standard and custom categories to find the complete category
+        print('🟢 Loading standard categories...');
         final standardCategories = await categoryService.getCategories();
-        final customCategories = await categoryService.getCustomCategories();
+        print(
+            '🟢 Standard categories loaded: ${standardCategories.length} categories');
+        for (var cat in standardCategories) {
+          print(
+              '🟢   - Standard: "${cat.categoryName}" (${cat.todos.length} items)');
+        }
+
+        print('🟢 Loading custom categories...');
+        final customCategories = await categoryService.getCustomCategories(
+            widget.toDoModel?.isShared ?? false, widget.toDoModel);
+        print(
+            '🟢 Custom categories loaded: ${customCategories.length} categories');
+        for (var cat in customCategories) {
+          print(
+              '🟢   - Custom: "${cat.categoryName}" (${cat.todos.length} items)');
+        }
+
         final allCategories = [...standardCategories, ...customCategories];
+        print(
+            '🟢 Combined categories: ${allCategories.length} total categories');
 
         // Find the specific category
-        var specificCategory = allCategories.firstWhere(
-          (cat) => cat.categoryName == categoryName,
-          // orElse: () => null,
-        );
+        print('🟢 Searching for category: "$categoryName"');
+        CategoryModel? specificCategory;
+        try {
+          specificCategory = allCategories.firstWhere(
+            (cat) => cat.categoryName == categoryName,
+          );
+          print('🟢 ✅ Category FOUND: "${specificCategory.categoryName}"');
+          print('🟢 Category ID: "${specificCategory.id}"');
+          print('🟢 Category todos: ${specificCategory.todos}');
+          print('🟢 Category todos length: ${specificCategory.todos.length}');
+        } catch (e) {
+          specificCategory = null;
+          print('🔴 ❌ Category NOT FOUND: "$categoryName"');
+          print('🔴 Error: $e');
+        }
 
         if (specificCategory != null) {
           // Category found - use it with ALL its items
           loadTodo = [specificCategory];
-          print('🟢 Loaded category "${categoryName}" with ${specificCategory.todos.length} total items');
+          print('🟢 ✅ Using found category with ALL items');
+          print(
+              '🟢 Loaded category "${categoryName}" with ${specificCategory.todos.length} total items');
+          print('🟢 Items: ${specificCategory.todos}');
         } else {
           // Category not found - create fallback with selected items
+          print('🟡 ⚠️ Creating fallback category');
+          final selectedItems = selectedItemsByCategory[categoryName] ?? [];
+          print('🟡 Selected items for fallback: $selectedItems');
+
           final fallbackCategory = CategoryModel(
             id: '',
             categoryName: categoryName,
-            todos: selectedItemsByCategory[categoryName] ?? [],
+            todos: selectedItems,
             createdAt: DateTime.now(),
             userId: '',
           );
           loadTodo = [fallbackCategory];
-          print('🟡 Created fallback category "${categoryName}" with ${fallbackCategory.todos.length} items');
+          print(
+              '🟡 Created fallback category "${categoryName}" with ${fallbackCategory.todos.length} items');
+          print('🟡 Fallback items: ${fallbackCategory.todos}');
+        }
+
+        print('� ===== EDITING MODE RESULT =====');
+        print('🟢 Final loadTodo length: ${loadTodo.length}');
+        if (loadTodo.isNotEmpty) {
+          print('🟢 Final category: "${loadTodo[0].categoryName}"');
+          print('🟢 Final items count: ${loadTodo[0].todos.length}');
+          print('🟢 Final items: ${loadTodo[0].todos}');
         }
       } else {
         // Load categories based on the showOnlyCustomCategories flag
-        loadTodo = widget.showOnlyCustomCategories
-            ? await categoryService.getCustomCategories()
-            : await categoryService.getCategories();
+        print('🔵 ===== NORMAL MODE ACTIVATED =====');
+        print(
+            '🔵 showOnlyCustomCategories: ${widget.showOnlyCustomCategories}');
+
+        if (widget.showOnlyCustomCategories) {
+          print('🔵 Loading custom categories only...');
+          loadTodo = await categoryService.getCustomCategories(false);
+        } else {
+          print('🔵 Loading standard categories...');
+          loadTodo = await categoryService.getCategories();
+        }
+
+        print('🔵 Loaded ${loadTodo.length} categories in normal mode');
+        for (var cat in loadTodo) {
+          print('🔵   - "${cat.categoryName}" (${cat.todos.length} items)');
+        }
       }
 
+      print('🟢 ===== FINAL PROCESSING =====');
       print('🟢 Initial todo items created successfully');
-      print('🟢 Todos loaded successfully: ' +
-          loadTodo.length.toString() +
-          ' items');
+      print('🟢 Todos loaded successfully: ${loadTodo.length} items');
+
+      // Log all loaded categories and their items
+      for (var todo in loadTodo) {
+        print(
+            '🟢 Final category: "${todo.categoryName}" with ${todo.todos.length} items');
+        print('🟢   Items: ${todo.todos}');
+      }
+
       if (mounted) {
+        print('🟢 Component still mounted, setting state...');
         setState(() {
           allTodoModels = loadTodo;
           allTodo = Map.fromEntries(
@@ -163,6 +293,20 @@ class _AddTodoPageState extends State<AddTodoPage> {
           filteredTodo = Map.from(allTodo);
           isLoading = false;
         });
+
+        print('🟢 State updated successfully');
+        print('🟢 allTodoModels length: ${allTodoModels.length}');
+        print('🟢 allTodo keys: ${allTodo.keys.toList()}');
+        print('🟢 filteredTodo keys: ${filteredTodo.keys.toList()}');
+        print('🟢 isLoading: $isLoading');
+
+        // Log the final state for debugging
+        allTodo.forEach((categoryName, items) {
+          print(
+              '🟢 Final allTodo["$categoryName"]: $items (${items.length} items)');
+        });
+      } else {
+        print('🔴 Component not mounted, skipping state update');
       }
     } catch (e) {
       print('🔴 Error in _loadAndInitCategories: $e');
@@ -679,41 +823,80 @@ class _AddTodoPageState extends State<AddTodoPage> {
                                       Expanded(
                                         child: InkWell(
                                           onTap: () {
+                                            print(
+                                                '🔵 ===== ITEM SELECTION CLICKED =====');
+                                            print('🔵 Category: "$toDoName"');
+                                            print('🔵 Item: "$item"');
+                                            print(
+                                                '🔵 Current isSelected: $isSelected');
+                                            print(
+                                                '🔵 Current selectedItemsByCategory: $selectedItemsByCategory');
+
                                             if (toDoName.trim().isEmpty) {
+                                              print(
+                                                  '🔴 Category name is empty, showing error');
                                               SnackBarHelper.showErrorSnackBar(
                                                   context,
                                                   'Kategorie darf nicht leer sein!');
                                               return;
                                             }
                                             setState(() {
+                                              print(
+                                                  '🔵 Setting state for item selection...');
                                               // Only allow one category selection at a time, but multiple subitems in that category
                                               if (selectedItemsByCategory
                                                       .isEmpty ||
                                                   selectedItemsByCategory
                                                       .containsKey(toDoName)) {
+                                                print(
+                                                    '🟢 Same category or empty selection - toggling subitem');
                                                 // Same category: just toggle subitem
                                                 final items = List<String>.from(
                                                     selectedItemsByCategory[
                                                             toDoName] ??
                                                         <String>[]);
+                                                print(
+                                                    '🟢 Current items in category: $items');
+
                                                 if (isSelected) {
+                                                  print(
+                                                      '🟢 Item was selected, removing: "$item"');
                                                   items.remove(item);
                                                 } else {
+                                                  print(
+                                                      '🟢 Item was not selected, adding: "$item"');
                                                   items.add(item);
                                                 }
+
+                                                print(
+                                                    '🟢 Items after toggle: $items');
+
                                                 if (items.isEmpty) {
+                                                  print(
+                                                      '🟢 No items left, removing category from selection');
                                                   selectedItemsByCategory
                                                       .remove(toDoName);
                                                 } else {
+                                                  print(
+                                                      '🟢 Updating category with items: $items');
                                                   selectedItemsByCategory[
                                                       toDoName] = items;
                                                 }
                                               } else {
+                                                print(
+                                                    '🟡 Different category - clearing previous and starting new selection');
+                                                print(
+                                                    '🟡 Previous selectedItemsByCategory: $selectedItemsByCategory');
                                                 // Different category: clear previous, start new selection
                                                 selectedItemsByCategory.clear();
                                                 selectedItemsByCategory[
                                                     toDoName] = [item];
+                                                print(
+                                                    '🟡 New selectedItemsByCategory: $selectedItemsByCategory');
                                               }
+
+                                              print(
+                                                  '🔵 Final selectedItemsByCategory: $selectedItemsByCategory');
                                             });
                                           },
                                           child: Container(
