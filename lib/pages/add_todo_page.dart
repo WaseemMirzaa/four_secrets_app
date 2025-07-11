@@ -234,9 +234,10 @@ class _AddTodoPageState extends State<AddTodoPage> {
 
           try {
             // Fetch all possible categories
-            final allStandardCategories = await categoryService.getCategories();
-            final allCustomCategories =
-                await categoryService.getCustomCategories();
+            final allStandardCategories =
+                await categoryService.getCategories(widget.toDoModel?.userId);
+            final allCustomCategories = await categoryService
+                .getCustomCategories(widget.toDoModel?.userId);
 
             // If we have a shared todo, also try to get owner's categories
             List<CategoryModel> ownerCategories = [];
