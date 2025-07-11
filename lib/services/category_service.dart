@@ -156,14 +156,15 @@ class CategoryService {
   }
 
   // Get all categories for the current user
-  Future<List<CategoryModel>> getCategories() async {
-    if (userId == null) {
+  Future<List<CategoryModel>> getCategories([String? userId1]) async {
+    if (userId == null && userId1 == null) {
       throw Exception('User not logged in');
     }
 
     try {
+      String user = userId1 ?? userId!;
       // First check if we need to initialize the categories
-      final userDoc = await _firestore.collection('users').doc(userId).get();
+      final userDoc = await _firestore.collection('users').doc(user).get();
 
       if (!userDoc.exists ||
           !(userDoc.data()?['categoriesInitialized'] ?? false)) {
@@ -172,7 +173,7 @@ class CategoryService {
 
       final snapshot = await _firestore
           .collection('users')
-          .doc(userId)
+          .doc(user)
           .collection('categories')
           .get();
 
@@ -188,14 +189,16 @@ class CategoryService {
   }
 
   // Get only custom categories (excluding initial default categories)
-  Future<List<CategoryModel>> getCustomCategories() async {
-    if (userId == null) {
+  Future<List<CategoryModel>> getCustomCategories([String? userId1]) async {
+    if (userId == null && userId1 == null) {
       throw Exception('User not logged in');
     }
 
     try {
+      String user = userId1 ?? userId!;
+
       // Get all categories first
-      final allCategories = await getCategories();
+      final allCategories = await getCategories(userId1);
 
       // Define the initial category names to exclude
       final initialCategoryNames = {
