@@ -158,7 +158,7 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.white,
+        // backgroundColor: Colors.white,
         // resizeToAvoidBottomInset: false,
         drawer: Menue.getInstance(key),
         appBar: AppBar(

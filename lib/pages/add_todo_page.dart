@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:four_secrets_wedding_app/constants/app_constants.dart';
 import 'package:four_secrets_wedding_app/extension.dart';
@@ -6,50 +8,51 @@ import 'package:four_secrets_wedding_app/model/category_model.dart';
 import 'package:four_secrets_wedding_app/model/to_do_model.dart';
 import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:four_secrets_wedding_app/services/category_service.dart';
+import 'package:four_secrets_wedding_app/services/notification_alaram-service.dart';
 import 'package:four_secrets_wedding_app/services/todo_service.dart';
+import 'package:four_secrets_wedding_app/utils/snackbar_helper.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_button_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_dialog.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_text_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
-import 'package:four_secrets_wedding_app/utils/snackbar_helper.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_typeahead/flutter_typeahead.dart';
-import 'package:four_secrets_wedding_app/services/notification_alaram-service.dart';
 
 class AddTodoPage extends StatefulWidget {
-  final ToDoModel? toDoModel;
-  final String? id;
-  final bool showOnlyCustomCategories;
   const AddTodoPage(
       {super.key,
       required this.toDoModel,
       required this.id,
       this.showOnlyCustomCategories = false});
 
+  final String? id;
+  final bool showOnlyCustomCategories;
+  final ToDoModel? toDoModel;
+
   @override
   State<AddTodoPage> createState() => _AddTodoPageState();
 }
 
 class _AddTodoPageState extends State<AddTodoPage> {
-  final toDoService = TodoService();
+  Map<String, List<String>> allTodo = {};
+  List<CategoryModel> allTodoModels = []; // Store full models
   final categoryService = CategoryService();
-  final _searchController = TextEditingController();
-  final _categoryNameController = TextEditingController();
+  String? expandedCategory; // Only one expanded at a time
+  Map<String, List<String>> filteredTodo = {};
   bool isLoading = false;
   bool isSaving = false; // For Save button only
   bool isSearching = false;
-  String? expandedCategory; // Only one expanded at a time
   Map<String, List<String>> selectedItemsByCategory =
       {}; // Multi-category selection
-  Map<String, List<String>> allTodo = {};
-  Map<String, List<String>> filteredTodo = {};
-  List<CategoryModel> allTodoModels = []; // Store full models
+
   bool showFilteredList = false;
-  DateTime? _selectedReminderDate;
-  TimeOfDay? _selectedReminderTime;
-  String? _selectedReminderDateText;
-  String? _selectedReminderTimeText;
+  final toDoService = TodoService();
+
+  final _categoryNameController = TextEditingController();
   bool _reminderEnabled = false;
+  final _searchController = TextEditingController();
+  DateTime? _selectedReminderDate;
+  String? _selectedReminderDateText;
+  TimeOfDay? _selectedReminderTime;
+  String? _selectedReminderTimeText;
 
   @override
   void initState() {
@@ -397,43 +400,11 @@ class _AddTodoPageState extends State<AddTodoPage> {
     }
   }
 
-  void _onSearchChanged([String? query]) {
-    final search = query ?? _searchController.text;
-    if (search.isEmpty) {
-      setState(() {
-        filteredTodo = Map.from(allTodo);
-      });
-    } else {
-      final Map<String, List<String>> newFiltered = {};
-      final lowerQuery = search.toLowerCase();
-      // Check for exact category match
-      final exactCategory = allTodo.keys.firstWhere(
-        (cat) => cat.toLowerCase() == lowerQuery,
-        orElse: () => '',
-      );
-      if (exactCategory.isNotEmpty) {
-        newFiltered[exactCategory] = allTodo[exactCategory]!;
-      } else {
-        allTodo.forEach((category, items) {
-          final matchingItems = items
-              .where((item) => item.toLowerCase().contains(lowerQuery))
-              .toList();
-          if (matchingItems.isNotEmpty) {
-            newFiltered[category] = matchingItems;
-          }
-        });
-      }
-      setState(() {
-        filteredTodo = newFiltered;
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.white,
+        // backgroundColor: Colors.white,
         appBar: AppBar(
           foregroundColor: Colors.white,
           title: Text(_getAppBarTitle()),
@@ -576,14 +547,53 @@ class _AddTodoPageState extends State<AddTodoPage> {
                 borderRadius: BorderRadius.circular(8),
                 child: child,
               ),
+              // onSelected: (suggestion) {
+              //   setState(() {
+              //     showFilteredList = true;
+              //     // If suggestion is a category, set as activeCategory
+              //     if (allTodo.containsKey(suggestion)) {
+              //       expandedCategory = suggestion;
+              //     } else {
+              //       // Find which category this item belongs to
+              //       final found = allTodo.entries.firstWhere(
+              //           (e) => e.value.contains(suggestion),
+              //           orElse: () => MapEntry('', []));
+              //       if (found.key.isNotEmpty) {
+              //         expandedCategory = found.key;
+              //       }
+              //     }
+              //   });
+              //   _searchController.text = suggestion;
+              //   _searchController.selection = TextSelection.fromPosition(
+              //     TextPosition(offset: suggestion.length),
+              //   );
+              //   FocusScope.of(context).unfocus();
+              // },
               onSelected: (suggestion) {
                 setState(() {
+                  final lower = suggestion.toLowerCase();
+                  filteredTodo = {};
+                  allTodo.forEach((cat, items) {
+                    final catMatch = cat.toLowerCase().contains(lower);
+                    // final itemMatches = items
+                    //     .where((item) => item.toLowerCase().contains(lower))
+                    //     .toList();
+                    if (catMatch) {
+                      filteredTodo[cat] = items;
+                    }
+
+                    // else if (itemMatches.isNotEmpty) {
+                    //   filteredTodo[cat] = itemMatches;
+                    // }
+                  });
                   showFilteredList = true;
-                  // If suggestion is a category, set as activeCategory
+                  if (filteredTodo.isNotEmpty) {
+                    expandedCategory = filteredTodo.keys.first;
+                  }
+                  // Optionally expand the matched category
                   if (allTodo.containsKey(suggestion)) {
                     expandedCategory = suggestion;
                   } else {
-                    // Find which category this item belongs to
                     final found = allTodo.entries.firstWhere(
                         (e) => e.value.contains(suggestion),
                         orElse: () => MapEntry('', []));
@@ -706,7 +716,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
                               borderRadius: BorderRadius.circular(15),
                             ),
                             child: ExpansionTile(
-                              key: PageStorageKey(toDoName),
+                              key: ValueKey('$toDoName-$expandedCategory'),
                               tilePadding: EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 16),
                               shape: OutlineInputBorder(
