@@ -1,14 +1,11 @@
 import 'dart:io';
-import 'dart:ui';
+
 import 'package:dotted_border/dotted_border.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:four_secrets_wedding_app/config/theme/app_theme.dart';
 import 'package:four_secrets_wedding_app/constants/app_constants.dart';
-import 'package:four_secrets_wedding_app/extension.dart';
 import 'package:four_secrets_wedding_app/menue.dart';
 import 'package:four_secrets_wedding_app/model/checklist_button.dart';
-import 'package:four_secrets_wedding_app/model/dialog_box.dart';
 import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
 import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:four_secrets_wedding_app/services/inspiration_image_service.dart';
@@ -271,7 +268,6 @@ class _InspirationFolderState extends State<InspirationFolder> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.white,
         resizeToAvoidBottomInset: true,
         drawer: Menue.getInstance(key),
         appBar: AppBar(

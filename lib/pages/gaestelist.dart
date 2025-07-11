@@ -1,15 +1,14 @@
 import 'dart:async';
 
-import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
-import 'package:four_secrets_wedding_app/model/gaestelist_item.dart';
-import 'package:flutter/material.dart';
-import 'package:four_secrets_wedding_app/menue.dart';
-import 'package:four_secrets_wedding_app/model/dialog_box.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
-import 'package:four_secrets_wedding_app/routes/routes.dart';
+import 'package:flutter/material.dart';
 import 'package:four_secrets_wedding_app/constants/app_constants.dart';
+import 'package:four_secrets_wedding_app/menue.dart';
+import 'package:four_secrets_wedding_app/model/dialog_box.dart';
+import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
+import 'package:four_secrets_wedding_app/model/gaestelist_item.dart';
+import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:four_secrets_wedding_app/utils/snackbar_helper.dart';
 
 class Gaestelist extends StatefulWidget {
@@ -282,7 +281,6 @@ class _GaestelistState extends State<Gaestelist> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.white,
         drawer: Menue.getInstance(key),
         appBar: AppBar(
           foregroundColor: Color.fromARGB(255, 255, 255, 255),
