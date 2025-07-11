@@ -979,18 +979,18 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                           snapshot.hasData ? snapshot.data! : ownerName;
                       if (isOwned) {
                         return Container(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                          decoration: BoxDecoration(
-                            color: labelColor,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: CustomTextWidget(
-                            text: 'Eigentümer',
-                            color: labelTextColor,
-                            fontSize: 14,
-                          ),
-                        );
+                            // padding:
+                            //     EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                            // decoration: BoxDecoration(
+                            //   color: labelColor,
+                            //   borderRadius: BorderRadius.circular(8),
+                            // ),
+                            // child: CustomTextWidget(
+                            //   text: 'Eigentümer',
+                            //   color: labelTextColor,
+                            //   fontSize: 14,
+                            // ),
+                            );
                       } else {
                         // Always show 'Geteilt von ...' for non-owners, even if revoked
                         return Container(
