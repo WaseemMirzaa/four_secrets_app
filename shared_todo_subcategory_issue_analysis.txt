@@ -1,0 +1,164 @@
+SHARED TODO SUBCATEGORY DISPLAY ISSUE ANALYSIS
+==============================================
+
+PROBLEM IDENTIFIED:
+-------------------
+The shared todo editing is still not displaying subcategory list items properly. The logs show that the old problematic logic is still active, and there's a fundamental issue with how custom categories vs. standard categories are being handled.
+
+LOG ANALYSIS:
+=============
+
+CASE 1 - NOT WORKING (Custom Category):
+---------------------------------------
+I/flutter (20672): [LOG] categories: [{items: [vbubus, jkgd, eagj], categoryName: codetive}]
+I/flutter (20672): 🟢 Editing mode: Loading only selected category
+
+CASE 2 - WORKING (Standard Category):
+------------------------------------
+I/flutter (20672): [LOG] categories: [{categoryName: Sonstiges, items: [Kleine Decke (falls Fotos draußen stattfinden)]}]
+I/flutter (20672): 🟢 Editing mode: Loading only selected category
+
+ROOT CAUSE ANALYSIS:
+===================
+
+1. OLD LOGIC STILL ACTIVE:
+--------------------------
+The code at lines 115-157 still contains the problematic logic:
+- Line 117: print('🟢 Editing mode: Loading only selected category')
+- Line 116: if (widget.toDoModel != null && selectedItemsByCategory.isNotEmpty)
+- This means our previous fix was not properly applied or was overwritten
+
+2. CUSTOM vs STANDARD CATEGORY HANDLING:
+---------------------------------------
+The issue appears to be related to how custom categories are loaded vs standard categories:
+
+CUSTOM CATEGORY ("codetive"):
+- Not found in standard categories from categoryService.getCategories()
+- Falls back to creating CategoryModel with empty todos: []
+- Line 127: todos: [], // Empty fallback
+- Line 145: todos: categoryItems, // Uses selected items as base
+- This limits display to only selected items
+
+STANDARD CATEGORY ("Sonstiges"):
+- Found in standard categories from categoryService.getCategories()
+- Uses the complete category with all its items
+- Line 137: finalCategory = specificCategory; // Complete category data
+
+3. CATEGORY SERVICE ISSUE:
+--------------------------
+The custom category "codetive" is not being found by:
+- categoryService.getCategories() - returns only standard categories
+- Need to also check categoryService.getCustomCategories()
+
+CURRENT CODE PROBLEMS:
+=====================
+
+FILE: lib/pages/add_todo_page.dart (Lines 115-157)
+
+PROBLEM 1: Still using old restrictive logic
+PROBLEM 2: Only checks standard categories, not custom categories
+PROBLEM 3: Fallback creates empty category instead of loading complete custom category
+
+CURRENT PROBLEMATIC CODE:
+```dart
+// Line 121: Only checks standard categories
+final allCategories = await categoryService.getCategories();
+
+// Line 122-131: Fallback creates empty category
+final specificCategory = allCategories.firstWhere(
+  (cat) => cat.categoryName == categoryName,
+  orElse: () => CategoryModel(
+    id: '',
+    categoryName: categoryName,
+    todos: [], // ❌ EMPTY - This is the problem!
+    createdAt: DateTime.now(),
+    userId: '',
+  ),
+);
+```
+
+REQUIRED FIXES:
+===============
+
+FIX 1: Load Both Standard AND Custom Categories
+-----------------------------------------------
+```dart
+// Load both standard and custom categories
+final standardCategories = await categoryService.getCategories();
+final customCategories = await categoryService.getCustomCategories();
+final allCategories = [...standardCategories, ...customCategories];
+```
+
+FIX 2: Proper Category Lookup
+-----------------------------
+```dart
+final specificCategory = allCategories.firstWhere(
+  (cat) => cat.categoryName == categoryName,
+  orElse: () => null, // Return null instead of empty category
+);
+
+if (specificCategory != null) {
+  // Use complete category with all items
+  loadTodo = [specificCategory];
+} else {
+  // True fallback - should rarely happen
+  loadTodo = [CategoryModel(
+    id: '',
+    categoryName: categoryName,
+    todos: selectedItemsByCategory[categoryName] ?? [],
+    createdAt: DateTime.now(),
+    userId: '',
+  )];
+}
+```
+
+FIX 3: Alternative - Load All Categories (Recommended)
+------------------------------------------------------
+```dart
+// Always load all categories, even when editing
+loadTodo = widget.showOnlyCustomCategories
+    ? await categoryService.getCustomCategories()
+    : [...await categoryService.getCategories(), ...await categoryService.getCustomCategories()];
+
+// Ensure selected category is visible
+if (widget.toDoModel != null && selectedItemsByCategory.isNotEmpty) {
+  final categoryName = selectedItemsByCategory.keys.first;
+  final categoryExists = loadTodo.any((cat) => cat.categoryName == categoryName);
+  
+  if (!categoryExists) {
+    // Add fallback only if truly missing
+    loadTodo.add(CategoryModel(
+      id: '',
+      categoryName: categoryName,
+      todos: selectedItemsByCategory[categoryName] ?? [],
+      createdAt: DateTime.now(),
+      userId: '',
+    ));
+  }
+}
+```
+
+TESTING SCENARIOS:
+==================
+
+SCENARIO 1: Custom Category Editing
+- Category: "codetive" 
+- Items: ["vbubus", "jkgd", "eagj"]
+- Expected: Show ALL items in "codetive" category
+- Current: Shows only selected items
+
+SCENARIO 2: Standard Category Editing  
+- Category: "Sonstiges"
+- Items: ["Kleine Decke (falls Fotos draußen stattfinden)"]
+- Expected: Show ALL items in "Sonstiges" category
+- Current: Works correctly
+
+IMMEDIATE ACTION REQUIRED:
+=========================
+
+1. Apply the proper fix to lines 115-157 in add_todo_page.dart
+2. Ensure both standard and custom categories are loaded
+3. Test with both custom and standard categories
+4. Verify all subcategory items are displayed in editing mode
+
+The issue is that custom categories are not being properly loaded during editing mode, causing the fallback to create an empty category instead of loading the complete custom category with all its items.

@@ -112,43 +112,38 @@ class _AddTodoPageState extends State<AddTodoPage> {
 
       List<CategoryModel> loadTodo;
 
-      // If editing a todo, only load the specific category being edited
+      // If editing a todo, load the specific category with ALL its items
       if (widget.toDoModel != null && selectedItemsByCategory.isNotEmpty) {
-        print('🟢 Editing mode: Loading only selected category');
+        print('🟢 Editing mode: Loading category with ALL items');
         final categoryName = selectedItemsByCategory.keys.first;
 
-        // Find the specific category model
-        final allCategories = await categoryService.getCategories();
+        // Load both standard and custom categories to find the complete category
+        final standardCategories = await categoryService.getCategories();
+        final customCategories = await categoryService.getCustomCategories();
+        final allCategories = [...standardCategories, ...customCategories];
+
+        // Find the specific category
         final specificCategory = allCategories.firstWhere(
           (cat) => cat.categoryName == categoryName,
-          orElse: () => CategoryModel(
-            id: '',
-            categoryName: categoryName,
-            todos: [], // Empty fallback - will be handled below
-            createdAt: DateTime.now(),
-            userId: '',
-          ),
+          orElse: () => null,
         );
 
-        // Ensure we have ALL items from the category, not just selected ones
-        CategoryModel finalCategory;
-        if (specificCategory.id.isNotEmpty) {
-          // Category found - use all its items
-          finalCategory = specificCategory;
+        if (specificCategory != null) {
+          // Category found - use it with ALL its items
+          loadTodo = [specificCategory];
+          print('🟢 Loaded category "${categoryName}" with ${specificCategory.todos.length} total items');
         } else {
-          // Category not found - create with all available items for this category name
-          // Try to find items from other sources or use selected items as fallback
-          final categoryItems = selectedItemsByCategory[categoryName] ?? [];
-          finalCategory = CategoryModel(
+          // Category not found - create fallback with selected items
+          final fallbackCategory = CategoryModel(
             id: '',
             categoryName: categoryName,
-            todos: categoryItems, // Use selected items as base
+            todos: selectedItemsByCategory[categoryName] ?? [],
             createdAt: DateTime.now(),
             userId: '',
           );
+          loadTodo = [fallbackCategory];
+          print('🟡 Created fallback category "${categoryName}" with ${fallbackCategory.todos.length} items');
         }
-
-        loadTodo = [finalCategory];
       } else {
         // Load categories based on the showOnlyCustomCategories flag
         loadTodo = widget.showOnlyCustomCategories

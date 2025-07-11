@@ -1,0 +1,170 @@
+SIMILAR ISSUES ANALYSIS - SHARED TODO EDIT PATTERN
+==================================================
+
+PROBLEM PATTERN IDENTIFIED:
+---------------------------
+The shared todo editing issue we fixed in `add_todo_page.dart` follows a common pattern where editing modes show only selected/limited data instead of all available options. This pattern can potentially exist in other parts of the codebase.
+
+ORIGINAL ISSUE FIXED:
+--------------------
+FILE: lib/pages/add_todo_page.dart (Lines 115-151)
+PROBLEM: When editing shared todos, only selected items were shown instead of all available items in the category
+PATTERN: `todos: selectedItemsByCategory[categoryName] ?? []` - limiting to only selected items
+SOLUTION: Load complete category with ALL items, preserve selections through UI state
+
+ANALYSIS OF SIMILAR PATTERNS:
+=============================
+
+1. POTENTIAL ISSUE: Wedding Category Editing
+--------------------------------------------
+FILE: lib/pages/wedding_category_title_page.dart
+CURRENT STATUS: ✅ APPEARS SAFE
+ANALYSIS:
+- Uses `_loadAndInitCategories()` method similar to add_todo_page
+- Loads all categories: `await weddingCategoryDatabase.loadWeddingCategories()`
+- No editing mode restrictions found
+- Shows all available categories and items
+
+CODE PATTERN:
+```dart
+final loadedCategories = await weddingCategoryDatabase.loadWeddingCategories();
+setState(() {
+  allCategoryModels = loadedCategories;
+  allCategories = weddingCategoryDatabase.getCategoriesAsMap();
+  filteredCategory = Map.from(allCategories);
+});
+```
+
+2. POTENTIAL ISSUE: Guest Type Selection in Editing
+---------------------------------------------------
+FILE: lib/pages/add_edit_guest_page.dart
+CURRENT STATUS: ✅ APPEARS SAFE
+ANALYSIS:
+- Loads all guest types: `await _loadGuestTypes()`
+- No restrictions in editing mode
+- Shows all available guest types for selection
+
+CODE PATTERN:
+```dart
+Future<void> _loadGuestTypes() async {
+  final types = await _guestTypeService.getGuestTypes();
+  setState(() {
+    _guestTypes = types;
+  });
+}
+```
+
+3. POTENTIAL ISSUE: Wedding Schedule Item Editing
+-------------------------------------------------
+FILE: lib/pages/wedding_schedule_page.dart
+CURRENT STATUS: ✅ APPEARS SAFE
+ANALYSIS:
+- Shows all schedule items in list
+- Editing navigates to separate page with full item data
+- No filtering or limitation in editing mode
+
+4. POTENTIAL ISSUE: Collaboration Invitation Responses
+------------------------------------------------------
+FILE: lib/pages/collaboration_screen.dart
+CURRENT STATUS: ✅ APPEARS SAFE
+ANALYSIS:
+- Loads all invitations: sent, received, owned todos, collaborated todos
+- No editing mode restrictions
+- Shows complete data sets
+
+CODE PATTERN:
+```dart
+// Load all data types
+final sentSnapshot = await _firestore.collection('invitations')...
+final receivedSnapshot = await _firestore.collection('invitations')...
+final ownedSnapshot = await _firestore.collection('users')...
+final collaboratedSnapshot = await _firestore.collectionGroup('todos')...
+```
+
+5. POTENTIAL ISSUE: Category Service Methods
+--------------------------------------------
+FILE: lib/services/category_service.dart
+CURRENT STATUS: ✅ APPEARS SAFE
+ANALYSIS:
+- `getCategories()` loads all categories without restrictions
+- `getCustomCategories()` properly filters but shows all custom categories
+- No editing mode limitations
+
+6. POTENTIAL ISSUE: Search and Filtering in Add Todo Page
+---------------------------------------------------------
+FILE: lib/pages/add_todo_page.dart (Lines 196-226)
+CURRENT STATUS: ✅ APPEARS SAFE
+ANALYSIS:
+- Search functionality works on `allTodo` (complete dataset)
+- Filtering shows matching items from complete dataset
+- No restrictions based on editing mode
+
+CODE PATTERN:
+```dart
+void _onSearchChanged([String? query]) {
+  // Works on allTodo (complete dataset)
+  allTodo.forEach((category, items) {
+    final matchingItems = items.where((item) => 
+        item.toLowerCase().contains(lowerQuery)).toList();
+    if (matchingItems.isNotEmpty) {
+      newFiltered[category] = matchingItems;
+    }
+  });
+}
+```
+
+CONCLUSION:
+===========
+
+✅ NO SIMILAR ISSUES FOUND
+--------------------------
+After comprehensive analysis, the shared todo editing issue appears to be UNIQUE to the specific scenario in `add_todo_page.dart`. Other parts of the codebase follow proper patterns:
+
+1. ✅ Wedding categories load completely
+2. ✅ Guest management shows all options
+3. ✅ Schedule editing works with full data
+4. ✅ Collaboration features load all data
+5. ✅ Category services return complete datasets
+6. ✅ Search/filtering works on complete data
+
+ROOT CAUSE OF ORIGINAL ISSUE:
+-----------------------------
+The issue was specific to the shared todo editing logic where:
+- Editing mode had special handling: `if (widget.toDoModel != null && selectedItemsByCategory.isNotEmpty)`
+- Fallback category creation used limited data: `todos: selectedItemsByCategory[categoryName] ?? []`
+- This was unique to this specific editing scenario
+
+PREVENTIVE MEASURES:
+===================
+
+To prevent similar issues in future development:
+
+1. **Code Review Checklist:**
+   - When implementing editing modes, ensure all available options are shown
+   - Avoid creating fallback objects with limited data
+   - Always load complete datasets and use UI state for selections
+
+2. **Pattern to Avoid:**
+   ```dart
+   // ❌ BAD: Creating limited fallback data
+   CategoryModel(
+     todos: selectedItems ?? [], // Only selected items
+   )
+   ```
+
+3. **Pattern to Follow:**
+   ```dart
+   // ✅ GOOD: Load complete data, preserve selections in UI
+   final allCategories = await service.getCategories();
+   final category = allCategories.firstWhere(...);
+   // Use selectedItems for UI state, not data limitation
+   ```
+
+4. **Testing Strategy:**
+   - Test editing modes with both owners and collaborators
+   - Verify all available options are visible in editing scenarios
+   - Ensure selections are preserved but don't limit available choices
+
+MONITORING:
+===========
+The codebase appears to be well-structured regarding data loading patterns. The fixed issue was an isolated case of editing mode logic that inadvertently limited data visibility for collaborators.
