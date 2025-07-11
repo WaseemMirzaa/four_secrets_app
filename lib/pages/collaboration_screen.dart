@@ -565,8 +565,9 @@ class _CollaborationScreenState extends State<CollaborationScreen>
                         (() {
                           if (pendingInvitations == null) {
                             pendingInvitations = _sentInvitations
-                                .where(
-                                    (invite) => invite['status'] == 'pending')
+                                .where((invite) =>
+                                    invite['status'] == 'pending' ||
+                                    invite['status'] == 'accepted')
                                 .toList();
                           }
                           if (pendingInvitations?.isEmpty ?? true) {

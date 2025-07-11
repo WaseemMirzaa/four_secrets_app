@@ -42,15 +42,15 @@ class _ToDoPageState extends State<ToDoPage> {
   String? selectedCategory;
   bool isDeleting = false;
   bool hasNewCollabNotification = false;
-  int? _editingCommentIndex;
-  TextEditingController _editingController = TextEditingController();
-  TextEditingController _commentController = TextEditingController();
+  // int? _editingCommentIndex;
+  // TextEditingController _editingController = TextEditingController();
+  // TextEditingController _commentController = TextEditingController();
   // Unified comment edit state
   int? editingCommentIndex;
   Map<String, dynamic>? editingComment;
   bool isEditingComment = false;
   // User cache for comments
-  final Map<String, Map<String, dynamic>> _userCache = {};
+  // final Map<String, Map<String, dynamic>> _userCache = {};
   String? currentlyInvitingEmail;
 
   @override
