@@ -56,7 +56,7 @@ android {
     defaultConfig {
         applicationId "com.app.four_secrets_wedding_app" // This should match your Firebase config
         minSdkVersion 23
-        targetSdkVersion flutter.targetSdkVersion
+        targetSdkVersion 35
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         multiDexEnabled true
