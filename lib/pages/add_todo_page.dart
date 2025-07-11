@@ -15,17 +15,20 @@ import 'package:four_secrets_wedding_app/widgets/custom_button_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_dialog.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_text_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
+import 'package:four_secrets_wedding_app/utils/snackbar_helper.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:four_secrets_wedding_app/services/notification_alaram-service.dart';
 
 class AddTodoPage extends StatefulWidget {
+  final ToDoModel? toDoModel;
+  final String? id;
+  final bool showOnlyCustomCategories;
   const AddTodoPage(
       {super.key,
       required this.toDoModel,
       required this.id,
       this.showOnlyCustomCategories = false});
-
-  final String? id;
-  final bool showOnlyCustomCategories;
-  final ToDoModel? toDoModel;
 
   @override
   State<AddTodoPage> createState() => _AddTodoPageState();
@@ -410,25 +413,28 @@ class _AddTodoPageState extends State<AddTodoPage> {
           title: Text(_getAppBarTitle()),
           backgroundColor: const Color.fromARGB(255, 107, 69, 106),
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () async {
-            var g = await Navigator.pushNamed(
-                context, RouteManager.addTodoCategoriesPage,
-                arguments: {
-                  "toDoModel": null,
-                  "id": null,
-                });
-            if (g == true) {
-              print("🟢 g is true");
-              _loadAndInitCategories();
-              FocusScope.of(context).unfocus();
-            }
-          },
-          child: Icon(Icons.add),
-        ),
+        floatingActionButton: widget.toDoModel == null
+            ? FloatingActionButton(
+                onPressed: () async {
+                  var g = await Navigator.pushNamed(
+                      context, RouteManager.addTodoCategoriesPage,
+                      arguments: {
+                        "toDoModel": null,
+                        "id": null,
+                      });
+                  if (g == true) {
+                    print("🟢 g is true");
+                    _loadAndInitCategories();
+                    FocusScope.of(context).unfocus();
+                  }
+                },
+                child: Icon(Icons.add),
+              )
+            : Container(),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
           child: Column(children: [
+            if (widget.toDoModel == null)
             TypeAheadField<String>(
               controller: _searchController,
               suggestionsCallback: (pattern) async {
