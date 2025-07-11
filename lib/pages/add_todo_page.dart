@@ -123,9 +123,9 @@ class _AddTodoPageState extends State<AddTodoPage> {
         final allCategories = [...standardCategories, ...customCategories];
 
         // Find the specific category
-        final specificCategory = allCategories.firstWhere(
+        var specificCategory = allCategories.firstWhere(
           (cat) => cat.categoryName == categoryName,
-          orElse: () => null,
+          // orElse: () => null,
         );
 
         if (specificCategory != null) {
