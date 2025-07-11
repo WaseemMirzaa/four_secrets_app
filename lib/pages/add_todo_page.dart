@@ -460,201 +460,202 @@ class _AddTodoPageState extends State<AddTodoPage> {
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
           child: Column(children: [
-            TypeAheadField<String>(
-              controller: _searchController,
-              suggestionsCallback: (pattern) async {
-                if (pattern.isEmpty) return [];
-                setState(() => isSearching = true);
-                await Future.delayed(const Duration(milliseconds: 50));
-                final lower = pattern.toLowerCase();
-                final Set<String> allSuggestions = {};
-                allTodo.forEach((cat, items) {
-                  if (cat.toLowerCase().contains(lower))
-                    allSuggestions.add(cat);
-                  allSuggestions.addAll(items
-                      .where((item) => item.toLowerCase().contains(lower)));
-                });
-                if (mounted) setState(() => isSearching = false);
-                return allSuggestions.toList();
-              },
-              builder: (context, controller, focusNode) {
-                return TextField(
-                  controller: controller,
-                  focusNode: focusNode,
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 16,
-                    fontWeight: FontWeight.normal,
-                  ),
-                  onChanged: (value) {
-                    setState(() {
-                      controller.text = value;
-                      _searchController.text = value;
-                      isSearching = true;
-                    });
-                  },
-                  onTapOutside: (event) {
-                    FocusScope.of(context).unfocus();
-                  },
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(
-                      FontAwesomeIcons.magnifyingGlass,
-                      color: Colors.grey.withValues(alpha: 0.8),
+            if (widget.toDoModel == null)
+              TypeAheadField<String>(
+                controller: _searchController,
+                suggestionsCallback: (pattern) async {
+                  if (pattern.isEmpty) return [];
+                  setState(() => isSearching = true);
+                  await Future.delayed(const Duration(milliseconds: 50));
+                  final lower = pattern.toLowerCase();
+                  final Set<String> allSuggestions = {};
+                  allTodo.forEach((cat, items) {
+                    if (cat.toLowerCase().contains(lower))
+                      allSuggestions.add(cat);
+                    allSuggestions.addAll(items
+                        .where((item) => item.toLowerCase().contains(lower)));
+                  });
+                  if (mounted) setState(() => isSearching = false);
+                  return allSuggestions.toList();
+                },
+                builder: (context, controller, focusNode) {
+                  return TextField(
+                    controller: controller,
+                    focusNode: focusNode,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
+                      fontWeight: FontWeight.normal,
                     ),
-                    hintText: "suchen...",
-                    fillColor: Colors.grey.withValues(alpha: 0.2),
-                    filled: true,
-                    suffixIcon: controller.text.isNotEmpty
-                        ? IconButton(
-                            icon: Icon(Icons.close, color: Colors.grey),
-                            onPressed: () {
-                              setState(() {
-                                _searchController.clear();
-                                controller.clear();
-                                filteredTodo = Map.from(allTodo);
-                                isSearching = false;
-                                showFilteredList = false;
-                                expandedCategory = null;
-                                selectedItemsByCategory.clear();
-                              });
-                              FocusScope.of(context).unfocus();
-                            },
-                          )
-                        : null,
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    disabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-                  ),
-                );
-              },
-              itemBuilder: (context, suggestion) {
-                return suggestion.isNotEmpty
-                    ? Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withValues(alpha: 0.08),
-                              blurRadius: 4,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: ListTile(
-                          title: CustomTextWidget(
-                            text: suggestion,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Color.fromARGB(255, 107, 69, 106),
-                          ),
-                        ),
-                      )
-                    : SizedBox.shrink();
-              },
-              decorationBuilder: (context, child) => Material(
-                type: MaterialType.card,
-                elevation: 4,
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                child: child,
-              ),
-              onSelected: (suggestion) {
-                setState(() {
-                  showFilteredList = true;
-                  // If suggestion is a category, set as activeCategory
-                  if (allTodo.containsKey(suggestion)) {
-                    expandedCategory = suggestion;
-                  } else {
-                    // Find which category this item belongs to
-                    final found = allTodo.entries.firstWhere(
-                        (e) => e.value.contains(suggestion),
-                        orElse: () => MapEntry('', []));
-                    if (found.key.isNotEmpty) {
-                      expandedCategory = found.key;
-                    }
-                  }
-                });
-                _searchController.text = suggestion;
-                _searchController.selection = TextSelection.fromPosition(
-                  TextPosition(offset: suggestion.length),
-                );
-                FocusScope.of(context).unfocus();
-              },
-              emptyBuilder: (context) {
-                final text = _searchController.text.trim();
-                if (text.isEmpty) {
-                  return SizedBox.shrink();
-                }
-                if (isSearching) {
-                  return Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(16),
-                      child: CircularProgressIndicator(),
+                    onChanged: (value) {
+                      setState(() {
+                        controller.text = value;
+                        _searchController.text = value;
+                        isSearching = true;
+                      });
+                    },
+                    onTapOutside: (event) {
+                      FocusScope.of(context).unfocus();
+                    },
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(
+                        FontAwesomeIcons.magnifyingGlass,
+                        color: Colors.grey.withValues(alpha: 0.8),
+                      ),
+                      hintText: "suchen...",
+                      fillColor: Colors.grey.withValues(alpha: 0.2),
+                      filled: true,
+                      suffixIcon: controller.text.isNotEmpty
+                          ? IconButton(
+                              icon: Icon(Icons.close, color: Colors.grey),
+                              onPressed: () {
+                                setState(() {
+                                  _searchController.clear();
+                                  controller.clear();
+                                  filteredTodo = Map.from(allTodo);
+                                  isSearching = false;
+                                  showFilteredList = false;
+                                  expandedCategory = null;
+                                  selectedItemsByCategory.clear();
+                                });
+                                FocusScope.of(context).unfocus();
+                              },
+                            )
+                          : null,
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      disabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 10, vertical: 20),
                     ),
                   );
-                }
-                return Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  padding: EdgeInsets.all(16),
-                  child: InkWell(
-                    onTap: () async {
-                      final newCategoryName = _searchController.text.trim();
-                      if (allTodo.containsKey(newCategoryName)) {
-                        SnackBarHelper.showErrorSnackBar(
-                            context, 'Kategorie existiert bereits!');
-                        return;
+                },
+                itemBuilder: (context, suggestion) {
+                  return suggestion.isNotEmpty
+                      ? Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withValues(alpha: 0.08),
+                                blurRadius: 4,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: ListTile(
+                            title: CustomTextWidget(
+                              text: suggestion,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Color.fromARGB(255, 107, 69, 106),
+                            ),
+                          ),
+                        )
+                      : SizedBox.shrink();
+                },
+                decorationBuilder: (context, child) => Material(
+                  type: MaterialType.card,
+                  elevation: 4,
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  child: child,
+                ),
+                onSelected: (suggestion) {
+                  setState(() {
+                    showFilteredList = true;
+                    // If suggestion is a category, set as activeCategory
+                    if (allTodo.containsKey(suggestion)) {
+                      expandedCategory = suggestion;
+                    } else {
+                      // Find which category this item belongs to
+                      final found = allTodo.entries.firstWhere(
+                          (e) => e.value.contains(suggestion),
+                          orElse: () => MapEntry('', []));
+                      if (found.key.isNotEmpty) {
+                        expandedCategory = found.key;
                       }
-                      var g = Navigator.of(context).pushNamed(
-                          RouteManager.addTodoCategoriesPage,
-                          arguments: {"toDoModel": null, "id": null});
-                      if (g == true) {
-                        _loadAndInitCategories();
-                      }
-                    },
-                    child: Row(
-                      children: [
-                        Icon(
-                          FontAwesomeIcons.plus,
-                          size: 18,
-                          color: Colors.black,
-                        ),
-                        SizedBox(width: 10),
-                        CustomTextWidget(
-                          text: "Keine Ergebnisse gefunden",
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black,
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
+                    }
+                  });
+                  _searchController.text = suggestion;
+                  _searchController.selection = TextSelection.fromPosition(
+                    TextPosition(offset: suggestion.length),
+                  );
+                  FocusScope.of(context).unfocus();
+                },
+                emptyBuilder: (context) {
+                  final text = _searchController.text.trim();
+                  if (text.isEmpty) {
+                    return SizedBox.shrink();
+                  }
+                  if (isSearching) {
+                    return Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(16),
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
+                  }
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(15),
                     ),
-                  ),
-                );
-              },
-            ),
+                    padding: EdgeInsets.all(16),
+                    child: InkWell(
+                      onTap: () async {
+                        final newCategoryName = _searchController.text.trim();
+                        if (allTodo.containsKey(newCategoryName)) {
+                          SnackBarHelper.showErrorSnackBar(
+                              context, 'Kategorie existiert bereits!');
+                          return;
+                        }
+                        var g = Navigator.of(context).pushNamed(
+                            RouteManager.addTodoCategoriesPage,
+                            arguments: {"toDoModel": null, "id": null});
+                        if (g == true) {
+                          _loadAndInitCategories();
+                        }
+                      },
+                      child: Row(
+                        children: [
+                          Icon(
+                            FontAwesomeIcons.plus,
+                            size: 18,
+                            color: Colors.black,
+                          ),
+                          SizedBox(width: 10),
+                          CustomTextWidget(
+                            text: "Keine Ergebnisse gefunden",
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black,
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
             const SpacerWidget(height: 4),
             // Reminder Section
 
