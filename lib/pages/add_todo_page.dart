@@ -190,8 +190,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
         }
 
         print('🟢 Loading custom categories...');
-        final customCategories = await categoryService.getCustomCategories(
-            widget.toDoModel?.isShared ?? false, widget.toDoModel);
+        final customCategories = await categoryService.getCustomCategories();
         print(
             '🟢 Custom categories loaded: ${customCategories.length} categories');
         for (var cat in customCategories) {
@@ -228,22 +227,87 @@ class _AddTodoPageState extends State<AddTodoPage> {
               '🟢 Loaded category "${categoryName}" with ${specificCategory.todos.length} total items');
           print('🟢 Items: ${specificCategory.todos}');
         } else {
-          // Category not found - create fallback with selected items
-          print('🟡 ⚠️ Creating fallback category');
-          final selectedItems = selectedItemsByCategory[categoryName] ?? [];
-          print('🟡 Selected items for fallback: $selectedItems');
-
-          final fallbackCategory = CategoryModel(
-            id: '',
-            categoryName: categoryName,
-            todos: selectedItems,
-            createdAt: DateTime.now(),
-            userId: '',
-          );
-          loadTodo = [fallbackCategory];
+          // Category not found - fetch all categories and create comprehensive fallback
+          print('🟡 ⚠️ Category not found in loaded categories');
           print(
-              '🟡 Created fallback category "${categoryName}" with ${fallbackCategory.todos.length} items');
-          print('🟡 Fallback items: ${fallbackCategory.todos}');
+              '🟡 Fetching ALL categories (standard + custom + owner) for comprehensive search');
+
+          try {
+            // Fetch all possible categories
+            final allStandardCategories = await categoryService.getCategories();
+            final allCustomCategories =
+                await categoryService.getCustomCategories();
+
+            // If we have a shared todo, also try to get owner's categories
+            List<CategoryModel> ownerCategories = [];
+            if (widget.toDoModel?.isShared == true &&
+                widget.toDoModel?.userId != null) {
+              print(
+                  '🟡 Shared todo detected, attempting to fetch owner categories');
+              print('🟡 Owner userId: ${widget.toDoModel?.userId}');
+              // Note: This would require a method to fetch categories by owner UID
+              // For now, we'll use the existing categories
+            }
+
+            final comprehensiveCategories = [
+              ...allStandardCategories,
+              ...allCustomCategories,
+              ...ownerCategories
+            ];
+
+            print(
+                '🟡 Comprehensive search in ${comprehensiveCategories.length} total categories');
+            for (var cat in comprehensiveCategories) {
+              print(
+                  '🟡   - Checking: "${cat.categoryName}" (${cat.todos.length} items)');
+            }
+
+            // Search again in the comprehensive list
+            CategoryModel? foundCategory;
+            try {
+              foundCategory = comprehensiveCategories.firstWhere(
+                (cat) => cat.categoryName == categoryName,
+              );
+              print(
+                  '🟢 ✅ Category FOUND in comprehensive search: "${foundCategory.categoryName}"');
+              print(
+                  '🟢 Found category has ${foundCategory.todos.length} items: ${foundCategory.todos}');
+              loadTodo = [foundCategory];
+            } catch (e) {
+              print('🔴 Category still not found in comprehensive search');
+
+              // Final fallback - create category with selected items
+              final selectedItems = selectedItemsByCategory[categoryName] ?? [];
+              print(
+                  '🟡 Creating final fallback with selected items: $selectedItems');
+
+              final fallbackCategory = CategoryModel(
+                id: '',
+                categoryName: categoryName,
+                todos: selectedItems,
+                createdAt: DateTime.now(),
+                userId: '',
+              );
+              loadTodo = [fallbackCategory];
+              print(
+                  '🟡 Created final fallback category "${categoryName}" with ${fallbackCategory.todos.length} items');
+            }
+          } catch (e) {
+            print('� Error during comprehensive category fetch: $e');
+
+            // Emergency fallback
+            final selectedItems = selectedItemsByCategory[categoryName] ?? [];
+            final emergencyCategory = CategoryModel(
+              id: '',
+              categoryName: categoryName,
+              todos: selectedItems,
+              createdAt: DateTime.now(),
+              userId: '',
+            );
+            loadTodo = [emergencyCategory];
+            print(
+                '🔴 Created emergency fallback category with ${emergencyCategory.todos.length} items');
+          }
         }
 
         print('� ===== EDITING MODE RESULT =====');
@@ -261,7 +325,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
 
         if (widget.showOnlyCustomCategories) {
           print('🔵 Loading custom categories only...');
-          loadTodo = await categoryService.getCustomCategories(false);
+          loadTodo = await categoryService.getCustomCategories();
         } else {
           print('🔵 Loading standard categories...');
           loadTodo = await categoryService.getCategories();

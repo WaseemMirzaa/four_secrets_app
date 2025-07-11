@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:four_secrets_wedding_app/model/to_do_model.dart';
 import '../model/category_model.dart';
 
 class CategoryService {
@@ -104,7 +103,6 @@ class CategoryService {
           'createdAt': FieldValue.serverTimestamp(),
           'userId': userId,
         });
-        
       }
 
       // Set the initialization flag to true
@@ -190,7 +188,7 @@ class CategoryService {
   }
 
   // Get only custom categories (excluding initial default categories)
-  Future<List<CategoryModel>> getCustomCategories(bool isShared, [ToDoModel? mo]) async {
+  Future<List<CategoryModel>> getCustomCategories() async {
     if (userId == null) {
       throw Exception('User not logged in');
     }
