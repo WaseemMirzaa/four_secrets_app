@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:four_secrets_wedding_app/constants/app_constants.dart';
 import 'package:four_secrets_wedding_app/extension.dart';
@@ -6,7 +8,9 @@ import 'package:four_secrets_wedding_app/model/category_model.dart';
 import 'package:four_secrets_wedding_app/model/to_do_model.dart';
 import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:four_secrets_wedding_app/services/category_service.dart';
+import 'package:four_secrets_wedding_app/services/notification_alaram-service.dart';
 import 'package:four_secrets_wedding_app/services/todo_service.dart';
+import 'package:four_secrets_wedding_app/utils/snackbar_helper.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_button_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_dialog.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_text_widget.dart';
@@ -31,25 +35,27 @@ class AddTodoPage extends StatefulWidget {
 }
 
 class _AddTodoPageState extends State<AddTodoPage> {
-  final toDoService = TodoService();
+  Map<String, List<String>> allTodo = {};
+  List<CategoryModel> allTodoModels = []; // Store full models
   final categoryService = CategoryService();
-  final _searchController = TextEditingController();
-  final _categoryNameController = TextEditingController();
+  String? expandedCategory; // Only one expanded at a time
+  Map<String, List<String>> filteredTodo = {};
   bool isLoading = false;
   bool isSaving = false; // For Save button only
   bool isSearching = false;
-  String? expandedCategory; // Only one expanded at a time
   Map<String, List<String>> selectedItemsByCategory =
       {}; // Multi-category selection
-  Map<String, List<String>> allTodo = {};
-  Map<String, List<String>> filteredTodo = {};
-  List<CategoryModel> allTodoModels = []; // Store full models
+
   bool showFilteredList = false;
-  DateTime? _selectedReminderDate;
-  TimeOfDay? _selectedReminderTime;
-  String? _selectedReminderDateText;
-  String? _selectedReminderTimeText;
+  final toDoService = TodoService();
+
+  final _categoryNameController = TextEditingController();
   bool _reminderEnabled = false;
+  final _searchController = TextEditingController();
+  DateTime? _selectedReminderDate;
+  String? _selectedReminderDateText;
+  TimeOfDay? _selectedReminderTime;
+  String? _selectedReminderTimeText;
 
   @override
   void initState() {
@@ -397,43 +403,11 @@ class _AddTodoPageState extends State<AddTodoPage> {
     }
   }
 
-  void _onSearchChanged([String? query]) {
-    final search = query ?? _searchController.text;
-    if (search.isEmpty) {
-      setState(() {
-        filteredTodo = Map.from(allTodo);
-      });
-    } else {
-      final Map<String, List<String>> newFiltered = {};
-      final lowerQuery = search.toLowerCase();
-      // Check for exact category match
-      final exactCategory = allTodo.keys.firstWhere(
-        (cat) => cat.toLowerCase() == lowerQuery,
-        orElse: () => '',
-      );
-      if (exactCategory.isNotEmpty) {
-        newFiltered[exactCategory] = allTodo[exactCategory]!;
-      } else {
-        allTodo.forEach((category, items) {
-          final matchingItems = items
-              .where((item) => item.toLowerCase().contains(lowerQuery))
-              .toList();
-          if (matchingItems.isNotEmpty) {
-            newFiltered[category] = matchingItems;
-          }
-        });
-      }
-      setState(() {
-        filteredTodo = newFiltered;
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.white,
+        // backgroundColor: Colors.white,
         appBar: AppBar(
           foregroundColor: Colors.white,
           title: Text(_getAppBarTitle()),
@@ -461,201 +435,240 @@ class _AddTodoPageState extends State<AddTodoPage> {
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
           child: Column(children: [
             if (widget.toDoModel == null)
-              TypeAheadField<String>(
-                controller: _searchController,
-                suggestionsCallback: (pattern) async {
-                  if (pattern.isEmpty) return [];
-                  setState(() => isSearching = true);
-                  await Future.delayed(const Duration(milliseconds: 50));
-                  final lower = pattern.toLowerCase();
-                  final Set<String> allSuggestions = {};
-                  allTodo.forEach((cat, items) {
-                    if (cat.toLowerCase().contains(lower))
-                      allSuggestions.add(cat);
-                    allSuggestions.addAll(items
-                        .where((item) => item.toLowerCase().contains(lower)));
-                  });
-                  if (mounted) setState(() => isSearching = false);
-                  return allSuggestions.toList();
-                },
-                builder: (context, controller, focusNode) {
-                  return TextField(
-                    controller: controller,
-                    focusNode: focusNode,
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 16,
-                      fontWeight: FontWeight.normal,
+            TypeAheadField<String>(
+              controller: _searchController,
+              suggestionsCallback: (pattern) async {
+                if (pattern.isEmpty) return [];
+                setState(() => isSearching = true);
+                await Future.delayed(const Duration(milliseconds: 50));
+                final lower = pattern.toLowerCase();
+                final Set<String> allSuggestions = {};
+                allTodo.forEach((cat, items) {
+                  if (cat.toLowerCase().contains(lower))
+                    allSuggestions.add(cat);
+                  allSuggestions.addAll(items
+                      .where((item) => item.toLowerCase().contains(lower)));
+                });
+                if (mounted) setState(() => isSearching = false);
+                return allSuggestions.toList();
+              },
+              builder: (context, controller, focusNode) {
+                return TextField(
+                  controller: controller,
+                  focusNode: focusNode,
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                    fontWeight: FontWeight.normal,
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      controller.text = value;
+                      _searchController.text = value;
+                      isSearching = true;
+                    });
+                  },
+                  onTapOutside: (event) {
+                    FocusScope.of(context).unfocus();
+                  },
+                  decoration: InputDecoration(
+                    prefixIcon: Icon(
+                      FontAwesomeIcons.magnifyingGlass,
+                      color: Colors.grey.withValues(alpha: 0.8),
                     ),
-                    onChanged: (value) {
-                      setState(() {
-                        controller.text = value;
-                        _searchController.text = value;
-                        isSearching = true;
-                      });
-                    },
-                    onTapOutside: (event) {
-                      FocusScope.of(context).unfocus();
-                    },
-                    decoration: InputDecoration(
-                      prefixIcon: Icon(
-                        FontAwesomeIcons.magnifyingGlass,
-                        color: Colors.grey.withValues(alpha: 0.8),
-                      ),
-                      hintText: "suchen...",
-                      fillColor: Colors.grey.withValues(alpha: 0.2),
-                      filled: true,
-                      suffixIcon: controller.text.isNotEmpty
-                          ? IconButton(
-                              icon: Icon(Icons.close, color: Colors.grey),
-                              onPressed: () {
-                                setState(() {
-                                  _searchController.clear();
-                                  controller.clear();
-                                  filteredTodo = Map.from(allTodo);
-                                  isSearching = false;
-                                  showFilteredList = false;
-                                  expandedCategory = null;
-                                  selectedItemsByCategory.clear();
-                                });
-                                FocusScope.of(context).unfocus();
-                              },
-                            )
-                          : null,
-                      border: OutlineInputBorder(
-                        borderSide: BorderSide.none,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide.none,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide.none,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderSide: BorderSide.none,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      disabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide.none,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+                    hintText: "suchen...",
+                    fillColor: Colors.grey.withValues(alpha: 0.2),
+                    filled: true,
+                    suffixIcon: controller.text.isNotEmpty
+                        ? IconButton(
+                            icon: Icon(Icons.close, color: Colors.grey),
+                            onPressed: () {
+                              setState(() {
+                                _searchController.clear();
+                                controller.clear();
+                                filteredTodo = Map.from(allTodo);
+                                isSearching = false;
+                                showFilteredList = false;
+                                expandedCategory = null;
+                                selectedItemsByCategory.clear();
+                              });
+                              FocusScope.of(context).unfocus();
+                            },
+                          )
+                        : null,
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                  );
-                },
-                itemBuilder: (context, suggestion) {
-                  return suggestion.isNotEmpty
-                      ? Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(8),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withValues(alpha: 0.08),
-                                blurRadius: 4,
-                                offset: Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: ListTile(
-                            title: CustomTextWidget(
-                              text: suggestion,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: Color.fromARGB(255, 107, 69, 106),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    disabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+                  ),
+                );
+              },
+              itemBuilder: (context, suggestion) {
+                return suggestion.isNotEmpty
+                    ? Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withValues(alpha: 0.08),
+                              blurRadius: 4,
+                              offset: Offset(0, 2),
                             ),
-                          ),
-                        )
-                      : SizedBox.shrink();
-                },
-                decorationBuilder: (context, child) => Material(
-                  type: MaterialType.card,
-                  elevation: 4,
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  child: child,
-                ),
-                onSelected: (suggestion) {
-                  setState(() {
-                    showFilteredList = true;
-                    // If suggestion is a category, set as activeCategory
-                    if (allTodo.containsKey(suggestion)) {
-                      expandedCategory = suggestion;
-                    } else {
-                      // Find which category this item belongs to
-                      final found = allTodo.entries.firstWhere(
-                          (e) => e.value.contains(suggestion),
-                          orElse: () => MapEntry('', []));
-                      if (found.key.isNotEmpty) {
-                        expandedCategory = found.key;
-                      }
-                    }
-                  });
-                  _searchController.text = suggestion;
-                  _searchController.selection = TextSelection.fromPosition(
-                    TextPosition(offset: suggestion.length),
-                  );
-                  FocusScope.of(context).unfocus();
-                },
-                emptyBuilder: (context) {
-                  final text = _searchController.text.trim();
-                  if (text.isEmpty) {
-                    return SizedBox.shrink();
-                  }
-                  if (isSearching) {
-                    return Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(16),
-                        child: CircularProgressIndicator(),
-                      ),
-                    );
-                  }
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    padding: EdgeInsets.all(16),
-                    child: InkWell(
-                      onTap: () async {
-                        final newCategoryName = _searchController.text.trim();
-                        if (allTodo.containsKey(newCategoryName)) {
-                          SnackBarHelper.showErrorSnackBar(
-                              context, 'Kategorie existiert bereits!');
-                          return;
-                        }
-                        var g = Navigator.of(context).pushNamed(
-                            RouteManager.addTodoCategoriesPage,
-                            arguments: {"toDoModel": null, "id": null});
-                        if (g == true) {
-                          _loadAndInitCategories();
-                        }
-                      },
-                      child: Row(
-                        children: [
-                          Icon(
-                            FontAwesomeIcons.plus,
-                            size: 18,
-                            color: Colors.black,
-                          ),
-                          SizedBox(width: 10),
-                          CustomTextWidget(
-                            text: "Keine Ergebnisse gefunden",
+                          ],
+                        ),
+                        child: ListTile(
+                          title: CustomTextWidget(
+                            text: suggestion,
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
-                            color: Colors.black,
-                            textAlign: TextAlign.center,
+                            color: Color.fromARGB(255, 107, 69, 106),
                           ),
-                        ],
-                      ),
+                        ),
+                      )
+                    : SizedBox.shrink();
+              },
+              decorationBuilder: (context, child) => Material(
+                type: MaterialType.card,
+                elevation: 4,
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                child: child,
+              ),
+              // onSelected: (suggestion) {
+              //   setState(() {
+              //     showFilteredList = true;
+              //     // If suggestion is a category, set as activeCategory
+              //     if (allTodo.containsKey(suggestion)) {
+              //       expandedCategory = suggestion;
+              //     } else {
+              //       // Find which category this item belongs to
+              //       final found = allTodo.entries.firstWhere(
+              //           (e) => e.value.contains(suggestion),
+              //           orElse: () => MapEntry('', []));
+              //       if (found.key.isNotEmpty) {
+              //         expandedCategory = found.key;
+              //       }
+              //     }
+              //   });
+              //   _searchController.text = suggestion;
+              //   _searchController.selection = TextSelection.fromPosition(
+              //     TextPosition(offset: suggestion.length),
+              //   );
+              //   FocusScope.of(context).unfocus();
+              // },
+              onSelected: (suggestion) {
+                setState(() {
+                  final lower = suggestion.toLowerCase();
+                  filteredTodo = {};
+                  allTodo.forEach((cat, items) {
+                    final catMatch = cat.toLowerCase().contains(lower);
+                    // final itemMatches = items
+                    //     .where((item) => item.toLowerCase().contains(lower))
+                    //     .toList();
+                    if (catMatch) {
+                      filteredTodo[cat] = items;
+                    }
+
+                    // else if (itemMatches.isNotEmpty) {
+                    //   filteredTodo[cat] = itemMatches;
+                    // }
+                  });
+                  showFilteredList = true;
+                  if (filteredTodo.isNotEmpty) {
+                    expandedCategory = filteredTodo.keys.first;
+                  }
+                  // Optionally expand the matched category
+                  if (allTodo.containsKey(suggestion)) {
+                    expandedCategory = suggestion;
+                  } else {
+                    final found = allTodo.entries.firstWhere(
+                        (e) => e.value.contains(suggestion),
+                        orElse: () => MapEntry('', []));
+                    if (found.key.isNotEmpty) {
+                      expandedCategory = found.key;
+                    }
+                  }
+                });
+                _searchController.text = suggestion;
+                _searchController.selection = TextSelection.fromPosition(
+                  TextPosition(offset: suggestion.length),
+                );
+                FocusScope.of(context).unfocus();
+              },
+              emptyBuilder: (context) {
+                final text = _searchController.text.trim();
+                if (text.isEmpty) {
+                  return SizedBox.shrink();
+                }
+                if (isSearching) {
+                  return Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(16),
+                      child: CircularProgressIndicator(),
                     ),
                   );
-                },
-              ),
+                }
+                return Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  padding: EdgeInsets.all(16),
+                  child: InkWell(
+                    onTap: () async {
+                      final newCategoryName = _searchController.text.trim();
+                      if (allTodo.containsKey(newCategoryName)) {
+                        SnackBarHelper.showErrorSnackBar(
+                            context, 'Kategorie existiert bereits!');
+                        return;
+                      }
+                      var g = Navigator.of(context).pushNamed(
+                          RouteManager.addTodoCategoriesPage,
+                          arguments: {"toDoModel": null, "id": null});
+                      if (g == true) {
+                        _loadAndInitCategories();
+                      }
+                    },
+                    child: Row(
+                      children: [
+                        Icon(
+                          FontAwesomeIcons.plus,
+                          size: 18,
+                          color: Colors.black,
+                        ),
+                        SizedBox(width: 10),
+                        CustomTextWidget(
+                          text: "Keine Ergebnisse gefunden",
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black,
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
             const SpacerWidget(height: 4),
             // Reminder Section
 
@@ -709,7 +722,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
                               borderRadius: BorderRadius.circular(15),
                             ),
                             child: ExpansionTile(
-                              key: PageStorageKey(toDoName),
+                              key: ValueKey('$toDoName-$expandedCategory'),
                               tilePadding: EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 16),
                               shape: OutlineInputBorder(
