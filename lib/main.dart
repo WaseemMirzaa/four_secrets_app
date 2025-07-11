@@ -29,6 +29,7 @@ Future<void> main() async {
   tz.initializeTimeZones();
 
   try {
+
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );

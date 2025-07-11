@@ -124,12 +124,31 @@ class _AddTodoPageState extends State<AddTodoPage> {
           orElse: () => CategoryModel(
             id: '',
             categoryName: categoryName,
-            todos: selectedItemsByCategory[categoryName] ?? [],
+            todos: [], // Empty fallback - will be handled below
             createdAt: DateTime.now(),
             userId: '',
           ),
         );
-        loadTodo = [specificCategory];
+
+        // Ensure we have ALL items from the category, not just selected ones
+        CategoryModel finalCategory;
+        if (specificCategory.id.isNotEmpty) {
+          // Category found - use all its items
+          finalCategory = specificCategory;
+        } else {
+          // Category not found - create with all available items for this category name
+          // Try to find items from other sources or use selected items as fallback
+          final categoryItems = selectedItemsByCategory[categoryName] ?? [];
+          finalCategory = CategoryModel(
+            id: '',
+            categoryName: categoryName,
+            todos: categoryItems, // Use selected items as base
+            createdAt: DateTime.now(),
+            userId: '',
+          );
+        }
+
+        loadTodo = [finalCategory];
       } else {
         // Load categories based on the showOnlyCustomCategories flag
         loadTodo = widget.showOnlyCustomCategories

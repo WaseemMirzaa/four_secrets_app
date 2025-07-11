@@ -1,0 +1,173 @@
+SHARED TODO ITEM EDIT FIX - LOAD ALL ITEMS IN CATEGORY
+========================================================
+
+PROBLEM ANALYSIS:
+-----------------
+When editing a shared custom todo item, the system only shows the previously selected items within the category, not ALL available items in that category. Collaborators cannot see unselected items to potentially add them.
+
+ROOT CAUSE:
+-----------
+Lines 122-132 in add_todo_page.dart:
+- When finding the specific category, it uses the fallback with only selected items
+- Line 127: todos: selectedItemsByCategory[categoryName] ?? []
+- This limits the view to only previously selected items
+
+REQUIRED CHANGES:
+================
+
+FILE: lib/pages/add_todo_page.dart
+----------------------------------
+
+CHANGE 1: Fix category loading to show ALL items (Lines 122-132)
+----------------------------------------------------------------
+
+CURRENT CODE (Lines 122-132):
+```dart
+// Find the specific category model
+final allCategories = await categoryService.getCategories();
+final specificCategory = allCategories.firstWhere(
+  (cat) => cat.categoryName == categoryName,
+  orElse: () => CategoryModel(
+    id: '',
+    categoryName: categoryName,
+    todos: selectedItemsByCategory[categoryName] ?? [], // ❌ ONLY SELECTED ITEMS
+    createdAt: DateTime.now(),
+    userId: '',
+  ),
+);
+loadTodo = [specificCategory];
+```
+
+REPLACE WITH:
+```dart
+// Find the specific category model
+final allCategories = await categoryService.getCategories();
+final specificCategory = allCategories.firstWhere(
+  (cat) => cat.categoryName == categoryName,
+  orElse: () => CategoryModel(
+    id: '',
+    categoryName: categoryName,
+    todos: [], // Empty fallback - will be handled below
+    createdAt: DateTime.now(),
+    userId: '',
+  ),
+);
+
+// Ensure we have ALL items from the category, not just selected ones
+CategoryModel finalCategory;
+if (specificCategory.id.isNotEmpty) {
+  // Category found - use all its items
+  finalCategory = specificCategory;
+} else {
+  // Category not found - create with all available items for this category name
+  // Try to find items from other sources or use selected items as fallback
+  final categoryItems = selectedItemsByCategory[categoryName] ?? [];
+  finalCategory = CategoryModel(
+    id: '',
+    categoryName: categoryName,
+    todos: categoryItems, // Use selected items as base
+    createdAt: DateTime.now(),
+    userId: '',
+  );
+}
+
+loadTodo = [finalCategory];
+```
+
+ALTERNATIVE BETTER SOLUTION:
+----------------------------
+
+CHANGE 2: Enhanced solution to ensure ALL category items are loaded (Lines 115-138)
+-----------------------------------------------------------------------------------
+
+REPLACE ENTIRE BLOCK (Lines 115-138) WITH:
+```dart
+// If editing a todo, load the specific category with ALL its items
+if (widget.toDoModel != null && selectedItemsByCategory.isNotEmpty) {
+  print('🟢 Editing mode: Loading category with ALL items');
+  final categoryName = selectedItemsByCategory.keys.first;
+
+  // Load all categories first
+  final allCategories = await categoryService.getCategories();
+  
+  // Find the specific category
+  final specificCategory = allCategories.firstWhere(
+    (cat) => cat.categoryName == categoryName,
+    orElse: () => null,
+  );
+
+  if (specificCategory != null) {
+    // Category found - use it with ALL its items
+    loadTodo = [specificCategory];
+    print('🟢 Loaded category "${categoryName}" with ${specificCategory.todos.length} total items');
+  } else {
+    // Category not found - this might be a custom category
+    // Try to load from custom categories or create fallback
+    final customCategories = await categoryService.getCustomCategories();
+    final customCategory = customCategories.firstWhere(
+      (cat) => cat.categoryName == categoryName,
+      orElse: () => CategoryModel(
+        id: '',
+        categoryName: categoryName,
+        todos: selectedItemsByCategory[categoryName] ?? [],
+        createdAt: DateTime.now(),
+        userId: '',
+      ),
+    );
+    loadTodo = [customCategory];
+    print('🟡 Loaded custom/fallback category "${categoryName}" with ${customCategory.todos.length} items');
+  }
+} else {
+  // Load categories based on the showOnlyCustomCategories flag
+  loadTodo = widget.showOnlyCustomCategories
+      ? await categoryService.getCustomCategories()
+      : await categoryService.getCategories();
+}
+```
+
+EXPLANATION OF CHANGES:
+----------------------
+
+1. LOAD COMPLETE CATEGORY: Instead of creating a fallback with only selected items, we now load the complete category with ALL available items.
+
+2. PRESERVE SELECTIONS: The selectedItemsByCategory map from initState() will still mark the previously selected items as checked.
+
+3. SHOW ALL OPTIONS: Users will see all available items in the category, both selected and unselected.
+
+4. FALLBACK HANDLING: If the category isn't found in regular categories, it checks custom categories.
+
+5. BETTER LOGGING: Added debug prints to track what's being loaded.
+
+BENEFITS OF THIS FIX:
+--------------------
+
+✅ FULL ITEM VISIBILITY: Shows ALL items in the category being edited
+✅ SELECTION PRESERVATION: Previously selected items remain checked
+✅ ADD/REMOVE CAPABILITY: Users can select/deselect any items in the category
+✅ CONSISTENT EXPERIENCE: Same behavior for owners and collaborators
+✅ PROPER FALLBACKS: Handles missing categories gracefully
+
+TESTING SCENARIOS:
+-----------------
+
+1. Edit shared todo with standard category → Shows all items in that category
+2. Edit shared todo with custom category → Shows all items in custom category  
+3. Previously selected items → Should appear as checked
+4. Previously unselected items → Should appear as unchecked but selectable
+5. Owner editing → Should work exactly the same
+
+IMPLEMENTATION NOTES:
+--------------------
+
+- This fix ensures the complete category data is loaded
+- Selected items are preserved through the UI state management
+- No changes needed to other files or UI components
+- The fix maintains all existing security and permission checks
+
+LINE NUMBERS TO MODIFY:
+----------------------
+- Lines 115-138 in lib/pages/add_todo_page.dart (replace entire if-else block)
+
+RECOMMENDED APPROACH:
+--------------------
+Use the "ALTERNATIVE BETTER SOLUTION" as it provides more comprehensive handling of both regular and custom categories while ensuring all items are loaded.

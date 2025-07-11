@@ -1,0 +1,127 @@
+SHARED TODO ITEM EDIT FIX - NECESSARY CHANGES
+==============================================
+
+PROBLEM ANALYSIS:
+-----------------
+When a shared custom todo item is edited, the system only loads the specific category being edited instead of loading all available categories. This prevents collaborators from seeing all subcategories and only allows them to edit within the limited scope.
+
+The issue is in the _loadAndInitCategories() method in lib/pages/add_todo_page.dart
+
+ROOT CAUSE:
+-----------
+Lines 115-132 in add_todo_page.dart:
+- When editing mode is detected (widget.toDoModel != null && selectedItemsByCategory.isNotEmpty)
+- It only loads the specific category being edited: loadTodo = [specificCategory];
+- This restricts the view to only the selected category instead of showing all available categories
+
+REQUIRED CHANGES:
+================
+
+FILE: lib/pages/add_todo_page.dart
+----------------------------------
+
+CHANGE 1: Replace the category loading logic (Lines 115-138)
+-----------------------------------------------------------
+
+CURRENT CODE (Lines 115-138):
+```dart
+// If editing a todo, only load the specific category being edited
+if (widget.toDoModel != null && selectedItemsByCategory.isNotEmpty) {
+  print('🟢 Editing mode: Loading only selected category');
+  final categoryName = selectedItemsByCategory.keys.first;
+
+  // Find the specific category model
+  final allCategories = await categoryService.getCategories();
+  final specificCategory = allCategories.firstWhere(
+    (cat) => cat.categoryName == categoryName,
+    orElse: () => CategoryModel(
+      id: '',
+      categoryName: categoryName,
+      todos: selectedItemsByCategory[categoryName] ?? [],
+      createdAt: DateTime.now(),
+      userId: '',
+    ),
+  );
+  loadTodo = [specificCategory];
+} else {
+  // Load categories based on the showOnlyCustomCategories flag
+  loadTodo = widget.showOnlyCustomCategories
+      ? await categoryService.getCustomCategories()
+      : await categoryService.getCategories();
+}
+```
+
+REPLACE WITH:
+```dart
+// Always load all categories, even when editing
+print('🟢 Loading all categories (editing mode: ${widget.toDoModel != null})');
+loadTodo = widget.showOnlyCustomCategories
+    ? await categoryService.getCustomCategories()
+    : await categoryService.getCategories();
+
+// If editing a todo, ensure the selected category exists in the loaded categories
+if (widget.toDoModel != null && selectedItemsByCategory.isNotEmpty) {
+  final categoryName = selectedItemsByCategory.keys.first;
+  
+  // Check if the category exists in loaded categories
+  final categoryExists = loadTodo.any((cat) => cat.categoryName == categoryName);
+  
+  if (!categoryExists) {
+    // If category doesn't exist, create a fallback category model
+    final fallbackCategory = CategoryModel(
+      id: '',
+      categoryName: categoryName,
+      todos: selectedItemsByCategory[categoryName] ?? [],
+      createdAt: DateTime.now(),
+      userId: '',
+    );
+    loadTodo.add(fallbackCategory);
+    print('🟡 Added fallback category: $categoryName');
+  }
+}
+```
+
+EXPLANATION OF CHANGES:
+----------------------
+
+1. REMOVED RESTRICTION: The condition that limited category loading to only the selected category has been removed.
+
+2. LOAD ALL CATEGORIES: Now always loads all available categories using the same logic as non-editing mode.
+
+3. FALLBACK HANDLING: Added logic to ensure the selected category exists in the loaded categories, with a fallback creation if needed.
+
+4. PRESERVE SELECTION: The selectedItemsByCategory map is still preserved from initState(), so previously selected items will still be marked as selected.
+
+5. SHOW ALL OPTIONS: Users will now see all available subcategories within the category, not just the ones they previously selected.
+
+BENEFITS OF THIS FIX:
+--------------------
+
+✅ FULL VISIBILITY: Collaborators will see all available subcategories
+✅ PROPER SELECTION: Previously selected items will still be highlighted
+✅ EDIT FLEXIBILITY: Users can add/remove items from the full list
+✅ CONSISTENT BEHAVIOR: Same experience for owners and collaborators
+✅ BACKWARD COMPATIBILITY: Existing functionality remains intact
+
+TESTING SCENARIOS:
+-----------------
+
+1. Owner edits their own todo → Should work as before
+2. Collaborator edits shared todo → Should now see all subcategories
+3. Custom categories → Should load properly for both owners and collaborators
+4. Fallback scenarios → Should handle missing categories gracefully
+
+IMPLEMENTATION NOTES:
+--------------------
+
+- This is a minimal change that fixes the core issue
+- No changes needed to UI components or other files
+- The fix maintains all existing security and permission checks
+- Selected items are preserved through the selectedItemsByCategory map
+- The change is backward compatible with existing todos
+
+LINE NUMBERS TO MODIFY:
+----------------------
+- Lines 115-138 in lib/pages/add_todo_page.dart
+
+NO OTHER FILES NEED MODIFICATION.
