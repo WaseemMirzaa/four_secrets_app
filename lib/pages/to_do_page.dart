@@ -12,6 +12,7 @@ import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:four_secrets_wedding_app/services/auth_service.dart';
 import 'package:four_secrets_wedding_app/services/collaboration_service.dart';
 import 'package:four_secrets_wedding_app/services/email_service.dart';
+import 'package:four_secrets_wedding_app/services/push_notification_service.dart';
 import 'package:four_secrets_wedding_app/services/todo_service.dart';
 import 'package:four_secrets_wedding_app/utils/snackbar_helper.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_button_widget.dart';
@@ -842,35 +843,8 @@ class _ToDoPageState extends State<ToDoPage> {
     }
   }
 
-  // Add this helper for the invitation notification stream
-  Stream<bool> get _hasNewCollabNotificationStream async* {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      yield false;
-      return;
-    }
-    final fcmToken = await FirebaseMessaging.instance.getToken();
-    final userEmail = user.email;
-    if (fcmToken == null && userEmail == null) {
-      yield false;
-      return;
-    }
-    yield* FirebaseFirestore.instance
-        .collection('notifications')
-        .where('read', isEqualTo: false)
-        .snapshots()
-        .map((snapshot) {
-      return snapshot.docs.any((doc) {
-        final data = doc.data();
-        final type = data['data']?['type'] ?? '';
-        final tokenMatch = fcmToken != null && data['token'] == fcmToken;
-        final emailMatch =
-            userEmail != null && data['data']?['toEmail'] == userEmail;
-        return (type == 'invitation' || type == 'comment') &&
-            (tokenMatch || emailMatch);
-      });
-    });
-  }
+  // Use shared notification stream from PushNotificationService
+  Stream<bool> get _hasNewCollabNotificationStream => PushNotificationService.hasNewCollabNotificationStream;
 
   var hideItem = true;
 

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // Added for shared notification stream
 
 class PushNotificationService {
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
@@ -315,5 +316,80 @@ class PushNotificationService {
     } catch (e) {
       print('Error sending notification by email: $e');
     }
+  }
+
+  // Shared notification stream for red dots across all screens
+  static Stream<bool> get hasNewCollabNotificationStream async* {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      yield false;
+      return;
+    }
+    final fcmToken = await FirebaseMessaging.instance.getToken();
+    final userEmail = user.email;
+    if (fcmToken == null && userEmail == null) {
+      yield false;
+      return;
+    }
+    
+    print('[Shared Notification Stream] Starting stream for user: $userEmail, token: ${fcmToken?.substring(0, 10)}...');
+    
+    yield* FirebaseFirestore.instance
+        .collection('notifications')
+        .where('read', isEqualTo: false)
+        .snapshots()
+        .map((snapshot) {
+      print('[Shared Notification Stream] Checking ${snapshot.docs.length} unread notifications');
+      
+      final hasMatchingNotification = snapshot.docs.any((doc) {
+        final data = doc.data();
+        final type = data['data']?['type'] ?? '';
+        final tokenMatch = fcmToken != null && data['token'] == fcmToken;
+        final emailMatch = userEmail != null && 
+            (data['toEmail'] == userEmail || data['data']?['toEmail'] == userEmail);
+        final isMatching = (type == 'invitation' || type == 'comment') &&
+            (tokenMatch || emailMatch);
+            
+        print('[Shared Notification Stream] Doc ${doc.id}: type=$type, tokenMatch=$tokenMatch, emailMatch=$emailMatch, isMatching=$isMatching');
+        
+        return isMatching;
+      });
+      
+      print('[Shared Notification Stream] Has matching notifications: $hasMatchingNotification');
+      return hasMatchingNotification;
+    });
+  }
+
+  // Mark all collaboration notifications as read
+  static Future<void> markAllCollabNotificationsAsRead() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    final fcmToken = await FirebaseMessaging.instance.getToken();
+    final userEmail = user.email;
+    if (fcmToken == null && userEmail == null) return;
+    
+    print('[Shared Notification Service] Marking all collab notifications as read for user: $userEmail');
+    
+    final snapshot = await FirebaseFirestore.instance
+        .collection('notifications')
+        .where('read', isEqualTo: false)
+        .get();
+        
+    int markedCount = 0;
+    for (final doc in snapshot.docs) {
+      final data = doc.data();
+      final type = data['data']?['type'] ?? '';
+      final tokenMatch = fcmToken != null && data['token'] == fcmToken;
+      final emailMatch = userEmail != null && 
+          (data['toEmail'] == userEmail || data['data']?['toEmail'] == userEmail);
+      if ((type == 'invitation' || type == 'comment') &&
+          (tokenMatch || emailMatch)) {
+        await doc.reference.update({'read': true});
+        markedCount++;
+        print('[Shared Notification Service] Marked notification ${doc.id} as read');
+      }
+    }
+    
+    print('[Shared Notification Service] Marked $markedCount notifications as read');
   }
 }

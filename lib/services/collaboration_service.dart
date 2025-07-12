@@ -554,7 +554,7 @@ class CollaborationService {
         'body':
             '$inviterName hat Sie eingeladen, an folgendem/followenden Element(en) zusammenzuarbeiten: ' +
                 (todoCount == 1 ? todoNames.first : todoNames.join(', ')),
-        'data': {'type': 'invitation'},
+        'data': {'type': 'invitation', 'toEmail': inviteeEmail},
         'timestamp': FieldValue.serverTimestamp(),
         'read': false,
       });

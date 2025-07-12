@@ -63,35 +63,8 @@ class _CollaborationScreenState extends State<CollaborationScreen>
     _loadData();
   }
 
-  // Add this helper for the invitation notification stream
-  Stream<bool> get _hasNewCollabNotificationStream async* {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      yield false;
-      return;
-    }
-    final fcmToken = await FirebaseMessaging.instance.getToken();
-    final userEmail = user.email;
-    if (fcmToken == null && userEmail == null) {
-      yield false;
-      return;
-    }
-    yield* FirebaseFirestore.instance
-        .collection('notifications')
-        .where('read', isEqualTo: false)
-        .snapshots()
-        .map((snapshot) {
-      return snapshot.docs.any((doc) {
-        final data = doc.data();
-        final type = data['data']?['type'] ?? '';
-        final tokenMatch = fcmToken != null && data['token'] == fcmToken;
-        final emailMatch =
-            userEmail != null && data['data']?['toEmail'] == userEmail;
-        return (type == 'invitation' || type == 'comment') &&
-            (tokenMatch || emailMatch);
-      });
-    });
-  }
+  // Use shared notification stream from PushNotificationService
+  Stream<bool> get _hasNewCollabNotificationStream => PushNotificationService.hasNewCollabNotificationStream;
 
   Future<void> _loadData() async {
     // if (!mounted) return;
@@ -187,27 +160,9 @@ class _CollaborationScreenState extends State<CollaborationScreen>
     }
   }
 
+  // Use shared notification service method
   Future<void> _markAllCollabNotificationsAsRead() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-    final fcmToken = await FirebaseMessaging.instance.getToken();
-    final userEmail = user.email;
-    if (fcmToken == null && userEmail == null) return;
-    final snapshot = await FirebaseFirestore.instance
-        .collection('notifications')
-        .where('read', isEqualTo: false)
-        .get();
-    for (final doc in snapshot.docs) {
-      final data = doc.data();
-      final type = data['data']?['type'] ?? '';
-      final tokenMatch = fcmToken != null && data['token'] == fcmToken;
-      final emailMatch =
-          userEmail != null && data['data']?['toEmail'] == userEmail;
-      if ((type == 'invitation' || type == 'comment') &&
-          (tokenMatch || emailMatch)) {
-        await doc.reference.update({'read': true});
-      }
-    }
+    await PushNotificationService.markAllCollabNotificationsAsRead();
   }
 
   // Future<void> _respondToInvitation(String invitationId, bool accept) async {
@@ -508,6 +463,8 @@ class _CollaborationScreenState extends State<CollaborationScreen>
           bottom: TabBar(
             indicatorColor: Colors.white,
             onTap: (value) async {
+              // Only mark notifications as read when user actually views the received tab
+              // This ensures red dot disappears only when user intentionally views notifications
               if (value == 1) {
                 await _markAllCollabNotificationsAsRead();
               }
