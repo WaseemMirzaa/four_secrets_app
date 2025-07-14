@@ -594,6 +594,7 @@ class TodoService {
     final todoData = {
       'userId': user.uid,
       'ownerId': user.uid,
+      'ownerEmail': user.email, // <-- Ensure ownerEmail is always set
       'categories': categories,
       if (toDoName != null) 'toDoName': toDoName,
       if (toDoItems != null) 'toDoItems': toDoItems,

@@ -368,23 +368,28 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              CustomTextWidget(
-                                                text: categoryName,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 16,
-                                                color: Colors.black,
-                                              ),
-                                              CustomTextWidget(
-                                                text:
-                                                    '${items.length} Unterkategorien',
-                                                fontSize: 12,
-                                                color: Colors.black,
-                                              ),
-                                            ],
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                CustomTextWidget(
+                                                  text: categoryName,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16,
+                                                  color: Colors.black,
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                                CustomTextWidget(
+                                                  text:
+                                                      '${items.length} Unterkategorien',
+                                                  fontSize: 12,
+                                                  color: Colors.black,
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                           ...[
                                             Row(
@@ -428,128 +433,124 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
                                                               Colors.white,
                                                           titlePadding:
                                                               EdgeInsets.zero,
-                                                          content: Column(
-                                                            mainAxisSize:
-                                                                MainAxisSize
-                                                                    .min,
-                                                            children: [
-                                                              SpacerWidget(
-                                                                  height: 3),
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                        .all(0),
-                                                                child: Center(
-                                                                    child:
-                                                                        CustomTextWidget(
-                                                                  text:
-                                                                      "Unterkategorie hinzufügen",
-                                                                  color: Color
-                                                                      .fromARGB(
-                                                                          255,
-                                                                          107,
-                                                                          69,
-                                                                          106),
-                                                                  fontSize: 16,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                )),
-                                                              ),
-                                                              SpacerWidget(
-                                                                  height: 8),
-                                                              TextField(
-                                                                controller:
-                                                                    subCategoryController,
-                                                                decoration:
-                                                                    InputDecoration(
-                                                                  border: OutlineInputBorder(
-                                                                      borderRadius:
-                                                                          BorderRadius.circular(
-                                                                              8)),
-                                                                  hintText:
-                                                                      "Titel",
+                                                          content:
+                                                              SingleChildScrollView(
+                                                            child: Column(
+                                                              mainAxisSize:
+                                                                  MainAxisSize
+                                                                      .min,
+                                                              children: [
+                                                                SpacerWidget(
+                                                                    height: 3),
+                                                                Padding(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                          .all(
+                                                                          0),
+                                                                  child: Center(
+                                                                      child:
+                                                                          CustomTextWidget(
+                                                                    text:
+                                                                        "Unterkategorie hinzufügen",
+                                                                    color: Color
+                                                                        .fromARGB(
+                                                                            255,
+                                                                            107,
+                                                                            69,
+                                                                            106),
+                                                                    fontSize:
+                                                                        16,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                  )),
                                                                 ),
-                                                              ),
-                                                              SpacerWidget(
-                                                                  height: 6),
-                                                              Row(
-                                                                spacing: 12,
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .center,
-                                                                children: [
-                                                                  Expanded(
-                                                                    child:
-                                                                        Container(
-                                                                      constraints:
-                                                                          BoxConstraints(
-                                                                        maxWidth:
-                                                                            160,
+                                                                SpacerWidget(
+                                                                    height: 8),
+                                                                TextField(
+                                                                  controller:
+                                                                      subCategoryController,
+                                                                  decoration:
+                                                                      InputDecoration(
+                                                                    border: OutlineInputBorder(
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(8)),
+                                                                    hintText:
+                                                                        "Titel",
+                                                                  ),
+                                                                ),
+                                                                SpacerWidget(
+                                                                    height: 6),
+                                                                Row(
+                                                                  spacing: 12,
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .center,
+                                                                  children: [
+                                                                    Expanded(
+                                                                      child:
+                                                                          Container(
+                                                                        constraints:
+                                                                            BoxConstraints(
+                                                                          maxWidth:
+                                                                              160,
+                                                                        ),
+                                                                        child:
+                                                                            CustomButtonWidget(
+                                                                          text:
+                                                                              "Abbrechen",
+                                                                          color:
+                                                                              Colors.white,
+                                                                          onPressed: () =>
+                                                                              Navigator.of(context).pop(),
+                                                                        ),
                                                                       ),
+                                                                    ),
+                                                                    Expanded(
                                                                       child:
                                                                           CustomButtonWidget(
-                                                                        text:
-                                                                            "Abbrechen",
-                                                                        color: Colors
-                                                                            .white,
+                                                                        text: AppConstants
+                                                                            .weddingCategoryTitlePageAddCategory,
+                                                                        isLoading:
+                                                                            isLoading,
+                                                                        textColor:
+                                                                            Colors.white,
                                                                         onPressed:
-                                                                            () =>
-                                                                                Navigator.of(context).pop(),
+                                                                            () async {
+                                                                          stateDialog(() =>
+                                                                              isLoading = true);
+                                                                          if (subCategoryController
+                                                                              .text
+                                                                              .isEmpty) {
+                                                                            SnackBarHelper.showErrorSnackBar(context,
+                                                                                "Bitte geben Sie einen Titel für die Unterkategorie ein.");
+                                                                            stateDialog(() =>
+                                                                                isLoading = false);
+                                                                            return;
+                                                                          }
+                                                                          try {
+                                                                            await weddingCategoryDatabase.updateCategory(
+                                                                                model!.id,
+                                                                                model.categoryName,
+                                                                                model.items..add(subCategoryController.text));
+                                                                            var g =
+                                                                                await weddingCategoryDatabase.loadWeddingCategories();
+                                                                            Navigator.of(context).pop(g);
+                                                                            subCategoryController.clear();
+                                                                            FocusScope.of(context).unfocus();
+                                                                          } catch (e) {
+                                                                            SnackBarHelper.showErrorSnackBar(context,
+                                                                                "Fehler beim Hinzufügen der Unterkategorie");
+                                                                            stateDialog(() =>
+                                                                                isLoading = false);
+                                                                          }
+                                                                        },
                                                                       ),
                                                                     ),
-                                                                  ),
-                                                                  Expanded(
-                                                                    child:
-                                                                        CustomButtonWidget(
-                                                                      text: AppConstants
-                                                                          .weddingCategoryTitlePageAddCategory,
-                                                                      isLoading:
-                                                                          isLoading,
-                                                                      textColor:
-                                                                          Colors
-                                                                              .white,
-                                                                      onPressed:
-                                                                          () async {
-                                                                        stateDialog(() =>
-                                                                            isLoading =
-                                                                                true);
-                                                                        if (subCategoryController
-                                                                            .text
-                                                                            .isEmpty) {
-                                                                          SnackBarHelper.showErrorSnackBar(
-                                                                              context,
-                                                                              "Bitte geben Sie einen Titel für die Unterkategorie ein.");
-                                                                          stateDialog(() =>
-                                                                              isLoading = false);
-                                                                          return;
-                                                                        }
-                                                                        try {
-                                                                          await weddingCategoryDatabase.updateCategory(
-                                                                              model!.id,
-                                                                              model.categoryName,
-                                                                              model.items..add(subCategoryController.text));
-                                                                          var g =
-                                                                              await weddingCategoryDatabase.loadWeddingCategories();
-                                                                          Navigator.of(context)
-                                                                              .pop(g);
-                                                                          subCategoryController
-                                                                              .clear();
-                                                                          FocusScope.of(context)
-                                                                              .unfocus();
-                                                                        } catch (e) {
-                                                                          SnackBarHelper.showErrorSnackBar(
-                                                                              context,
-                                                                              "Fehler beim Hinzufügen der Unterkategorie");
-                                                                          stateDialog(() =>
-                                                                              isLoading = false);
-                                                                        }
-                                                                      },
-                                                                    ),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ],
+                                                                  ],
+                                                                ),
+                                                              ],
+                                                            ),
                                                           ),
                                                         ),
                                                       ),
@@ -653,19 +654,46 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
                                         ],
                                       ),
                                       children: [
-                                        ...items.map((item) => ListTile(
-                                              title: Padding(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
-                                                child: CustomTextWidget(
-                                                  text: item,
-                                                  fontWeight: FontWeight.normal,
+                                        if (items.length > 5)
+                                          SizedBox(
+                                            height: 200,
+                                            child: ListView.builder(
+                                              shrinkWrap: true,
+                                              itemCount: items.length,
+                                              itemBuilder: (context, idx) =>
+                                                  ListTile(
+                                                title: Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: CustomTextWidget(
+                                                    text: items[idx],
+                                                    fontWeight:
+                                                        FontWeight.normal,
+                                                  ),
                                                 ),
+                                                onTap: () {
+                                                  Navigator.of(context)
+                                                      .pop(items[idx]);
+                                                },
                                               ),
-                                              onTap: () {
-                                                Navigator.of(context).pop(item);
-                                              },
-                                            ))
+                                            ),
+                                          )
+                                        else
+                                          ...items.map((item) => ListTile(
+                                                title: Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: CustomTextWidget(
+                                                    text: item,
+                                                    fontWeight:
+                                                        FontWeight.normal,
+                                                  ),
+                                                ),
+                                                onTap: () {
+                                                  Navigator.of(context)
+                                                      .pop(item);
+                                                },
+                                              ))
                                       ],
                                     ),
                                   );
