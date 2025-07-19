@@ -1,10 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:four_secrets_wedding_app/constants/app_constants.dart';
 import 'package:four_secrets_wedding_app/extension.dart';
 import 'package:four_secrets_wedding_app/screens/newfeature1/models/wedding_day_schedule_model1.dart';
-import 'package:four_secrets_wedding_app/pages/map_picker_page.dart';
+
 import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:four_secrets_wedding_app/screens/newfeature1/services/wedding_day_schedule_service1.dart';
 import 'package:four_secrets_wedding_app/utils/snackbar_helper.dart';
@@ -12,8 +11,6 @@ import 'package:four_secrets_wedding_app/widgets/custom_button_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_text_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/wedding_schedule_page_widget.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 
 class AddWeddingSchedulePage1 extends StatefulWidget {
@@ -30,7 +27,6 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
   final _responsiblePersonController = TextEditingController();
   final _notesController = TextEditingController();
   final _bufferTimeController = TextEditingController();
-  final _reminderTimeController = TextEditingController();
   String? _titleController;
   TimeOfDay? _selectedTime;
   String? _selectedTimeText;
@@ -166,7 +162,9 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         foregroundColor: Colors.white,
-        title: const Text("Tagesablauf1"),
+        title: Text(widget.weddingDayScheduleModel != null
+            ? "Tagesablauf1 bearbeiten"
+            : "Tagesablauf1 hinzufügen"),
         backgroundColor: const Color.fromARGB(255, 107, 69, 106),
       ),
       body: SafeArea(
@@ -197,302 +195,274 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
                   },
                   child: Container(
                     width: context.screenWidth,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 16),
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 18)
+                        .copyWith(right: 0),
                     decoration: BoxDecoration(
                       color: Colors.grey.withValues(alpha: 0.2),
+                      border: Border.all(color: Colors.white),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            _titleController ??
-                                AppConstants.weddingCategorySelectCategory,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: _titleController != null
-                                  ? Colors.black
-                                  : Colors.grey.withValues(alpha: 0.8),
-                            ),
-                          ),
-                        ),
-                        Icon(
-                          Icons.arrow_drop_down,
-                          color: Colors.grey.withValues(alpha: 0.8),
-                        ),
-                      ],
-                    ),
+                    child: CustomTextWidget(text: _titleController ?? ""),
                   ),
                 ),
-                SpacerWidget(height: 16),
 
-                // Responsible person
-                WeddingSchedulePageWidget(
-                  titleController: _responsiblePersonController,
-                  text: AppConstants.weddingSchedulePageResponsiblePerson,
+                SpacerWidget(height: 4),
+                // Event Date Section
+                CustomTextWidget(text: "Datum"),
+                SpacerWidget(height: 2),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4)
+                      .copyWith(right: 0),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withValues(alpha: 0.2),
+                    border: Border.all(color: Colors.white),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: CustomTextWidget(
+                            text: _selectedEventDateText ?? ""),
+                      ),
+                      IconButton(
+                        onPressed: _selectEventDate,
+                        icon: Icon(Icons.calendar_today,
+                            color: Color(0xFF6B456A)),
+                      ),
+                    ],
+                  ),
                 ),
-                SpacerWidget(height: 16),
 
-                // Notes
-                WeddingSchedulePageWidget(
-                  titleController: _notesController,
-                  text: AppConstants.weddingSchedulePageNotes,
-                  maxLines: 3,
-                ),
-                SpacerWidget(height: 16),
+                SpacerWidget(height: 4),
 
-                // Event Date
+                // Event Time Section
                 CustomTextWidget(text: AppConstants.weddingSchedulePageDate),
                 SpacerWidget(height: 2),
-                GestureDetector(
-                  onTap: _selectEventDate,
-                  child: Container(
-                    width: context.screenWidth,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          _selectedEventDateText ??
-                              AppConstants.weddingSchedulePageDate,
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: _selectedEventDateText != null
-                                ? Colors.black
-                                : Colors.grey.withValues(alpha: 0.8),
-                          ),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4)
+                      .copyWith(right: 0),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withValues(alpha: 0.2),
+                    border: Border.all(color: Colors.white),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: _selectEventTime,
+                          child:
+                              CustomTextWidget(text: _selectedTimeText ?? ""),
                         ),
-                        Icon(
-                          Icons.calendar_today,
-                          color: Colors.grey.withValues(alpha: 0.8),
-                        ),
-                      ],
-                    ),
+                      ),
+                      IconButton(
+                        onPressed: _selectEventTime,
+                        icon: Icon(Icons.timer, color: Color(0xFF6B456A)),
+                      ),
+                    ],
                   ),
                 ),
-                SpacerWidget(height: 16),
 
-                // Event Time
-                CustomTextWidget(text: AppConstants.weddingSchedulePageTime),
-                SpacerWidget(height: 2),
-                GestureDetector(
-                  onTap: _selectEventTime,
-                  child: Container(
-                    width: context.screenWidth,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          _selectedTimeText ??
-                              AppConstants.weddingSchedulePageTime,
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: _selectedTimeText != null
-                                ? Colors.black
-                                : Colors.grey.withValues(alpha: 0.8),
-                          ),
-                        ),
-                        Icon(
-                          Icons.access_time,
-                          color: Colors.grey.withValues(alpha: 0.8),
-                        ),
-                      ],
-                    ),
+                SpacerWidget(height: 4),
+
+                WeddingSchedulePageWidget(
+                  titleController: _notesController,
+
+                  // label: AppConstants.weddingSchedulePageNotes,
+                  text: "Beschreibung/${AppConstants.weddingSchedulePageNotes}",
+                  maxLines: 3,
+                ),
+                SpacerWidget(height: 4),
+                WeddingSchedulePageWidget(
+                  titleController: _responsiblePersonController,
+                  // label: AppConstants.weddingSchedulePageResponsiblePerson,
+                  text: AppConstants.weddingSchedulePageResponsiblePerson,
+                  maxLines: 1,
+                ),
+
+                SpacerWidget(height: 4),
+
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 18)
+                      .copyWith(right: 0),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withValues(alpha: 0.2),
+                    border: Border.all(color: Colors.white),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: CustomTextWidget(
+                            text:
+                                "${AppConstants.weddingSchedulePageReminder} aktivieren"),
+                      ),
+                      FlutterSwitch(
+                        height: 25,
+                        width: 50,
+                        activeColor: Color.fromARGB(255, 126, 80, 123),
+                        inactiveColor: Colors.grey,
+                        borderRadius: 15,
+                        value: _reminderEnabled,
+                        onToggle: (bool value) {
+                          setState(() {
+                            _reminderEnabled = value;
+                          });
+                        },
+                      ),
+                      SizedBox(width: 10),
+                    ],
                   ),
                 ),
-                SpacerWidget(height: 16),
 
-                // Reminder toggle
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    CustomTextWidget(
-                        text: AppConstants.weddingSchedulePageReminder),
-                    FlutterSwitch(
-                      width: 55.0,
-                      height: 30.0,
-                      valueFontSize: 25.0,
-                      toggleSize: 25.0,
-                      value: _reminderEnabled,
-                      borderRadius: 30.0,
-                      padding: 2.0,
-                      showOnOff: false,
-                      onToggle: (val) {
-                        setState(() {
-                          _reminderEnabled = val;
-                        });
-                      },
-                    ),
-                  ],
-                ),
-                SpacerWidget(height: 16),
-
-                // Reminder Date (if enabled)
+                // Show reminder date and time fields only if reminder is enabled
                 if (_reminderEnabled) ...[
+                  SpacerWidget(height: 4),
                   CustomTextWidget(
                       text: AppConstants.weddingSchedulePageReminderDate),
                   SpacerWidget(height: 2),
-                  GestureDetector(
-                    onTap: _selectReminderDate,
-                    child: Container(
-                      width: context.screenWidth,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 16),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            _selectedReminderDateText ??
-                                AppConstants.weddingSchedulePageReminderDate,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: _selectedReminderDateText != null
-                                  ? Colors.black
-                                  : Colors.grey.withValues(alpha: 0.8),
-                            ),
-                          ),
-                          Icon(
-                            Icons.calendar_today,
-                            color: Colors.grey.withValues(alpha: 0.8),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SpacerWidget(height: 16),
-
-                  // Reminder Time (if enabled)
-                  CustomTextWidget(
-                      text: AppConstants.weddingSchedulePageReminderTime),
-                  SpacerWidget(height: 2),
-                  GestureDetector(
-                    onTap: _selectReminderTime,
-                    child: Container(
-                      width: context.screenWidth,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 16),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            _selectedReminderText ??
-                                AppConstants.weddingSchedulePageReminderTime,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: _selectedReminderText != null
-                                  ? Colors.black
-                                  : Colors.grey.withValues(alpha: 0.8),
-                            ),
-                          ),
-                          Icon(
-                            Icons.access_time,
-                            color: Colors.grey.withValues(alpha: 0.8),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SpacerWidget(height: 16),
-                ],
-
-                // Location selection
-                CustomTextWidget(
-                    text: AppConstants.weddingSchedulePageLocation),
-                SpacerWidget(height: 2),
-                GestureDetector(
-                  onTap: () async {
-                    final result = await Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => MapPickerPage(),
-                      ),
-                    );
-                    if (result != null) {
-                      setState(() {
-                        address = result['address'];
-                        lat = result['lat'];
-                        long = result['long'];
-                      });
-                    }
-                  },
-                  child: Container(
-                    width: context.screenWidth,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 16),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4)
+                        .copyWith(right: 0),
                     decoration: BoxDecoration(
                       color: Colors.grey.withValues(alpha: 0.2),
+                      border: Border.all(color: Colors.white),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(
-                          child: Text(
-                            address ?? AppConstants.weddingSchedulePageLocation,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: address != null
-                                  ? Colors.black
-                                  : Colors.grey.withValues(alpha: 0.8),
-                            ),
-                          ),
+                          child: CustomTextWidget(
+                              text: _selectedReminderDateText ?? ""),
                         ),
-                        Icon(
-                          Icons.location_on,
-                          color: Colors.grey.withValues(alpha: 0.8),
+                        IconButton(
+                          onPressed: _selectReminderDate,
+                          icon: Icon(Icons.calendar_today,
+                              color: Color(0xFF6B456A)),
                         ),
                       ],
                     ),
                   ),
-                ),
-                SpacerWidget(height: 24),
+                  SpacerWidget(height: 4),
+                  CustomTextWidget(
+                      text: AppConstants.weddingSchedulePageReminderTime),
+                  SpacerWidget(height: 2),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4)
+                        .copyWith(right: 0),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withValues(alpha: 0.2),
+                      border: Border.all(color: Colors.white),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: _selectReminderTime,
+                            child: CustomTextWidget(
+                                text: _selectedReminderText ?? ""),
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: _selectReminderTime,
+                          icon: Icon(Icons.timer, color: Color(0xFF6B456A)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
 
-                // Save/Update buttons
+                SpacerWidget(height: 4),
+
+                CustomTextWidget(
+                    text: AppConstants.weddingSchedulePageLocation),
+                SpacerWidget(height: 2),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8)
+                      .copyWith(right: 0),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withValues(alpha: 0.2),
+                    border: Border.all(color: Colors.white),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: CustomTextWidget(text: address ?? ""),
+                      ),
+                      IconButton(
+                        onPressed: () async {
+                          var g = await Navigator.pushNamed(
+                              context, RouteManager.weddingCategoryMap,
+                              arguments: {
+                                'address': address ?? "",
+                                'lat': lat ?? 0.00,
+                                'long': long ?? 0.00
+                              });
+
+                          if (g != null) {
+                            final map = g as Map<String, dynamic>;
+                            setState(() {
+                              lat = map['lat'];
+                              long = map['long'];
+                              address = map['address'];
+                            });
+                          }
+                        },
+                        icon: Icon(
+                          FontAwesomeIcons.mapLocation,
+                          color: Color.fromARGB(255, 126, 80, 123),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SpacerWidget(height: 4),
+
                 Row(
+                  spacing: 10,
                   children: [
                     Expanded(
                       child: CustomButtonWidget(
                         text: AppConstants.weddingSchedulePageCancel,
                         color: Colors.white,
                         onPressed: () {
+                          _selectedTimeText = null;
+                          _selectedTime = null;
+                          _selectedEventDate = null;
+                          _selectedEventDateText = null;
+                          _selectedReminderDate = null;
+                          _selectedReminderDateText = null;
+                          _selectedReminder = null;
+                          _selectedReminderText = null;
+                          _titleController = null;
+                          _descriptionController.clear();
+                          _responsiblePersonController.clear();
+                          _notesController.clear();
+                          _bufferTimeController.clear();
                           Navigator.of(context).pop();
                         },
                       ),
                     ),
-                    const SizedBox(width: 20),
                     Expanded(
                       child: CustomButtonWidget(
                           isLoading: isLoading,
                           text: widget.weddingDayScheduleModel != null
                               ? AppConstants.weddingSchedulePageUpdate
                               : AppConstants.weddingSchedulePageSave,
+                          color: Color.fromARGB(255, 107, 69, 106),
                           textColor: Colors.white,
-                          color: const Color.fromARGB(255, 107, 69, 106),
                           onPressed: () async {
                             setState(() => isLoading = true);
 
-                            // Validation
-                            if (_titleController == null ||
+                            if (_titleController == "" &&
                                 _titleController!.isEmpty) {
                               SnackBarHelper.showErrorSnackBar(
                                 context,
@@ -502,19 +472,19 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
                               return;
                             }
 
-                            if (_selectedTime == null) {
+                            if (_selectedEventDate == null) {
                               SnackBarHelper.showErrorSnackBar(
                                 context,
-                                AppConstants.weddingSchedulePageTimeError,
+                                AppConstants.weddingSchedulePageDateError,
                               );
                               setState(() => isLoading = false);
                               return;
                             }
 
-                            if (_selectedEventDate == null) {
+                            if (_selectedTime == null) {
                               SnackBarHelper.showErrorSnackBar(
                                 context,
-                                AppConstants.weddingSchedulePageDateError,
+                                AppConstants.weddingSchedulePageTimeError,
                               );
                               setState(() => isLoading = false);
                               return;
@@ -554,10 +524,12 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
                                   responsiblePerson:
                                       _responsiblePersonController.text,
                                   notes: _notesController.text,
-                                  reminderTime: reminderTime,
+                                  reminderTime:
+                                      reminderTime, // Remove the ! - allow null
                                   address: address ?? "",
                                   lat: lat ?? 0.00,
                                   long: long ?? 0.00);
+                              // SnackBarHelper.showSuccessSnackBar(context, "Event Scheduled for $reminderTime");
 
                               setState(() {
                                 isLoading = false;
@@ -569,7 +541,8 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
                                   title: _titleController!,
                                   time: eventTime,
                                   reminderEnabled: _reminderEnabled,
-                                  reminderTime: reminderTime,
+                                  reminderTime:
+                                      reminderTime, // Remove the ! - allow null
                                   userId: weddingDayScheduleService.userId!,
                                   responsiblePerson:
                                       _responsiblePersonController.text,
@@ -597,7 +570,7 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
                     ),
                   ],
                 ),
-                SpacerWidget(height: 7),
+                SpacerWidget(height: 4),
               ],
             ),
           ),

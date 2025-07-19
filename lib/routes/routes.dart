@@ -42,6 +42,12 @@ import 'package:four_secrets_wedding_app/pages/wedding_car_service.dart';
 import 'package:four_secrets_wedding_app/pages/wedding_category_title_page.dart';
 import 'package:four_secrets_wedding_app/pages/wedding_designer.dart';
 import 'package:four_secrets_wedding_app/pages/wedding_schedule_page.dart';
+import 'package:four_secrets_wedding_app/screens/newfeature1/screens/wedding_schedule_page1.dart';
+import 'package:four_secrets_wedding_app/screens/newfeature1/screens/add_wedding_schedule_page1.dart';
+import 'package:four_secrets_wedding_app/screens/newfeature1/screens/add_title_category_wed_schedule_page1.dart';
+import 'package:four_secrets_wedding_app/screens/newfeature1/screens/wedding_category_title_page1.dart';
+import 'package:four_secrets_wedding_app/screens/newfeature1/models/wedding_day_schedule_model1.dart';
+import 'package:four_secrets_wedding_app/screens/newfeature1/models/wedding_category_model1.dart';
 import 'package:four_secrets_wedding_app/screens/budget.dart';
 import 'package:four_secrets_wedding_app/screens/email_verification_screen.dart';
 import 'package:four_secrets_wedding_app/screens/forgot_password_screen.dart';
@@ -97,6 +103,13 @@ class RouteManager {
   static const String addTodoCategoriesPage = '/addTodoCategoriesPage';
   static const String collaboratorDetailsPage = '/collaborator-details';
   static const String customTodoCategoryPage = '/customTodoCategoryPage';
+
+  // Tagesablauf1 routes
+  static const String weddingSchedulePage1 = '/wedding_schedule1';
+  static const String addWedidngSchedulePage1 = '/addWedidngSchedulePage1';
+  static const String addTitleCategoryWedSchedulePage1 =
+      '/addTitleCategoryWedSchedulePage1';
+  static const String weddingCategoryTitlePage1 = '/weddingCategoryTitlePage1';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -474,6 +487,50 @@ class RouteManager {
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
         );
+
+      // Tagesablauf1 routes
+      case weddingSchedulePage1:
+        return PageTransition(
+          child: const WeddingSchedulePage1(),
+          settings: settings,
+          duration: const Duration(milliseconds: 250),
+          type: PageTransitionType.rightToLeft,
+        );
+
+      case addWedidngSchedulePage1:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final model =
+            args?['weddingDayScheduleModel'] as WeddingDayScheduleModel1?;
+        return PageTransition(
+          child: AddWeddingSchedulePage1(
+            weddingDayScheduleModel: model,
+          ),
+          settings: settings,
+          duration: const Duration(milliseconds: 250),
+          type: PageTransitionType.rightToLeft,
+        );
+
+      case addTitleCategoryWedSchedulePage1:
+        final args = settings.arguments as Map<String, dynamic>?;
+        return PageTransition(
+          child: AddCustomCategoryWeddingSchedulePage1(
+            weddingCategoryModel:
+                args?['weddingCategoryModel'] as WeddingCategoryModel1?,
+            index: args?['index'] as String?,
+          ),
+          settings: settings,
+          duration: const Duration(milliseconds: 250),
+          type: PageTransitionType.rightToLeft,
+        );
+
+      case weddingCategoryTitlePage1:
+        return PageTransition(
+          child: const WeddingCategoryTitlePage1(),
+          settings: settings,
+          duration: const Duration(milliseconds: 250),
+          type: PageTransitionType.rightToLeft,
+        );
+
       default:
         throw const FormatException('Route not found! Check routes.dart File.');
     }

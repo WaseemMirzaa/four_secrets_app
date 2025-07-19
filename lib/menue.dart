@@ -50,7 +50,8 @@ class MenueState extends State<Menue> {
   String? currentSelected;
 
   // Use shared notification stream from PushNotificationService
-  Stream<bool> get _hasNewCollabNotificationStream => PushNotificationService.hasNewCollabNotificationStream;
+  Stream<bool> get _hasNewCollabNotificationStream =>
+      PushNotificationService.hasNewCollabNotificationStream;
 
   @override
   void initState() {
@@ -79,10 +80,9 @@ class MenueState extends State<Menue> {
 
     // Clear any invalid notifications on app start
     _clearInvalidNotifications();
-    
+
     // Force check notifications on startup
     Future.delayed(Duration(seconds: 2), () {
-   
       // Also try to clear any invalid notifications
       _clearInvalidNotifications();
     });
@@ -220,19 +220,19 @@ class MenueState extends State<Menue> {
       final fcmToken = await FirebaseMessaging.instance.getToken();
       final userEmail = user.email;
       if (fcmToken == null && userEmail == null) return;
-      
+
       final snapshot = await FirebaseFirestore.instance
           .collection('notifications')
           .where('read', isEqualTo: false)
           .get();
-      
+
       print('[Menu Debug] Clearing invalid notifications...');
       for (final doc in snapshot.docs) {
         final data = doc.data();
         // Check if notification is invalid (missing required fields)
-        if (data['title'] == null || 
-            data['body'] == null || 
-            data['title'].toString().isEmpty || 
+        if (data['title'] == null ||
+            data['body'] == null ||
+            data['title'].toString().isEmpty ||
             data['body'].toString().isEmpty ||
             data['token'] == null ||
             data['token'].toString().isEmpty) {
@@ -240,12 +240,13 @@ class MenueState extends State<Menue> {
           await doc.reference.update({'read': true});
           print('[Menu Debug] Marked invalid notification as read: ${doc.id}');
         }
-        
+
         // Also check if notification type is not invitation or comment
         final type = data['data']?['type'] ?? '';
         if (type != 'invitation' && type != 'comment') {
           await doc.reference.update({'read': true});
-          print('[Menu Debug] Marked non-invitation/comment notification as read: ${doc.id} (type: $type)');
+          print(
+              '[Menu Debug] Marked non-invitation/comment notification as read: ${doc.id} (type: $type)');
         }
       }
     } catch (e) {
@@ -261,7 +262,7 @@ class MenueState extends State<Menue> {
       final fcmToken = await FirebaseMessaging.instance.getToken();
       final userEmail = user.email;
       if (fcmToken == null || userEmail == null) return;
-      
+
       await FirebaseFirestore.instance.collection('notifications').add({
         'token': fcmToken,
         'toEmail': userEmail,
@@ -276,12 +277,6 @@ class MenueState extends State<Menue> {
       print('[Menu Debug] Error creating test notification: $e');
     }
   }
-
-
- 
-
- 
-
 
   @override
   Widget build(BuildContext context) {
@@ -298,14 +293,16 @@ class MenueState extends State<Menue> {
         print('StreamBuilder notification snapshot.data: \'${snapshot.data}\'');
         final hasNewCollabNotification = snapshot.data ?? false;
         print('[Menu Debug] Red dot should show: $hasNewCollabNotification');
-        
+
         // Additional debug info
         if (hasNewCollabNotification) {
-          print('[Menu Debug] ⚠️ RED DOT IS SHOWING - This means there are matching notifications');
+          print(
+              '[Menu Debug] ⚠️ RED DOT IS SHOWING - This means there are matching notifications');
           // Don't call _testStream() here as it might cause infinite loops
           // Instead, just log the issue
         } else {
-          print('[Menu Debug] ✅ Red dot is NOT showing - No matching notifications');
+          print(
+              '[Menu Debug] ✅ Red dot is NOT showing - No matching notifications');
         }
         return Drawer(
           width: 225,
@@ -490,11 +487,15 @@ class MenueState extends State<Menue> {
                             case "Tagesablauf":
                               _navigateTo(RouteManager.weddingSchedulePage);
                               break;
+                            case "Tagesablauf1":
+                              _navigateTo(RouteManager.weddingSchedulePage1);
+                              break;
                           }
                         },
                       ),
                       // Show the red dot only for 'Hochzeitskit'
-                      if (e.name == 'Hochzeitskit' && hasNewCollabNotification) ...[
+                      if (e.name == 'Hochzeitskit' &&
+                          hasNewCollabNotification) ...[
                         Positioned(
                           right: 16,
                           top: 12,
@@ -510,7 +511,8 @@ class MenueState extends State<Menue> {
                         // Debug print when red dot is shown
                         Builder(
                           builder: (context) {
-                            print('[Menu Debug] Red dot is visible for Hochzeitskit');
+                            print(
+                                '[Menu Debug] Red dot is visible for Hochzeitskit');
                             return SizedBox.shrink();
                           },
                         ),
@@ -520,8 +522,6 @@ class MenueState extends State<Menue> {
                 );
               }),
 
-             
-            
               // 12. Profil bearbeiten
               Card(
                 margin:

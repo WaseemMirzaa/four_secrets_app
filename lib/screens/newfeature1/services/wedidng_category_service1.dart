@@ -40,71 +40,96 @@ class WeddingCategoryDatabase1 {
 
       final initialCategories = [
         {
-          "categoryName": "Vorbereitung & Ankunft1",
+          "categoryName": "Ort & Location",
+          "items": ["Hochzeitslocation", "Kirche", "Standesamt", "Hotel"]
+        },
+        {
+          "categoryName": "Foto & Video",
+          "items": ["Fotograf", "Videograf", "Fotobox"]
+        },
+        {
+          "categoryName": "Musik & Unterhaltung",
           "items": [
-            "⁠Braut & Bräutigam1",
-            "Ankunft der Gäste1",
-            "Transport zur Location1",
-            "Begrüßung durch Gastgeber1"
+            "DJ",
+            "Live-Band",
+            "Hochzeitssänger/in",
+            "Entertainer",
+            "Zeremonienmeister/in"
           ]
         },
         {
-          "categoryName": "Zeremonie1",
+          "categoryName": "Essen & Getränke",
+          "items": ["Catering", "Hochzeitstorte", "Barkeeper", "Foodtruck"]
+        },
+        {
+          "categoryName": "Dekoration & Ausstattung",
           "items": [
-            "Standesamtliche Trauung1",
-            "Freie Trauung1",
-            "Kirchliche Trauung1",
-            "Einzug der Braut1",
-            "Eheversprechen1",
-            "Ringtausch1",
-            "Gratulation & Umarmungen1"
+            "Florist/in",
+            "Dekorationsservice",
+            "Möbelverleih",
+            "Lichttechnik"
           ]
         },
         {
-          "categoryName": "Empfang & Fotos1",
+          "categoryName": "Styling & Kleidung",
           "items": [
-            "Sektempfang1",
-            "Gruppenfoto1",
-            "Brautpaar-Shooting1",
-            "Familienfotos1",
-            "Gästebuch-Einträge1"
+            "Brautkleid",
+            "Herrenausstatter",
+            "Friseur/in",
+            "Make-up Artist",
+            "Kosmetiker/in",
+            "Nageldesign",
+            "Schmuckanbieter",
+            "Trauringe"
           ]
         },
         {
-          "categoryName": "Feier & Mahlzeiten1",
+          "categoryName": "Planung & Organisation",
+          "items": ["Hochzeitsplaner/in", "Trauredner/in", "Ritualbegleiter/in"]
+        },
+        {
+          "categoryName": "Transport",
+          "items": ["Hochzeitsauto", "Shuttle-Service", "Hochzeitskutsche"]
+        },
+        {
+          "categoryName": "Papeterie & Geschenke",
+          "items": ["Einladungskarten", "Gastgeschenke", "Ringbox", "Gästebuch"]
+        },
+        {
+          "categoryName": "Kinder & Familie",
+          "items": ["Kinderbetreuung", "Babysitter"]
+        },
+        {
+          "categoryName": "Digitale Services",
           "items": [
-            "Hochzeitstorte anschneiden1",
-            "Kaffee & Kuchen1",
-            "Abendessen / Dinner1",
-            "Reden & Ansprachen1",
-            "Spiele oder Programmpunkte1"
+            "Livestream-Anbieter",
+            "Wedding-Website-Anbieter",
+            "Digitale Hochzeitseinladung"
           ]
         },
         {
-          "categoryName": "Party & Abschluss1",
+          "categoryName": "Rechtliches & Finanzen",
           "items": [
-            "Eröffnungstanz1",
-            "Brautstraußwurf1",
-            "Hochzeitstanz mit Eltern1",
-            "DJ legt auf / Liveband beginnt1",
-            "Mitternachtssnack1",
-            "Feuerwerk1",
-            "Verabschiedung der Gäste1",
-            "Letzter Tanz1"
+            "Anwalt für Ehevertrag",
+            "Hochzeitsversicherung",
+            "Budget-Coach"
           ]
         },
         {
-          "categoryName": "Reden & Ansprachen1",
-          "items": [
-            "Danksagung1",
-            "Spiele oder Programmpunkte1",
-            // "Hochzeitstanz mit Eltern",
-            // "DJ legt auf / Liveband beginnt",
-            // "Mitternachtssnack",
-            // "Feuerwerk",
-            // "Verabschiedung der Gäste",
-            // "Letzter Tanz"
-          ]
+          "categoryName": "Pre-Wedding & Wellness",
+          "items": ["Spa-Anbieter", "Personal Trainer"]
+        },
+        {
+          "categoryName": "Tanz & Vorbereitung",
+          "items": ["Tanzschule"]
+        },
+        {
+          "categoryName": "Junggesellenabschied",
+          "items": ["JGA-Eventplaner/in"]
+        },
+        {
+          "categoryName": "Sprach- & Kulturdienste",
+          "items": ["Dolmetscher/in"]
         }
       ];
 
