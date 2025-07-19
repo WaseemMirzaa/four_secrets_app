@@ -311,4 +311,8 @@ class AppConstants {
 
   static const String inspirationImageSelectText = "Wählen Sie eine Datei aus";
   static const String toDoPageTitle = "Hochzeitskit";
+
+  static var kategorie = "Kategorie";
+
+  static var weddingSchedulePageReminderDate1;
 }
