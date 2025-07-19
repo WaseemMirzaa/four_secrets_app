@@ -79,7 +79,7 @@ Future<Uint8List> generateWeddingSchedulePdfBytes1(
               ),
               pw.SizedBox(height: 30),
               pw.Text(
-                'Zeitplan der Hochzeit1',
+                'Eigene Dienstleister',
                 style: pw.TextStyle(
                   fontSize: 24,
                   fontWeight: pw.FontWeight.bold,
@@ -88,68 +88,161 @@ Future<Uint8List> generateWeddingSchedulePdfBytes1(
               ),
               pw.SizedBox(height: 20),
               ...weddingSchedule.map((item) {
-                return pw.Container(
-                  margin: pw.EdgeInsets.only(bottom: 20),
-                  padding: pw.EdgeInsets.all(15),
-                  decoration: pw.BoxDecoration(
-                    border: pw.Border.all(
-                      color: PdfColor.fromInt(0xffFF6B456A),
-                      width: 1,
-                    ),
-                    borderRadius: pw.BorderRadius.circular(8),
-                  ),
-                  child: pw.Column(
-                    crossAxisAlignment: pw.CrossAxisAlignment.start,
-                    children: [
-                      pw.Row(
+                return pw.Wrap(
+                  children: [
+                    pw.Container(
+                      width: double.infinity,
+                      margin: pw.EdgeInsets.only(bottom: 20),
+                      padding: pw.EdgeInsets.all(15),
+                      decoration: pw.BoxDecoration(
+                        border: pw.Border.all(
+                          color: PdfColor.fromInt(0xffFF6B456A),
+                          width: 1,
+                        ),
+                        borderRadius: pw.BorderRadius.circular(8),
+                      ),
+                      child: pw.Column(
+                        crossAxisAlignment: pw.CrossAxisAlignment.start,
                         children: [
-                          pw.Image(logoClockk, width: 16, height: 16),
-                          pw.SizedBox(width: 8),
+                          pw.Row(
+                            children: [
+                              pw.Image(logoClockk, width: 16, height: 16),
+                              pw.SizedBox(width: 8),
+                              pw.Text(
+                                "${item.time.hour.toString().padLeft(2, '0')}:${item.time.minute.toString().padLeft(2, '0')} Uhr",
+                                style: pw.TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: pw.FontWeight.bold,
+                                ),
+                              ),
+                              pw.SizedBox(width: 20),
+                              pw.Image(logoCalendarIcon, width: 16, height: 16),
+                              pw.SizedBox(width: 8),
+                              pw.Text(
+                                "${item.time.day.toString().padLeft(2, '0')}.${item.time.month.toString().padLeft(2, '0')}.${item.time.year}",
+                                style: pw.TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: pw.FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          pw.SizedBox(height: 10),
                           pw.Text(
-                            "${item.time.hour.toString().padLeft(2, '0')}:${item.time.minute.toString().padLeft(2, '0')} Uhr",
+                            item.title,
                             style: pw.TextStyle(
-                              fontSize: 14,
+                              fontSize: 18,
                               fontWeight: pw.FontWeight.bold,
+                              color: PdfColor.fromInt(0xffFF6B456A),
                             ),
                           ),
-                          pw.SizedBox(width: 20),
-                          pw.Image(logoCalendarIcon, width: 16, height: 16),
-                          pw.SizedBox(width: 8),
-                          pw.Text(
-                            "${item.time.day.toString().padLeft(2, '0')}.${item.time.month.toString().padLeft(2, '0')}.${item.time.year}",
-                            style: pw.TextStyle(
-                              fontSize: 14,
-                              fontWeight: pw.FontWeight.bold,
+                          pw.SizedBox(height: 8),
+                          // Only show fields that have content
+                          if (item.responsiblePerson.isNotEmpty) ...[
+                            pw.SizedBox(height: 5),
+                            pw.Text(
+                              'Verantwortliche Person: ${item.responsiblePerson}',
+                              style: pw.TextStyle(fontSize: 12),
                             ),
-                          ),
+                          ],
+                          if (item.notes.isNotEmpty) ...[
+                            pw.SizedBox(height: 5),
+                            pw.Text(
+                              'Notizen: ${item.notes}',
+                              style: pw.TextStyle(fontSize: 12),
+                            ),
+                          ],
+                          if (item.address.isNotEmpty) ...[
+                            pw.SizedBox(height: 5),
+                            pw.Text(
+                              'Ort: ${item.address}',
+                              style: pw.TextStyle(fontSize: 12),
+                            ),
+                          ],
+                          // Add new fields
+                          if (item.dienstleistername.isNotEmpty) ...[
+                            pw.SizedBox(height: 5),
+                            pw.Text(
+                              'Dienstleistername: ${item.dienstleistername}',
+                              style: pw.TextStyle(fontSize: 12),
+                            ),
+                          ],
+                          if (item.kontaktperson.isNotEmpty) ...[
+                            pw.SizedBox(height: 5),
+                            pw.Text(
+                              'Kontaktperson: ${item.kontaktperson}',
+                              style: pw.TextStyle(fontSize: 12),
+                            ),
+                          ],
+                          if (item.telefonnummer.isNotEmpty) ...[
+                            pw.SizedBox(height: 5),
+                            pw.Text(
+                              'Telefonnummer: ${item.telefonnummer}',
+                              style: pw.TextStyle(fontSize: 12),
+                            ),
+                          ],
+                          if (item.email.isNotEmpty) ...[
+                            pw.SizedBox(height: 5),
+                            pw.Text(
+                              'E-Mail: ${item.email}',
+                              style: pw.TextStyle(fontSize: 12),
+                            ),
+                          ],
+                          if (item.homepage.isNotEmpty) ...[
+                            pw.SizedBox(height: 5),
+                            pw.Text(
+                              'Homepage: ${item.homepage}',
+                              style: pw.TextStyle(fontSize: 12),
+                            ),
+                          ],
+                          if (item.instagram.isNotEmpty) ...[
+                            pw.SizedBox(height: 5),
+                            pw.Text(
+                              'Instagram: ${item.instagram}',
+                              style: pw.TextStyle(fontSize: 12),
+                            ),
+                          ],
+                          if (item.addressDetails.isNotEmpty) ...[
+                            pw.SizedBox(height: 5),
+                            pw.Text(
+                              'Adresse Details: ${item.addressDetails}',
+                              style: pw.TextStyle(fontSize: 12),
+                            ),
+                          ],
+                          if (item.angebotText.isNotEmpty) ...[
+                            pw.SizedBox(height: 5),
+                            pw.Text(
+                              'Angebot: ${item.angebotText}',
+                              style: pw.TextStyle(fontSize: 12),
+                            ),
+                          ],
+                          if (item.angebotFileName.isNotEmpty) ...[
+                            pw.SizedBox(height: 5),
+                            pw.Text(
+                              'Angebot Datei: ${item.angebotFileName}',
+                              style: pw.TextStyle(fontSize: 12),
+                            ),
+                          ],
+                          if (item.zahlungsstatus.isNotEmpty &&
+                              item.zahlungsstatus != 'Unbezahlt') ...[
+                            pw.SizedBox(height: 5),
+                            pw.Text(
+                              'Zahlungsstatus: ${item.zahlungsstatus}',
+                              style: pw.TextStyle(
+                                  fontSize: 12, fontWeight: pw.FontWeight.bold),
+                            ),
+                          ],
+                          if (item.probetermin != null) ...[
+                            pw.SizedBox(height: 5),
+                            pw.Text(
+                              'Probetermin: ${item.probetermin!.day.toString().padLeft(2, '0')}.${item.probetermin!.month.toString().padLeft(2, '0')}.${item.probetermin!.year} um ${item.probetermin!.hour.toString().padLeft(2, '0')}:${item.probetermin!.minute.toString().padLeft(2, '0')} Uhr',
+                              style: pw.TextStyle(fontSize: 12),
+                            ),
+                          ],
                         ],
                       ),
-                      pw.SizedBox(height: 10),
-                      pw.Text(
-                        item.title,
-                        style: pw.TextStyle(
-                          fontSize: 18,
-                          fontWeight: pw.FontWeight.bold,
-                          color: PdfColor.fromInt(0xffFF6B456A),
-                        ),
-                      ),
-                      pw.SizedBox(height: 8),
-                      pw.Text(
-                        'Verantwortliche Person: ${item.responsiblePerson}',
-                        style: pw.TextStyle(fontSize: 12),
-                      ),
-                      pw.SizedBox(height: 5),
-                      pw.Text(
-                        'Notizen: ${item.notes}',
-                        style: pw.TextStyle(fontSize: 12),
-                      ),
-                      pw.SizedBox(height: 5),
-                      pw.Text(
-                        'Ort: ${item.address}',
-                        style: pw.TextStyle(fontSize: 12),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 );
               }).toList(),
             ],

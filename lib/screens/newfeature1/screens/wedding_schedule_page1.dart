@@ -199,7 +199,7 @@ class _WeddingSchedulePage1State extends State<WeddingSchedulePage1> {
                     MaterialPageRoute(
                       builder: (context) => PdfViewPage(
                         pdfBytes: pdfBytes,
-                        title: 'Zeitplan der Hochzeit1',
+                        title: 'Eigene Dienstleister',
                       ),
                     ),
                   );
@@ -316,8 +316,7 @@ class _WeddingSchedulePage1State extends State<WeddingSchedulePage1> {
                                               item);
                                       await Printing.sharePdf(
                                           bytes: pdfBytes,
-                                          filename:
-                                              'Zeitplan_der_Hochzeit1.pdf');
+                                          filename: 'Eigene Dienstleister.pdf');
                                     },
                                     onEdit: () {
                                       Navigator.of(context).pushNamed(

@@ -1044,7 +1044,7 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
                 if (_reminderEnabled) ...[
                   SpacerWidget(height: 4),
                   CustomTextWidget(
-                      text: AppConstants.weddingSchedulePageReminderDate1),
+                      text: AppConstants.weddingSchedulePageReminderDate),
                   SpacerWidget(height: 2),
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4)
