@@ -55,11 +55,17 @@ android {
 
     defaultConfig {
         applicationId "com.app.four_secrets_wedding_app" // This should match your Firebase config
-        minSdkVersion 33
-        targetSdkVersion flutter.targetSdkVersion
+        minSdkVersion 23
+        targetSdkVersion 35
+        compileSdk 35
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         multiDexEnabled true
+
+        // Android 15 specific configurations
+        manifestPlaceholders = [
+            'appAuthRedirectScheme': 'com.app.four_secrets_wedding_app'
+        ]
     }
 
     signingConfigs {
