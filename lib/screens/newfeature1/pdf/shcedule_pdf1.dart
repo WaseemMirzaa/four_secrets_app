@@ -57,7 +57,7 @@ Future<Uint8List> generateWeddingSchedulePdfBytes1(
                       mainAxisAlignment: pw.MainAxisAlignment.center,
                       children: [
                         pw.Text(
-                          'Tagesablauf1',
+                          'Eigene Dienstleister',
                           style: pw.TextStyle(
                             fontSize: 28,
                             fontWeight: pw.FontWeight.bold,

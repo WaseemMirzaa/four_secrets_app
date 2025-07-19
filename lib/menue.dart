@@ -487,7 +487,7 @@ class MenueState extends State<Menue> {
                             case "Tagesablauf":
                               _navigateTo(RouteManager.weddingSchedulePage);
                               break;
-                            case "Tagesablauf1":
+                            case "Eigene Dienstleister":
                               _navigateTo(RouteManager.weddingSchedulePage1);
                               break;
                           }

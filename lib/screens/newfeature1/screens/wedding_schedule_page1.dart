@@ -99,8 +99,8 @@ class _WeddingSchedulePage1State extends State<WeddingSchedulePage1> {
           await generateWeddingSchedulePdfBytes1(sortedScheduleList);
       print('🔵 PDF bytes generated: ${pdfBytes.length} bytes');
 
-      final filename =
-          NativeDownloadService.generateTimestampedFilename('Tagesablauf1');
+      final filename = NativeDownloadService.generateTimestampedFilename(
+          'Eigene Dienstleister');
       print('🔵 Generated filename: $filename');
 
       // Use native download service
@@ -109,7 +109,7 @@ class _WeddingSchedulePage1State extends State<WeddingSchedulePage1> {
         context: context,
         pdfBytes: pdfBytes,
         filename: filename,
-        successMessage: 'Tagesablauf1 PDF erfolgreich heruntergeladen',
+        successMessage: 'Eigene Dienstleister PDF erfolgreich heruntergeladen',
       );
 
       print('🔵 Download result: $result');
@@ -163,7 +163,7 @@ class _WeddingSchedulePage1State extends State<WeddingSchedulePage1> {
         drawer: Menue.getInstance(key),
         appBar: AppBar(
           foregroundColor: Colors.white,
-          title: Text("Tagesablauf1"),
+          title: Text("Eigene Dienstleister"),
           backgroundColor: const Color.fromARGB(255, 107, 69, 106),
           actions: [
             IconButton(

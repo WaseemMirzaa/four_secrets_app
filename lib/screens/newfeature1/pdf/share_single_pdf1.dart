@@ -52,7 +52,7 @@ Future<Uint8List> generateSingleSchedulePdf1(
               pw.Padding(
                   padding:
                       pw.EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-                  child: pw.Text('Tagesablauf1',
+                  child: pw.Text('Eigene Dienstleister',
                       style: pw.TextStyle(
                           fontSize: 24, fontWeight: pw.FontWeight.bold))),
               pw.SizedBox(height: 20),
