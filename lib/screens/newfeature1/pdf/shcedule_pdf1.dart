@@ -37,7 +37,7 @@ Future<Uint8List> generateWeddingSchedulePdfBytes1(
             children: [
               pw.Container(
                 color: PdfColor.fromInt(0xffFF6B456A),
-                height: 140,
+                height: 120,
                 width: double.maxFinite,
                 child: pw.Row(children: [
                   pw.SizedBox(width: 10),
@@ -46,47 +46,21 @@ Future<Uint8List> generateWeddingSchedulePdfBytes1(
                     horizontalRadius: 20,
                     child: pw.Image(
                       logo,
-                      width: 160,
-                      height: 100,
+                      width: 140,
+                      height: 80,
                     ),
                   ),
-                  pw.SizedBox(width: 20),
-                  pw.Expanded(
-                    child: pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                      mainAxisAlignment: pw.MainAxisAlignment.center,
-                      children: [
-                        pw.Text(
-                          'Eigene Dienstleister',
+                  pw.Padding(
+                      padding:
+                          pw.EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                      child: pw.Text('Eigene Dienstleister',
                           style: pw.TextStyle(
-                            fontSize: 28,
-                            fontWeight: pw.FontWeight.bold,
-                            color: PdfColors.white,
-                          ),
-                        ),
-                        pw.SizedBox(height: 10),
-                        pw.Text(
-                          'Ihr perfekter Hochzeitstag1',
-                          style: pw.TextStyle(
-                            fontSize: 16,
-                            color: PdfColors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                              fontSize: 24,
+                              color: PdfColors.white,
+                              fontWeight: pw.FontWeight.bold))),
                 ]),
               ),
-              pw.SizedBox(height: 30),
-              pw.Text(
-                'Eigene Dienstleister',
-                style: pw.TextStyle(
-                  fontSize: 24,
-                  fontWeight: pw.FontWeight.bold,
-                  color: PdfColor.fromInt(0xffFF6B456A),
-                ),
-              ),
-              pw.SizedBox(height: 20),
+              pw.SizedBox(height: 10),
               ...weddingSchedule.map((item) {
                 return pw.Wrap(
                   children: [

@@ -687,22 +687,22 @@ class _WeddingCategoryTitlePage1State extends State<WeddingCategoryTitlePage1> {
                                       children: items.map((item) {
                                         return Container(
                                           margin: EdgeInsets.symmetric(
-                                              horizontal: 10, vertical: 4),
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                            border: Border.all(
-                                              color: Colors.grey
-                                                  .withValues(alpha: 0.3),
-                                              width: 1,
-                                            ),
-                                          ),
+                                              horizontal: 10, vertical: 2),
+                                          // decoration: BoxDecoration(
+                                          //   // color: Colors.white,
+                                          //   borderRadius:
+                                          //       BorderRadius.circular(8),
+                                          //   border: Border.all(
+                                          //     color: Colors.grey
+                                          //         .withValues(alpha: 0.3),
+                                          //     width: 1,
+                                          //   ),
+                                          // ),
                                           child: ListTile(
                                             contentPadding:
                                                 EdgeInsets.symmetric(
                                                     horizontal: 16,
-                                                    vertical: 8),
+                                                    vertical: 4),
                                             title: CustomTextWidget(
                                               text: item,
                                               fontSize: 14,

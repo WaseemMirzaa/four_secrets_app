@@ -142,10 +142,13 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
   }
 
   Future<void> _selectEventDate() async {
+    final DateTime now = DateTime.now();
+    final DateTime today = DateTime(now.year, now.month, now.day);
+
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: _selectedEventDate ?? DateTime.now(),
-      firstDate: DateTime.now(),
+      initialDate: _selectedEventDate ?? today,
+      firstDate: today, // Prevent selecting past dates
       lastDate: DateTime(2030),
     );
     if (picked != null && picked != _selectedEventDate) {
@@ -153,6 +156,11 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
         _selectedEventDate = picked;
         _selectedEventDateText = "${picked.day}/${picked.month}/${picked.year}";
       });
+
+      // Validate if both date and time are selected
+      if (_selectedTime != null) {
+        _validateEventDateTime();
+      }
     }
   }
 
@@ -167,14 +175,22 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
         _selectedTimeText =
             "${picked.hour > 12 ? (picked.hour - 12).toString().padLeft(2, '0') : picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')} ${picked.hour >= 12 ? 'Uhr' : 'Uhr'}";
       });
+
+      // Validate if both date and time are selected
+      if (_selectedEventDate != null) {
+        _validateEventDateTime();
+      }
     }
   }
 
   Future<void> _selectReminderDate() async {
+    final DateTime now = DateTime.now();
+    final DateTime today = DateTime(now.year, now.month, now.day);
+
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: _selectedReminderDate ?? DateTime.now(),
-      firstDate: DateTime.now(),
+      initialDate: _selectedReminderDate ?? today,
+      firstDate: today, // Prevent selecting past dates
       lastDate: DateTime(2030),
     );
     if (picked != null && picked != _selectedReminderDate) {
@@ -183,6 +199,11 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
         _selectedReminderDateText =
             "${picked.day}/${picked.month}/${picked.year}";
       });
+
+      // Validate if both reminder date and time are selected
+      if (_selectedReminder != null) {
+        _validateReminderDateTime();
+      }
     }
   }
 
@@ -197,6 +218,11 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
         _selectedReminderText =
             "${picked.hour > 12 ? (picked.hour - 12).toString().padLeft(2, '0') : picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')} ${picked.hour >= 12 ? 'Uhr' : 'Uhr'}";
       });
+
+      // Validate if both reminder date and time are selected
+      if (_selectedReminderDate != null) {
+        _validateReminderDateTime();
+      }
     }
   }
 
@@ -273,6 +299,73 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
     return null;
   }
 
+  // Immediate validation methods for date/time selection
+  void _validateEventDateTime() {
+    if (_selectedEventDate != null && _selectedTime != null) {
+      DateTime eventDateTime = DateTime(
+        _selectedEventDate!.year,
+        _selectedEventDate!.month,
+        _selectedEventDate!.day,
+        _selectedTime!.hour,
+        _selectedTime!.minute,
+      );
+
+      final DateTime now = DateTime.now();
+
+      if (eventDateTime.isBefore(now)) {
+        // Check if it's today and time is in the past
+        final DateTime today = DateTime(now.year, now.month, now.day);
+        final DateTime selectedDate = DateTime(_selectedEventDate!.year,
+            _selectedEventDate!.month, _selectedEventDate!.day);
+
+        if (selectedDate.isAtSameMomentAs(today)) {
+          SnackBarHelper.showErrorSnackBar(
+            context,
+            'Die gewählte Uhrzeit liegt in der Vergangenheit. Bitte wählen Sie eine zukünftige Uhrzeit für heute.',
+          );
+        } else {
+          SnackBarHelper.showErrorSnackBar(
+            context,
+            'Termin Datum und Uhrzeit müssen in der Zukunft liegen. Bitte wählen Sie ein zukünftiges Datum und eine zukünftige Uhrzeit.',
+          );
+        }
+      }
+    }
+  }
+
+  void _validateReminderDateTime() {
+    if (_selectedReminderDate != null && _selectedReminder != null) {
+      DateTime reminderDateTime = DateTime(
+        _selectedReminderDate!.year,
+        _selectedReminderDate!.month,
+        _selectedReminderDate!.day,
+        _selectedReminder!.hour,
+        _selectedReminder!.minute,
+      );
+
+      final DateTime now = DateTime.now();
+
+      if (reminderDateTime.isBefore(now)) {
+        // Check if it's today and time is in the past
+        final DateTime today = DateTime(now.year, now.month, now.day);
+        final DateTime selectedDate = DateTime(_selectedReminderDate!.year,
+            _selectedReminderDate!.month, _selectedReminderDate!.day);
+
+        if (selectedDate.isAtSameMomentAs(today)) {
+          SnackBarHelper.showErrorSnackBar(
+            context,
+            'Die gewählte Erinnerungszeit liegt in der Vergangenheit. Bitte wählen Sie eine zukünftige Uhrzeit für heute.',
+          );
+        } else {
+          SnackBarHelper.showErrorSnackBar(
+            context,
+            'Erinnerung Datum und Uhrzeit müssen in der Zukunft liegen. Bitte wählen Sie ein zukünftiges Datum und eine zukünftige Uhrzeit.',
+          );
+        }
+      }
+    }
+  }
+
   bool _validateAllFields() {
     List<String> errors = [];
 
@@ -291,6 +384,49 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
 
     if (_selectedTime == null) {
       errors.add('Uhrzeit ist erforderlich');
+    }
+
+    // Date and time validation - must be in future
+    if (_selectedEventDate != null && _selectedTime != null) {
+      DateTime eventDateTime = DateTime(
+        _selectedEventDate!.year,
+        _selectedEventDate!.month,
+        _selectedEventDate!.day,
+        _selectedTime!.hour,
+        _selectedTime!.minute,
+      );
+
+      if (eventDateTime.isBefore(DateTime.now())) {
+        errors.add('Termin Datum und Uhrzeit müssen in der Zukunft liegen');
+      }
+    }
+
+    // Reminder validation - if enabled, must be in future
+    if (_reminderEnabled) {
+      if (_selectedReminderDate == null) {
+        errors.add(
+            'Erinnerung Datum ist erforderlich wenn Erinnerung aktiviert ist');
+      }
+
+      if (_selectedReminder == null) {
+        errors.add(
+            'Erinnerung Uhrzeit ist erforderlich wenn Erinnerung aktiviert ist');
+      }
+
+      if (_selectedReminderDate != null && _selectedReminder != null) {
+        DateTime reminderDateTime = DateTime(
+          _selectedReminderDate!.year,
+          _selectedReminderDate!.month,
+          _selectedReminderDate!.day,
+          _selectedReminder!.hour,
+          _selectedReminder!.minute,
+        );
+
+        if (reminderDateTime.isBefore(DateTime.now())) {
+          errors
+              .add('Erinnerung Datum und Uhrzeit müssen in der Zukunft liegen');
+        }
+      }
     }
 
     // Optional field validations

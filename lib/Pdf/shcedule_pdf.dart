@@ -37,7 +37,7 @@ Future<Uint8List> generateWeddingSchedulePdfBytes(
             children: [
               pw.Container(
                 color: PdfColor.fromInt(0xffFF6B456A),
-                height: 140,
+                height: 120,
                 width: double.maxFinite,
                 child: pw.Row(children: [
                   pw.SizedBox(width: 10),
@@ -46,19 +46,21 @@ Future<Uint8List> generateWeddingSchedulePdfBytes(
                     horizontalRadius: 20,
                     child: pw.Image(
                       logo,
-                      width: 160,
-                      height: 100,
+                      width: 140,
+                      height: 80,
                     ),
                   ),
+                  pw.Padding(
+                      padding:
+                          pw.EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                      child: pw.Text('Tagesablauf',
+                          style: pw.TextStyle(
+                              fontSize: 24,
+                              color: PdfColors.white,
+                              fontWeight: pw.FontWeight.bold))),
                 ]),
               ),
-              pw.Padding(
-                padding: pw.EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-                child: pw.Text('Tagesablauf',
-                    style: pw.TextStyle(
-                        fontSize: 24, fontWeight: pw.FontWeight.bold)),
-              ),
-              pw.SizedBox(height: 20),
+              pw.SizedBox(height: 10),
               for (var table in weddingSchedule)
                 pw.Padding(
                     padding:
@@ -75,7 +77,7 @@ Future<Uint8List> generateWeddingSchedulePdfBytes(
                                 fontSize: 16,
                                 fontWeight: pw.FontWeight.normal)),
                         pw.SizedBox(height: 5),
-                        pw.Text("Datum",
+                        pw.Text("Datum & Zeit",
                             style: pw.TextStyle(
                                 fontSize: 18, fontWeight: pw.FontWeight.bold)),
                         pw.SizedBox(height: 5),
@@ -92,23 +94,36 @@ Future<Uint8List> generateWeddingSchedulePdfBytes(
                           pw.Image(logoCalendarIcon, height: 20, width: 20),
                           pw.SizedBox(width: 5),
                           pw.Text(
-                              '${table.time.day}-${table.time.month.toString().padLeft(2, '0')}-${table.time.year} '),
+                              '${table.time.day.toString().padLeft(2, '0')}.${table.time.month.toString().padLeft(2, '0')}.${table.time.year}'),
                         ]),
-                        pw.SizedBox(height: 5),
-                        pw.Text('Notizen',
-                            style: pw.TextStyle(
-                                fontSize: 18, fontWeight: pw.FontWeight.bold)),
-                        pw.Text('${table.notes}'),
-                        pw.SizedBox(height: 5),
-                        pw.Text('Verantwortliche Person',
-                            style: pw.TextStyle(
-                                fontSize: 18, fontWeight: pw.FontWeight.bold)),
-                        pw.Text(table.responsiblePerson),
-                        pw.SizedBox(height: 5),
-                        pw.Text('Ort',
-                            style: pw.TextStyle(
-                                fontSize: 18, fontWeight: pw.FontWeight.bold)),
-                        pw.Text(table.address),
+
+                        // Only show fields that have content
+                        if (table.notes.isNotEmpty) ...[
+                          pw.SizedBox(height: 5),
+                          pw.Text('Notizen',
+                              style: pw.TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: pw.FontWeight.bold)),
+                          pw.Text(table.notes),
+                        ],
+
+                        if (table.responsiblePerson.isNotEmpty) ...[
+                          pw.SizedBox(height: 5),
+                          pw.Text('Verantwortliche Person',
+                              style: pw.TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: pw.FontWeight.bold)),
+                          pw.Text(table.responsiblePerson),
+                        ],
+
+                        if (table.address.isNotEmpty) ...[
+                          pw.SizedBox(height: 5),
+                          pw.Text('Ort',
+                              style: pw.TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: pw.FontWeight.bold)),
+                          pw.Text(table.address),
+                        ],
                         pw.SizedBox(height: 20),
                       ],
                     ))
