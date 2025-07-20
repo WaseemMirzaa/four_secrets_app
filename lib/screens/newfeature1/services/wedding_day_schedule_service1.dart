@@ -142,6 +142,10 @@ class WeddingDayScheduleService1 {
     if (userId == null) return;
 
     try {
+      // Cancel notification for this item before deleting
+      await NotificationService.cancel(id.hashCode);
+      print("Cancelled notification for item: $id");
+
       await _firestore
           .collection('users')
           .doc(userId)
@@ -174,12 +178,29 @@ class WeddingDayScheduleService1 {
         'order': item.order,
         'address': item.address,
         'lat': item.lat,
-        'long': item.long
+        'long': item.long,
+        // New fields
+        'dienstleistername': item.dienstleistername,
+        'kontaktperson': item.kontaktperson,
+        'telefonnummer': item.telefonnummer,
+        'email': item.email,
+        'homepage': item.homepage,
+        'instagram': item.instagram,
+        'addressDetails': item.addressDetails,
+        'angebotText': item.angebotText,
+        'angebotFileUrl': item.angebotFileUrl,
+        'angebotFileName': item.angebotFileName,
+        'zahlungsstatus': item.zahlungsstatus,
       };
 
       // Only add reminderTime if it's not null
       if (item.reminderTime != null) {
         updateData['reminderTime'] = Timestamp.fromDate(item.reminderTime!);
+      }
+
+      // Only add probetermin if it's not null
+      if (item.probetermin != null) {
+        updateData['probetermin'] = Timestamp.fromDate(item.probetermin!);
       }
 
       await _firestore
@@ -188,6 +209,21 @@ class WeddingDayScheduleService1 {
           .collection('weddingDaySchedule1')
           .doc(item.id)
           .update(updateData);
+
+      // Cancel existing notification for this item
+      await NotificationService.cancel(item.id.hashCode);
+
+      // Schedule new notification if reminder is enabled and reminderTime is not null
+      if (item.reminderEnabled && item.reminderTime != null) {
+        await NotificationService.scheduleAlarmNotification(
+          id: item.id.hashCode,
+          dateTime: item.reminderTime!,
+          title: "Hochzeits-Erinnerung1: ${item.title}",
+          body: item.notes,
+          payload: item.id,
+        );
+        print("Updated notification for item: ${item.id}");
+      }
 
       // Then reload to keep list in sync
       // await loadData();

@@ -1,10 +1,12 @@
 // lib/services/notification_service.dart
 
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:url_launcher/url_launcher.dart';
 
 class NotificationService {
   static final FlutterLocalNotificationsPlugin _plugin =
@@ -25,6 +27,10 @@ class NotificationService {
       requestAlertPermission: true,
       requestBadgePermission: true,
       requestSoundPermission: true,
+      requestCriticalPermission: true, // For critical alerts
+      defaultPresentAlert: true,
+      defaultPresentSound: true,
+      defaultPresentBadge: true,
     );
 
     // 4️⃣ Combine platform settings
@@ -38,6 +44,7 @@ class NotificationService {
       initSettings,
       onDidReceiveNotificationResponse: (response) {
         debugPrint('Notification tapped payload: ${response.payload}');
+        _handleNotificationTap(response.payload);
       },
     );
 
@@ -60,16 +67,188 @@ class NotificationService {
     }
 
     // 8️⃣ Request iOS permissions
-    await _plugin
-        .resolvePlatformSpecificImplementation<
-            IOSFlutterLocalNotificationsPlugin>()
-        ?.requestPermissions(
-          alert: true,
-          badge: true,
-          sound: true,
-        );
+    final iosImpl = _plugin.resolvePlatformSpecificImplementation<
+        IOSFlutterLocalNotificationsPlugin>();
+    if (iosImpl != null) {
+      final granted = await iosImpl.requestPermissions(
+        alert: true,
+        badge: true,
+        sound: true,
+        critical: true, // Request critical alert permission
+      );
+      debugPrint('iOS notification permissions granted: $granted');
+    }
 
     debugPrint('🔔 NotificationService initialized');
+
+    // Test platform-specific features
+    if (Platform.isIOS) {
+      debugPrint('📱 iOS notification features enabled');
+    } else if (Platform.isAndroid) {
+      debugPrint('🤖 Android notification features enabled');
+    }
+  }
+
+  /// Handles notification tap events
+  static Future<void> _handleNotificationTap(String? payload) async {
+    if (payload == null || payload.isEmpty) {
+      debugPrint('🔔 Notification tapped but no payload provided');
+      return;
+    }
+
+    debugPrint('🔔 Handling notification tap with payload: $payload');
+
+    try {
+      // Check if payload is a file path
+      final file = File(payload);
+
+      if (await file.exists()) {
+        debugPrint('📄 File exists, attempting to open: ${file.path}');
+
+        // Check if it's a PDF file
+        if (payload.toLowerCase().endsWith('.pdf')) {
+          await _openPdfFile(file.path);
+        } else {
+          // For other file types, try to open with default app
+          await _openFileWithDefaultApp(file.path);
+        }
+      } else {
+        debugPrint('❌ File does not exist: $payload');
+        // If it's not a file path, treat it as a URL or other action
+        await _handleOtherPayload(payload);
+      }
+    } catch (e) {
+      debugPrint('❌ Error handling notification tap: $e');
+    }
+  }
+
+  /// Opens a PDF file using the system's default PDF viewer
+  static Future<void> _openPdfFile(String filePath) async {
+    try {
+      debugPrint('📄 Opening PDF file: $filePath');
+
+      // Try different methods based on platform
+      if (Platform.isAndroid) {
+        await _openPdfFileAndroid(filePath);
+      } else if (Platform.isIOS) {
+        await _openPdfFileIOS(filePath);
+      } else {
+        await _openPdfFileGeneric(filePath);
+      }
+    } catch (e) {
+      debugPrint('❌ Error opening PDF file: $e');
+    }
+  }
+
+  /// Android-specific PDF opening
+  static Future<void> _openPdfFileAndroid(String filePath) async {
+    try {
+      // Try Android intent first
+      final androidIntent =
+          'intent://view?file=$filePath#Intent;scheme=file;type=application/pdf;end';
+      final intentUri = Uri.parse(androidIntent);
+
+      if (await canLaunchUrl(intentUri)) {
+        await launchUrl(intentUri, mode: LaunchMode.externalApplication);
+        debugPrint('✅ PDF opened with Android intent');
+        return;
+      }
+
+      // Fallback to generic method
+      await _openPdfFileGeneric(filePath);
+    } catch (e) {
+      debugPrint('❌ Android PDF opening failed: $e');
+      await _openPdfFileGeneric(filePath);
+    }
+  }
+
+  /// iOS-specific PDF opening
+  static Future<void> _openPdfFileIOS(String filePath) async {
+    try {
+      // iOS handles file URIs well
+      final uri = Uri.file(filePath);
+
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+        debugPrint('✅ PDF opened on iOS');
+        return;
+      }
+
+      // Fallback to generic method
+      await _openPdfFileGeneric(filePath);
+    } catch (e) {
+      debugPrint('❌ iOS PDF opening failed: $e');
+      await _openPdfFileGeneric(filePath);
+    }
+  }
+
+  /// Generic PDF opening method
+  static Future<void> _openPdfFileGeneric(String filePath) async {
+    try {
+      // Create file URI
+      final uri = Uri.file(filePath);
+
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(
+          uri,
+          mode: LaunchMode.externalApplication,
+        );
+        debugPrint('✅ PDF file opened successfully');
+      } else {
+        debugPrint('❌ Cannot launch PDF file');
+        // Fallback: try with file:// scheme
+        final fileUri = Uri.parse('file://$filePath');
+        if (await canLaunchUrl(fileUri)) {
+          await launchUrl(fileUri, mode: LaunchMode.externalApplication);
+          debugPrint('✅ PDF file opened with file:// scheme');
+        } else {
+          debugPrint('❌ All PDF opening methods failed');
+        }
+      }
+    } catch (e) {
+      debugPrint('❌ Generic PDF opening failed: $e');
+    }
+  }
+
+  /// Opens a file with the system's default app
+  static Future<void> _openFileWithDefaultApp(String filePath) async {
+    try {
+      debugPrint('📁 Opening file with default app: $filePath');
+
+      final uri = Uri.file(filePath);
+
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(
+          uri,
+          mode: LaunchMode.externalApplication,
+        );
+        debugPrint('✅ File opened successfully');
+      } else {
+        debugPrint('❌ Cannot launch file');
+      }
+    } catch (e) {
+      debugPrint('❌ Error opening file: $e');
+    }
+  }
+
+  /// Handles other types of payloads (URLs, custom actions, etc.)
+  static Future<void> _handleOtherPayload(String payload) async {
+    try {
+      debugPrint('🔗 Handling other payload type: $payload');
+
+      // Check if it's a URL
+      if (payload.startsWith('http://') || payload.startsWith('https://')) {
+        final uri = Uri.parse(payload);
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri);
+          debugPrint('✅ URL opened successfully');
+        }
+      } else {
+        debugPrint('ℹ️ Unknown payload type, no action taken');
+      }
+    } catch (e) {
+      debugPrint('❌ Error handling other payload: $e');
+    }
   }
 
   /// Create notification channel for Android
@@ -118,13 +297,14 @@ class NotificationService {
       when: DateTime.now().millisecondsSinceEpoch,
     );
 
-    // iOS: custom sound if bundled
+    // iOS: enhanced notification details
     const iOSDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentSound: true,
       presentBadge: true,
-      // sound: 'alarm_sound.aiff',
+      sound: 'default', // Use default iOS sound
       interruptionLevel: InterruptionLevel.critical,
+      categoryIdentifier: 'wedding_reminder',
     );
 
     try {
@@ -210,8 +390,9 @@ class NotificationService {
             presentAlert: true,
             presentSound: true,
             presentBadge: true,
-            sound: 'alarm_sound.aiff',
+            sound: 'default', // Use default iOS sound for reliability
             interruptionLevel: InterruptionLevel.critical,
+            categoryIdentifier: 'wedding_reminder',
           ),
         ),
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,

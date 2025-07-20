@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:four_secrets_wedding_app/pages/home.dart';
 import 'package:four_secrets_wedding_app/screens/email_verification_screen.dart';
+import 'package:four_secrets_wedding_app/services/wedding_day_schedule_service.dart';
+import 'package:four_secrets_wedding_app/screens/newfeature1/services/wedding_day_schedule_service1.dart';
 import 'package:page_transition/page_transition.dart';
 import '../services/auth_service.dart';
 
@@ -20,7 +22,7 @@ class _SplashScreenState extends State<SplashScreen>
   final AuthService _authService = AuthService();
   Future<double> get _height => Future<double>.value(200);
   AnimationController? _controller;
-  final int timeInSeconds = 2;
+  final int timeInSeconds = 5;
 
   @override
   void initState() {
@@ -54,6 +56,19 @@ class _SplashScreenState extends State<SplashScreen>
         if (userModel != null) {
           // Save user data to SharedPreferences using the public method
           await _authService.saveUserToPrefs(userModel);
+
+          // Load both wedding schedule services to set up notifications
+          try {
+            final scheduleService = WeddingDayScheduleService();
+            await scheduleService.loadData();
+            print('🟢 Original wedding schedule service loaded in splash');
+
+            final scheduleService1 = WeddingDayScheduleService1();
+            await scheduleService1.loadData();
+            print('🟢 Eigene Dienstleister schedule service loaded in splash');
+          } catch (e) {
+            print('🔴 Error loading schedule services in splash: $e');
+          }
 
           if (!mounted) return;
 
@@ -151,7 +166,7 @@ class _SplashScreenState extends State<SplashScreen>
                   vertical: 0.0,
                 ),
                 child: Text(
-                  'Perfect your Wedding with 4secrets',
+                  'Perfect your Wedding with 4secrets Wedding',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                       color: Colors.black,

@@ -68,31 +68,20 @@ class _WeddingSchedulePage1State extends State<WeddingSchedulePage1> {
     try {
       print('🔵 ===== WEDDING SCHEDULE DOWNLOAD STARTED =====');
 
-      final sortedScheduleList = weddingDayScheduleService
-          .weddingDayScheduleList
-          .where((e) => e.time != null)
-          .toList()
-        ..sort((b, a) {
-          final aDateTime = DateTime(
-            a.time.year,
-            a.time.month,
-            a.time.day,
-            a.time.hour,
-            a.time.minute,
-          );
+      // Use the current order from the service (respects user's drag-and-drop reordering)
+      final sortedScheduleList = List<WeddingDayScheduleModel1>.from(
+          weddingDayScheduleService.weddingDayScheduleList)
+        ..sort((a, b) =>
+            a.order.compareTo(b.order)); // Sort by user's custom order
 
-          final bDateTime = DateTime(
-            b.time.year,
-            b.time.month,
-            b.time.day,
-            b.time.hour,
-            b.time.minute,
-          );
-
-          return bDateTime.compareTo(aDateTime);
-        });
-
+      print('🔵 Using current list order (respects user reordering)');
       print('🔵 Schedule list length: ${sortedScheduleList.length}');
+
+      // Debug: Print order information
+      for (int i = 0; i < sortedScheduleList.length; i++) {
+        final item = sortedScheduleList[i];
+        print('🔵 Item $i: "${item.title}" (order: ${item.order})');
+      }
 
       print('🔵 Generating PDF bytes...');
       final pdfBytes =
@@ -168,31 +157,24 @@ class _WeddingSchedulePage1State extends State<WeddingSchedulePage1> {
           actions: [
             IconButton(
                 onPressed: () async {
+                  // Use the current order from the service (respects user's drag-and-drop reordering)
                   final sortedScheduleList =
-                      weddingDayScheduleService.weddingDayScheduleList
-                          .where((e) => e.time != null) // Filter if needed
-                          .toList()
-                        ..sort((b, a) {
-                          final aDateTime = DateTime(
-                            a.time.year,
-                            a.time.month,
-                            a.time.day,
-                            a.time.hour,
-                            a.time.minute,
-                          );
+                      List<WeddingDayScheduleModel1>.from(
+                          weddingDayScheduleService.weddingDayScheduleList)
+                        ..sort((a, b) => a.order
+                            .compareTo(b.order)); // Sort by user's custom order
 
-                          final bDateTime = DateTime(
-                            b.time.year,
-                            b.time.month,
-                            b.time.day,
-                            b.time.hour,
-                            b.time.minute,
-                          );
+                  print(
+                      '🔵 PDF View: Using current list order (respects user reordering)');
 
-                          return bDateTime.compareTo(aDateTime);
-                        });
+                  // Debug: Print order information for PDF view
+                  for (int i = 0; i < sortedScheduleList.length; i++) {
+                    final item = sortedScheduleList[i];
+                    print(
+                        '🔵 PDF View Item $i: "${item.title}" (order: ${item.order})');
+                  }
 
-// Step 2: Pass it to the PDF generator
+                  // Step 2: Pass it to the PDF generator
                   final pdfBytes = await generateWeddingSchedulePdfBytes1(
                       sortedScheduleList);
                   Navigator.of(context).push(

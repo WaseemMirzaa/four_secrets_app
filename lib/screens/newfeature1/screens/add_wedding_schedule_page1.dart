@@ -1074,31 +1074,34 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
 
                 CustomTextWidget(text: "Probetermin Datum *"),
                 SpacerWidget(height: 2),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4)
-                      .copyWith(right: 0),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.withValues(alpha: 0.2),
-                    border: Border.all(
-                      color: _selectedEventDate == null
-                          ? Colors.red.withValues(alpha: 0.5)
-                          : Colors.white,
+                GestureDetector(
+                  onTap: _selectEventDate,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4)
+                        .copyWith(right: 0),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withValues(alpha: 0.2),
+                      border: Border.all(
+                        color: _selectedEventDate == null
+                            ? Colors.red.withValues(alpha: 0.5)
+                            : Colors.white,
+                      ),
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: CustomTextWidget(
-                            text: _selectedEventDateText ?? ""),
-                      ),
-                      IconButton(
-                        onPressed: _selectEventDate,
-                        icon: Icon(Icons.calendar_today,
-                            color: Color(0xFF6B456A)),
-                      ),
-                    ],
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: CustomTextWidget(
+                              text: _selectedEventDateText ?? ""),
+                        ),
+                        IconButton(
+                          onPressed: _selectEventDate,
+                          icon: Icon(Icons.calendar_today,
+                              color: Color(0xFF6B456A)),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
 
@@ -1109,33 +1112,36 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
                     text:
                         "Probetermin ${AppConstants.weddingSchedulePageDate} *"),
                 SpacerWidget(height: 2),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4)
-                      .copyWith(right: 0),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.withValues(alpha: 0.2),
-                    border: Border.all(
-                      color: _selectedTime == null
-                          ? Colors.red.withValues(alpha: 0.5)
-                          : Colors.white,
+                GestureDetector(
+                  onTap: _selectEventTime,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4)
+                        .copyWith(right: 0),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withValues(alpha: 0.2),
+                      border: Border.all(
+                        color: _selectedTime == null
+                            ? Colors.red.withValues(alpha: 0.5)
+                            : Colors.white,
+                      ),
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: _selectEventTime,
-                          child:
-                              CustomTextWidget(text: _selectedTimeText ?? ""),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: _selectEventTime,
+                            child:
+                                CustomTextWidget(text: _selectedTimeText ?? ""),
+                          ),
                         ),
-                      ),
-                      IconButton(
-                        onPressed: _selectEventTime,
-                        icon: Icon(Icons.timer, color: Color(0xFF6B456A)),
-                      ),
-                    ],
+                        IconButton(
+                          onPressed: _selectEventTime,
+                          icon: Icon(Icons.timer, color: Color(0xFF6B456A)),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
 
@@ -1182,27 +1188,30 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
                   CustomTextWidget(
                       text: AppConstants.weddingSchedulePageReminderDate),
                   SpacerWidget(height: 2),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4)
-                        .copyWith(right: 0),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.withValues(alpha: 0.2),
-                      border: Border.all(color: Colors.white),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: CustomTextWidget(
-                              text: _selectedReminderDateText ?? ""),
-                        ),
-                        IconButton(
-                          onPressed: _selectReminderDate,
-                          icon: Icon(Icons.calendar_today,
-                              color: Color(0xFF6B456A)),
-                        ),
-                      ],
+                  GestureDetector(
+                    onTap: _selectReminderDate,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4)
+                          .copyWith(right: 0),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withValues(alpha: 0.2),
+                        border: Border.all(color: Colors.white),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: CustomTextWidget(
+                                text: _selectedReminderDateText ?? ""),
+                          ),
+                          IconButton(
+                            onPressed: _selectReminderDate,
+                            icon: Icon(Icons.calendar_today,
+                                color: Color(0xFF6B456A)),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   SpacerWidget(height: 4),

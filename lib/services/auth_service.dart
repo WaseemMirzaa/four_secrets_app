@@ -8,6 +8,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:four_secrets_wedding_app/services/notification_alaram-service.dart';
 import 'package:four_secrets_wedding_app/services/push_notification_service.dart';
 import 'package:four_secrets_wedding_app/services/wedding_day_schedule_service.dart';
+import 'package:four_secrets_wedding_app/screens/newfeature1/services/wedding_day_schedule_service1.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/user_model.dart';
@@ -76,8 +77,14 @@ class AuthService {
       final userModel = UserModel.fromMap(userData);
       print('🟢 UserModel created successfully: $userModel');
 
+      // Load both wedding schedule services to set up notifications
       final scheduleService = WeddingDayScheduleService();
       await scheduleService.loadData();
+      print('🟢 Original wedding schedule service loaded');
+
+      final scheduleService1 = WeddingDayScheduleService1();
+      await scheduleService1.loadData();
+      print('🟢 Eigene Dienstleister schedule service loaded');
 
       // Save user data to SharedPreferences
       await saveUserToPrefs(userModel);

@@ -36,7 +36,7 @@ Future<Uint8List> generateSingleSchedulePdf1(
               children: [
                 pw.Container(
                     color: PdfColor.fromInt(0xffFF6B456A),
-                    height: 120,
+                    height: 80,
                     width: double.maxFinite,
                     child: pw.Row(children: [
                       pw.SizedBox(width: 10),
@@ -46,7 +46,7 @@ Future<Uint8List> generateSingleSchedulePdf1(
                         child: pw.Image(
                           logo,
                           width: 140,
-                          height: 80,
+                          height: 60,
                         ),
                       ),
                       pw.Padding(

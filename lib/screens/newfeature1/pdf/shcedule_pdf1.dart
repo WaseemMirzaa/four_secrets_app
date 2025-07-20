@@ -5,7 +5,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 Future<Uint8List> generateWeddingSchedulePdfBytes1(
-    List<WeddingDayScheduleModel1> weddingSchedule) async {
+    List<WeddingDayScheduleModel1> weddingScheduleList) async {
   final pdf = pw.Document();
   final logoPath = 'assets/images/logo/secrets-logo.jpg';
   final logoClock = 'assets/images/logo/time.png';
@@ -20,211 +20,222 @@ Future<Uint8List> generateWeddingSchedulePdfBytes1(
   final logoClockk = pw.MemoryImage(logoClockData);
   final logoCalendarIcon = pw.MemoryImage(logoCalendarLogo);
 
-  pdf.addPage(
-    pw.MultiPage(
-      margin: pw.EdgeInsets.only(top: 0),
-      header: (pw.Context context) {
-        if (context.pageNumber == 1) {
-          return pw.SizedBox(height: 0);
-        } else {
-          return pw.SizedBox(height: 60);
-        }
-      },
-      build: (pw.Context context) {
-        return [
-          pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
-            children: [
-              pw.Container(
-                color: PdfColor.fromInt(0xffFF6B456A),
-                height: 120,
-                width: double.maxFinite,
-                child: pw.Row(children: [
-                  pw.SizedBox(width: 10),
-                  pw.ClipRRect(
-                    verticalRadius: 20,
-                    horizontalRadius: 20,
-                    child: pw.Image(
-                      logo,
-                      width: 140,
+  // Create a page for each wedding schedule item
+  for (WeddingDayScheduleModel1 weddingSchedule in weddingScheduleList) {
+    pdf.addPage(
+      pw.MultiPage(
+          margin: pw.EdgeInsets.only(top: 0),
+          build: (pw.Context context) {
+            return [
+              pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Container(
+                      color: PdfColor.fromInt(0xffFF6B456A),
                       height: 80,
-                    ),
-                  ),
+                      width: double.maxFinite,
+                      child: pw.Row(children: [
+                        pw.SizedBox(width: 10),
+                        pw.ClipRRect(
+                          verticalRadius: 20,
+                          horizontalRadius: 20,
+                          child: pw.Image(
+                            logo,
+                            width: 140,
+                            height: 60,
+                          ),
+                        ),
+                        pw.Padding(
+                            padding: pw.EdgeInsets.symmetric(
+                                horizontal: 30, vertical: 10),
+                            child: pw.Text('Eigene Dienstleister',
+                                style: pw.TextStyle(
+                                    fontSize: 24,
+                                    color: PdfColors.white,
+                                    fontWeight: pw.FontWeight.bold))),
+                      ])),
+                  pw.SizedBox(height: 10),
                   pw.Padding(
                       padding:
-                          pw.EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-                      child: pw.Text('Eigene Dienstleister',
-                          style: pw.TextStyle(
-                              fontSize: 24,
-                              color: PdfColors.white,
-                              fontWeight: pw.FontWeight.bold))),
-                ]),
-              ),
-              pw.SizedBox(height: 10),
-              ...weddingSchedule.map((item) {
-                return pw.Wrap(
-                  children: [
-                    pw.Container(
-                      width: double.infinity,
-                      margin: pw.EdgeInsets.only(bottom: 20),
-                      padding: pw.EdgeInsets.all(15),
-                      decoration: pw.BoxDecoration(
-                        border: pw.Border.all(
-                          color: PdfColor.fromInt(0xffFF6B456A),
-                          width: 1,
-                        ),
-                        borderRadius: pw.BorderRadius.circular(8),
-                      ),
+                          pw.EdgeInsets.symmetric(horizontal: 30, vertical: 5),
                       child: pw.Column(
                         crossAxisAlignment: pw.CrossAxisAlignment.start,
                         children: [
-                          pw.Row(
-                            children: [
-                              pw.Image(logoClockk, width: 16, height: 16),
-                              pw.SizedBox(width: 8),
-                              pw.Text(
-                                "${item.time.hour.toString().padLeft(2, '0')}:${item.time.minute.toString().padLeft(2, '0')} Uhr",
-                                style: pw.TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: pw.FontWeight.bold,
-                                ),
-                              ),
-                              pw.SizedBox(width: 20),
-                              pw.Image(logoCalendarIcon, width: 16, height: 16),
-                              pw.SizedBox(width: 8),
-                              pw.Text(
-                                "${item.time.day.toString().padLeft(2, '0')}.${item.time.month.toString().padLeft(2, '0')}.${item.time.year}",
-                                style: pw.TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: pw.FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                          pw.SizedBox(height: 10),
-                          pw.Text(
-                            item.title,
-                            style: pw.TextStyle(
-                              fontSize: 18,
-                              fontWeight: pw.FontWeight.bold,
-                              color: PdfColor.fromInt(0xffFF6B456A),
-                            ),
-                          ),
-                          pw.SizedBox(height: 8),
-                          // Only show fields that have content
-                          if (item.responsiblePerson.isNotEmpty) ...[
-                            pw.SizedBox(height: 5),
-                            pw.Text(
-                              'Verantwortliche Person: ${item.responsiblePerson}',
-                              style: pw.TextStyle(fontSize: 12),
-                            ),
-                          ],
-                          if (item.notes.isNotEmpty) ...[
-                            pw.SizedBox(height: 5),
-                            pw.Text(
-                              'Notizen: ${item.notes}',
-                              style: pw.TextStyle(fontSize: 12),
-                            ),
-                          ],
-                          if (item.address.isNotEmpty) ...[
-                            pw.SizedBox(height: 5),
-                            pw.Text(
-                              'Ort: ${item.address}',
-                              style: pw.TextStyle(fontSize: 12),
-                            ),
-                          ],
-                          // Add new fields
-                          if (item.dienstleistername.isNotEmpty) ...[
-                            pw.SizedBox(height: 5),
-                            pw.Text(
-                              'Dienstleistername: ${item.dienstleistername}',
-                              style: pw.TextStyle(fontSize: 12),
-                            ),
-                          ],
-                          if (item.kontaktperson.isNotEmpty) ...[
-                            pw.SizedBox(height: 5),
-                            pw.Text(
-                              'Kontaktperson: ${item.kontaktperson}',
-                              style: pw.TextStyle(fontSize: 12),
-                            ),
-                          ],
-                          if (item.telefonnummer.isNotEmpty) ...[
-                            pw.SizedBox(height: 5),
-                            pw.Text(
-                              'Telefonnummer: ${item.telefonnummer}',
-                              style: pw.TextStyle(fontSize: 12),
-                            ),
-                          ],
-                          if (item.email.isNotEmpty) ...[
-                            pw.SizedBox(height: 5),
-                            pw.Text(
-                              'E-Mail: ${item.email}',
-                              style: pw.TextStyle(fontSize: 12),
-                            ),
-                          ],
-                          if (item.homepage.isNotEmpty) ...[
-                            pw.SizedBox(height: 5),
-                            pw.Text(
-                              'Homepage: ${item.homepage}',
-                              style: pw.TextStyle(fontSize: 12),
-                            ),
-                          ],
-                          if (item.instagram.isNotEmpty) ...[
-                            pw.SizedBox(height: 5),
-                            pw.Text(
-                              'Instagram: ${item.instagram}',
-                              style: pw.TextStyle(fontSize: 12),
-                            ),
-                          ],
-                          if (item.addressDetails.isNotEmpty) ...[
-                            pw.SizedBox(height: 5),
-                            pw.Text(
-                              'Adresse Details: ${item.addressDetails}',
-                              style: pw.TextStyle(fontSize: 12),
-                            ),
-                          ],
-                          if (item.angebotText.isNotEmpty) ...[
-                            pw.SizedBox(height: 5),
-                            pw.Text(
-                              'Angebot: ${item.angebotText}',
-                              style: pw.TextStyle(fontSize: 12),
-                            ),
-                          ],
-                          if (item.angebotFileName.isNotEmpty) ...[
-                            pw.SizedBox(height: 5),
-                            pw.Text(
-                              'Angebot Datei: ${item.angebotFileName}',
-                              style: pw.TextStyle(fontSize: 12),
-                            ),
-                          ],
-                          if (item.zahlungsstatus.isNotEmpty &&
-                              item.zahlungsstatus != 'Unbezahlt') ...[
-                            pw.SizedBox(height: 5),
-                            pw.Text(
-                              'Zahlungsstatus: ${item.zahlungsstatus}',
+                          pw.Text(AppConstants.weddingSchedulePageTitle,
                               style: pw.TextStyle(
-                                  fontSize: 12, fontWeight: pw.FontWeight.bold),
-                            ),
+                                  fontSize: 18,
+                                  fontWeight: pw.FontWeight.bold)),
+                          pw.SizedBox(height: 5),
+                          pw.Text(weddingSchedule.title,
+                              style: pw.TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: pw.FontWeight.normal)),
+                          pw.SizedBox(height: 5),
+                          pw.Text("Datum & Zeit",
+                              style: pw.TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: pw.FontWeight.bold)),
+                          pw.SizedBox(height: 5),
+                          pw.Row(children: [
+                            pw.SizedBox(width: 5),
+                            pw.Image(logoClockk, height: 20, width: 20),
+                            pw.SizedBox(width: 5),
+                            pw.Text(
+                                '${weddingSchedule.time.hour.toString().padLeft(2, '0')}:${weddingSchedule.time.minute.toString().padLeft(2, '0')} Uhr'),
+                          ]),
+                          pw.SizedBox(height: 5),
+                          pw.Row(children: [
+                            pw.SizedBox(width: 5),
+                            pw.Image(logoCalendarIcon, height: 20, width: 20),
+                            pw.SizedBox(width: 5),
+                            pw.Text(
+                                '${weddingSchedule.time.day.toString().padLeft(2, '0')}.${weddingSchedule.time.month.toString().padLeft(2, '0')}.${weddingSchedule.time.year}'),
+                          ]),
+
+                          // Only show fields that have content
+                          if (weddingSchedule.notes.isNotEmpty) ...[
+                            pw.SizedBox(height: 10),
+                            pw.Text('Notizen',
+                                style: pw.TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: pw.FontWeight.bold)),
+                            pw.SizedBox(height: 5),
+                            pw.Text(weddingSchedule.notes),
                           ],
-                          if (item.probetermin != null) ...[
+
+                          if (weddingSchedule.responsiblePerson.isNotEmpty) ...[
+                            pw.SizedBox(height: 10),
+                            pw.Text('Verantwortliche Person',
+                                style: pw.TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: pw.FontWeight.bold)),
+                            pw.SizedBox(height: 5),
+                            pw.Text(weddingSchedule.responsiblePerson),
+                          ],
+
+                          if (weddingSchedule.address.isNotEmpty) ...[
+                            pw.SizedBox(height: 10),
+                            pw.Text('Ort',
+                                style: pw.TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: pw.FontWeight.bold)),
+                            pw.SizedBox(height: 5),
+                            pw.Text(weddingSchedule.address),
+                          ],
+
+                          // Service Provider Details
+                          if (weddingSchedule.dienstleistername.isNotEmpty) ...[
+                            pw.SizedBox(height: 10),
+                            pw.Text('Dienstleistername',
+                                style: pw.TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: pw.FontWeight.bold)),
+                            pw.SizedBox(height: 5),
+                            pw.Text(weddingSchedule.dienstleistername),
+                          ],
+                          if (weddingSchedule.kontaktperson.isNotEmpty) ...[
+                            pw.SizedBox(height: 10),
+                            pw.Text('Kontaktperson',
+                                style: pw.TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: pw.FontWeight.bold)),
+                            pw.SizedBox(height: 5),
+                            pw.Text(weddingSchedule.kontaktperson),
+                          ],
+                          if (weddingSchedule.telefonnummer.isNotEmpty) ...[
+                            pw.SizedBox(height: 10),
+                            pw.Text('Telefonnummer',
+                                style: pw.TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: pw.FontWeight.bold)),
+                            pw.SizedBox(height: 5),
+                            pw.Text(weddingSchedule.telefonnummer),
+                          ],
+                          if (weddingSchedule.email.isNotEmpty) ...[
+                            pw.SizedBox(height: 10),
+                            pw.Text('E-Mail',
+                                style: pw.TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: pw.FontWeight.bold)),
+                            pw.SizedBox(height: 5),
+                            pw.Text(weddingSchedule.email),
+                          ],
+                          if (weddingSchedule.homepage.isNotEmpty) ...[
+                            pw.SizedBox(height: 10),
+                            pw.Text('Homepage',
+                                style: pw.TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: pw.FontWeight.bold)),
+                            pw.SizedBox(height: 5),
+                            pw.Text(weddingSchedule.homepage),
+                          ],
+                          if (weddingSchedule.instagram.isNotEmpty) ...[
+                            pw.SizedBox(height: 10),
+                            pw.Text('Instagram',
+                                style: pw.TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: pw.FontWeight.bold)),
+                            pw.SizedBox(height: 5),
+                            pw.Text(weddingSchedule.instagram),
+                          ],
+                          if (weddingSchedule.addressDetails.isNotEmpty) ...[
+                            pw.SizedBox(height: 10),
+                            pw.Text('Adresse Details',
+                                style: pw.TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: pw.FontWeight.bold)),
+                            pw.SizedBox(height: 5),
+                            pw.Text(weddingSchedule.addressDetails),
+                          ],
+                          if (weddingSchedule.angebotText.isNotEmpty) ...[
+                            pw.SizedBox(height: 10),
+                            pw.Text('Angebot Beschreibung',
+                                style: pw.TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: pw.FontWeight.bold)),
+                            pw.SizedBox(height: 5),
+                            pw.Text(weddingSchedule.angebotText),
+                          ],
+                          if (weddingSchedule.angebotFileName.isNotEmpty) ...[
+                            pw.SizedBox(height: 10),
+                            pw.Text('Angebot Datei',
+                                style: pw.TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: pw.FontWeight.bold)),
+                            pw.SizedBox(height: 5),
+                            pw.Text(weddingSchedule.angebotFileName),
+                          ],
+                          if (weddingSchedule.zahlungsstatus.isNotEmpty &&
+                              weddingSchedule.zahlungsstatus !=
+                                  'Unbezahlt') ...[
+                            pw.SizedBox(height: 10),
+                            pw.Text('Zahlungsstatus',
+                                style: pw.TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: pw.FontWeight.bold)),
+                            pw.SizedBox(height: 5),
+                            pw.Text(weddingSchedule.zahlungsstatus,
+                                style: pw.TextStyle(
+                                    fontWeight: pw.FontWeight.bold)),
+                          ],
+                          if (weddingSchedule.probetermin != null) ...[
+                            pw.SizedBox(height: 10),
+                            pw.Text('Probetermin',
+                                style: pw.TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: pw.FontWeight.bold)),
                             pw.SizedBox(height: 5),
                             pw.Text(
-                              'Probetermin: ${item.probetermin!.day.toString().padLeft(2, '0')}.${item.probetermin!.month.toString().padLeft(2, '0')}.${item.probetermin!.year} um ${item.probetermin!.hour.toString().padLeft(2, '0')}:${item.probetermin!.minute.toString().padLeft(2, '0')} Uhr',
-                              style: pw.TextStyle(fontSize: 12),
-                            ),
+                                '${weddingSchedule.probetermin!.day.toString().padLeft(2, '0')}.${weddingSchedule.probetermin!.month.toString().padLeft(2, '0')}.${weddingSchedule.probetermin!.year} um ${weddingSchedule.probetermin!.hour.toString().padLeft(2, '0')}:${weddingSchedule.probetermin!.minute.toString().padLeft(2, '0')} Uhr'),
                           ],
                         ],
-                      ),
-                    ),
-                  ],
-                );
-              }).toList(),
-            ],
-          ),
-        ];
-      },
-    ),
-  );
+                      )),
+                ],
+              ),
+            ];
+          }),
+    );
+  }
 
   return pdf.save();
 }

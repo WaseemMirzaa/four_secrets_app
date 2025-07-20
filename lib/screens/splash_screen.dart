@@ -14,7 +14,7 @@ class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   Future<double> get _height => Future<double>.value(200);
   AnimationController? _controller;
-  final int timeInSeconds = 2;
+  final int timeInSeconds = 5;
 
   @override
   void initState() {
