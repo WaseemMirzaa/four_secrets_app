@@ -71,8 +71,9 @@ dependencies:
   # Utils
   path: ^1.8.3
   uuid: ^4.2.2
-  intl: ^0.20.2
   chat_gpt_sdk: ^3.1.5
+  intl: 0.19.0
+  dash_chat_2: ^0.0.21
 
 dev_dependencies:
   flutter_test:
