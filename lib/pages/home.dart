@@ -111,6 +111,29 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
 
+            // Test button for swipeable card
+            SliverToBoxAdapter(
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: Color.fromARGB(255, 107, 69, 106),
+                    padding: const EdgeInsets.all(12.0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context)
+                        .pushNamed(RouteManager.swipeableCardTestPage);
+                  },
+                  child: Text('Test Swipeable Card Widget'),
+                ),
+              ),
+            ),
+
             //         SliverToBoxAdapter(
             //           child: Column(children: [
             //              ElevatedButton(
