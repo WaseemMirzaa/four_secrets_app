@@ -83,7 +83,7 @@ class DialogBox extends StatelessWidget {
                   // cancel button
                   MyButton(
                     onPressed: isLoading ? null : onCancel,
-                    text: "Stornieren",
+                    text: "Abbrechen",
                     color: isLoading ? Colors.grey : null,
                   ),
                 ],

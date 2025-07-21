@@ -18,9 +18,18 @@ class UrlEmailInstagram {
   // Method for sending E-Mails
   static void sendEmail(
       {required String toEmail, String subject = "", String body = ""}) async {
-    final test = Uri.parse(
+    final emailUri = Uri.parse(
         'mailto:$toEmail?subject=${Uri.encodeFull(subject)}&body=${Uri.encodeFull(body)}');
-    await launchUrl(test);
+
+    try {
+      if (await canLaunchUrl(emailUri)) {
+        await launchUrl(emailUri);
+      } else {
+        print("Keine E-Mail-App gefunden");
+      }
+    } catch (e) {
+      print("Fehler beim Öffnen der E-Mail-App: $e");
+    }
   }
 
   // Method for connection with Instagram

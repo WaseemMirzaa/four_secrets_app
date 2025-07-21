@@ -1,14 +1,11 @@
+import 'package:DreamWedding/data/braut_braeutigam_card_items.dart';
 import 'package:flutter/material.dart';
-import 'package:four_secrets_wedding_app/menue.dart';
+import 'package:DreamWedding/menue.dart';
 
-class BrautBraeutigam extends StatefulWidget {
-  const BrautBraeutigam({super.key});
+class BrautBraeutigam extends StatelessWidget {
+  BrautBraeutigam({super.key});
+  final List items = BrautBraeutigamCardItems.getCardItems();
 
-  @override
-  State<BrautBraeutigam> createState() => _BrautBraeutigamState();
-}
-
-class _BrautBraeutigamState extends State<BrautBraeutigam> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -17,15 +14,30 @@ class _BrautBraeutigamState extends State<BrautBraeutigam> {
         appBar: AppBar(
           // automaticallyImplyLeading: false,
           foregroundColor: Color.fromARGB(255, 255, 255, 255),
-          title: const Text('Braut & Braeutigam Atelier'),
+          title: const Text('Braut Atelier'),
           backgroundColor: const Color.fromARGB(255, 107, 69, 106),
         ),
-        body: const Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
+        body: Container(
+          height: double.infinity,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              opacity: 0.4,
+              image: AssetImage(
+                  "assets/images/background/braut_und_braeutigam_back.jpg"),
+              fit: BoxFit.cover,
+            ),
+          ),
+          child: ListView(
+            physics: ClampingScrollPhysics(),
             children: [
-              Text('Hier entsteht in Kürze eine weiter Seite'),
+              ListView.builder(
+                primary: false, // disable scrolling
+                shrinkWrap: true, // limit height
+                itemCount: items.length,
+                itemBuilder: (context, index) {
+                  return items[index];
+                },
+              ),
             ],
           ),
         ),

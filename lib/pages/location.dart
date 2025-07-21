@@ -1,6 +1,6 @@
-import 'package:four_secrets_wedding_app/data/location_card_items.dart';
+import 'package:DreamWedding/data/location_card_items.dart';
 import 'package:flutter/material.dart';
-import 'package:four_secrets_wedding_app/menue.dart';
+import 'package:DreamWedding/menue.dart';
 
 class Location extends StatelessWidget {
   Location({super.key});
@@ -10,7 +10,7 @@ class Location extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: Menue.getInstance(),
+        drawer: const Menue(),
         appBar: AppBar(
           // automaticallyImplyLeading: false,
           foregroundColor: Color.fromARGB(255, 255, 255, 255),

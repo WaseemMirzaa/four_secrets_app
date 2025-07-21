@@ -1,13 +1,13 @@
 import 'dart:async';
 
-import 'package:four_secrets_wedding_app/data/showroom_event_data.dart';
-import 'package:four_secrets_wedding_app/data/showroom_event_images.dart';
-import 'package:four_secrets_wedding_app/model/carousel_slider_widget.dart';
-import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
-import 'package:four_secrets_wedding_app/routes/routes.dart';
+import 'package:DreamWedding/data/showroom_event_data.dart';
+import 'package:DreamWedding/data/showroom_event_images.dart';
+import 'package:DreamWedding/model/carousel_slider_widget.dart';
+import 'package:DreamWedding/model/four_secrets_divider.dart';
+import 'package:DreamWedding/routes/routes.dart';
 import 'package:expandable_text/expandable_text.dart';
 import 'package:flutter/material.dart';
-import 'package:four_secrets_wedding_app/menue.dart';
+import 'package:DreamWedding/menue.dart';
 
 // ignore: must_be_immutable
 class ShowroomEvent extends StatelessWidget {
@@ -31,7 +31,7 @@ class ShowroomEvent extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: Menue.getInstance(),
+        drawer: const Menue(),
         appBar: AppBar(
           // automaticallyImplyLeading: false,
           foregroundColor: Color.fromARGB(255, 255, 255, 255),
@@ -44,7 +44,7 @@ class ShowroomEvent extends StatelessWidget {
               height: double.infinity,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  opacity: 0.2,
+                  opacity: 0.15,
                   image: AssetImage(
                       "assets/images/background/showroom_event_back.jpg"),
                   fit: BoxFit.cover,
@@ -69,23 +69,23 @@ class ShowroomEvent extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: ExpandableText(
-                        "Das exklusive Showroom Event schafft eine einzigartige "
-                        "Umgebung für kleine Gruppen von 10-15 Teilnehmern, "
-                        "um die besten Hochzeitsdienstleister Münchens hautnah "
-                        "zu erleben. Renommierte Floristen, Fotografen, "
+                        "Willkommen im 4secrets-wedding Showroom München. Hier ist der "
+                        "Treffpunkt für Brautpaare, die ihre Hochzeit stilvoll "
+                        "und mit echten Profis planen möchten. Renommierte "
+                        "Hochzeitsdienstleister, wie z.B. Floristen, Fotografen, "
                         "Hairstylisten oder Entertainer präsentieren sich an "
                         "ausgewählten Tagen. Hier kann man sich von kreativen "
                         "Ideen inspirieren lassen, wie durch atemberaubende "
                         "Blumenarrangements oder innovative Hochzeitsdesigner. "
                         "Dadurch gewinnst du  einen ersten Eindruck für die eigene "
                         "Traumhochzeit. Bei jedem Event sorgt der regelmäßige "
-                        "Wechsel der Aussteller dafür, dass man ständig positive "
-                        "Überraschungen erlebt. Man kann zum Beispiel die "
-                        "Köstlichkeiten talentierter Konditoren probieren oder die "
-                        "Schönheit der Brautkleider bewundern. Diese einzigartige "
-                        "Gelegenheit ermöglicht es, die Vielfalt der Anbieter in "
-                        "der App zu entdecken und vereinfacht die präzise Auswahl "
-                        "für deine eigene Hochzeit.",
+                        "Wechsel, der in der App präsentierten top Dienstleister dafür, "
+                        "dass man positive Überraschungen erlebt. "
+                        "Diese einzigartige Gelegenheit ermöglicht es, "
+                        "die Vielfalt der Anbieter in der App zu entdecken und "
+                        "vereinfacht die präzise Auswahl für deine eigene Hochzeit. "
+                        "Bleibt informiert: folge uns auf Instagram unter @4secrets_wedding, "
+                        "um keine Events und Ankündigungen zu verpassen.",
                         maxLines: 8,
                         expandText: 'show more',
                         collapseText: 'show less',
@@ -104,8 +104,8 @@ class ShowroomEvent extends StatelessWidget {
                     padding: EdgeInsets.only(top: 12.5),
                   ),
                   FourSecretsDivider(
-                      // padValue: 0,
-                      ),
+                    padValue: 0,
+                  ),
                   CarouselSliderWidget(
                       images: images,
                       activeIndex: activeIndex,

@@ -1,8 +1,8 @@
-import 'package:four_secrets_wedding_app/data/parsonal_training_card_items.dart';
-import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
+import 'package:DreamWedding/data/parsonal_training_card_items.dart';
+import 'package:DreamWedding/model/four_secrets_divider.dart';
 import 'package:expandable_text/expandable_text.dart';
 import 'package:flutter/material.dart';
-import 'package:four_secrets_wedding_app/menue.dart';
+import 'package:DreamWedding/menue.dart';
 
 class PersonalTraining extends StatelessWidget {
   PersonalTraining({super.key});
@@ -12,7 +12,7 @@ class PersonalTraining extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: Menue.getInstance(),
+        drawer: const Menue(),
         appBar: AppBar(
           // automaticallyImplyLeading: false,
           foregroundColor: Color.fromARGB(255, 255, 255, 255),
