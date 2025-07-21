@@ -266,7 +266,7 @@ class _ToDoPageState extends State<ToDoPage> {
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8.0),
                           ),
-                          hintText: "Name oder E-Mail suchen",
+                          hintText: "E-Mail durchsuchen...",
                           fillColor: Colors.white,
                           filled: true,
                         ),

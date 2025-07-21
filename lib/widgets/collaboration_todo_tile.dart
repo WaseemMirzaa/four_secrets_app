@@ -839,42 +839,38 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
       child: Column(
         children: [
           ExpansionTile(
+            // pad
             shape: OutlineInputBorder(borderSide: BorderSide.none),
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
+                  children: [
+                    Expanded(
+                      child: CustomTextWidget(
+                        text: categoryName,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    if (_hasUnread)
+                      Container(
+                        margin: EdgeInsets.only(left: 6),
+                        width: 10,
+                        height: 10,
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                  ],
+                ),
+                Row(
                   mainAxisSize: MainAxisSize.max,
                   // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Flexible(
-                            child: CustomTextWidget(
-                              text: categoryName,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          if (_hasUnread)
-                            Container(
-                              margin: EdgeInsets.only(left: 6),
-                              width: 10,
-                              height: 10,
-                              decoration: BoxDecoration(
-                                color: Colors.red,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
                     // if (isOwned) ...[
-                    Expanded(
-                        child: SizedBox(
-                      width: 10,
-                    )),
+
                     IconButton(
                       icon: Icon(FontAwesomeIcons.penToSquare,
                           color: Color(0xFF6B456A), size: 20),
@@ -970,7 +966,7 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                   ],
                   // ],
                 ),
-                SizedBox(height: 4),
+                SizedBox(height: 2),
                 if (showTag && (data['isShared'] ?? false))
                   FutureBuilder<String>(
                     future: _getOwnerName(ownerId, ownerName),
