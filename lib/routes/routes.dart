@@ -109,7 +109,7 @@ class RouteManager {
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
         );
-        
+
       case homePage:
         return PageTransition(
           child: const HomePage(),
@@ -184,7 +184,7 @@ class RouteManager {
 
       case brauBraeutigamPage:
         return PageTransition(
-          child: const BrautBraeutigam(),
+          child: BrautBraeutigam(),
           settings: settings,
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
@@ -229,7 +229,7 @@ class RouteManager {
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
         );
-      
+
       case papeteriePage:
         return PageTransition(
           child: Papeterie(),
@@ -237,7 +237,7 @@ class RouteManager {
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
         );
-      
+
       case chatbotPage:
         return PageTransition(
           child: Chatbot(),
@@ -245,7 +245,7 @@ class RouteManager {
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
         );
-      
+
       case traurednerPage:
         return PageTransition(
           child: Trauredner(),
@@ -253,7 +253,7 @@ class RouteManager {
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
         );
-      
+
       case trauringePage:
         return PageTransition(
           child: Trauringe(),
@@ -261,15 +261,15 @@ class RouteManager {
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
         );
-      
+
       case cateringPage:
         return PageTransition(
-          child: Catering(), 
+          child: Catering(),
           settings: settings,
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
         );
-      
+
       case unterhaltungPage:
         return PageTransition(
           child: Unterhaltung(),
