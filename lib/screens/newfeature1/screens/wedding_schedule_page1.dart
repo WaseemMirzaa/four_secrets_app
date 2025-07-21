@@ -285,7 +285,7 @@ class _WeddingSchedulePage1State extends State<WeddingSchedulePage1> {
                             // Give each child a Unique Key from its ID:
                             return Container(
                               key: ValueKey(item.id),
-                              margin: EdgeInsets.symmetric(vertical: 4),
+                              margin: EdgeInsets.only(left: 4, top: 4, bottom: 4),
                               child: Row(
                                 children: [
                                   Expanded(

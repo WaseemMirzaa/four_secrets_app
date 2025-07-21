@@ -259,7 +259,8 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
   Future<void> _selectReminderTime() async {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
-      initialTime: _selectedReminderTime ?? TimeOfDay.now(),
+      initialTime:
+          _selectedReminderTime ?? const TimeOfDay(hour: 12, minute: 0),
     );
     if (picked != null) {
       setState(() {
@@ -1058,7 +1059,8 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                         // Pick time
                         final TimeOfDay? pickedTime = await showTimePicker(
                           context: context,
-                          initialTime: _selectedReminderTime ?? TimeOfDay.now(),
+                          initialTime: _selectedReminderTime ??
+                              const TimeOfDay(hour: 12, minute: 0),
                         );
                         if (pickedTime == null) return;
                         setState(() {

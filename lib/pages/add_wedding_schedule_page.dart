@@ -122,7 +122,7 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
   Future<void> _selectEventTime() async {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
-      initialTime: _selectedTime ?? TimeOfDay.now(),
+      initialTime: _selectedTime ?? const TimeOfDay(hour: 12, minute: 0),
     );
     if (picked != null) {
       setState(() {
@@ -152,7 +152,7 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
   Future<void> _selectReminderTime() async {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
-      initialTime: _selectedReminder ?? TimeOfDay.now(),
+      initialTime: _selectedReminder ?? const TimeOfDay(hour: 12, minute: 0),
     );
     if (picked != null) {
       setState(() {
