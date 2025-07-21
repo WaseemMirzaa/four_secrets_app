@@ -89,9 +89,12 @@ class HairMakeUp extends StatelessWidget {
                     physics: ClampingScrollPhysics(),
                     child: Column(
                       children: [
-                        SwipeableCardWidget(
-                          images: images,
-                          height: 450,
+                        Padding(
+                          padding: const EdgeInsets.only(top: 12.0),
+                          child: SwipeableCardWidget(
+                            images: images,
+                            height: 450,
+                          ),
                         ),
                         FourSecretsDivider(),
                         Padding(

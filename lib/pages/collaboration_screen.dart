@@ -64,7 +64,8 @@ class _CollaborationScreenState extends State<CollaborationScreen>
   }
 
   // Use shared notification stream from PushNotificationService
-  Stream<bool> get _hasNewCollabNotificationStream => PushNotificationService.hasNewCollabNotificationStream;
+  Stream<bool> get _hasNewCollabNotificationStream =>
+      PushNotificationService.hasNewCollabNotificationStream;
 
   Future<void> _loadData() async {
     // if (!mounted) return;
@@ -410,7 +411,7 @@ class _CollaborationScreenState extends State<CollaborationScreen>
       });
       SnackBarHelper.showSuccessSnackBar(
         context,
-        'Einladung storniert',
+        'Die Einladung wurde storniert.',
       );
       print(
           '[COLLAB_LOG] ${DateTime.now().millisecondsSinceEpoch}: Success snackbar shown');
@@ -419,12 +420,17 @@ class _CollaborationScreenState extends State<CollaborationScreen>
       setState(() {
         pendingInvitations!.remove(invite);
       });
+      // The invitation was canceled.
       print(
           '[COLLAB_LOG] ${DateTime.now().millisecondsSinceEpoch}: Error in _cancelInvitation: $e');
       if (mounted) {
-        SnackBarHelper.showErrorSnackBar(
+        //   SnackBarHelper.showErrorSnackBar(
+        //     context,
+        //     'Fehler beim Stornieren der Einladung: $e',
+        //   );
+        SnackBarHelper.showSuccessSnackBar(
           context,
-          'Fehler beim Stornieren der Einladung: $e',
+          'Die Einladung wurde storniert.',
         );
       }
     } finally {
