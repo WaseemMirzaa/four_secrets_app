@@ -25,8 +25,6 @@ class CardBackWidget extends StatelessWidget {
       {super.key,
       required this.className,
       required this.backCardTaetigkeit,
-      required this.backCardAdress1,
-      required this.backCardAdress2,
       required this.homepage,
       required this.modeString,
       required this.email,
@@ -35,7 +33,9 @@ class CardBackWidget extends StatelessWidget {
       required this.instagram,
       required this.videoAsset,
       required this.videoRatio,
-      required this.videoUri});
+      required this.videoUri,
+      this.backCardAdress2,
+      this.backCardAdress1});
 
   // Params for checking, if there are one adress or two
   int amountOfAdress = 0;
