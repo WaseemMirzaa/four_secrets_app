@@ -72,7 +72,7 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
           .weddingDayScheduleList
           .where((e) => e.time != null)
           .toList()
-        ..sort((b, a) {
+        ..sort((a, b) {
           final aDateTime = DateTime(
             a.time.year,
             a.time.month,
@@ -89,7 +89,7 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
             b.time.minute,
           );
 
-          return bDateTime.compareTo(aDateTime);
+          return aDateTime.compareTo(bDateTime); // Ascending order
         });
 
       print('🔵 Schedule list length: ${sortedScheduleList.length}');
@@ -168,29 +168,29 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
           actions: [
             IconButton(
                 onPressed: () async {
-                  final sortedScheduleList =
-                      weddingDayScheduleService.weddingDayScheduleList
-                          .where((e) => e.time != null) // Filter if needed
-                          .toList()
-                        ..sort((b, a) {
-                          final aDateTime = DateTime(
-                            a.time.year,
-                            a.time.month,
-                            a.time.day,
-                            a.time.hour,
-                            a.time.minute,
-                          );
+                  final sortedScheduleList = weddingDayScheduleService
+                      .weddingDayScheduleList
+                      .where((e) => e.time != null) // Filter if needed
+                      .toList()
+                    ..sort((a, b) {
+                      final aDateTime = DateTime(
+                        a.time.year,
+                        a.time.month,
+                        a.time.day,
+                        a.time.hour,
+                        a.time.minute,
+                      );
 
-                          final bDateTime = DateTime(
-                            b.time.year,
-                            b.time.month,
-                            b.time.day,
-                            b.time.hour,
-                            b.time.minute,
-                          );
+                      final bDateTime = DateTime(
+                        b.time.year,
+                        b.time.month,
+                        b.time.day,
+                        b.time.hour,
+                        b.time.minute,
+                      );
 
-                          return bDateTime.compareTo(aDateTime);
-                        });
+                      return aDateTime.compareTo(bDateTime); // Ascending order
+                    });
 
 // Step 2: Pass it to the PDF generator
                   final pdfBytes =
@@ -266,8 +266,7 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
                                 child: CustomTextWidget(
                                     textAlign: TextAlign.center,
                                     fontSize: 16,
-                            color: Colors.grey[600],
-
+                                    color: Colors.grey[600],
                                     fontWeight: FontWeight.w500,
                                     text:
                                         "Noch Keine Punkte hinzugefügt. Tippe auf das + Symbol unten rechts.")),
