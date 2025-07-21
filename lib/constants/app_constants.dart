@@ -230,7 +230,7 @@ class AppConstants {
   static const String weddingSchedulePageTitle = "Programmpunkt / Titel";
   static const String weddingSchedulePageDescription = "Beschreibung";
   static const String weddingSchedulePageResponsiblePerson =
-      "Zubtandige Person";
+      "Zuständige Person";
   static const String weddingSchedulePageNotes = "Notizen";
   static const String weddingSchedulePageTime = "Uhrzeit";
   static const String weddingSchedulePageDate = "Uhrzeit auswählen";
