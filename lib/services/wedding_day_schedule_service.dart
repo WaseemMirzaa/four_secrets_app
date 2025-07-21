@@ -16,41 +16,141 @@ class WeddingDayScheduleService {
   bool _hasManualReordering(List<WeddingDayScheduleModel> items) {
     if (items.length <= 1) return false;
 
-    // TEMPORARILY DISABLED: Always use timestamp-based sorting
-    // This ensures items are always sorted by time in ascending order
-    print(
-        "Manual reordering detection temporarily disabled - using timestamp sort");
+    // Check for problematic order values (all items have the same order)
+    final uniqueOrders = items.map((item) => item.order).toSet();
+    if (uniqueOrders.length == 1 && uniqueOrders.first == 0) {
+      print("Problematic order values detected: all items have order 0");
+      // Auto-fix: Reset all items to timestamp-based ordering
+      _autoFixOrderValues();
+      return false; // Return false to use timestamp sorting after fix
+    }
+
+    // Check if items are using manual ordering (small sequential numbers)
+    final hasSmallOrders = items.any((item) => item.order < 1000);
+    if (hasSmallOrders) {
+      // Verify if this is valid manual ordering (sequential numbers)
+      final sortedByOrder = List<WeddingDayScheduleModel>.from(items)
+        ..sort((a, b) => a.order.compareTo(b.order));
+
+      // Check if orders are sequential or at least unique
+      final orders = sortedByOrder.map((item) => item.order).toList();
+      final hasUniqueOrders = orders.toSet().length == orders.length;
+
+      if (hasUniqueOrders) {
+        print("Valid manual reordering detected (sequential order values)");
+        return true;
+      }
+    }
+
+    // Additional check: if items are not in chronological order by their order field
+    final sortedByOrder = List<WeddingDayScheduleModel>.from(items)
+      ..sort((a, b) => a.order.compareTo(b.order));
+
+    for (int i = 0; i < sortedByOrder.length - 1; i++) {
+      final current = sortedByOrder[i];
+      final next = sortedByOrder[i + 1];
+
+      // If a later item in order has an earlier time, manual reordering occurred
+      if (current.time.isAfter(next.time)) {
+        print(
+            "Manual reordering detected: chronological order doesn't match order field");
+        return true;
+      }
+    }
+
     return false;
+  }
 
-    // Check if any item has an order value that's not a timestamp
-    // (manual reordering sets order to 0, 1, 2, etc.)
-    // for (final item in items) {
-    //   // If order is a small number (0-1000), it's likely from manual reordering
-    //   // Timestamps are much larger (milliseconds since epoch)
-    //   if (item.order < 1000) {
-    //     print(
-    //         "Manual reordering detected: item '${item.title}' has order ${item.order}");
-    //     return true;
-    //   }
-    // }
+  /// Auto-fixes order values by setting them to timestamps
+  void _autoFixOrderValues() {
+    print("Auto-fixing order values to use timestamps...");
+    // This will be handled asynchronously to avoid blocking the UI
+    Future.microtask(() async {
+      try {
+        await resetToTimeBasedOrder();
+        print("Order values auto-fixed successfully");
+      } catch (e) {
+        print("Failed to auto-fix order values: $e");
+      }
+    });
+  }
 
-    // // Additional check: if items are not in chronological order by their order field
-    // final sortedByOrder = List<WeddingDayScheduleModel>.from(items)
-    //   ..sort((a, b) => a.order.compareTo(b.order));
+  /// Calculates the appropriate order value for a new item based on current ordering system
+  Future<int> _calculateNewItemOrder(DateTime newItemTime) async {
+    // If no items exist, use timestamp
+    if (weddingDayScheduleList.isEmpty) {
+      return newItemTime.millisecondsSinceEpoch;
+    }
 
-    // for (int i = 0; i < sortedByOrder.length - 1; i++) {
-    //   final current = sortedByOrder[i];
-    //   final next = sortedByOrder[i + 1];
+    // Check if current items are using manual ordering
+    final hasManualOrder = _hasManualReordering(weddingDayScheduleList);
 
-    //   // If a later item in order has an earlier time, manual reordering occurred
-    //   if (current.time.isAfter(next.time)) {
-    //     print(
-    //         "Manual reordering detected: chronological order doesn't match order field");
-    //     return true;
-    //   }
-    // }
+    if (hasManualOrder) {
+      // Manual ordering is active - find the correct position based on time
+      print(
+          "Manual ordering detected - inserting new item in chronological position");
 
-    // return false;
+      // Sort existing items by their current order
+      final sortedByOrder =
+          List<WeddingDayScheduleModel>.from(weddingDayScheduleList)
+            ..sort((a, b) => a.order.compareTo(b.order));
+
+      // Find where the new item should be inserted based on time
+      int insertPosition = 0;
+      for (int i = 0; i < sortedByOrder.length; i++) {
+        if (newItemTime.isBefore(sortedByOrder[i].time)) {
+          insertPosition = i;
+          break;
+        }
+        insertPosition = i + 1;
+      }
+
+      print("New item should be inserted at position $insertPosition");
+
+      // Update order values for all items to make room for the new item
+      await _makeRoomForNewItem(insertPosition);
+
+      return insertPosition;
+    } else {
+      // Timestamp-based ordering - use timestamp
+      print("Timestamp-based ordering - using timestamp as order");
+      return newItemTime.millisecondsSinceEpoch;
+    }
+  }
+
+  /// Makes room for a new item at the specified position by updating order values
+  Future<void> _makeRoomForNewItem(int insertPosition) async {
+    if (userId == null) return;
+
+    final batch = _firestore.batch();
+    final colRef = _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('weddingDaySchedule');
+
+    // Sort existing items by their current order
+    final sortedByOrder =
+        List<WeddingDayScheduleModel>.from(weddingDayScheduleList)
+          ..sort((a, b) => a.order.compareTo(b.order));
+
+    // Update order values for items at and after the insert position
+    for (int i = insertPosition; i < sortedByOrder.length; i++) {
+      final item = sortedByOrder[i];
+      final newOrder = i + 1; // Shift by 1 to make room
+
+      final docRef = colRef.doc(item.id);
+      batch.update(docRef, {'order': newOrder});
+
+      // Update local list
+      final index =
+          weddingDayScheduleList.indexWhere((element) => element.id == item.id);
+      if (index != -1) {
+        weddingDayScheduleList[index] = item.copyWith(order: newOrder);
+      }
+    }
+
+    await batch.commit();
+    print("Made room for new item at position $insertPosition");
   }
 
   Future<String?> addScheduleItem(
@@ -68,9 +168,8 @@ class WeddingDayScheduleService {
       throw StateError('User must be logged in to add a schedule item.');
     }
 
-    // Use a temporary order value - will be properly sorted in loadData()
-    // We use timestamp as order to maintain chronological order by default
-    final temporaryOrder = time.millisecondsSinceEpoch;
+    // Determine the appropriate order value based on current ordering system
+    final temporaryOrder = await _calculateNewItemOrder(time);
 
     final newScheduleItem = WeddingDayScheduleModel(
         id: null, // Firestore will generate
@@ -130,17 +229,10 @@ class WeddingDayScheduleService {
           .get(); // Remove orderBy to get all items first
 
       weddingDayScheduleList = snapshot.docs.map((doc) {
-        print(doc.data());
         return WeddingDayScheduleModel.fromMap(doc.data()).copyWith(id: doc.id);
       }).toList();
 
       print("Loaded ${weddingDayScheduleList.length} schedule items");
-
-      // Debug: Print all items with their order and time values
-      for (final item in weddingDayScheduleList) {
-        print(
-            "Item: '${item.title}' - Order: ${item.order}, Time: ${item.time}");
-      }
 
       // Check if items have been manually reordered
       final hasManualOrder = _hasManualReordering(weddingDayScheduleList);
