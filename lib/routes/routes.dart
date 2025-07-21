@@ -22,7 +22,6 @@ import 'package:four_secrets_wedding_app/pages/tanzschule.dart';
 import 'package:four_secrets_wedding_app/pages/muenchner_geheimtipp.dart';
 import 'package:four_secrets_wedding_app/pages/trauringe.dart';
 import 'package:four_secrets_wedding_app/pages/patiserie.dart';
-import 'package:four_secrets_wedding_app/pages/gesang.dart';
 import 'package:four_secrets_wedding_app/pages/papeterie.dart';
 import 'package:four_secrets_wedding_app/pages/trauredner.dart';
 import 'package:four_secrets_wedding_app/pages/unterhaltung.dart';
