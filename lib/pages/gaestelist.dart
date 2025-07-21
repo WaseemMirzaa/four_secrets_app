@@ -48,7 +48,8 @@ class _GaestelistState extends State<Gaestelist> {
           .collection('users')
           .doc(userId)
           .collection('guests')
-          .orderBy('createdAt', descending: false)  // Sort by creation time, oldest first
+          .orderBy('createdAt',
+              descending: false) // Sort by creation time, oldest first
           .get();
 
       final List<Map<String, dynamic>> loadedGuests = [];
@@ -551,6 +552,7 @@ class _GaestelistState extends State<Gaestelist> {
 enum States { takePart, mayBeTakePart, canceled }
 
 // Add this function outside the class to be used with compute()
+// ignore: unused_element
 Future<Map<String, dynamic>> _addGuestInBackground(
     Map<String, dynamic> params) async {
   try {

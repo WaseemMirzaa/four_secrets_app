@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:four_secrets_wedding_app/pages/add_edit_guest_page.dart';
 import 'package:four_secrets_wedding_app/pages/edit_profile_page.dart';
 import 'package:four_secrets_wedding_app/pages/gaestelist.dart';
 import 'package:four_secrets_wedding_app/pages/impressum.dart';

@@ -298,6 +298,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       }
 
       // Create the user with optional image URL
+      // ignore: unused_local_variable
       final userCredential = await AuthService().signUp(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),

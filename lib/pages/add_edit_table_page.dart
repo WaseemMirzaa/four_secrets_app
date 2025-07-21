@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/table_model.dart';
 import '../services/table_service.dart';
-import '../widgets/auth_background.dart';
 import '../utils/snackbar_helper.dart';
 
 class AddEditTablePage extends StatefulWidget {
