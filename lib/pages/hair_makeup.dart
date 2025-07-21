@@ -100,7 +100,7 @@ class HairMakeUp extends StatelessWidget {
                     padding: EdgeInsets.only(top: 12.5),
                   ),
 
-                  FourSecretsDivider(padValue: 0),
+                  FourSecretsDivider(),
 
                   CarouselSliderWidget(
                       images: images,
