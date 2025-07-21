@@ -744,8 +744,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
                                 setState(() {
                                   if (expanded) {
                                     expandedCategory = toDoName;
-                                    // Optionally, clear selection for other categories if you want only one category's subitems to be selected at a time:
-                                    // selectedItemsByCategory.removeWhere((key, value) => key != toDoName);
+                                    // Multiple categories can now be selected simultaneously
                                   } else {
                                     expandedCategory = null;
                                   }
@@ -1016,56 +1015,41 @@ class _AddTodoPageState extends State<AddTodoPage> {
                                             setState(() {
                                               print(
                                                   '🔵 Setting state for item selection...');
-                                              // Only allow one category selection at a time, but multiple subitems in that category
-                                              if (selectedItemsByCategory
-                                                      .isEmpty ||
-                                                  selectedItemsByCategory
-                                                      .containsKey(toDoName)) {
-                                                print(
-                                                    '🟢 Same category or empty selection - toggling subitem');
-                                                // Same category: just toggle subitem
-                                                final items = List<String>.from(
-                                                    selectedItemsByCategory[
-                                                            toDoName] ??
-                                                        <String>[]);
-                                                print(
-                                                    '🟢 Current items in category: $items');
+                                              // Allow multiple categories to be selected simultaneously
+                                              print(
+                                                  '🟢 Toggling item in category: "$toDoName"');
 
-                                                if (isSelected) {
-                                                  print(
-                                                      '🟢 Item was selected, removing: "$item"');
-                                                  items.remove(item);
-                                                } else {
-                                                  print(
-                                                      '🟢 Item was not selected, adding: "$item"');
-                                                  items.add(item);
-                                                }
-
-                                                print(
-                                                    '🟢 Items after toggle: $items');
-
-                                                if (items.isEmpty) {
-                                                  print(
-                                                      '🟢 No items left, removing category from selection');
-                                                  selectedItemsByCategory
-                                                      .remove(toDoName);
-                                                } else {
-                                                  print(
-                                                      '🟢 Updating category with items: $items');
+                                              // Get current items for this category
+                                              final items = List<String>.from(
                                                   selectedItemsByCategory[
-                                                      toDoName] = items;
-                                                }
+                                                          toDoName] ??
+                                                      <String>[]);
+                                              print(
+                                                  '🟢 Current items in category: $items');
+
+                                              if (isSelected) {
+                                                print(
+                                                    '🟢 Item was selected, removing: "$item"');
+                                                items.remove(item);
                                               } else {
                                                 print(
-                                                    '🟡 Different category - clearing previous and starting new selection');
+                                                    '🟢 Item was not selected, adding: "$item"');
+                                                items.add(item);
+                                              }
+
+                                              print(
+                                                  '🟢 Items after toggle: $items');
+
+                                              if (items.isEmpty) {
                                                 print(
-                                                    '🟡 Previous selectedItemsByCategory: $selectedItemsByCategory');
-                                                // Different category: clear previous, start new selection
-                                                selectedItemsByCategory.clear();
+                                                    '🟢 No items left, removing category from selection');
+                                                selectedItemsByCategory
+                                                    .remove(toDoName);
+                                              } else {
+                                                print(
+                                                    '🟢 Updating category with items: $items');
                                                 selectedItemsByCategory[
-                                                    toDoName] = [item];
-                                                print(
-                                                    '🟡 New selectedItemsByCategory: $selectedItemsByCategory');
+                                                    toDoName] = items;
                                               }
 
                                               print(
@@ -1169,25 +1153,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
                     }
                     setState(() => isSaving = true);
                     try {
-                      // Check for duplicate category name before creating (only for new todos)
-                      final entry = selectedItemsByCategory.entries.first;
-                      final categoryName = entry.key;
-
-                      if (widget.toDoModel == null) {
-                        final exists = await toDoService
-                            .checkForDuplicateCategory(categoryName);
-
-                        if (exists) {
-                          print('🔴🔴🔴 Kategorie existiert bereits!');
-                          SnackBarHelper.showErrorSnackBar(
-                              context, 'Kategorie existiert bereits!');
-                          setState(() => isSaving = false);
-                          return;
-                        }
-                      }
-                      final categories = [
-                        {'categoryName': entry.key, 'items': entry.value}
-                      ];
+                      // Prepare reminder ISO string if enabled
                       String? reminderIso;
                       if (_reminderEnabled &&
                           _selectedReminderDate != null &&
@@ -1201,19 +1167,26 @@ class _AddTodoPageState extends State<AddTodoPage> {
                         );
                         reminderIso = reminderDateTime.toIso8601String();
                       }
+
                       if (widget.toDoModel != null) {
-                        // EDITING EXISTING TODO
+                        // EDITING EXISTING TODO - Keep original logic for single category
+                        final entry = selectedItemsByCategory.entries.first;
+                        final categories = [
+                          {'categoryName': entry.key, 'items': entry.value}
+                        ];
+
                         final updatedTodo = widget.toDoModel!.copyWith(
                           categories: categories,
                           reminder: reminderIso,
                         );
                         await toDoService.updateTodo(updatedTodo);
+
                         // Schedule local notification for owner
                         if (reminderIso != null) {
                           await NotificationService.scheduleAlarmNotification(
                             id: updatedTodo.id.hashCode,
                             dateTime: DateTime.parse(reminderIso),
-                            title: updatedTodo.toDoName ?? categoryName,
+                            title: updatedTodo.toDoName ?? entry.key,
                             body: 'Erinnerung für Ihre Aufgabe',
                             payload: updatedTodo.id,
                           );
@@ -1222,39 +1195,179 @@ class _AddTodoPageState extends State<AddTodoPage> {
                             context, 'Todo erfolgreich aktualisiert');
                         Navigator.of(context).pop(true);
                       } else {
-                        // CREATING NEW TODO
-                        await toDoService.createTodo(
-                          categories: categories,
-                          reminder: reminderIso,
-                        );
-                        // Schedule local notification for owner
-                        if (reminderIso != null) {
-                          // Wait for Firestore to generate the ID, then fetch the latest todo
+                        // CREATING NEW TODOS - Create multiple todos, one for each category
+                        int createdCount = 0;
+                        List<String> duplicateCategories = [];
+
+                        // Helper method to find existing todo by category name
+                        Future<ToDoModel?> _findExistingTodoByCategory(
+                            String categoryName) async {
                           final myUid = toDoService.userId;
-                          if (myUid != null) {
+                          if (myUid == null) return null;
+
+                          try {
+                            // Get all todos and search for matching category name
                             final snapshot = await FirebaseFirestore.instance
                                 .collection('users')
                                 .doc(myUid)
                                 .collection('todos')
-                                .orderBy('toDoName', descending: true)
-                                .limit(1)
                                 .get();
-                            if (snapshot.docs.isNotEmpty) {
-                              final todo =
-                                  ToDoModel.fromFirestore(snapshot.docs.first);
-                              await NotificationService
-                                  .scheduleAlarmNotification(
-                                id: todo.id.hashCode,
-                                dateTime: DateTime.parse(reminderIso),
-                                title: todo.toDoName ?? categoryName,
-                                body: 'Erinnerung für Ihre Aufgabe',
-                                payload: todo.id,
+
+                            for (final doc in snapshot.docs) {
+                              final todo = ToDoModel.fromFirestore(doc);
+                              if (todo.categories?.isNotEmpty == true) {
+                                for (final category in todo.categories!) {
+                                  if (category['categoryName'] ==
+                                      categoryName) {
+                                    return todo;
+                                  }
+                                }
+                              }
+                            }
+                            return null;
+                          } catch (e) {
+                            print('🔴 Error finding existing todo: $e');
+                            return null;
+                          }
+                        }
+
+                        for (final entry in selectedItemsByCategory.entries) {
+                          final categoryName = entry.key;
+                          final items = entry.value;
+
+                          // Skip empty categories
+                          if (items.isEmpty) continue;
+
+                          // Check if category already exists
+                          final existingTodo =
+                              await _findExistingTodoByCategory(categoryName);
+
+                          if (existingTodo != null) {
+                            // Update existing todo by adding new items
+                            print(
+                                '🟡 Updating existing category: $categoryName');
+
+                            // Get existing items from the category
+                            final existingItems =
+                                existingTodo.categories?.isNotEmpty == true
+                                    ? List<String>.from(existingTodo
+                                            .categories!.first['items'] ??
+                                        [])
+                                    : <String>[];
+
+                            // Add new items that don't already exist
+                            final newItems = <String>[];
+                            for (final item in items) {
+                              if (!existingItems.contains(item)) {
+                                newItems.add(item);
+                                existingItems.add(item);
+                              }
+                            }
+
+                            if (newItems.isNotEmpty) {
+                              // Update the existing todo with new items
+                              final updatedCategories = [
+                                {
+                                  'categoryName': categoryName,
+                                  'items': existingItems
+                                }
+                              ];
+
+                              final updatedTodo = existingTodo.copyWith(
+                                categories: updatedCategories,
+                                reminder: reminderIso ??
+                                    existingTodo
+                                        .reminder, // Keep existing reminder if no new one
                               );
+
+                              await toDoService.updateTodo(updatedTodo);
+                              createdCount++; // Count as processed
+
+                              print(
+                                  '🟡 Added ${newItems.length} new items to existing category: $categoryName');
+                              print('🟡 New items: $newItems');
+                            } else {
+                              print(
+                                  '🟡 No new items to add to category: $categoryName');
+                              duplicateCategories
+                                  .add(categoryName); // All items already exist
+                            }
+                          } else {
+                            // Create new todo for this category
+                            print('🟢 Creating new category: $categoryName');
+
+                            final categories = [
+                              {'categoryName': categoryName, 'items': items}
+                            ];
+
+                            await toDoService.createTodo(
+                              categories: categories,
+                              reminder: reminderIso,
+                            );
+
+                            createdCount++;
+                          }
+
+                          // Schedule local notification if reminder is enabled
+                          if (reminderIso != null) {
+                            final myUid = toDoService.userId;
+                            if (myUid != null) {
+                              // For existing todos, we already have the ID, for new ones we need to fetch
+                              if (existingTodo != null) {
+                                await NotificationService
+                                    .scheduleAlarmNotification(
+                                  id: existingTodo.id.hashCode,
+                                  dateTime: DateTime.parse(reminderIso),
+                                  title: categoryName,
+                                  body: 'Erinnerung für Ihre Aufgabe',
+                                  payload: existingTodo.id,
+                                );
+                              } else {
+                                // For new todos, fetch the latest one
+                                final snapshot = await FirebaseFirestore
+                                    .instance
+                                    .collection('users')
+                                    .doc(myUid)
+                                    .collection('todos')
+                                    .orderBy('FieldPath.documentId',
+                                        descending: true)
+                                    .limit(1)
+                                    .get();
+                                if (snapshot.docs.isNotEmpty) {
+                                  final todo = ToDoModel.fromFirestore(
+                                      snapshot.docs.first);
+                                  await NotificationService
+                                      .scheduleAlarmNotification(
+                                    id: todo.id.hashCode,
+                                    dateTime: DateTime.parse(reminderIso),
+                                    title: categoryName,
+                                    body: 'Erinnerung für Ihre Aufgabe',
+                                    payload: todo.id,
+                                  );
+                                }
+                              }
                             }
                           }
                         }
-                        SnackBarHelper.showSuccessSnackBar(
-                            context, 'Todo erfolgreich gespeichert');
+
+                        // Show appropriate success/warning message
+                        if (createdCount > 0 && duplicateCategories.isEmpty) {
+                          SnackBarHelper.showSuccessSnackBar(
+                              context,
+                              createdCount == 1
+                                  ? 'Todo erfolgreich verarbeitet'
+                                  : '$createdCount Todos erfolgreich verarbeitet');
+                        } else if (createdCount > 0 &&
+                            duplicateCategories.isNotEmpty) {
+                          SnackBarHelper.showInfoSnackBar(context,
+                              '$createdCount Todos verarbeitet. Keine neuen Elemente für: ${duplicateCategories.join(", ")}');
+                        } else if (duplicateCategories.isNotEmpty) {
+                          SnackBarHelper.showInfoSnackBar(context,
+                              'Keine neuen Elemente hinzugefügt. Alle Elemente bereits vorhanden in: ${duplicateCategories.join(", ")}');
+                          setState(() => isSaving = false);
+                          return;
+                        }
+
                         Navigator.of(context).pop(true);
                       }
                     } catch (e) {
