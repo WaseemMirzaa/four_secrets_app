@@ -1,4 +1,4 @@
-import 'package:DreamWedding/model/chatbot_config.dart';
+import 'package:four_secrets_wedding_app/model/chatbot_config.dart';
 
 class ImprovedRateLimiter {
   static final ImprovedRateLimiter _instance = ImprovedRateLimiter._internal();

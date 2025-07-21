@@ -1,6 +1,6 @@
-import 'package:DreamWedding/data/trauringe_card_items.dart';
+import 'package:four_secrets_wedding_app/data/trauringe_card_items.dart';
 import 'package:flutter/material.dart';
-import 'package:DreamWedding/menue.dart';
+import 'package:four_secrets_wedding_app/menue.dart';
 
 class Trauringe extends StatelessWidget {
   Trauringe({super.key});

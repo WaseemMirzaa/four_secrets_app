@@ -1,8 +1,8 @@
-import 'package:DreamWedding/data/muenchner_geheimtipp_content.dart';
-import 'package:DreamWedding/data/muenchner_geheimtipp_images.dart';
-import 'package:DreamWedding/data/muenchner_geheimtipp_routes.dart';
+import 'package:four_secrets_wedding_app/data/muenchner_geheimtipp_content.dart';
+import 'package:four_secrets_wedding_app/data/muenchner_geheimtipp_images.dart';
+import 'package:four_secrets_wedding_app/data/muenchner_geheimtipp_routes.dart';
 import 'package:flutter/material.dart';
-import 'package:DreamWedding/menue.dart';
+import 'package:four_secrets_wedding_app/menue.dart';
 
 class MuenchnerGeheimtipp extends StatelessWidget {
   MuenchnerGeheimtipp({super.key});

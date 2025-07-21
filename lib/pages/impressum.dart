@@ -1,4 +1,4 @@
-import 'package:DreamWedding/menue.dart';
+import 'package:four_secrets_wedding_app/menue.dart';
 import 'package:flutter/material.dart';
 
 class Impressum extends StatelessWidget {

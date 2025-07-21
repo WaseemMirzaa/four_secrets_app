@@ -1,6 +1,6 @@
-import 'package:DreamWedding/data/gesang_card_items.dart';
+import 'package:four_secrets_wedding_app/data/gesang_card_items.dart';
 import 'package:flutter/material.dart';
-import 'package:DreamWedding/menue.dart';
+import 'package:four_secrets_wedding_app/menue.dart';
 
 class Gesang extends StatelessWidget {
   Gesang({super.key});
