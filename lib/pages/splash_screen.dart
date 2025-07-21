@@ -22,7 +22,7 @@ class _SplashScreenState extends State<SplashScreen>
   final AuthService _authService = AuthService();
   Future<double> get _height => Future<double>.value(200);
   AnimationController? _controller;
-  final int timeInSeconds = 5;
+  final int timeInSeconds = 1;
 
   @override
   void initState() {

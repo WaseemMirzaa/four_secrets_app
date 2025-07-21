@@ -395,7 +395,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
     if (widget.toDoModel != null && selectedItemsByCategory.isNotEmpty) {
       // Editing mode - show the category name being edited
       final categoryName = selectedItemsByCategory.keys.first;
-      return "Bearbeiten: $categoryName";
+      return "Bearbeiten";
     } else if (widget.showOnlyCustomCategories) {
       return "Eigene To-Do Listen";
     } else {
@@ -432,244 +432,244 @@ class _AddTodoPageState extends State<AddTodoPage> {
               )
             : Container(),
         body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+          padding: const EdgeInsets.only(top: 15, left: 15, right: 15),
           child: Column(children: [
             if (widget.toDoModel == null)
-            TypeAheadField<String>(
-              controller: _searchController,
-              suggestionsCallback: (pattern) async {
-                if (pattern.isEmpty) return [];
-                setState(() => isSearching = true);
-                await Future.delayed(const Duration(milliseconds: 50));
-                final lower = pattern.toLowerCase();
-                final Set<String> allSuggestions = {};
-                allTodo.forEach((cat, items) {
-                  if (cat.toLowerCase().contains(lower))
-                    allSuggestions.add(cat);
-                  allSuggestions.addAll(items
-                      .where((item) => item.toLowerCase().contains(lower)));
-                });
-                if (mounted) setState(() => isSearching = false);
-                return allSuggestions.toList();
-              },
-              builder: (context, controller, focusNode) {
-                return TextField(
-                  controller: controller,
-                  focusNode: focusNode,
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 16,
-                    fontWeight: FontWeight.normal,
-                  ),
-                  onChanged: (value) {
-                    setState(() {
-                      controller.text = value;
-                      _searchController.text = value;
-                      isSearching = true;
-                    });
-                  },
-                  onTapOutside: (event) {
-                    FocusScope.of(context).unfocus();
-                  },
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(
-                      FontAwesomeIcons.magnifyingGlass,
-                      color: Colors.grey.withValues(alpha: 0.8),
-                    ),
-                    hintText: "suchen...",
-                    fillColor: Colors.grey.withValues(alpha: 0.2),
-                    filled: true,
-                    suffixIcon: controller.text.isNotEmpty
-                        ? IconButton(
-                            icon: Icon(Icons.close, color: Colors.grey),
-                            onPressed: () {
-                              setState(() {
-                                _searchController.clear();
-                                controller.clear();
-                                filteredTodo = Map.from(allTodo);
-                                isSearching = false;
-                                showFilteredList = false;
-                                expandedCategory = null;
-                                selectedItemsByCategory.clear();
-                              });
-                              FocusScope.of(context).unfocus();
-                            },
-                          )
-                        : null,
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    disabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-                  ),
-                );
-              },
-              itemBuilder: (context, suggestion) {
-                return suggestion.isNotEmpty
-                    ? Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withValues(alpha: 0.08),
-                              blurRadius: 4,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: ListTile(
-                          title: CustomTextWidget(
-                            text: suggestion,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Color.fromARGB(255, 107, 69, 106),
-                          ),
-                        ),
-                      )
-                    : SizedBox.shrink();
-              },
-              decorationBuilder: (context, child) => Material(
-                type: MaterialType.card,
-                elevation: 4,
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                child: child,
-              ),
-              // onSelected: (suggestion) {
-              //   setState(() {
-              //     showFilteredList = true;
-              //     // If suggestion is a category, set as activeCategory
-              //     if (allTodo.containsKey(suggestion)) {
-              //       expandedCategory = suggestion;
-              //     } else {
-              //       // Find which category this item belongs to
-              //       final found = allTodo.entries.firstWhere(
-              //           (e) => e.value.contains(suggestion),
-              //           orElse: () => MapEntry('', []));
-              //       if (found.key.isNotEmpty) {
-              //         expandedCategory = found.key;
-              //       }
-              //     }
-              //   });
-              //   _searchController.text = suggestion;
-              //   _searchController.selection = TextSelection.fromPosition(
-              //     TextPosition(offset: suggestion.length),
-              //   );
-              //   FocusScope.of(context).unfocus();
-              // },
-              onSelected: (suggestion) {
-                setState(() {
-                  final lower = suggestion.toLowerCase();
-                  filteredTodo = {};
+              TypeAheadField<String>(
+                controller: _searchController,
+                suggestionsCallback: (pattern) async {
+                  if (pattern.isEmpty) return [];
+                  setState(() => isSearching = true);
+                  await Future.delayed(const Duration(milliseconds: 50));
+                  final lower = pattern.toLowerCase();
+                  final Set<String> allSuggestions = {};
                   allTodo.forEach((cat, items) {
-                    final catMatch = cat.toLowerCase().contains(lower);
-                    // final itemMatches = items
-                    //     .where((item) => item.toLowerCase().contains(lower))
-                    //     .toList();
-                    if (catMatch) {
-                      filteredTodo[cat] = items;
-                    }
-
-                    // else if (itemMatches.isNotEmpty) {
-                    //   filteredTodo[cat] = itemMatches;
-                    // }
+                    if (cat.toLowerCase().contains(lower))
+                      allSuggestions.add(cat);
+                    allSuggestions.addAll(items
+                        .where((item) => item.toLowerCase().contains(lower)));
                   });
-                  showFilteredList = true;
-                  if (filteredTodo.isNotEmpty) {
-                    expandedCategory = filteredTodo.keys.first;
-                  }
-                  // Optionally expand the matched category
-                  if (allTodo.containsKey(suggestion)) {
-                    expandedCategory = suggestion;
-                  } else {
-                    final found = allTodo.entries.firstWhere(
-                        (e) => e.value.contains(suggestion),
-                        orElse: () => MapEntry('', []));
-                    if (found.key.isNotEmpty) {
-                      expandedCategory = found.key;
-                    }
-                  }
-                });
-                _searchController.text = suggestion;
-                _searchController.selection = TextSelection.fromPosition(
-                  TextPosition(offset: suggestion.length),
-                );
-                FocusScope.of(context).unfocus();
-              },
-              emptyBuilder: (context) {
-                final text = _searchController.text.trim();
-                if (text.isEmpty) {
-                  return SizedBox.shrink();
-                }
-                if (isSearching) {
-                  return Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(16),
-                      child: CircularProgressIndicator(),
+                  if (mounted) setState(() => isSearching = false);
+                  return allSuggestions.toList();
+                },
+                builder: (context, controller, focusNode) {
+                  return TextField(
+                    controller: controller,
+                    focusNode: focusNode,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
+                      fontWeight: FontWeight.normal,
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        controller.text = value;
+                        _searchController.text = value;
+                        isSearching = true;
+                      });
+                    },
+                    onTapOutside: (event) {
+                      FocusScope.of(context).unfocus();
+                    },
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(
+                        FontAwesomeIcons.magnifyingGlass,
+                        color: Colors.grey.withValues(alpha: 0.8),
+                      ),
+                      hintText: "suchen...",
+                      fillColor: Colors.grey.withValues(alpha: 0.2),
+                      filled: true,
+                      suffixIcon: controller.text.isNotEmpty
+                          ? IconButton(
+                              icon: Icon(Icons.close, color: Colors.grey),
+                              onPressed: () {
+                                setState(() {
+                                  _searchController.clear();
+                                  controller.clear();
+                                  filteredTodo = Map.from(allTodo);
+                                  isSearching = false;
+                                  showFilteredList = false;
+                                  expandedCategory = null;
+                                  selectedItemsByCategory.clear();
+                                });
+                                FocusScope.of(context).unfocus();
+                              },
+                            )
+                          : null,
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      disabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 10, vertical: 20),
                     ),
                   );
-                }
-                return Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  padding: EdgeInsets.all(16),
-                  child: InkWell(
-                    onTap: () async {
-                      final newCategoryName = _searchController.text.trim();
-                      if (allTodo.containsKey(newCategoryName)) {
-                        SnackBarHelper.showErrorSnackBar(
-                            context, 'Kategorie existiert bereits!');
-                        return;
+                },
+                itemBuilder: (context, suggestion) {
+                  return suggestion.isNotEmpty
+                      ? Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withValues(alpha: 0.08),
+                                blurRadius: 4,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: ListTile(
+                            title: CustomTextWidget(
+                              text: suggestion,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Color.fromARGB(255, 107, 69, 106),
+                            ),
+                          ),
+                        )
+                      : SizedBox.shrink();
+                },
+                decorationBuilder: (context, child) => Material(
+                  type: MaterialType.card,
+                  elevation: 4,
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  child: child,
+                ),
+                // onSelected: (suggestion) {
+                //   setState(() {
+                //     showFilteredList = true;
+                //     // If suggestion is a category, set as activeCategory
+                //     if (allTodo.containsKey(suggestion)) {
+                //       expandedCategory = suggestion;
+                //     } else {
+                //       // Find which category this item belongs to
+                //       final found = allTodo.entries.firstWhere(
+                //           (e) => e.value.contains(suggestion),
+                //           orElse: () => MapEntry('', []));
+                //       if (found.key.isNotEmpty) {
+                //         expandedCategory = found.key;
+                //       }
+                //     }
+                //   });
+                //   _searchController.text = suggestion;
+                //   _searchController.selection = TextSelection.fromPosition(
+                //     TextPosition(offset: suggestion.length),
+                //   );
+                //   FocusScope.of(context).unfocus();
+                // },
+                onSelected: (suggestion) {
+                  setState(() {
+                    final lower = suggestion.toLowerCase();
+                    filteredTodo = {};
+                    allTodo.forEach((cat, items) {
+                      final catMatch = cat.toLowerCase().contains(lower);
+                      // final itemMatches = items
+                      //     .where((item) => item.toLowerCase().contains(lower))
+                      //     .toList();
+                      if (catMatch) {
+                        filteredTodo[cat] = items;
                       }
-                      var g = Navigator.of(context).pushNamed(
-                          RouteManager.addTodoCategoriesPage,
-                          arguments: {"toDoModel": null, "id": null});
-                      if (g == true) {
-                        _loadAndInitCategories();
+
+                      // else if (itemMatches.isNotEmpty) {
+                      //   filteredTodo[cat] = itemMatches;
+                      // }
+                    });
+                    showFilteredList = true;
+                    if (filteredTodo.isNotEmpty) {
+                      expandedCategory = filteredTodo.keys.first;
+                    }
+                    // Optionally expand the matched category
+                    if (allTodo.containsKey(suggestion)) {
+                      expandedCategory = suggestion;
+                    } else {
+                      final found = allTodo.entries.firstWhere(
+                          (e) => e.value.contains(suggestion),
+                          orElse: () => MapEntry('', []));
+                      if (found.key.isNotEmpty) {
+                        expandedCategory = found.key;
                       }
-                    },
-                    child: Row(
-                      children: [
-                        Icon(
-                          FontAwesomeIcons.plus,
-                          size: 18,
-                          color: Colors.black,
-                        ),
-                        SizedBox(width: 10),
-                        CustomTextWidget(
-                          text: "Keine Ergebnisse gefunden",
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black,
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
+                    }
+                  });
+                  _searchController.text = suggestion;
+                  _searchController.selection = TextSelection.fromPosition(
+                    TextPosition(offset: suggestion.length),
+                  );
+                  FocusScope.of(context).unfocus();
+                },
+                emptyBuilder: (context) {
+                  final text = _searchController.text.trim();
+                  if (text.isEmpty) {
+                    return SizedBox.shrink();
+                  }
+                  if (isSearching) {
+                    return Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(16),
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
+                  }
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(15),
                     ),
-                  ),
-                );
-              },
-            ),
-            const SpacerWidget(height: 4),
+                    padding: EdgeInsets.all(16),
+                    child: InkWell(
+                      onTap: () async {
+                        final newCategoryName = _searchController.text.trim();
+                        if (allTodo.containsKey(newCategoryName)) {
+                          SnackBarHelper.showErrorSnackBar(
+                              context, 'Kategorie existiert bereits!');
+                          return;
+                        }
+                        var g = Navigator.of(context).pushNamed(
+                            RouteManager.addTodoCategoriesPage,
+                            arguments: {"toDoModel": null, "id": null});
+                        if (g == true) {
+                          _loadAndInitCategories();
+                        }
+                      },
+                      child: Row(
+                        children: [
+                          Icon(
+                            FontAwesomeIcons.plus,
+                            size: 18,
+                            color: Colors.black,
+                          ),
+                          SizedBox(width: 10),
+                          CustomTextWidget(
+                            text: "Keine Ergebnisse gefunden",
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black,
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            // const SpacerWidget(height: 4),
             // Reminder Section
 
             Expanded(
@@ -715,20 +715,29 @@ class _AddTodoPageState extends State<AddTodoPage> {
                           List<String> itemsToDo = displayTodo[toDoName]!;
                           final isExpanded = expandedCategory == toDoName;
                           return Container(
-                            margin: const EdgeInsets.symmetric(
-                                horizontal: 0, vertical: 8),
+                            margin: const EdgeInsets.only(top: 16),
                             decoration: BoxDecoration(
                               color: Colors.grey.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(15),
                             ),
                             child: ExpansionTile(
+                              trailing: (widget.toDoModel != null)
+                                  ? null
+                                  : SizedBox(width: 0, height: 0),
                               key: ValueKey('$toDoName-$expandedCategory'),
-                              tilePadding: EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 16),
+                              // padding: EdgeInsets.zero,
+                              tilePadding: EdgeInsets.only(
+                                left: 12,
+                                right: 12, // Remove right padding to compensate
+                                top: 12,
+                                bottom: 12,
+                              ),
+                              showTrailingIcon:
+                                  (widget.toDoModel != null) ? true : false,
                               shape: OutlineInputBorder(
                                   borderSide: BorderSide.none),
-                              childrenPadding: EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 6),
+                              childrenPadding: EdgeInsets.only(
+                                  left: 12, right: 0, bottom: 16),
                               initiallyExpanded:
                                   isExpanded || widget.toDoModel != null,
                               onExpansionChanged: (expanded) {
@@ -749,50 +758,171 @@ class _AddTodoPageState extends State<AddTodoPage> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        CustomTextWidget(
-                                          text: toDoName,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: CustomTextWidget(
+                                                text: '$toDoName',
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                            if (widget.toDoModel == null)
+                                              InkWell(
+                                                onTap: () {
+                                                  setState(() {
+                                                    // Simple toggle logic that works for both modes
+                                                    // Use the same logic as ExpansionTile's onExpansionChanged
+                                                    // isExpanded = !isExpanded;
+                                                    if (expandedCategory ==
+                                                        toDoName) {
+                                                      expandedCategory = null;
+                                                    } else {
+                                                      expandedCategory =
+                                                          toDoName;
+                                                    }
+                                                  });
+                                                },
+                                                borderRadius: BorderRadius.circular(
+                                                    20), // Circular touch effect
+                                                child: Padding(
+                                                  padding: EdgeInsets.all(
+                                                      8), // Increase touch area
+                                                  child: AnimatedRotation(
+                                                    turns: isExpanded
+                                                        ? 0.5
+                                                        : 0.0, // Rotate 180 degrees when expanded
+                                                    duration: Duration(
+                                                        milliseconds: 200),
+                                                    child: Icon(
+                                                      Icons.keyboard_arrow_down,
+                                                      color: Color.fromARGB(
+                                                          255, 107, 69, 106),
+                                                      size: 24,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                          ],
                                         ),
-                                        CustomTextWidget(
-                                          text:
-                                              '${itemsToDo.length} Unterkategorie${itemsToDo.length != 1 ? 'n' : ''}',
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 13,
-                                          color: Colors.grey[700],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  if (widget.toDoModel == null) ...[
-                                    IconButton(
-                                      icon: Icon(
-                                        FontAwesomeIcons.trashCan,
-                                        color: Colors.red,
-                                        size: 18,
-                                      ),
-                                      tooltip: 'Löschen',
-                                      onPressed: () async {
-                                        var g = await showDialog(
-                                            context: context,
-                                            builder: (context) =>
-                                                StatefulBuilder(
-                                                    builder: (context, statee) {
-                                                  return CustomDialog(
-                                                      isLoading: isSaving,
-                                                      title: "Löschen",
-                                                      message:
-                                                          "Möchten Sie diese Liste wirklich löschen?",
-                                                      confirmText: "Löschen",
-                                                      cancelText: "Abbrechen",
-                                                      onConfirm: () async {
-                                                        statee(() {
-                                                          isSaving = true;
-                                                        });
-                                                        try {
-                                                          // Find the category model to get the ID
-                                                          CategoryModel?
-                                                              categoryToDelete =
+                                        SizedBox(
+                                          height:
+                                              30, // Set explicit height for proper Stack layout
+                                          child: Stack(
+                                            children: [
+                                              // Text positioned on left with padding to avoid button overlap
+                                              Positioned.fill(
+                                                child: Align(
+                                                  alignment:
+                                                      Alignment.centerLeft,
+                                                  child: Padding(
+                                                    padding: EdgeInsets.only(
+                                                      right: widget.toDoModel ==
+                                                              null
+                                                          ? 96
+                                                          : 0, // Space for buttons
+                                                    ),
+                                                    child: CustomTextWidget(
+                                                      text:
+                                                          '${itemsToDo.length} Unterkategorie${itemsToDo.length != 1 ? 'n' : ''}',
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      fontSize: 13,
+                                                      color: Colors.grey[700],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+
+                                              // Action buttons positioned on the right
+                                              if (widget.toDoModel == null)
+                                                Positioned(
+                                                  right: 0,
+                                                  top: 0,
+                                                  bottom: 0,
+                                                  child: Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      IconButton(
+                                                        icon: Icon(
+                                                          FontAwesomeIcons
+                                                              .trashCan,
+                                                          color: Colors.red,
+                                                          size: 18,
+                                                        ),
+                                                        tooltip: 'Löschen',
+                                                        onPressed: () async {
+                                                          var g =
+                                                              await showDialog(
+                                                                  context:
+                                                                      context,
+                                                                  builder: (context) =>
+                                                                      StatefulBuilder(builder:
+                                                                          (context,
+                                                                              statee) {
+                                                                        return CustomDialog(
+                                                                            isLoading:
+                                                                                isSaving,
+                                                                            title:
+                                                                                "Löschen",
+                                                                            message:
+                                                                                "Möchten Sie diese Liste wirklich löschen?",
+                                                                            confirmText:
+                                                                                "Löschen",
+                                                                            cancelText:
+                                                                                "Abbrechen",
+                                                                            onConfirm:
+                                                                                () async {
+                                                                              statee(() {
+                                                                                isSaving = true;
+                                                                              });
+                                                                              try {
+                                                                                // Find the category model to get the ID
+                                                                                CategoryModel? categoryToDelete = allTodoModels.firstWhere(
+                                                                                  (m) => m.categoryName == toDoName,
+                                                                                  orElse: () => CategoryModel(
+                                                                                    id: '',
+                                                                                    categoryName: toDoName,
+                                                                                    todos: [],
+                                                                                    createdAt: DateTime.now(),
+                                                                                    userId: '',
+                                                                                  ),
+                                                                                );
+
+                                                                                if (categoryToDelete.id.isNotEmpty) {
+                                                                                  // Actually delete from database
+                                                                                  await categoryService.deleteCategory(categoryToDelete.id);
+                                                                                  SnackBarHelper.showSuccessSnackBar(context, 'Kategorie erfolgreich gelöscht');
+                                                                                }
+                                                                              } catch (e) {
+                                                                                print('🔴 Error deleting category: $e');
+                                                                                SnackBarHelper.showErrorSnackBar(context, 'Fehler beim Löschen: $e');
+                                                                              } finally {
+                                                                                statee(() {
+                                                                                  isSaving = false;
+                                                                                });
+                                                                              }
+                                                                              Navigator.of(context).pop(true);
+                                                                            },
+                                                                            onCancel:
+                                                                                () {
+                                                                              statee(() {
+                                                                                isSaving = false;
+                                                                              });
+                                                                              Navigator.of(context).pop();
+                                                                            });
+                                                                      }));
+                                                          if (g == true) {
+                                                            _loadAndInitCategories();
+                                                          }
+                                                        },
+                                                      ),
+                                                      IconButton(
+                                                        onPressed: () {
+                                                          CategoryModel? model =
                                                               allTodoModels
                                                                   .firstWhere(
                                                             (m) =>
@@ -803,86 +933,46 @@ class _AddTodoPageState extends State<AddTodoPage> {
                                                               id: '',
                                                               categoryName:
                                                                   toDoName,
-                                                              todos: [],
+                                                              todos: itemsToDo,
                                                               createdAt:
                                                                   DateTime
                                                                       .now(),
                                                               userId: '',
                                                             ),
                                                           );
-
-                                                          if (categoryToDelete
-                                                              .id.isNotEmpty) {
-                                                            // Actually delete from database
-                                                            await categoryService
-                                                                .deleteCategory(
-                                                                    categoryToDelete
-                                                                        .id);
-                                                            SnackBarHelper
-                                                                .showSuccessSnackBar(
-                                                                    context,
-                                                                    'Kategorie erfolgreich gelöscht');
-                                                          }
-                                                        } catch (e) {
-                                                          print(
-                                                              '🔴 Error deleting category: $e');
-                                                          SnackBarHelper
-                                                              .showErrorSnackBar(
-                                                                  context,
-                                                                  'Fehler beim Löschen: $e');
-                                                        } finally {
-                                                          statee(() {
-                                                            isSaving = false;
+                                                          var g = Navigator.of(
+                                                                  context)
+                                                              .pushNamed(
+                                                            RouteManager
+                                                                .addTodoCategoriesPage,
+                                                            arguments: {
+                                                              "toDoModel":
+                                                                  model,
+                                                              "id": model.id
+                                                            },
+                                                          );
+                                                          g.then((v) {
+                                                            _loadAndInitCategories();
                                                           });
-                                                        }
-                                                        Navigator.of(context)
-                                                            .pop(true);
-                                                      },
-                                                      onCancel: () {
-                                                        statee(() {
-                                                          isSaving = false;
-                                                        });
-                                                        Navigator.of(context)
-                                                            .pop();
-                                                      });
-                                                }));
-                                        if (g == true) {
-                                          _loadAndInitCategories();
-                                        }
-                                      },
-                                    ),
-                                    IconButton(
-                                      onPressed: () {
-                                        CategoryModel? model =
-                                            allTodoModels.firstWhere(
-                                          (m) => m.categoryName == toDoName,
-                                          orElse: () => CategoryModel(
-                                            id: '',
-                                            categoryName: toDoName,
-                                            todos: itemsToDo,
-                                            createdAt: DateTime.now(),
-                                            userId: '',
+                                                        },
+                                                        icon: Icon(
+                                                          FontAwesomeIcons
+                                                              .penToSquare,
+                                                          size: 20,
+                                                          color: const Color
+                                                              .fromARGB(255,
+                                                              107, 69, 106),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                            ],
                                           ),
-                                        );
-                                        var g = Navigator.of(context).pushNamed(
-                                          RouteManager.addTodoCategoriesPage,
-                                          arguments: {
-                                            "toDoModel": model,
-                                            "id": model.id
-                                          },
-                                        );
-                                        g.then((v) {
-                                          _loadAndInitCategories();
-                                        });
-                                      },
-                                      icon: Icon(
-                                        FontAwesomeIcons.penToSquare,
-                                        size: 20,
-                                        color: const Color.fromARGB(
-                                            255, 107, 69, 106),
-                                      ),
+                                        ),
+                                      ],
                                     ),
-                                  ],
+                                  ),
                                 ],
                               ),
                               children: itemsToDo.map((item) {
