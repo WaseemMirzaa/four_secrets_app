@@ -64,15 +64,74 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
     });
   }
 
+  /// Checks if items have been manually reordered by looking for
+  /// order values that don't match the timestamp-based order
+  bool _hasManualReordering(List<WeddingDayScheduleModel> items) {
+    if (items.length <= 1) return false;
+
+    // Check for problematic order values (all items have the same order)
+    final uniqueOrders = items.map((item) => item.order).toSet();
+    if (uniqueOrders.length == 1 && uniqueOrders.first == 0) {
+      print("Problematic order values detected: all items have order 0");
+      return false; // Use timestamp sorting
+    }
+
+    // Check if items are using manual ordering (small sequential numbers)
+    final hasSmallOrders = items.any((item) => item.order < 1000);
+    if (hasSmallOrders) {
+      // Verify if this is valid manual ordering (sequential numbers)
+      final sortedByOrder = List<WeddingDayScheduleModel>.from(items)
+        ..sort((a, b) => a.order.compareTo(b.order));
+
+      // Check if orders are sequential or at least unique
+      final orders = sortedByOrder.map((item) => item.order).toList();
+      final hasUniqueOrders = orders.toSet().length == orders.length;
+
+      if (hasUniqueOrders) {
+        print("Valid manual reordering detected (sequential order values)");
+        return true;
+      }
+    }
+
+    // Additional check: if items are not in chronological order by their order field
+    final sortedByOrder = List<WeddingDayScheduleModel>.from(items)
+      ..sort((a, b) => a.order.compareTo(b.order));
+
+    for (int i = 0; i < sortedByOrder.length - 1; i++) {
+      final current = sortedByOrder[i];
+      final next = sortedByOrder[i + 1];
+
+      // If a later item in order has an earlier time, manual reordering occurred
+      if (current.time.isAfter(next.time)) {
+        print(
+            "Manual reordering detected: chronological order doesn't match order field");
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   Future<void> _downloadWeddingSchedulePdf() async {
     try {
       print('🔵 ===== WEDDING SCHEDULE DOWNLOAD STARTED =====');
 
-      final sortedScheduleList = weddingDayScheduleService
-          .weddingDayScheduleList
-          .where((e) => e.time != null)
-          .toList()
-        ..sort((a, b) {
+      // Use the same sorting logic as the main list display
+      final sortedScheduleList = List<WeddingDayScheduleModel>.from(
+          weddingDayScheduleService.weddingDayScheduleList
+              .where((e) => e.time != null));
+
+      // Check if items have been manually reordered (same logic as service)
+      final hasManualOrder = _hasManualReordering(sortedScheduleList);
+
+      if (hasManualOrder) {
+        // Use manual order (sort by order field)
+        sortedScheduleList.sort((a, b) => a.order.compareTo(b.order));
+        print(
+            "🔵 PDF Download: Using manual order (items have been reordered)");
+      } else {
+        // Sort by date/time in ascending order (default behavior)
+        sortedScheduleList.sort((a, b) {
           final aDateTime = DateTime(
             a.time.year,
             a.time.month,
@@ -80,7 +139,6 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
             a.time.hour,
             a.time.minute,
           );
-
           final bDateTime = DateTime(
             b.time.year,
             b.time.month,
@@ -88,9 +146,10 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
             b.time.hour,
             b.time.minute,
           );
-
           return aDateTime.compareTo(bDateTime); // Ascending order
         });
+        print("🔵 PDF Download: Applied automatic date/time ascending sort");
+      }
 
       print('🔵 Schedule list length: ${sortedScheduleList.length}');
 
@@ -168,11 +227,23 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
           actions: [
             IconButton(
                 onPressed: () async {
-                  final sortedScheduleList = weddingDayScheduleService
-                      .weddingDayScheduleList
-                      .where((e) => e.time != null) // Filter if needed
-                      .toList()
-                    ..sort((a, b) {
+                  // Use the same sorting logic as the main list display
+                  final sortedScheduleList = List<WeddingDayScheduleModel>.from(
+                      weddingDayScheduleService.weddingDayScheduleList);
+
+                  // Check if items have been manually reordered (same logic as service)
+                  final hasManualOrder =
+                      _hasManualReordering(sortedScheduleList);
+
+                  if (hasManualOrder) {
+                    // Use manual order (sort by order field)
+                    sortedScheduleList
+                        .sort((a, b) => a.order.compareTo(b.order));
+                    print(
+                        "🔵 PDF View: Using manual order (items have been reordered)");
+                  } else {
+                    // Sort by date/time in ascending order (default behavior)
+                    sortedScheduleList.sort((a, b) {
                       final aDateTime = DateTime(
                         a.time.year,
                         a.time.month,
@@ -180,7 +251,6 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
                         a.time.hour,
                         a.time.minute,
                       );
-
                       final bDateTime = DateTime(
                         b.time.year,
                         b.time.month,
@@ -188,11 +258,13 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
                         b.time.hour,
                         b.time.minute,
                       );
-
                       return aDateTime.compareTo(bDateTime); // Ascending order
                     });
+                    print(
+                        "🔵 PDF View: Applied automatic date/time ascending sort");
+                  }
 
-// Step 2: Pass it to the PDF generator
+                  // Step 2: Pass it to the PDF generator
                   final pdfBytes =
                       await generateWeddingSchedulePdfBytes(sortedScheduleList);
                   Navigator.of(context).push(

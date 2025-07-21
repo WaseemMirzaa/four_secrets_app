@@ -1,4 +1,6 @@
 class AppConstants {
+  // Date picker configuration - disable manual entry globally
+  static const bool disableDateManualEntry = true;
   // Table Management Page
   static const String tableManagementTitle = 'Tischverwaltung';
   static const String addTableTooltip = 'Neuen Tisch hinzufügen';

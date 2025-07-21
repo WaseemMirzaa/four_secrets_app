@@ -12,6 +12,7 @@ import 'package:four_secrets_wedding_app/widgets/custom_button_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_text_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/wedding_schedule_page_widget.dart';
+import 'package:four_secrets_wedding_app/widgets/custom_date_picker_field.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:image_picker/image_picker.dart';
@@ -1072,37 +1073,12 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
                 ),
                 SpacerWidget(height: 4),
 
-                CustomTextWidget(text: "Probetermin Datum *"),
-                SpacerWidget(height: 2),
-                GestureDetector(
+                CustomDatePickerField(
+                  label: "Probetermin Datum",
+                  selectedDateText: _selectedEventDateText,
                   onTap: _selectEventDate,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4)
-                        .copyWith(right: 0),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.withValues(alpha: 0.2),
-                      border: Border.all(
-                        color: _selectedEventDate == null
-                            ? Colors.red.withValues(alpha: 0.5)
-                            : Colors.white,
-                      ),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: CustomTextWidget(
-                              text: _selectedEventDateText ?? ""),
-                        ),
-                        IconButton(
-                          onPressed: _selectEventDate,
-                          icon: Icon(Icons.calendar_today,
-                              color: Color(0xFF6B456A)),
-                        ),
-                      ],
-                    ),
-                  ),
+                  isRequired: true,
+                  hint: "Probetermin Datum auswählen",
                 ),
 
                 SpacerWidget(height: 4),
@@ -1185,63 +1161,18 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
                 // Show reminder date and time fields only if reminder is enabled
                 if (_reminderEnabled) ...[
                   SpacerWidget(height: 4),
-                  CustomTextWidget(
-                      text: AppConstants.weddingSchedulePageReminderDate),
-                  SpacerWidget(height: 2),
-                  GestureDetector(
+                  CustomDatePickerField(
+                    label: AppConstants.weddingSchedulePageReminderDate,
+                    selectedDateText: _selectedReminderDateText,
                     onTap: _selectReminderDate,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4)
-                          .copyWith(right: 0),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.withValues(alpha: 0.2),
-                        border: Border.all(color: Colors.white),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: CustomTextWidget(
-                                text: _selectedReminderDateText ?? ""),
-                          ),
-                          IconButton(
-                            onPressed: _selectReminderDate,
-                            icon: Icon(Icons.calendar_today,
-                                color: Color(0xFF6B456A)),
-                          ),
-                        ],
-                      ),
-                    ),
+                    hint: "Erinnerungsdatum auswählen",
                   ),
                   SpacerWidget(height: 4),
-                  CustomTextWidget(
-                      text: AppConstants.weddingSchedulePageReminderTime),
-                  SpacerWidget(height: 2),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4)
-                        .copyWith(right: 0),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.withValues(alpha: 0.2),
-                      border: Border.all(color: Colors.white),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: _selectReminderTime,
-                            child: CustomTextWidget(
-                                text: _selectedReminderText ?? ""),
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: _selectReminderTime,
-                          icon: Icon(Icons.timer, color: Color(0xFF6B456A)),
-                        ),
-                      ],
-                    ),
+                  CustomTimePickerField(
+                    label: AppConstants.weddingSchedulePageReminderTime,
+                    selectedTimeText: _selectedReminderText,
+                    onTap: _selectReminderTime,
+                    hint: "Erinnerungszeit auswählen",
                   ),
                 ],
 

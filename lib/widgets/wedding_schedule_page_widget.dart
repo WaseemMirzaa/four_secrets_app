@@ -25,11 +25,12 @@ class WeddingSchedulePageWidget extends StatelessWidget {
       children: [
         CustomTextWidget(
           text: text ?? "Beschreibung",
-          fontSize: 14,
+          fontSize: 18,
         ),
         SpacerWidget(height: 2),
         CustomTextField(
           controller: titleController,
+          hintStyle: TextStyle(fontSize: 16),
           inputDecoration: InputDecoration(
               filled: true,
               fillColor: Colors.grey.withValues(alpha: 0.2),

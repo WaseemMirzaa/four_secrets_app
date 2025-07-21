@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../config/theme/auth_theme.dart';
+import '../constants/app_constants.dart';
 
 class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
@@ -20,6 +21,8 @@ class CustomTextField extends StatelessWidget {
 
   final bool enabled;
 
+  final bool isDateField;
+
   const CustomTextField({
     Key? key,
     required this.controller,
@@ -36,6 +39,7 @@ class CustomTextField extends StatelessWidget {
     this.hintStyle,
     this.maxLength,
     this.enabled = true,
+    this.isDateField = false,
   }) : super(key: key);
 
   @override
@@ -45,10 +49,16 @@ class CustomTextField extends StatelessWidget {
       hintText: hint,
       hintStyle: hintStyle,
     );
+
+    // Force read-only for date fields when global setting is enabled
+    final shouldBeReadOnly =
+        isReadOnly || (isDateField && AppConstants.disableDateManualEntry);
+
     return TextFormField(
       controller: controller,
       maxLines: maxLines ?? 1,
-      readOnly: isReadOnly,
+      style: TextStyle(fontSize: 16),
+      readOnly: shouldBeReadOnly,
       enabled: enabled,
       onTapOutside: (event) {
         FocusScope.of(context).unfocus();

@@ -6,6 +6,7 @@ class UserModel {
   final String email;
   final String? profilePictureUrl;
   final bool emailVerified;
+  final bool isSubscribed;
   // final DateTime? createdAt;
 
   UserModel({
@@ -14,6 +15,7 @@ class UserModel {
     required this.email,
     this.profilePictureUrl,
     this.emailVerified = false,
+    this.isSubscribed = false,
     // this.createdAt,
   });
 
@@ -24,6 +26,7 @@ class UserModel {
       email: map['email'] ?? '',
       profilePictureUrl: map['profilePictureUrl'],
       emailVerified: map['emailVerified'] ?? false,
+      isSubscribed: map['isSubscribed'] ?? false,
       // createdAt: map['createdAt'] != null
       //     ? (map['createdAt'] as Timestamp).toDate()
       //     : null,
@@ -37,12 +40,13 @@ class UserModel {
       'email': email,
       'profilePictureUrl': profilePictureUrl,
       'emailVerified': emailVerified,
+      'isSubscribed': isSubscribed,
       // 'createdAt': createdAt != null ? Timestamp.fromDate(createdAt!) : null,
     };
   }
 
   @override
   String toString() {
-    return 'UserModel(uid: $uid, name: $name, email: $email, profilePictureUrl: $profilePictureUrl, emailVerified: $emailVerified)';
+    return 'UserModel(uid: $uid, name: $name, email: $email, profilePictureUrl: $profilePictureUrl, emailVerified: $emailVerified, isSubscribed: $isSubscribed)';
   }
 }

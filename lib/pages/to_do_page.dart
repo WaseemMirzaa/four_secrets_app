@@ -19,6 +19,7 @@ import 'package:four_secrets_wedding_app/widgets/custom_button_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_dialog.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_text_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
+import 'package:four_secrets_wedding_app/services/subscription_service.dart';
 
 import '../models/non_registered_user.dart';
 import '../widgets/collaboration_todo_tile.dart';
@@ -960,7 +961,18 @@ class _ToDoPageState extends State<ToDoPage> {
                 IconButton(
                   icon: Icon(Icons.person_add),
                   tooltip: 'Alle Listen teilen',
-                  onPressed: _showInviteDialog,
+                  onPressed: () async {
+                    // Check subscription before allowing invitations
+                    final subscriptionService = SubscriptionService();
+                    final canSend =
+                        await subscriptionService.canSendInvitations(context);
+
+                    if (!canSend) {
+                      return; // Subscription dialog already shown
+                    }
+
+                    _showInviteDialog();
+                  },
                 ),
                 if (selectedItems.isNotEmpty)
                   IconButton(
@@ -1070,6 +1082,15 @@ class _ToDoPageState extends State<ToDoPage> {
                   label: 'Mit Vorlage starten',
                   labelStyle: TextStyle(fontSize: 16),
                   onTap: () async {
+                    // Check subscription before allowing new item creation
+                    final subscriptionService = SubscriptionService();
+                    final canCreate =
+                        await subscriptionService.canCreateNewItems(context);
+
+                    if (!canCreate) {
+                      return; // Subscription dialog already shown
+                    }
+
                     var g = await Navigator.pushNamed(
                       context,
                       RouteManager.addToDoPage,
@@ -1089,6 +1110,15 @@ class _ToDoPageState extends State<ToDoPage> {
                   label: 'Mit leerer Liste starten',
                   labelStyle: TextStyle(fontSize: 16),
                   onTap: () async {
+                    // Check subscription before allowing new item creation
+                    final subscriptionService = SubscriptionService();
+                    final canCreate =
+                        await subscriptionService.canCreateNewItems(context);
+
+                    if (!canCreate) {
+                      return; // Subscription dialog already shown
+                    }
+
                     var g = await Navigator.pushNamed(
                       context,
                       RouteManager.addToDoPage,

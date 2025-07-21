@@ -43,6 +43,54 @@ class _WeddingSchedulePage1State extends State<WeddingSchedulePage1> {
     loadData();
   }
 
+  /// Checks if items have been manually reordered by looking for
+  /// order values that don't match the timestamp-based order
+  bool _hasManualReordering(List<WeddingDayScheduleModel1> items) {
+    if (items.length <= 1) return false;
+
+    // Check for problematic order values (all items have the same order)
+    final uniqueOrders = items.map((item) => item.order).toSet();
+    if (uniqueOrders.length == 1 && uniqueOrders.first == 0) {
+      print("Problematic order values detected: all items have order 0");
+      return false; // Use timestamp sorting
+    }
+
+    // Check if items are using manual ordering (small sequential numbers)
+    final hasSmallOrders = items.any((item) => item.order < 1000);
+    if (hasSmallOrders) {
+      // Verify if this is valid manual ordering (sequential numbers)
+      final sortedByOrder = List<WeddingDayScheduleModel1>.from(items)
+        ..sort((a, b) => a.order.compareTo(b.order));
+
+      // Check if orders are sequential or at least unique
+      final orders = sortedByOrder.map((item) => item.order).toList();
+      final hasUniqueOrders = orders.toSet().length == orders.length;
+
+      if (hasUniqueOrders) {
+        print("Valid manual reordering detected (sequential order values)");
+        return true;
+      }
+    }
+
+    // Additional check: if items are not in chronological order by their order field
+    final sortedByOrder = List<WeddingDayScheduleModel1>.from(items)
+      ..sort((a, b) => a.order.compareTo(b.order));
+
+    for (int i = 0; i < sortedByOrder.length - 1; i++) {
+      final current = sortedByOrder[i];
+      final next = sortedByOrder[i + 1];
+
+      // If a later item in order has an earlier time, manual reordering occurred
+      if (current.time.isAfter(next.time)) {
+        print(
+            "Manual reordering detected: chronological order doesn't match order field");
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -246,7 +294,7 @@ class _WeddingSchedulePage1State extends State<WeddingSchedulePage1> {
                             child: CustomTextWidget(
                                 textAlign: TextAlign.center,
                                 fontSize: 16,
-                            color: Colors.grey[600],
+                                color: Colors.grey[600],
                                 fontWeight: FontWeight.w500,
                                 text:
                                     "Noch Keine Punkte hinzugefügt. Tippe auf das + Symbol unten rechts.")),
@@ -285,7 +333,8 @@ class _WeddingSchedulePage1State extends State<WeddingSchedulePage1> {
                             // Give each child a Unique Key from its ID:
                             return Container(
                               key: ValueKey(item.id),
-                              margin: EdgeInsets.only(left: 4, top: 4, bottom: 4),
+                              margin:
+                                  EdgeInsets.only(left: 4, top: 4, bottom: 4),
                               child: Row(
                                 children: [
                                   Expanded(
