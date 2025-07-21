@@ -133,6 +133,111 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
     }
   }
 
+  Future<void> _sendCommentNotifications(
+      String commenterName, String comment) async {
+    try {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) return;
+
+      // Get the todo document to access collaborators and owner info
+      final todoDoc = await FirebaseFirestore.instance
+          .collection(widget.collectionPath)
+          .doc(widget.collabId)
+          .get();
+
+      if (!todoDoc.exists) return;
+
+      final todoData = todoDoc.data()!;
+      final collaborators = List<String>.from(todoData['collaborators'] ?? []);
+      final ownerEmail = todoData['ownerEmail'] as String?;
+      final categoryName = todoData['categories']?.isNotEmpty == true
+          ? todoData['categories'][0]['categoryName'] ?? 'Todo'
+          : 'Todo';
+
+      // Collect all users to notify (collaborators + owner, excluding commenter)
+      final usersToNotify = <String>{};
+
+      // Add collaborators
+      for (final collaboratorEmail in collaborators) {
+        if (collaboratorEmail != currentUser.email) {
+          usersToNotify.add(collaboratorEmail);
+        }
+      }
+
+      // Add owner if different from commenter
+      if (ownerEmail != null && ownerEmail != currentUser.email) {
+        usersToNotify.add(ownerEmail);
+      }
+
+      print('🔔 Sending comment notifications to: $usersToNotify');
+
+      // Send notifications to each user
+      for (final userEmail in usersToNotify) {
+        await _sendNotificationToUser(
+          userEmail: userEmail,
+          commenterName: commenterName,
+          comment: comment,
+          categoryName: categoryName,
+        );
+      }
+    } catch (e) {
+      print('🔴 Error sending comment notifications: $e');
+    }
+  }
+
+  Future<void> _sendNotificationToUser({
+    required String userEmail,
+    required String commenterName,
+    required String comment,
+    required String categoryName,
+  }) async {
+    try {
+      // Find user by email to get FCM token
+      final userQuery = await FirebaseFirestore.instance
+          .collection('users')
+          .where('email', isEqualTo: userEmail)
+          .limit(1)
+          .get();
+
+      if (userQuery.docs.isEmpty) {
+        print('🔴 User not found for email: $userEmail');
+        return;
+      }
+
+      final userDoc = userQuery.docs.first;
+      final fcmToken = userDoc.data()['fcmToken'] as String?;
+
+      if (fcmToken == null) {
+        print('🔴 No FCM token found for user: $userEmail');
+        return;
+      }
+
+      // Truncate comment if too long for notification
+      final truncatedComment =
+          comment.length > 50 ? '${comment.substring(0, 50)}...' : comment;
+
+      // Create notification
+      await FirebaseFirestore.instance.collection('notifications').add({
+        'token': fcmToken,
+        'toEmail': userEmail,
+        'title': 'Neuer Kommentar in $categoryName',
+        'body': '$commenterName: $truncatedComment',
+        'data': {
+          'type': 'comment',
+          'todoId': widget.collabId,
+          'categoryName': categoryName,
+          'commenterName': commenterName,
+        },
+        'timestamp': FieldValue.serverTimestamp(),
+        'read': false,
+      });
+
+      print('🔔 Notification sent to $userEmail for comment in $categoryName');
+    } catch (e) {
+      print('🔴 Error sending notification to $userEmail: $e');
+    }
+  }
+
   bool calculateHasUnread(Map<String, dynamic> data, String currentUserEmail) {
     final comments = List<Map<String, dynamic>>.from(data['comments'] ?? []);
     Timestamp? lastRead;
@@ -314,17 +419,44 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
               CircleAvatar(
                 radius: 16,
                 backgroundColor: avatarColor,
-                backgroundImage:
-                    (profilePicUrl != null && profilePicUrl.isNotEmpty)
-                        ? NetworkImage(profilePicUrl)
-                        : null,
-                child: (profilePicUrl == null || profilePicUrl.isEmpty)
-                    ? CustomTextWidget(
+                child: (profilePicUrl != null && profilePicUrl.isNotEmpty)
+                    ? ClipOval(
+                        child: Image.network(
+                          profilePicUrl,
+                          width: 32,
+                          height: 32,
+                          fit: BoxFit.cover,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Center(
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                                value: loadingProgress.expectedTotalBytes !=
+                                        null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                        loadingProgress.expectedTotalBytes!
+                                    : null,
+                              ),
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) {
+                            return CustomTextWidget(
+                              text: (displayName.isNotEmpty
+                                  ? displayName[0]
+                                  : 'U'),
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                              fontSize: 16,
+                            );
+                          },
+                        ),
+                      )
+                    : CustomTextWidget(
                         text: (displayName.isNotEmpty ? displayName[0] : 'U'),
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
-                        fontSize: 16)
-                    : null,
+                        fontSize: 16),
               ),
               SizedBox(width: 12),
               Expanded(
@@ -737,10 +869,9 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                                       userSnapshot.data!.docs.isNotEmpty) {
                                     final userData =
                                         userSnapshot.data!.docs.first.data();
-                                    profilePicUrl = userData != null
-                                        ? userData['profilePictureUrl']
-                                            as String?
-                                        : null;
+                                    profilePicUrl =
+                                        userData['profilePictureUrl']
+                                            as String?;
                                     displayName = userData != null
                                         ? (userData['name'] ??
                                             comment['userName'] ??
@@ -1248,9 +1379,8 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                                     userSnapshot.data!.docs.isNotEmpty) {
                                   final userData =
                                       userSnapshot.data!.docs.first.data();
-                                  profilePicUrl = userData != null
-                                      ? userData['profilePictureUrl'] as String?
-                                      : null;
+                                  profilePicUrl =
+                                      userData['profilePictureUrl'] as String?;
                                   displayName = userData != null
                                       ? (userData['name'] ??
                                           comment['userName'] ??
@@ -1400,6 +1530,9 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                     .collection(widget.collectionPath)
                     .doc(widget.collabId)
                     .update({'comments': updatedComments});
+
+                // Send notifications to all collaborators and owner except the commenter
+                await _sendCommentNotifications(userName, value);
               },
               enabled: isOwned ||
                   (!isRevoked &&
