@@ -58,7 +58,6 @@ class CategoryService {
             "Ersatzhemd (bei warmem Wetter)",
             "Schuhputztuch",
             "Deo",
-            "Ersatzstrumpfhose / -schuhe",
             "Taschentücher",
           ]
         },
