@@ -798,8 +798,10 @@ class _AddTodoPageState extends State<AddTodoPage> {
                                                         milliseconds: 200),
                                                     child: Icon(
                                                       Icons.keyboard_arrow_down,
-                                                      color: Color.fromARGB(
-                                                          255, 107, 69, 106),
+                                                      color: !isExpanded
+                                                          ? Colors.black
+                                                          : Color.fromARGB(255,
+                                                              107, 69, 106),
                                                       size: 24,
                                                     ),
                                                   ),

@@ -935,9 +935,9 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                         final confirm = await showDialog<bool>(
                           context: context,
                           builder: (context) => CustomDialog(
-                            title: 'Todo löschen',
+                            title: 'To-Do löschen',
                             message:
-                                'Möchten Sie dieses Todo wirklich löschen?',
+                                'Möchten Sie dieses To-Do wirklich löschen?',
                             confirmText: 'Löschen',
                             cancelText: 'Abbrechen',
                             onConfirm: () async {
@@ -956,7 +956,7 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                                 .delete();
                             if (context.mounted) {
                               SnackBarHelper.showSuccessSnackBar(
-                                  context, 'Todo gelöscht');
+                                  context, 'To-Do gelöscht');
                             }
                           } catch (e) {
                             if (context.mounted) {

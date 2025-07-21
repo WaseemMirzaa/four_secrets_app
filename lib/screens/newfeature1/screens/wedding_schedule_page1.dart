@@ -246,6 +246,7 @@ class _WeddingSchedulePage1State extends State<WeddingSchedulePage1> {
                             child: CustomTextWidget(
                                 textAlign: TextAlign.center,
                                 fontSize: 16,
+                            color: Colors.grey[600],
                                 fontWeight: FontWeight.w500,
                                 text:
                                     "Noch Keine Punkte hinzugefügt. Tippe auf das + Symbol unten rechts.")),

@@ -258,15 +258,22 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
             isLoading
                 ? Center(child: CircularProgressIndicator())
                 : weddingDayScheduleService.weddingDayScheduleList.isEmpty
-                    ? Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: Center(
-                            child: CustomTextWidget(
-                                textAlign: TextAlign.center,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                text:
-                                    "Noch Keine Punkte hinzugefügt. Tippe auf das + Symbol unten rechts.")),
+                    ? Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 15),
+                            child: Center(
+                                child: CustomTextWidget(
+                                    textAlign: TextAlign.center,
+                                    fontSize: 16,
+                            color: Colors.grey[600],
+
+                                    fontWeight: FontWeight.w500,
+                                    text:
+                                        "Noch Keine Punkte hinzugefügt. Tippe auf das + Symbol unten rechts.")),
+                          ),
+                          FourSecretsDivider()
+                        ],
                       )
                     : SizedBox(
                         width: context.screenWidth,

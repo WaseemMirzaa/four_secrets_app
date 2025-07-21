@@ -201,6 +201,17 @@ class _ToDoPageState extends State<ToDoPage> {
     });
   }
 
+  /// Validates email format using regex
+  bool _isValidEmail(String email) {
+    if (email.isEmpty) return false;
+
+    // Email regex pattern
+    final emailRegex =
+        RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+
+    return emailRegex.hasMatch(email);
+  }
+
   Future<void> _showInviteDialog() async {
     final TextEditingController searchController = TextEditingController();
     List<Map<String, dynamic>> searchResults = [];
@@ -209,6 +220,7 @@ class _ToDoPageState extends State<ToDoPage> {
     String? currentlyInvitingEmail;
     Set<String> sentInvitations = {}; // Track successfully sent invitations
     String? inviteEmai;
+    String? errorMessage; // Add error message state
     final currentUser = FirebaseAuth.instance.currentUser;
 
     await showDialog(
@@ -274,11 +286,10 @@ class _ToDoPageState extends State<ToDoPage> {
                                 isSearching = false;
                               });
                             } catch (e) {
-                              setState(() => isSearching = false);
-                              if (context.mounted) {
-                                SnackBarHelper.showErrorSnackBar(
-                                    context, "Fehler bei der Suche: $e");
-                              }
+                              setState(() {
+                                isSearching = false;
+                                errorMessage = "Fehler bei der Suche: $e";
+                              });
                             }
                           } else {
                             setState(() => searchResults = []);
@@ -287,6 +298,45 @@ class _ToDoPageState extends State<ToDoPage> {
                         },
                       ),
                     ),
+                    // Error message display
+                    if (errorMessage != null)
+                      Container(
+                        margin:
+                            EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                        padding: EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.red.shade50,
+                          border: Border.all(color: Colors.red.shade300),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.error_outline,
+                                color: Colors.red, size: 20),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                errorMessage!,
+                                style: TextStyle(
+                                  color: Colors.red.shade700,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.close,
+                                  color: Colors.red, size: 18),
+                              onPressed: () {
+                                setState(() {
+                                  errorMessage = null;
+                                });
+                              },
+                              padding: EdgeInsets.zero,
+                              constraints: BoxConstraints(),
+                            ),
+                          ],
+                        ),
+                      ),
                     if (isSearching)
                       Padding(
                         padding: const EdgeInsets.all(8.0),
@@ -458,15 +508,13 @@ class _ToDoPageState extends State<ToDoPage> {
                                                               false;
                                                           currentlyInvitingEmail =
                                                               null;
+                                                          errorMessage =
+                                                              "Fehler beim Senden der Einladung: $e";
                                                         });
                                                         print(
                                                             '[INVITE_LOG] ${DateTime.now().millisecondsSinceEpoch}: Error setState completed');
-                                                        SnackBarHelper
-                                                            .showErrorSnackBar(
-                                                                context,
-                                                                "Fehler beim Senden der Einladung: $e");
                                                         print(
-                                                            '[INVITE_LOG] ${DateTime.now().millisecondsSinceEpoch}: Error snackbar shown');
+                                                            '[INVITE_LOG] ${DateTime.now().millisecondsSinceEpoch}: Error message set in dialog');
                                                         // }
                                                       }
 
@@ -543,12 +591,27 @@ class _ToDoPageState extends State<ToDoPage> {
                                                     color: Color.fromARGB(
                                                         255, 107, 69, 106)),
                                                 onPressed: () async {
+                                                  // Validate email before sending
+                                                  final email = searchController
+                                                      .text
+                                                      .trim();
+                                                  if (!_isValidEmail(email)) {
+                                                    setState(() {
+                                                      errorMessage =
+                                                          "Ungültige E-Mail-Adresse";
+                                                    });
+                                                    return;
+                                                  }
+
+                                                  // Clear any previous error messages
+                                                  setState(() {
+                                                    errorMessage = null;
+                                                  });
+
                                                   setState(() =>
                                                       isSendingInvite = true);
-                                                  final name = searchController
-                                                      .text
-                                                      .split('@')
-                                                      .first;
+                                                  final name =
+                                                      email.split('@').first;
                                                   try {
                                                     final userName =
                                                         name[0].toUpperCase() +
@@ -557,16 +620,14 @@ class _ToDoPageState extends State<ToDoPage> {
                                                     // Send main invitation (this is the critical part)
                                                     await collaborationService
                                                         .sendInvitationForAllTodos(
-                                                      inviteeEmail:
-                                                          searchController.text,
+                                                      inviteeEmail: email,
                                                       inviteeName: userName,
                                                     );
 
                                                     // Save to non_registered_users collection
                                                     final nonRegisteredUser =
                                                         NonRegisteredUser(
-                                                      email:
-                                                          searchController.text,
+                                                      email: email,
                                                       name: userName,
                                                       invitedAt: DateTime.now(),
                                                     );
@@ -583,8 +644,7 @@ class _ToDoPageState extends State<ToDoPage> {
                                                     try {
                                                       emailService
                                                           .sendInvitationEmail(
-                                                        email: searchController
-                                                            .text,
+                                                        email: email,
                                                         inviterName: userName,
                                                       );
                                                     } catch (emailError) {
@@ -598,9 +658,8 @@ class _ToDoPageState extends State<ToDoPage> {
                                                     // if (mounted) {
                                                     setState(() {
                                                       isSendingInvite = false;
-                                                      sentInvitations.add(
-                                                          searchController
-                                                              .text);
+                                                      sentInvitations
+                                                          .add(email);
                                                     });
 
                                                     // Show green success snackbar
@@ -635,13 +694,11 @@ class _ToDoPageState extends State<ToDoPage> {
                                                     print(
                                                         'Main invitation failed: $e');
                                                     // if (mounted) {
-                                                    setState(() =>
-                                                        isSendingInvite =
-                                                            false);
-                                                    SnackBarHelper
-                                                        .showErrorSnackBar(
-                                                            context,
-                                                            "Fehler: $e");
+                                                    setState(() {
+                                                      isSendingInvite = false;
+                                                      errorMessage =
+                                                          "Fehler: ${e.toString().replaceAll('Exception:', '')}";
+                                                    });
                                                     // }
                                                   }
                                                 },
@@ -844,7 +901,8 @@ class _ToDoPageState extends State<ToDoPage> {
   }
 
   // Use shared notification stream from PushNotificationService
-  Stream<bool> get _hasNewCollabNotificationStream => PushNotificationService.hasNewCollabNotificationStream;
+  Stream<bool> get _hasNewCollabNotificationStream =>
+      PushNotificationService.hasNewCollabNotificationStream;
 
   var hideItem = true;
 
@@ -1063,16 +1121,21 @@ class _ToDoPageState extends State<ToDoPage> {
                         child: CircularProgressIndicator.adaptive(),
                       )
                     else if (toDoList.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: Center(
-                          child: CustomTextWidget(
-                              textAlign: TextAlign.center,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              text:
-                                  "Noch Keine Punkte hinzugefügt. Tippe auf das + Symbol unten rechts."),
-                        ),
+                      Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 15),
+                            child: Center(
+                                child: CustomTextWidget(
+                                    textAlign: TextAlign.center,
+                                    fontSize: 16,
+                                    color: Colors.grey[600],
+                                    fontWeight: FontWeight.w500,
+                                    text:
+                                        "Noch Keine Punkte hinzugefügt. Tippe auf das + Symbol unten rechts.")),
+                          ),
+                          FourSecretsDivider(),
+                        ],
                       )
                     else
                       SpacerWidget(height: 2),

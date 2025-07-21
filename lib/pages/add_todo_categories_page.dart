@@ -51,8 +51,8 @@ class _AddTodoCategoriesPageState extends State<AddTodoCategoriesPage> {
         foregroundColor: Colors.white,
         title: Text(
           widget.toDoModel != null
-              ? 'Eigene Listenname bearbeiten'
-              : 'Eigene Listenname hinzufügen',
+              ? 'Eigenen Listennamen bearbeiten'
+              : 'Eigenen Listennamen hinzufügen',
           style: const TextStyle(fontSize: 16),
         ),
         backgroundColor: const Color.fromARGB(255, 107, 69, 106),
@@ -65,11 +65,11 @@ class _AddTodoCategoriesPageState extends State<AddTodoCategoriesPage> {
             // Todo list name text field
             CustomTextField(
               controller: _todoNameController,
-              label: 'Listenname eingeben',
+              label: 'Listennamen eingeben',
               inputDecoration: InputDecoration(
                 fillColor: Colors.grey.withValues(alpha: 0.2),
                 filled: true,
-                hintText: 'Listenname eingeben',
+                hintText: 'Listennamen eingeben',
                 hintStyle: TextStyle(color: Colors.grey.withValues(alpha: 0.8)),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
