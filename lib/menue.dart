@@ -119,7 +119,7 @@ class MenueState extends State<Menue> {
   bool isPressedBtn8 = false; // About me
   bool isPressedBtn9 = false; // Kontakt
   bool isPressedBtn10 = false; // KI-Assistent (Chatbot)
-  bool isPressedBtn10 = false; // Impressum
+  bool isPressedBtn11 = false; // Impressum
   bool isPressedBtn12 = false; // Logout
 
   void buttonIsPressed(int buttonNumber) {
