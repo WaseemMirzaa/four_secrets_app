@@ -24,7 +24,7 @@ class _WeddingCategoryTitlePage1State extends State<WeddingCategoryTitlePage1> {
   final TextEditingController typeAheadController = TextEditingController();
   final WeddingCategoryDatabase1 weddingCategoryDatabase =
       WeddingCategoryDatabase1();
-  final subCategoryController = TextEditingController();
+  var subCategoryController = TextEditingController();
 
   bool isLoading = false;
   bool isSearching = false;
@@ -421,7 +421,8 @@ class _WeddingCategoryTitlePage1State extends State<WeddingCategoryTitlePage1> {
                                                         userId: userId!,
                                                       ),
                                                     );
-
+// Artikelname
+subCategoryController = TextEditingController();
                                                     var updateCateData =
                                                         await showDialog(
                                                       context: context,

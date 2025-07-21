@@ -307,7 +307,7 @@ class AppConstants {
   static const String weddingCategoryTitlePageAddCategoryError =
       'Bitte geben Sie einen Kategoriename ein';
   static const String weddingCategoryTitlePageAddItemError =
-      'Bitte geben Sie einen Artikelnamen ein';
+      'Bitte geben Sie einen Programmpunkt ein';
 
   static const String inspirationImageSelectText = "Wählen Sie eine Datei aus";
   static const String toDoPageTitle = "Hochzeitskit";

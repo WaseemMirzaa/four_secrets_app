@@ -42,6 +42,7 @@ import 'package:four_secrets_wedding_app/pages/wedding_car_service.dart';
 import 'package:four_secrets_wedding_app/pages/wedding_category_title_page.dart';
 import 'package:four_secrets_wedding_app/pages/wedding_designer.dart';
 import 'package:four_secrets_wedding_app/pages/wedding_schedule_page.dart';
+import 'package:four_secrets_wedding_app/pages/swipeable_card_test.dart';
 import 'package:four_secrets_wedding_app/screens/newfeature1/screens/wedding_schedule_page1.dart';
 import 'package:four_secrets_wedding_app/screens/newfeature1/screens/add_wedding_schedule_page1.dart';
 import 'package:four_secrets_wedding_app/screens/newfeature1/screens/add_title_category_wed_schedule_page1.dart';
@@ -103,6 +104,7 @@ class RouteManager {
   static const String addTodoCategoriesPage = '/addTodoCategoriesPage';
   static const String collaboratorDetailsPage = '/collaborator-details';
   static const String customTodoCategoryPage = '/customTodoCategoryPage';
+  static const String swipeableCardTestPage = '/swipeableCardTest';
 
   // Tagesablauf1 routes
   static const String weddingSchedulePage1 = '/wedding_schedule1';
@@ -483,6 +485,14 @@ class RouteManager {
       case customTodoCategoryPage:
         return PageTransition(
           child: const CustomTodoCategoryPage(),
+          settings: settings,
+          duration: const Duration(milliseconds: 250),
+          type: PageTransitionType.rightToLeft,
+        );
+
+      case swipeableCardTestPage:
+        return PageTransition(
+          child: const SwipeableCardTest(),
           settings: settings,
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,

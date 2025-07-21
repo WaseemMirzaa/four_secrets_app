@@ -218,10 +218,8 @@ class _AddCustomCategoryWeddingSchedulePageState
                             .toList();
 
                         if (validItems.isEmpty) {
-                          SnackBarHelper.showErrorSnackBar(
-                              context,
-                              AppConstants
-                                  .weddingCategoryTitlePageAddItemError);
+                          SnackBarHelper.showErrorSnackBar(context,
+                              'Bitte geben Sie einen Programmpunkt ein');
                           setState(() {
                             isLoading = false;
                           });
