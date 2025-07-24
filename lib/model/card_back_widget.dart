@@ -19,6 +19,7 @@ class CardBackWidget extends StatelessWidget {
   var videoRatio;
   final String videoUri;
   var phoneNumber;
+  var slogan;
 
   CardBackWidget(
       {super.key,
@@ -30,6 +31,7 @@ class CardBackWidget extends StatelessWidget {
       required this.modeString,
       required this.email,
       required this.phoneNumber,
+      required this.slogan,
       required this.instagram,
       required this.videoAsset,
       required this.videoRatio,
@@ -145,6 +147,18 @@ class CardBackWidget extends StatelessWidget {
                       ? CardAdress.twoAdress(backCardTaetigkeit,
                           backCardAdress1, backCardAdress2, phoneNumber)
                       : Text("no adress"),
+            ),
+            Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                    horizontal: 12.0), // Hier kannst du den Wert anpassen
+                child: Text(
+                  "\"" + slogan + "\"",
+                  style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic),
+                  softWrap: true,
+                  textAlign: TextAlign.center,
+                ),
+              ),
             ),
           ],
         ),
