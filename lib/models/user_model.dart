@@ -15,7 +15,7 @@ class UserModel {
     required this.email,
     this.profilePictureUrl,
     this.emailVerified = false,
-    this.isSubscribed = false,
+    this.isSubscribed = true, // Set to true for testing
     // this.createdAt,
   });
 
@@ -26,7 +26,7 @@ class UserModel {
       email: map['email'] ?? '',
       profilePictureUrl: map['profilePictureUrl'],
       emailVerified: map['emailVerified'] ?? false,
-      isSubscribed: map['isSubscribed'] ?? false,
+      isSubscribed: map['isSubscribed'] ?? true, // Default to true for testing
       // createdAt: map['createdAt'] != null
       //     ? (map['createdAt'] as Timestamp).toDate()
       //     : null,

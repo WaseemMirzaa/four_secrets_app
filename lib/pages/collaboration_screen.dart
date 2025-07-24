@@ -243,14 +243,18 @@ class _CollaborationScreenState extends State<CollaborationScreen>
   //   }
   // }
   Future<void> _respondToInvitation(String invitationId, bool accept) async {
-    print('[DEBUG] Processing invitation $invitationId, accept: $accept');
+    print('🔵 [DEBUG] Processing invitation $invitationId, accept: $accept');
+    print(
+        '🔵 [DEBUG] Total received invitations: ${_receivedInvitations.length}');
+    print('🔵 [DEBUG] All received invitations: $_receivedInvitations');
 
     final invite = _receivedInvitations.firstWhere(
       (element) => element['id'] == invitationId,
       orElse: () => {},
     );
 
-    print('[DEBUG] Invite data: ${invite.toString()}');
+    print('🔵 [DEBUG] Found invite data: ${invite.toString()}');
+    print('🔵 [DEBUG] Invite keys: ${invite.keys.toList()}');
 
     if (invite.isEmpty) {
       print('[ERROR] No invitation found');
@@ -273,11 +277,12 @@ class _CollaborationScreenState extends State<CollaborationScreen>
       if (isNonRegistered ||
           invite.containsKey('todoIds') ||
           invite.containsKey('todoId')) {
+        print('🔵 [DEBUG] Calling respondToInvitationForAllTodos');
         await _collaborationService.respondToInvitationForAllTodos(
             invitationId, accept);
       } else {
         // Default case - don't throw exception
-        print('[DEBUG] Handling basic invitation response');
+        print('🔵 [DEBUG] Calling basic respondToInvitation');
         await _collaborationService.respondToInvitation(invitationId, accept);
       }
 

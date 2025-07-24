@@ -1,0 +1,245 @@
+================================================================================
+                    FOUR SECRETS WEDDING APP - SUBSCRIPTION LOGIC
+================================================================================
+
+OVERVIEW
+========
+The Four Secrets Wedding App implements a subscription-based access control 
+system that restricts certain features to subscribed users only. The 
+subscription logic is currently applied EXCLUSIVELY to Todo-related 
+functionality.
+
+ARCHITECTURE
+============
+
+1. USER MODEL (lib/models/user_model.dart)
+------------------------------------------
+- Added 'isSubscribed' boolean field to UserModel class
+- Default value: true (currently set for testing purposes)
+- Stored in Firebase Firestore under user documents
+- Cached locally in SharedPreferences for performance
+
+Key Code:
+```dart
+class UserModel {
+  final bool isSubscribed;
+  
+  UserModel({
+    this.isSubscribed = true, // Currently set to true for testing
+  });
+}
+```
+
+2. SUBSCRIPTION SERVICE (lib/services/subscription_service.dart)
+---------------------------------------------------------------
+Core Methods:
+- isUserSubscribed() - Check if user is subscribed
+- checkSubscriptionWithDialog() - Check with dialog display
+- canCreateNewItems() - Check for todo creation
+- canSendInvitations() - Check for invitation sending
+
+Caching Strategy:
+- Subscription status cached per user session
+- Cache cleared when user data changes
+- Reduces Firebase calls for better performance
+
+Dialog System:
+- Shows German language subscription required dialog
+- Provides "Abbrechen" (Cancel) and "Upgraden" (Upgrade) options
+- Upgrade functionality is placeholder for future implementation
+
+IMPLEMENTATION SCOPE
+====================
+
+✅ FEATURES WITH SUBSCRIPTION CHECKS:
+------------------------------------
+
+Todo Page (lib/pages/to_do_page.dart):
+1. SpeedDial FloatingActionButton
+   - "Mit Vorlage starten" (Start with template)
+   - "Mit leerer Liste starten" (Start with empty list)
+
+2. Invitation System
+   - "Alle Listen teilen" button (Share all lists)
+   - Prevents sending invitations to non-subscribed users
+
+Implementation Pattern:
+```dart
+onPressed: () async {
+  final subscriptionService = SubscriptionService();
+  final canPerform = await subscriptionService.canCreateNewItems(context);
+  
+  if (!canPerform) {
+    return; // Subscription dialog already shown
+  }
+  
+  // Proceed with original functionality
+},
+```
+
+❌ FEATURES WITHOUT SUBSCRIPTION CHECKS:
+---------------------------------------
+1. Wedding Schedule Pages
+   - lib/pages/wedding_schedule_page.dart
+   - lib/screens/newfeature1/screens/wedding_schedule_page1.dart
+   - FloatingActionButtons work without restrictions
+
+2. Add Todo Page (lib/pages/add_todo_page.dart)
+   - Internal functionality not restricted
+
+3. Other App Features
+   - Guest management
+   - PDF generation/viewing
+   - Profile management
+   - General navigation
+
+DATA FLOW
+=========
+
+1. User Registration/Login:
+Firebase Auth → Firestore User Doc → UserModel → SharedPreferences
+                     ↓
+              isSubscribed: true (testing)
+
+2. Subscription Check Flow:
+User Action → SubscriptionService.canCreateNewItems()
+                     ↓
+            Check Cache → Firebase Query (if needed)
+                     ↓
+            Return boolean → Show Dialog (if false)
+
+3. Firebase Structure:
+users/{userId} {
+  name: string,
+  email: string,
+  profilePictureUrl: string,
+  emailVerified: boolean,
+  isSubscribed: boolean,        // ← Subscription field
+  subscriptionUpdatedAt: timestamp
+}
+
+CURRENT TESTING CONFIGURATION
+==============================
+
+🟢 TESTING MODE ACTIVE - ALL USERS ARE SUBSCRIBED BY DEFAULT
+
+Default Values:
+- New Users: isSubscribed: true
+- Existing Users: Fallback to true if field missing
+- Cache Behavior: Respects Firebase values but defaults to true
+
+Testing Scenarios:
+
+✅ Subscribed User (Current Default):
+- All todo creation buttons work normally
+- Invitation system functions without restrictions
+- No subscription dialogs appear
+
+❌ Non-Subscribed User (For Future Testing):
+To test non-subscribed behavior, change defaults to:
+- this.isSubscribed = false
+- map['isSubscribed'] ?? false
+- 'isSubscribed': false
+
+================================================================================
+🚨 HOW TO DISABLE TESTING MODE AND ENABLE SUBSCRIPTION RESTRICTIONS 🚨
+================================================================================
+
+STEP-BY-STEP INSTRUCTIONS TO SWITCH TO PRODUCTION MODE:
+
+1. MODIFY USER MODEL (lib/models/user_model.dart)
+   Change line 17:
+   FROM: this.isSubscribed = true, // Set to true for testing
+   TO:   this.isSubscribed = false,
+
+2. MODIFY USER MODEL FACTORY (lib/models/user_model.dart)
+   Change line 29:
+   FROM: isSubscribed: map['isSubscribed'] ?? true, // Default to true for testing
+   TO:   isSubscribed: map['isSubscribed'] ?? false,
+
+3. MODIFY AUTH SERVICE (lib/services/auth_service.dart)
+   Change line 129:
+   FROM: 'isSubscribed': true, // Set to true for testing
+   TO:   'isSubscribed': false,
+
+4. MODIFY SUBSCRIPTION SERVICE (lib/services/subscription_service.dart)
+   Change line 45-46:
+   FROM: final isSubscribed = userDoc.data()?['isSubscribed'] ?? true; // Default to true for testing
+   TO:   final isSubscribed = userDoc.data()?['isSubscribed'] ?? false;
+
+AFTER MAKING THESE 4 CHANGES:
+- New users will be created as non-subscribed
+- Existing users without the field will be treated as non-subscribed
+- Todo creation buttons will show subscription dialog for non-subscribed users
+- Invitation functionality will be restricted for non-subscribed users
+
+⚠️  WARNING: Make these changes only when ready for production or when you want
+    to test the subscription restriction behavior!
+
+QUICK TEST COMMAND:
+After making the changes above, restart the app and try:
+1. Click the + button on Todo page
+2. Try to send an invitation
+3. You should see the subscription required dialog
+
+TO RE-ENABLE TESTING MODE:
+Simply change all the 'false' values back to 'true' in the three locations above.
+
+USER EXPERIENCE
+===============
+
+Subscription Required Dialog (German):
+Title: "Abonnement erforderlich"
+Message: "Um [action] zu können, benötigen Sie ein aktives Abonnement. 
+         Bitte upgraden Sie Ihr Konto, um diese Funktion zu nutzen."
+Actions: [Abbrechen] [Upgraden]
+
+Restricted Actions:
+- "neue Elemente zu erstellen" (creating new items)
+- "Einladungen zu senden" (sending invitations)
+
+FUTURE ENHANCEMENTS
+===================
+
+Planned Features:
+1. Subscription Management UI
+   - Upgrade/downgrade options
+   - Subscription status display
+   - Payment integration
+
+2. Additional Restrictions
+   - Could be extended to other features if needed
+   - Granular permission system
+
+3. Analytics
+   - Track subscription conversion rates
+   - Monitor feature usage by subscription status
+
+DEVELOPMENT NOTES
+=================
+
+To Switch to Production Mode:
+1. Change all default values from true to false
+2. Implement actual subscription purchase flow
+3. Add subscription status indicators in UI
+4. Test non-subscribed user experience thoroughly
+
+Code Locations:
+- Model: lib/models/user_model.dart
+- Service: lib/services/subscription_service.dart
+- Implementation: lib/pages/to_do_page.dart
+- Auth: lib/services/auth_service.dart
+
+IMPORTANT FILES MODIFIED
+========================
+1. lib/models/user_model.dart - Added isSubscribed field
+2. lib/services/subscription_service.dart - New service for subscription logic
+3. lib/services/auth_service.dart - Updated user creation with isSubscribed
+4. lib/pages/to_do_page.dart - Added subscription checks to SpeedDial and invitations
+
+This subscription system provides a solid foundation for monetization while 
+maintaining a clean separation between free and premium features.
+
+================================================================================
+                              END OF DOCUMENTATION
+================================================================================

@@ -126,7 +126,7 @@ class AuthService {
         'email': email,
         'profilePictureUrl': profilePictureUrl,
         'emailVerified': false,
-        'isSubscribed': false, // Default to false for new users
+        'isSubscribed': true, // Set to true for testing
         'createdAt': FieldValue.serverTimestamp(),
       });
 
