@@ -1,0 +1,372 @@
+================================================================================
+                    FOUR SECRETS WEDDING APP - INVITATION SYSTEM
+================================================================================
+
+OVERVIEW
+========
+The invitation system allows users to share their todo lists with other users,
+enabling collaborative planning. The system supports both registered and 
+non-registered users, with different handling mechanisms for each type.
+
+ARCHITECTURE COMPONENTS
+=======================
+
+1. COLLABORATION SERVICE (lib/services/collaboration_service.dart)
+   - Core invitation logic
+   - Sending, accepting, declining invitations
+   - Managing collaborator relationships
+
+2. NON-REGISTERED INVITE SERVICE (lib/services/non_registered_invite_service.dart)
+   - Handling invitations for users not yet registered
+   - Storing pending invites for future registration
+
+3. COLLABORATION SCREEN (lib/pages/collaboration_screen.dart)
+   - UI for managing sent and received invitations
+   - "Empfangen" (Received) and "Gesendet" (Sent) tabs
+
+4. TODO PAGES (lib/pages/to_do_page.dart, lib/pages/to_do_page1.dart)
+   - Invitation sending interface
+   - Share button functionality
+
+FIRESTORE DATA STRUCTURE
+=========================
+
+1. INVITATIONS COLLECTION
+   Path: /invitations/{invitationId}
+   
+   Document Structure:
+   {
+     "inviterId": "string",           // UID of user sending invitation
+     "inviterEmail": "string",        // Email of user sending invitation
+     "inviterName": "string",         // Name of user sending invitation
+     "inviteeId": "string",          // UID of user receiving invitation (if registered)
+     "inviteeEmail": "string",        // Email of user receiving invitation
+     "inviteeName": "string",         // Name of user receiving invitation
+     "todoId": "string",             // Single todo ID (for single todo invites)
+     "todoIds": ["string"],          // Array of todo IDs (for multi-todo invites)
+     "todoName": "string",           // Name of todo (for single todo invites)
+     "todoNames": ["string"],        // Array of todo names (for multi-todo invites)
+     "status": "string",             // "pending", "accepted", "declined", "rejected"
+     "createdAt": "timestamp",       // When invitation was created
+     "respondedAt": "timestamp"      // When invitation was responded to (optional)
+   }
+
+2. NON_REGISTERED_USERS COLLECTION
+   Path: /non_registered_users/{documentId}
+   
+   Document Structure:
+   {
+     "email": "string",              // Email of non-registered user
+     "inviterEmail": "string",       // Email of user who sent invitation
+     "inviterId": "string",          // UID of user who sent invitation
+     "todoId": "string",             // Todo ID (optional)
+     "todoName": "string",           // Todo name (optional)
+     "status": "string",             // "pending", "accepted", "rejected"
+     "createdAt": "timestamp",       // When invitation was created
+     "respondedAt": "timestamp"      // When responded (optional)
+   }
+
+3. USER DOCUMENTS
+   Path: /users/{userId}
+   
+   Relevant Fields:
+   {
+     "email": "string",
+     "name": "string",
+     "globalCollaborators": ["string"]  // Array of collaborator emails
+   }
+
+4. TODO DOCUMENTS
+   Path: /users/{userId}/todos/{todoId}
+   
+   Relevant Fields:
+   {
+     "userId": "string",             // Owner's UID
+     "collaborators": ["string"],    // Array of collaborator emails
+     "isShared": "boolean",          // Whether todo is shared
+     "revokedFor": ["string"]        // Array of emails with revoked access
+   }
+
+INVITATION SENDING LOGIC
+========================
+
+1. SINGLE TODO INVITATION
+   Method: sendInvitation()
+   
+   Process:
+   a) Validate current user authentication
+   b) Check if invitee exists in users collection
+   c) If invitee exists:
+      - Create invitation document in /invitations
+      - Set status to "pending"
+      - Include single todoId and todoName
+   d) If invitee doesn't exist:
+      - Save to non_registered_users collection
+      - Create invitation document for future processing
+   e) Send push notification to invitee (if registered)
+
+2. MULTI-TODO INVITATION (ALL TODOS)
+   Method: sendInvitationForAllTodos()
+   
+   Process:
+   a) Validate current user authentication
+   b) Fetch all user's todos from /users/{userId}/todos
+   c) Check if invitee exists in users collection
+   d) Create single invitation document with:
+      - todoIds: array of all todo IDs
+      - todoNames: array of all todo names
+   e) If invitee doesn't exist:
+      - Save to non_registered_users collection
+   f) Send push notification with todo count
+
+3. EMAIL VALIDATION
+   - Check if email exists in users collection
+   - Determine if user is registered or non-registered
+   - Handle accordingly with appropriate storage
+
+INVITATION ACCEPTING LOGIC
+===========================
+
+1. SINGLE TODO ACCEPTANCE
+   Method: respondToInvitation()
+   
+   Process:
+   a) Validate invitation exists and is pending
+   b) Verify current user is the invitee
+   c) Find owner by email in users collection
+   d) Access todo document: /users/{ownerId}/todos/{todoId}
+   e) If accepting:
+      - Add invitee email to collaborators array
+      - Set isShared to true
+      - Remove from revokedFor array (if present)
+      - Add to owner's globalCollaborators
+      - Update invitation status to "accepted"
+   f) If declining:
+      - Update invitation status to "declined"
+      - Send decline notification to inviter
+
+2. MULTI-TODO ACCEPTANCE
+   Method: respondToInvitationForAllTodos()
+   
+   Process:
+   a) Validate invitation exists and is pending
+   b) Verify current user is the invitee
+   c) Find owner by email in users collection
+   d) For each todoId in todoIds array:
+      - Access todo document: /users/{ownerId}/todos/{todoId}
+      - Add invitee email to collaborators array
+      - Set isShared to true
+      - Remove from revokedFor array
+   e) Add to owner's globalCollaborators
+   f) Update invitation status to "accepted"/"rejected"
+
+3. NON-REGISTERED USER ACCEPTANCE
+   - When non-registered user registers with invited email
+   - System checks non_registered_users collection
+   - Automatically processes pending invitations
+   - Converts to regular collaboration relationships
+
+INVITATION DELETION/CANCELLATION LOGIC
+=======================================
+
+1. CANCEL SENT INVITATION
+   Method: cancelInvitation()
+   
+   Process:
+   a) Validate invitation exists and user is the inviter
+   b) Update invitation status to "cancelled"
+   c) Send cancellation notification to invitee
+   d) Remove from UI display
+
+2. REVOKE COLLABORATION ACCESS
+   Method: revokeCollaboration()
+   
+   Process:
+   a) Remove collaborator email from todo's collaborators array
+   b) Add email to revokedFor array
+   c) If no more collaborators, set isShared to false
+   d) Remove from owner's globalCollaborators
+   e) Send revocation notification
+
+3. DELETE INVITATION DOCUMENT
+   - Soft delete: Update status to "deleted"
+   - Hard delete: Remove document entirely
+   - Clean up related collaboration data
+
+ERROR HANDLING & DEBUG POINTS
+==============================
+
+Common Issues:
+1. "Invitation document not found"
+   - Check if invitation ID exists in /invitations collection
+   - Verify invitation hasn't been deleted or expired
+
+2. "Owner not found"
+   - Verify owner's email exists in /users collection
+   - Check for email case sensitivity issues
+
+3. "Todo document not found"
+   - Verify path: /users/{ownerId}/todos/{todoId}
+   - Check if todo was deleted after invitation sent
+   - Validate owner ID is correct
+
+4. "User not authenticated"
+   - Verify Firebase Auth current user exists
+   - Check user session validity
+
+Debug Logging:
+- All methods include comprehensive debug prints
+- Track invitation flow from creation to acceptance
+- Monitor Firestore document access patterns
+- Log user authentication status
+
+COLLABORATION STATES
+=====================
+
+1. PENDING: Invitation sent, awaiting response
+2. ACCEPTED: Invitation accepted, collaboration active
+3. DECLINED: Invitation declined by invitee
+4. REJECTED: Invitation rejected by invitee (multi-todo)
+5. CANCELLED: Invitation cancelled by inviter
+6. REVOKED: Collaboration access revoked by owner
+
+NOTIFICATION SYSTEM
+====================
+
+Push Notifications sent for:
+- New invitation received
+- Invitation accepted
+- Invitation declined
+- Collaboration revoked
+- Invitation cancelled
+
+Each notification includes:
+- Appropriate title and body text
+- Data payload for app navigation
+- User-specific targeting
+
+SECURITY CONSIDERATIONS
+=======================
+
+1. Email Validation
+   - Verify invitee email format
+   - Check against existing user database
+   - Prevent duplicate invitations
+
+2. Authorization Checks
+   - Only todo owner can send invitations
+   - Only invitee can accept/decline
+   - Verify user permissions before operations
+
+3. Data Integrity
+   - Validate document existence before operations
+   - Handle concurrent modifications
+   - Maintain referential integrity across collections
+
+DATA FLOW DIAGRAMS
+==================
+
+1. SENDING INVITATION FLOW:
+   User A (Sender) → Check User B exists → Create Invitation Document
+   ↓
+   If User B exists: Store in /invitations + Send Push Notification
+   If User B doesn't exist: Store in /non_registered_users + /invitations
+   ↓
+   User B sees invitation in "Empfangen" tab
+
+2. ACCEPTING INVITATION FLOW:
+   User B clicks Accept → Validate Invitation → Find Owner (User A)
+   ↓
+   Access Todo Document: /users/{userA_id}/todos/{todoId}
+   ↓
+   Update: collaborators[], isShared=true, remove from revokedFor[]
+   ↓
+   Update invitation status to "accepted"
+
+3. COLLABORATION ACCESS FLOW:
+   User B → Access Shared Todo → Check collaborators[] array
+   ↓
+   If email in collaborators[] AND not in revokedFor[] → Grant Access
+   If email not in collaborators[] OR in revokedFor[] → Deny Access
+
+TROUBLESHOOTING GUIDE
+=====================
+
+ISSUE: "Cloud Firestore document not found"
+
+Possible Causes & Solutions:
+
+1. INVITATION DOCUMENT MISSING
+   Debug: Check /invitations/{invitationId} exists
+   Solution: Verify invitation wasn't deleted or expired
+
+2. OWNER USER DOCUMENT MISSING
+   Debug: Check /users collection for owner email
+   Solution: Ensure owner account still exists and email matches
+
+3. TODO DOCUMENT MISSING
+   Debug: Check /users/{ownerId}/todos/{todoId} exists
+   Solution: Todo may have been deleted after invitation sent
+
+4. INCORRECT DOCUMENT PATH
+   Debug: Verify ownerId and todoId are correct
+   Solution: Check invitation data integrity
+
+COMMON DEBUG COMMANDS:
+- Print invitation document data
+- Verify user authentication status
+- Check document paths and IDs
+- Validate email matching logic
+
+TESTING SCENARIOS
+==================
+
+1. REGISTERED USER TO REGISTERED USER
+   - Both users exist in /users collection
+   - Standard invitation flow
+   - Immediate notification delivery
+
+2. REGISTERED USER TO NON-REGISTERED USER
+   - Invitee doesn't exist in /users collection
+   - Stored in /non_registered_users
+   - Processed when user registers
+
+3. MULTI-TODO INVITATION
+   - Single invitation for all todos
+   - Batch processing on acceptance
+   - Efficient for sharing entire todo list
+
+4. INVITATION CANCELLATION
+   - Sender cancels before acceptance
+   - Status updated to "cancelled"
+   - Removed from recipient's view
+
+5. COLLABORATION REVOCATION
+   - Owner removes collaborator access
+   - Added to revokedFor[] array
+   - Access immediately denied
+
+PERFORMANCE CONSIDERATIONS
+==========================
+
+1. BATCH OPERATIONS
+   - Multi-todo invitations use single document
+   - Reduces Firestore read/write operations
+   - Improves performance for large todo lists
+
+2. CACHING STRATEGY
+   - User information cached locally
+   - Reduces repeated Firestore queries
+   - Improves UI responsiveness
+
+3. PAGINATION
+   - Large invitation lists paginated
+   - Prevents memory issues
+   - Smooth scrolling experience
+
+This invitation system provides a robust foundation for collaborative todo
+management with comprehensive error handling and security measures.
+
+================================================================================
+                              END OF DOCUMENTATION
+================================================================================
