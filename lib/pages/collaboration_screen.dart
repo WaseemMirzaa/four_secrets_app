@@ -476,7 +476,8 @@ class _CollaborationScreenState extends State<CollaborationScreen>
             onTap: (value) async {
               // Only mark notifications as read when user actually views the received tab
               // This ensures red dot disappears only when user intentionally views notifications
-              if (value == 1) {
+              // Now Empfangen is at index 0 (left tab)
+              if (value == 0) {
                 await _markAllCollabNotificationsAsRead();
               }
             },
@@ -488,7 +489,6 @@ class _CollaborationScreenState extends State<CollaborationScreen>
             labelStyle: TextStyle(fontWeight: FontWeight.bold),
             unselectedLabelStyle: TextStyle(fontWeight: FontWeight.normal),
             tabs: [
-              Tab(text: 'Gesendet'),
               Tab(
                   child: StreamBuilder<bool>(
                       stream: _hasNewCollabNotificationStream,
@@ -513,6 +513,7 @@ class _CollaborationScreenState extends State<CollaborationScreen>
                           ],
                         );
                       })),
+              Tab(text: 'Gesendet'),
             ],
           ),
         ),
@@ -521,6 +522,123 @@ class _CollaborationScreenState extends State<CollaborationScreen>
             : TabBarView(
                 controller: _tabController,
                 children: [
+                  SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text('Erhaltene Einladungen',
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                        ),
+                        (() {
+                          final pendingInvitations = _receivedInvitations
+                              .where((invite) => invite['status'] == 'pending')
+                              .toList();
+                          if (pendingInvitations.isEmpty) {
+                            return const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(16.0),
+                                child: CustomTextWidget(
+                                  text: 'Keine erhaltenen Einladungen',
+                                  color: Colors.black,
+                                ),
+                              ),
+                            );
+                          }
+                          return ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: pendingInvitations.length,
+                            itemBuilder: (context, index) {
+                              final invite = pendingInvitations[index];
+                              final isNonRegistered =
+                                  invite['isNonRegistered'] == true;
+                              final inviter = isNonRegistered
+                                  ? null
+                                  : _userCache[invite['inviterId']];
+                              final inviterName = isNonRegistered
+                                  ? (invite['inviterEmail'] ?? 'Unbekannt')
+                                  : (inviter?['name'] ?? 'Unbekannt');
+                              final isAccepting =
+                                  _acceptingInvites.contains(invite['id']);
+                              return Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Colors.grey.shade200,
+                                      Colors.grey.shade300,
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                margin: const EdgeInsets.symmetric(
+                                    horizontal: 16.0, vertical: 8.0),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      CustomTextWidget(
+                                        text: 'Eingeladene von: '
+                                            '${invite['inviterName'] ?? invite['inviterEmail'] ?? 'Unbekannt'}',
+                                        color: Colors.black,
+                                      ),
+                                      if (invite['createdAt'] != null)
+                                        CustomTextWidget(
+                                          text: 'Gesendet am: '
+                                              '${invite['createdAt'] is Timestamp ? (invite['createdAt'] as Timestamp).toDate().toString().split(" ")[0] : invite['createdAt'].toString().split(" ")[0]}',
+                                          color: Colors.black54,
+                                          fontSize: 13,
+                                        ),
+                                      const SpacerWidget(height: 4),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        spacing: 10,
+                                        children: [
+                                          Expanded(
+                                            child: CustomButtonWidget(
+                                              text: 'Ablehnen',
+                                              color: Colors.white,
+                                              textColor: Colors.red,
+                                              onPressed: () {
+                                                _respondToInvitation(
+                                                    invite['id'], false);
+                                              },
+                                            ),
+                                          ),
+                                          Expanded(
+                                            child: CustomButtonWidget(
+                                              text: isAccepting
+                                                  ? 'Wird angenommen...'
+                                                  : 'Annehmen',
+                                              color: Color.fromARGB(
+                                                  255, 107, 69, 106),
+                                              textColor: Colors.white,
+                                              isLoading: isAccepting,
+                                              onPressed: isAccepting
+                                                  ? null
+                                                  : () {
+                                                      _respondToInvitation(
+                                                          invite['id'], true);
+                                                    },
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      // const SizedBox(height: 8),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        })(),
+                      ],
+                    ),
+                  ),
                   SingleChildScrollView(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -612,7 +730,7 @@ class _CollaborationScreenState extends State<CollaborationScreen>
                                                 // const SizedBox(height: 4),
                                                 CustomTextWidget(
                                                   text:
-                                                      'Eingeladen: $_emailInvitee',
+                                                      'Eingeladen: ${invite['inviteeEmail'] ?? ''}',
                                                   color: Colors.black,
                                                 ),
                                                 if (invite['createdAt'] != null)
@@ -635,8 +753,8 @@ class _CollaborationScreenState extends State<CollaborationScreen>
                                                   left: 10),
                                               padding: const EdgeInsets.all(10),
                                               decoration: BoxDecoration(
-                                                color:
-                                                    Colors.red.withOpacity(0.6),
+                                                color: Colors.red
+                                                    .withValues(alpha: 0.6),
                                                 borderRadius:
                                                     BorderRadius.circular(20),
                                               ),
@@ -659,117 +777,6 @@ class _CollaborationScreenState extends State<CollaborationScreen>
                                         ],
                                       ),
                                       // const SizedBox(height: 8),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          );
-                        })(),
-                      ],
-                    ),
-                  ),
-                  SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Text('Erhaltene Einladungen',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
-                        ),
-                        (() {
-                          final pendingInvitations = _receivedInvitations
-                              .where((invite) => invite['status'] == 'pending')
-                              .toList();
-                          if (pendingInvitations.isEmpty) {
-                            return const Center(
-                              child: Padding(
-                                padding: EdgeInsets.all(16.0),
-                                child: CustomTextWidget(
-                                  text: 'Keine erhaltenen Einladungen',
-                                  color: Colors.black,
-                                ),
-                              ),
-                            );
-                          }
-                          return ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: pendingInvitations.length,
-                            itemBuilder: (context, index) {
-                              final invite = pendingInvitations[index];
-                              final isNonRegistered =
-                                  invite['isNonRegistered'] == true;
-                              final inviter = isNonRegistered
-                                  ? null
-                                  : _userCache[invite['inviterId']];
-                              final inviterName = isNonRegistered
-                                  ? (invite['inviterEmail'] ?? 'Unbekannt')
-                                  : (inviter?['name'] ?? 'Unbekannt');
-                              final isAccepting =
-                                  _acceptingInvites.contains(invite['id']);
-                              return Container(
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      Colors.grey.shade200,
-                                      Colors.grey.shade300,
-                                    ],
-                                  ),
-                                  borderRadius: BorderRadius.circular(15),
-                                ),
-                                margin: const EdgeInsets.symmetric(
-                                    horizontal: 16.0, vertical: 8.0),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      CustomTextWidget(
-                                        text: 'Eingeladene von: '
-                                            '${invite['inviterName'] ?? invite['inviterEmail'] ?? 'Unbekannt'}',
-                                        color: Colors.black,
-                                      ),
-                                      if (invite['createdAt'] != null)
-                                        CustomTextWidget(
-                                          text: 'Gesendet am: '
-                                              '${invite['createdAt'] is Timestamp ? (invite['createdAt'] as Timestamp).toDate().toString().split(" ")[0] : invite['createdAt'].toString().split(" ")[0]}',
-                                          color: Colors.black54,
-                                          fontSize: 13,
-                                        ),
-                                      const SpacerWidget(height: 4),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        spacing: 10,
-                                        children: [
-                                          Expanded(
-                                            child: CustomButtonWidget(
-                                              text: 'Ablehnen',
-                                              color: Colors.white,
-                                              textColor: Colors.red,
-                                              onPressed: () =>
-                                                  _respondToInvitation(
-                                                      invite['id'], false),
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: CustomButtonWidget(
-                                              text: 'Akzeptieren',
-                                              color: Color.fromARGB(
-                                                  255, 107, 69, 106),
-                                              textColor: Colors.white,
-                                              onPressed: isAccepting
-                                                  ? null
-                                                  : () => _respondToInvitation(
-                                                      invite['id'], true),
-                                              isLoading: isAccepting,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
                                     ],
                                   ),
                                 ),

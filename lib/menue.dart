@@ -10,6 +10,7 @@ import 'package:four_secrets_wedding_app/models/drawer_model.dart';
 import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:four_secrets_wedding_app/services/auth_service.dart';
 import 'package:four_secrets_wedding_app/services/push_notification_service.dart';
+import 'package:four_secrets_wedding_app/services/todo_unread_status_service.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_text_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
 
@@ -52,6 +53,10 @@ class MenueState extends State<Menue> {
   // Use shared notification stream from PushNotificationService
   Stream<bool> get _hasNewCollabNotificationStream =>
       PushNotificationService.hasNewCollabNotificationStream;
+
+  // Use todoUnreadStatus stream from TodoUnreadStatusService
+  Stream<bool> get _todoUnreadStatusStream =>
+      TodoUnreadStatusService.getCurrentUserUnreadStatusStream();
 
   @override
   void initState() {
@@ -493,30 +498,35 @@ class MenueState extends State<Menue> {
                           }
                         },
                       ),
-                      // Show the red dot only for 'Hochzeitskit'
-                      if (e.name == 'Hochzeitskit' &&
-                          hasNewCollabNotification) ...[
-                        Positioned(
-                          right: 16,
-                          top: 12,
-                          child: Container(
-                            width: 10,
-                            height: 10,
-                            decoration: BoxDecoration(
-                              color: Colors.red,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        ),
-                        // Debug print when red dot is shown
-                        Builder(
-                          builder: (context) {
-                            print(
-                                '[Menu Debug] Red dot is visible for Hochzeitskit');
-                            return SizedBox.shrink();
+                      // Show red dot for 'Hochzeitskit' and 'Mitgestalter' based on todoUnreadStatus
+                      if (e.name == 'Hochzeitskit' || e.name == 'Mitgestalter')
+                        StreamBuilder<bool>(
+                          stream: _todoUnreadStatusStream,
+                          initialData: false,
+                          builder: (context, snapshot) {
+                            final hasUnreadTodos = snapshot.data ?? false;
+                            if (hasUnreadTodos) {
+                              print(
+                                  '[Menu Debug] Red dot showing for ${e.name} - todoUnreadStatus: true');
+                              return Positioned(
+                                right: 16,
+                                top: 12,
+                                child: Container(
+                                  width: 10,
+                                  height: 10,
+                                  decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              );
+                            } else {
+                              print(
+                                  '[Menu Debug] No red dot for ${e.name} - todoUnreadStatus: false');
+                              return SizedBox.shrink();
+                            }
                           },
                         ),
-                      ],
                     ],
                   ),
                 );

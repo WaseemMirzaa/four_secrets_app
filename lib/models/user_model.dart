@@ -7,6 +7,7 @@ class UserModel {
   final String? profilePictureUrl;
   final bool emailVerified;
   final bool isSubscribed;
+  final bool todoUnreadStatus;
   // final DateTime? createdAt;
 
   UserModel({
@@ -16,6 +17,7 @@ class UserModel {
     this.profilePictureUrl,
     this.emailVerified = false,
     this.isSubscribed = true, // Set to true for testing
+    this.todoUnreadStatus = false, // Default to false (no unread todos)
     // this.createdAt,
   });
 
@@ -27,6 +29,7 @@ class UserModel {
       profilePictureUrl: map['profilePictureUrl'],
       emailVerified: map['emailVerified'] ?? false,
       isSubscribed: map['isSubscribed'] ?? true, // Default to true for testing
+      todoUnreadStatus: map['todoUnreadStatus'] ?? false, // Default to false
       // createdAt: map['createdAt'] != null
       //     ? (map['createdAt'] as Timestamp).toDate()
       //     : null,
@@ -41,12 +44,13 @@ class UserModel {
       'profilePictureUrl': profilePictureUrl,
       'emailVerified': emailVerified,
       'isSubscribed': isSubscribed,
+      'todoUnreadStatus': todoUnreadStatus,
       // 'createdAt': createdAt != null ? Timestamp.fromDate(createdAt!) : null,
     };
   }
 
   @override
   String toString() {
-    return 'UserModel(uid: $uid, name: $name, email: $email, profilePictureUrl: $profilePictureUrl, emailVerified: $emailVerified, isSubscribed: $isSubscribed)';
+    return 'UserModel(uid: $uid, name: $name, email: $email, profilePictureUrl: $profilePictureUrl, emailVerified: $emailVerified, isSubscribed: $isSubscribed, todoUnreadStatus: $todoUnreadStatus)';
   }
 }

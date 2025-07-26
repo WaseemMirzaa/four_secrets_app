@@ -382,313 +382,328 @@ class _WeddingCategoryTitlePage1State extends State<WeddingCategoryTitlePage1> {
                                                   overflow:
                                                       TextOverflow.ellipsis,
                                                 ),
-                                                CustomTextWidget(
-                                                  text:
-                                                      '${items.length} Unterkategorien',
-                                                  fontSize: 12,
-                                                  color: Colors.black,
+                                                Row(
+                                                  children: [
+                                                    Expanded(
+                                                      child: CustomTextWidget(
+                                                        text:
+                                                            '${items.length} Unterkategorien',
+                                                        fontSize: 14,
+                                                        color: Colors.black,
+                                                      ),
+                                                    ),
+                                                    Row(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: [
+                                                        IconButton(
+                                                          onPressed: () async {
+                                                            WeddingCategoryModel1?
+                                                                model;
+                                                            var id;
+                                                            String? userId;
+                                                            DateTime? createdAt;
+                                                            model =
+                                                                allCategoryModels
+                                                                    .firstWhere(
+                                                              (m) {
+                                                                id = m.id;
+                                                                userId =
+                                                                    m.userId;
+                                                                createdAt =
+                                                                    m.createdAt;
+                                                                return m.categoryName ==
+                                                                    categoryName;
+                                                              },
+                                                              orElse: () =>
+                                                                  WeddingCategoryModel1(
+                                                                id: id,
+                                                                categoryName:
+                                                                    categoryName,
+                                                                items: items,
+                                                                createdAt:
+                                                                    createdAt!,
+                                                                userId: userId!,
+                                                              ),
+                                                            );
+// Artikelname
+                                                            subCategoryController =
+                                                                TextEditingController();
+                                                            var updateCateData =
+                                                                await showDialog(
+                                                              context: context,
+                                                              builder: (_) =>
+                                                                  StatefulBuilder(
+                                                                builder: (_,
+                                                                        stateDialog) =>
+                                                                    AlertDialog(
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .white,
+                                                                  titlePadding:
+                                                                      EdgeInsets
+                                                                          .zero,
+                                                                  content:
+                                                                      SingleChildScrollView(
+                                                                    child:
+                                                                        Column(
+                                                                      mainAxisSize:
+                                                                          MainAxisSize
+                                                                              .min,
+                                                                      children: [
+                                                                        SpacerWidget(
+                                                                            height:
+                                                                                3),
+                                                                        Padding(
+                                                                          padding: const EdgeInsets
+                                                                              .all(
+                                                                              0),
+                                                                          child: Center(
+                                                                              child: CustomTextWidget(
+                                                                            text:
+                                                                                "Unterkategorie hinzufügen",
+                                                                            color: Color.fromARGB(
+                                                                                255,
+                                                                                107,
+                                                                                69,
+                                                                                106),
+                                                                            fontSize:
+                                                                                16,
+                                                                            fontWeight:
+                                                                                FontWeight.bold,
+                                                                          )),
+                                                                        ),
+                                                                        SpacerWidget(
+                                                                            height:
+                                                                                8),
+                                                                        TextField(
+                                                                          controller:
+                                                                              subCategoryController,
+                                                                          decoration:
+                                                                              InputDecoration(
+                                                                            border:
+                                                                                OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                                                                            hintText:
+                                                                                "Titel",
+                                                                          ),
+                                                                        ),
+                                                                        SpacerWidget(
+                                                                            height:
+                                                                                6),
+                                                                        Row(
+                                                                          spacing:
+                                                                              12,
+                                                                          mainAxisAlignment:
+                                                                              MainAxisAlignment.center,
+                                                                          children: [
+                                                                            Expanded(
+                                                                              child: Container(
+                                                                                constraints: BoxConstraints(
+                                                                                  maxWidth: 160,
+                                                                                ),
+                                                                                child: CustomButtonWidget(
+                                                                                  text: "Abbrechen",
+                                                                                  color: Colors.white,
+                                                                                  onPressed: () {
+                                                                                    Navigator.of(context).pop();
+                                                                                  },
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                            Expanded(
+                                                                              child: Container(
+                                                                                constraints: BoxConstraints(
+                                                                                  maxWidth: 160,
+                                                                                ),
+                                                                                child: CustomButtonWidget(
+                                                                                  text: "Hinzufügen",
+                                                                                  textColor: Colors.white,
+                                                                                  color: Color.fromARGB(255, 107, 69, 106),
+                                                                                  onPressed: () async {
+                                                                                    if (subCategoryController.text.trim().isNotEmpty) {
+                                                                                      List<String> updatedItems = List.from(items);
+                                                                                      updatedItems.add(subCategoryController.text.trim());
+
+                                                                                      await weddingCategoryDatabase.updateCategory(
+                                                                                        model!.id,
+                                                                                        categoryName,
+                                                                                        updatedItems,
+                                                                                      );
+
+                                                                                      subCategoryController.clear();
+                                                                                      Navigator.of(context).pop(true);
+                                                                                    } else {
+                                                                                      SnackBarHelper.showErrorSnackBar(context, "Bitte geben Sie einen Titel ein");
+                                                                                    }
+                                                                                  },
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            );
+
+                                                            if (updateCateData ==
+                                                                true) {
+                                                              _loadAndInitCategories();
+                                                            }
+                                                          },
+                                                          icon: Icon(
+                                                            FontAwesomeIcons
+                                                                .plus,
+                                                            size: 18,
+                                                            color:
+                                                                Color.fromARGB(
+                                                                    255,
+                                                                    107,
+                                                                    69,
+                                                                    106),
+                                                          ),
+                                                        ),
+                                                        IconButton(
+                                                          onPressed: () async {
+                                                            WeddingCategoryModel1?
+                                                                model;
+                                                            var id;
+                                                            String? userId;
+                                                            DateTime? createdAt;
+                                                            model =
+                                                                allCategoryModels
+                                                                    .firstWhere(
+                                                              (m) {
+                                                                id = m.id;
+                                                                userId =
+                                                                    m.userId;
+                                                                createdAt =
+                                                                    m.createdAt;
+                                                                return m.categoryName ==
+                                                                    categoryName;
+                                                              },
+                                                              orElse: () =>
+                                                                  WeddingCategoryModel1(
+                                                                id: id,
+                                                                categoryName:
+                                                                    categoryName,
+                                                                items: items,
+                                                                createdAt:
+                                                                    createdAt!,
+                                                                userId: userId!,
+                                                              ),
+                                                            );
+
+                                                            var g =
+                                                                await Navigator.of(
+                                                                        context)
+                                                                    .pushNamed(
+                                                              RouteManager
+                                                                  .addTitleCategoryWedSchedulePage1,
+                                                              arguments: {
+                                                                "weddingCategoryModel":
+                                                                    model,
+                                                                "index":
+                                                                    model.id
+                                                              },
+                                                            );
+
+                                                            if (g != null) {
+                                                              _loadAndInitCategories();
+                                                            }
+                                                          },
+                                                          icon: Icon(
+                                                            FontAwesomeIcons
+                                                                .penToSquare,
+                                                            size: 18,
+                                                            color:
+                                                                Color.fromARGB(
+                                                                    255,
+                                                                    107,
+                                                                    69,
+                                                                    106),
+                                                          ),
+                                                        ),
+                                                        IconButton(
+                                                          onPressed: () async {
+                                                            bool?
+                                                                confirmDelete =
+                                                                await showDialog<
+                                                                    bool>(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) =>
+                                                                      AlertDialog(
+                                                                backgroundColor:
+                                                                    Colors
+                                                                        .white,
+                                                                title: Text(
+                                                                    "Kategorie löschen"),
+                                                                content: Text(
+                                                                    "Möchten Sie die Kategorie '$categoryName' wirklich löschen?"),
+                                                                actions: [
+                                                                  TextButton(
+                                                                    onPressed: () =>
+                                                                        Navigator.of(context)
+                                                                            .pop(false),
+                                                                    child: Text(
+                                                                        "Abbrechen"),
+                                                                  ),
+                                                                  TextButton(
+                                                                    onPressed: () =>
+                                                                        Navigator.of(context)
+                                                                            .pop(true),
+                                                                    child: Text(
+                                                                        "Löschen",
+                                                                        style: TextStyle(
+                                                                            color:
+                                                                                Colors.red)),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            );
+
+                                                            if (confirmDelete ==
+                                                                true) {
+                                                              // Find the category index to delete
+                                                              int categoryIndex =
+                                                                  allCategoryModels
+                                                                      .indexWhere((m) =>
+                                                                          m.categoryName ==
+                                                                          categoryName);
+                                                              if (categoryIndex !=
+                                                                  -1) {
+                                                                await weddingCategoryDatabase
+                                                                    .deleteCategory(
+                                                                        categoryIndex);
+                                                                _loadAndInitCategories();
+                                                              }
+                                                            }
+                                                          },
+                                                          icon: Icon(
+                                                            FontAwesomeIcons
+                                                                .trashCan,
+                                                            size: 18,
+                                                            color: Colors.red,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
                                                 ),
                                               ],
                                             ),
                                           ),
-                                          ...[
-                                            Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                IconButton(
-                                                  onPressed: () async {
-                                                    WeddingCategoryModel1?
-                                                        model;
-                                                    var id;
-                                                    String? userId;
-                                                    DateTime? createdAt;
-                                                    model = allCategoryModels
-                                                        .firstWhere(
-                                                      (m) {
-                                                        id = m.id;
-                                                        userId = m.userId;
-                                                        createdAt = m.createdAt;
-                                                        return m.categoryName ==
-                                                            categoryName;
-                                                      },
-                                                      orElse: () =>
-                                                          WeddingCategoryModel1(
-                                                        id: id,
-                                                        categoryName:
-                                                            categoryName,
-                                                        items: items,
-                                                        createdAt: createdAt!,
-                                                        userId: userId!,
-                                                      ),
-                                                    );
-// Artikelname
-subCategoryController = TextEditingController();
-                                                    var updateCateData =
-                                                        await showDialog(
-                                                      context: context,
-                                                      builder: (_) =>
-                                                          StatefulBuilder(
-                                                        builder:
-                                                            (_, stateDialog) =>
-                                                                AlertDialog(
-                                                          backgroundColor:
-                                                              Colors.white,
-                                                          titlePadding:
-                                                              EdgeInsets.zero,
-                                                          content:
-                                                              SingleChildScrollView(
-                                                            child: Column(
-                                                              mainAxisSize:
-                                                                  MainAxisSize
-                                                                      .min,
-                                                              children: [
-                                                                SpacerWidget(
-                                                                    height: 3),
-                                                                Padding(
-                                                                  padding:
-                                                                      const EdgeInsets
-                                                                          .all(
-                                                                          0),
-                                                                  child: Center(
-                                                                      child:
-                                                                          CustomTextWidget(
-                                                                    text:
-                                                                        "Unterkategorie hinzufügen",
-                                                                    color: Color
-                                                                        .fromARGB(
-                                                                            255,
-                                                                            107,
-                                                                            69,
-                                                                            106),
-                                                                    fontSize:
-                                                                        16,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                  )),
-                                                                ),
-                                                                SpacerWidget(
-                                                                    height: 8),
-                                                                TextField(
-                                                                  controller:
-                                                                      subCategoryController,
-                                                                  decoration:
-                                                                      InputDecoration(
-                                                                    border: OutlineInputBorder(
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(8)),
-                                                                    hintText:
-                                                                        "Titel",
-                                                                  ),
-                                                                ),
-                                                                SpacerWidget(
-                                                                    height: 6),
-                                                                Row(
-                                                                  spacing: 12,
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .center,
-                                                                  children: [
-                                                                    Expanded(
-                                                                      child:
-                                                                          Container(
-                                                                        constraints:
-                                                                            BoxConstraints(
-                                                                          maxWidth:
-                                                                              160,
-                                                                        ),
-                                                                        child:
-                                                                            CustomButtonWidget(
-                                                                          text:
-                                                                              "Abbrechen",
-                                                                          color:
-                                                                              Colors.white,
-                                                                          onPressed:
-                                                                              () {
-                                                                            Navigator.of(context).pop();
-                                                                          },
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                    Expanded(
-                                                                      child:
-                                                                          Container(
-                                                                        constraints:
-                                                                            BoxConstraints(
-                                                                          maxWidth:
-                                                                              160,
-                                                                        ),
-                                                                        child:
-                                                                            CustomButtonWidget(
-                                                                          text:
-                                                                              "Hinzufügen",
-                                                                          textColor:
-                                                                              Colors.white,
-                                                                          color: Color.fromARGB(
-                                                                              255,
-                                                                              107,
-                                                                              69,
-                                                                              106),
-                                                                          onPressed:
-                                                                              () async {
-                                                                            if (subCategoryController.text.trim().isNotEmpty) {
-                                                                              List<String> updatedItems = List.from(items);
-                                                                              updatedItems.add(subCategoryController.text.trim());
-
-                                                                              await weddingCategoryDatabase.updateCategory(
-                                                                                model!.id,
-                                                                                categoryName,
-                                                                                updatedItems,
-                                                                              );
-
-                                                                              subCategoryController.clear();
-                                                                              Navigator.of(context).pop(true);
-                                                                            } else {
-                                                                              SnackBarHelper.showErrorSnackBar(context, "Bitte geben Sie einen Titel ein");
-                                                                            }
-                                                                          },
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    );
-
-                                                    if (updateCateData ==
-                                                        true) {
-                                                      _loadAndInitCategories();
-                                                    }
-                                                  },
-                                                  icon: Icon(
-                                                    FontAwesomeIcons.plus,
-                                                    size: 18,
-                                                    color: Color.fromARGB(
-                                                        255, 107, 69, 106),
-                                                  ),
-                                                ),
-                                                IconButton(
-                                                  onPressed: () async {
-                                                    WeddingCategoryModel1?
-                                                        model;
-                                                    var id;
-                                                    String? userId;
-                                                    DateTime? createdAt;
-                                                    model = allCategoryModels
-                                                        .firstWhere(
-                                                      (m) {
-                                                        id = m.id;
-                                                        userId = m.userId;
-                                                        createdAt = m.createdAt;
-                                                        return m.categoryName ==
-                                                            categoryName;
-                                                      },
-                                                      orElse: () =>
-                                                          WeddingCategoryModel1(
-                                                        id: id,
-                                                        categoryName:
-                                                            categoryName,
-                                                        items: items,
-                                                        createdAt: createdAt!,
-                                                        userId: userId!,
-                                                      ),
-                                                    );
-
-                                                    var g = await Navigator.of(
-                                                            context)
-                                                        .pushNamed(
-                                                      RouteManager
-                                                          .addTitleCategoryWedSchedulePage1,
-                                                      arguments: {
-                                                        "weddingCategoryModel":
-                                                            model,
-                                                        "index": model.id
-                                                      },
-                                                    );
-
-                                                    if (g != null) {
-                                                      _loadAndInitCategories();
-                                                    }
-                                                  },
-                                                  icon: Icon(
-                                                    FontAwesomeIcons
-                                                        .penToSquare,
-                                                    size: 18,
-                                                    color: Color.fromARGB(
-                                                        255, 107, 69, 106),
-                                                  ),
-                                                ),
-                                                IconButton(
-                                                  onPressed: () async {
-                                                    bool? confirmDelete =
-                                                        await showDialog<bool>(
-                                                      context: context,
-                                                      builder: (context) =>
-                                                          AlertDialog(
-                                                        backgroundColor:
-                                                            Colors.white,
-                                                        title: Text(
-                                                            "Kategorie löschen"),
-                                                        content: Text(
-                                                            "Möchten Sie die Kategorie '$categoryName' wirklich löschen?"),
-                                                        actions: [
-                                                          TextButton(
-                                                            onPressed: () =>
-                                                                Navigator.of(
-                                                                        context)
-                                                                    .pop(false),
-                                                            child: Text(
-                                                                "Abbrechen"),
-                                                          ),
-                                                          TextButton(
-                                                            onPressed: () =>
-                                                                Navigator.of(
-                                                                        context)
-                                                                    .pop(true),
-                                                            child: Text(
-                                                                "Löschen",
-                                                                style: TextStyle(
-                                                                    color: Colors
-                                                                        .red)),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    );
-
-                                                    if (confirmDelete == true) {
-                                                      // Find the category index to delete
-                                                      int categoryIndex =
-                                                          allCategoryModels
-                                                              .indexWhere((m) =>
-                                                                  m.categoryName ==
-                                                                  categoryName);
-                                                      if (categoryIndex != -1) {
-                                                        await weddingCategoryDatabase
-                                                            .deleteCategory(
-                                                                categoryIndex);
-                                                        _loadAndInitCategories();
-                                                      }
-                                                    }
-                                                  },
-                                                  icon: Icon(
-                                                    FontAwesomeIcons.trashCan,
-                                                    size: 18,
-                                                    color: Colors.red,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ]
+                                          ...[]
                                         ],
                                       ),
                                       children: items.map((item) {
                                         return Container(
                                           margin: EdgeInsets.symmetric(
-                                              horizontal: 10, vertical: 2),
+                                            horizontal: 10,
+                                          ),
                                           // decoration: BoxDecoration(
                                           //   // color: Colors.white,
                                           //   borderRadius:
@@ -702,8 +717,8 @@ subCategoryController = TextEditingController();
                                           child: ListTile(
                                             contentPadding:
                                                 EdgeInsets.symmetric(
-                                                    horizontal: 16,
-                                                    vertical: 4),
+                                              horizontal: 16,
+                                            ),
                                             title: CustomTextWidget(
                                               text: item,
                                               fontSize: 14,
@@ -712,12 +727,12 @@ subCategoryController = TextEditingController();
                                             onTap: () {
                                               Navigator.of(context).pop(item);
                                             },
-                                            trailing: Icon(
-                                              Icons.arrow_forward_ios,
-                                              size: 16,
-                                              color: Color.fromARGB(
-                                                  255, 107, 69, 106),
-                                            ),
+                                            // trailing: Icon(
+                                            //   Icons.arrow_forward_ios,
+                                            //   size: 16,
+                                            //   color: Color.fromARGB(
+                                            //       255, 107, 69, 106),
+                                            // ),
                                           ),
                                         );
                                       }).toList(),

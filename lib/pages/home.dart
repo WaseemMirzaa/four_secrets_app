@@ -4,6 +4,7 @@ import 'package:four_secrets_wedding_app/menue.dart';
 import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:four_secrets_wedding_app/services/notificaiton_helper.dart';
+import 'package:four_secrets_wedding_app/widgets/notification_test_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class HomePage extends StatefulWidget {
@@ -112,48 +113,31 @@ class _HomePageState extends State<HomePage> {
             ),
 
             // Test button for swipeable card
-            SliverToBoxAdapter(
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: Color.fromARGB(255, 107, 69, 106),
-                    padding: const EdgeInsets.all(12.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.of(context)
-                        .pushNamed(RouteManager.swipeableCardTestPage);
-                  },
-                  child: Text('Test Swipeable Card Widget'),
-                ),
-              ),
-            ),
-
-            //         SliverToBoxAdapter(
-            //           child: Column(children: [
-            //              ElevatedButton(
-            //   onPressed: () => NotificationDebugHelper.testImmediateNotification(),
-            //   child: Text('Test Immediate Notification'),
-            // ),
-            // ElevatedButton(
-            //   onPressed: () => NotificationDebugHelper.testScheduledNotification(),
-            //   child: Text('Test Scheduled Notification'),
-            // ),
-            // ElevatedButton(
-            //   onPressed: () => NotificationDebugHelper.runFullTest(),
-            //   child: Text('Run Full Test Suite'),
-            // ),
-            // ElevatedButton(
-            //   onPressed: () => NotificationDebugHelper.checkPermissions(),
-            //   child: Text('Check Permissions'),
-            // ),
-            //           ],),
+            // SliverToBoxAdapter(
+            //   child: Padding(
+            //     padding:
+            //         const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            //     child: ElevatedButton(
+            //       style: ElevatedButton.styleFrom(
+            //         foregroundColor: Colors.white,
+            //         backgroundColor: Color.fromARGB(255, 107, 69, 106),
+            //         padding: const EdgeInsets.all(12.0),
+            //         shape: RoundedRectangleBorder(
+            //           borderRadius: BorderRadius.circular(8),
             //         ),
+            //       ),
+            //       onPressed: () {
+            //         Navigator.of(context)
+            //             .pushNamed(RouteManager.swipeableCardTestPage);
+            //       },
+            //       child: Text('Test Swipeable Card Widget'),
+            //     ),
+            //   ),
+            // ),
+
+            // SliverToBoxAdapter(
+            //   child: NotificationTestWidget(),
+            // ),
 
             const SliverToBoxAdapter(
               child: SizedBox(

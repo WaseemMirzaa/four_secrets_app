@@ -1314,14 +1314,21 @@ class _AddTodoPageState extends State<AddTodoPage> {
                             if (myUid != null) {
                               // For existing todos, we already have the ID, for new ones we need to fetch
                               if (existingTodo != null) {
-                                await NotificationService
-                                    .scheduleAlarmNotification(
-                                  id: existingTodo.id.hashCode,
-                                  dateTime: DateTime.parse(reminderIso),
-                                  title: categoryName,
-                                  body: 'Erinnerung für Ihre Aufgabe',
-                                  payload: existingTodo.id,
-                                );
+                                try {
+                                  await NotificationService
+                                      .scheduleAlarmNotification(
+                                    id: existingTodo.id.hashCode,
+                                    dateTime: DateTime.parse(reminderIso),
+                                    title: categoryName,
+                                    body: 'Erinnerung für Ihre Aufgabe',
+                                    payload: existingTodo.id,
+                                  );
+                                  print(
+                                      "✅ Todo notification scheduled for: $categoryName");
+                                } catch (e) {
+                                  print(
+                                      "❌ Failed to schedule todo notification: $e");
+                                }
                               } else {
                                 // For new todos, fetch the latest one
                                 final snapshot = await FirebaseFirestore

@@ -7,6 +7,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:four_secrets_wedding_app/services/notification_alaram-service.dart';
 import 'package:four_secrets_wedding_app/services/push_notification_service.dart';
+import 'package:four_secrets_wedding_app/services/todo_unread_status_service.dart';
 import 'package:four_secrets_wedding_app/services/wedding_day_schedule_service.dart';
 import 'package:four_secrets_wedding_app/screens/newfeature1/services/wedding_day_schedule_service1.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -120,6 +121,18 @@ class AuthService {
         password: password,
       );
 
+      // Check if user was previously invited (exists in non_registered_users collection)
+      bool wasInvited =
+          await TodoUnreadStatusService.wasUserPreviouslyInvited(email);
+
+      if (wasInvited) {
+        print('✅ User was previously invited: $email');
+        // Clean up the non_registered_users entry since they're now registered
+        await TodoUnreadStatusService.cleanupNonRegisteredUser(email);
+      } else {
+        print('📝 User was NOT previously invited: $email');
+      }
+
       // Create user document with profile picture URL (if available)
       await _firestore.collection('users').doc(userCredential.user!.uid).set({
         'name': name,
@@ -127,8 +140,11 @@ class AuthService {
         'profilePictureUrl': profilePictureUrl,
         'emailVerified': false,
         'isSubscribed': true, // Set to true for testing
+        'todoUnreadStatus': wasInvited, // true if invited, false if not
         'createdAt': FieldValue.serverTimestamp(),
       });
+
+      print('📊 Set todoUnreadStatus = $wasInvited for new user: $email');
 
       return userCredential;
     } catch (e) {

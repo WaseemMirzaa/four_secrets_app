@@ -361,8 +361,17 @@ class NotificationService {
       if (scheduledDate.isBefore(now)) {
         debugPrint(
             "❌ Cannot schedule notification for past time: $scheduledDate");
+        debugPrint("   Current time: $now");
+        debugPrint("   Requested time: $scheduledDate");
+        debugPrint(
+            "   Difference: ${scheduledDate.difference(now).inMinutes} minutes");
         return;
       }
+
+      debugPrint("✅ Scheduling notification for future time: $scheduledDate");
+      debugPrint("   Current time: $now");
+      debugPrint(
+          "   Time until notification: ${scheduledDate.difference(now).inMinutes} minutes");
 
       // Schedule the notification
       await _plugin.zonedSchedule(
@@ -437,5 +446,72 @@ class NotificationService {
     } catch (e) {
       debugPrint('❌ Error getting pending notifications: $e');
     }
+  }
+
+  /// Test immediate notification
+  static Future<void> testNotification() async {
+    debugPrint('🧪 Testing immediate notification...');
+    await showAlarmNotification(
+      id: 999,
+      title: '🧪 Test Notification',
+      body: 'If you see this, notifications are working!',
+      payload: 'test_payload',
+    );
+    debugPrint('✅ Test notification sent');
+  }
+
+  /// Test scheduled notification (5 seconds from now)
+  static Future<void> testScheduledNotification() async {
+    final testTime = DateTime.now().add(Duration(seconds: 5));
+    debugPrint('🧪 Testing scheduled notification for: $testTime');
+
+    await scheduleAlarmNotification(
+      id: 998,
+      dateTime: testTime,
+      title: '🧪 Scheduled Test',
+      body: 'This scheduled notification should appear in 5 seconds!',
+      payload: 'scheduled_test_payload',
+    );
+
+    debugPrint('✅ Scheduled test notification');
+  }
+
+  /// Check and request all necessary permissions
+  static Future<bool> checkAndRequestPermissions() async {
+    bool allPermissionsGranted = true;
+
+    if (Platform.isAndroid) {
+      final androidImpl = _plugin.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
+
+      if (androidImpl != null) {
+        // Check notification permissions
+        final notificationsEnabled =
+            await androidImpl.areNotificationsEnabled();
+        debugPrint('🔍 Notifications enabled: $notificationsEnabled');
+
+        if (notificationsEnabled == false) {
+          debugPrint('❌ Requesting notification permission...');
+          final granted = await androidImpl.requestNotificationsPermission();
+          debugPrint('🔍 Notification permission granted: $granted');
+          allPermissionsGranted = allPermissionsGranted && (granted ?? false);
+        }
+
+        // Check exact alarm permissions
+        final exactAlarmPermission =
+            await androidImpl.canScheduleExactNotifications();
+        debugPrint('🔍 Exact alarm permission: $exactAlarmPermission');
+
+        if (exactAlarmPermission == false) {
+          debugPrint('❌ Requesting exact alarm permission...');
+          final granted = await androidImpl.requestExactAlarmsPermission();
+          debugPrint('🔍 Exact alarm permission granted: $granted');
+          allPermissionsGranted = allPermissionsGranted && (granted ?? false);
+        }
+      }
+    }
+
+    debugPrint('🔍 All permissions granted: $allPermissionsGranted');
+    return allPermissionsGranted;
   }
 }

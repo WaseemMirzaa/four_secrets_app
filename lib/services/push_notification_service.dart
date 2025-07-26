@@ -331,31 +331,36 @@ class PushNotificationService {
       yield false;
       return;
     }
-    
-    print('[Shared Notification Stream] Starting stream for user: $userEmail, token: ${fcmToken?.substring(0, 10)}...');
-    
+
+    print(
+        '[Shared Notification Stream] Starting stream for user: $userEmail, token: ${fcmToken?.substring(0, 10)}...');
+
     yield* FirebaseFirestore.instance
         .collection('notifications')
         .where('read', isEqualTo: false)
         .snapshots()
         .map((snapshot) {
-      print('[Shared Notification Stream] Checking ${snapshot.docs.length} unread notifications');
-      
+      print(
+          '[Shared Notification Stream] Checking ${snapshot.docs.length} unread notifications');
+
       final hasMatchingNotification = snapshot.docs.any((doc) {
         final data = doc.data();
         final type = data['data']?['type'] ?? '';
         final tokenMatch = fcmToken != null && data['token'] == fcmToken;
-        final emailMatch = userEmail != null && 
-            (data['toEmail'] == userEmail || data['data']?['toEmail'] == userEmail);
+        final emailMatch = userEmail != null &&
+            (data['toEmail'] == userEmail ||
+                data['data']?['toEmail'] == userEmail);
         final isMatching = (type == 'invitation' || type == 'comment') &&
             (tokenMatch || emailMatch);
-            
-        print('[Shared Notification Stream] Doc ${doc.id}: type=$type, tokenMatch=$tokenMatch, emailMatch=$emailMatch, isMatching=$isMatching');
-        
+
+        print(
+            '[Shared Notification Stream] Doc ${doc.id}: type=$type, tokenMatch=$tokenMatch, emailMatch=$emailMatch, isMatching=$isMatching');
+
         return isMatching;
       });
-      
-      print('[Shared Notification Stream] Has matching notifications: $hasMatchingNotification');
+
+      print(
+          '[Shared Notification Stream] Has matching notifications: $hasMatchingNotification');
       return hasMatchingNotification;
     });
   }
@@ -367,29 +372,108 @@ class PushNotificationService {
     final fcmToken = await FirebaseMessaging.instance.getToken();
     final userEmail = user.email;
     if (fcmToken == null && userEmail == null) return;
-    
-    print('[Shared Notification Service] Marking all collab notifications as read for user: $userEmail');
-    
+
+    print(
+        '[Shared Notification Service] Marking all collab notifications as read for user: $userEmail');
+
     final snapshot = await FirebaseFirestore.instance
         .collection('notifications')
         .where('read', isEqualTo: false)
         .get();
-        
+
     int markedCount = 0;
     for (final doc in snapshot.docs) {
       final data = doc.data();
       final type = data['data']?['type'] ?? '';
       final tokenMatch = fcmToken != null && data['token'] == fcmToken;
-      final emailMatch = userEmail != null && 
-          (data['toEmail'] == userEmail || data['data']?['toEmail'] == userEmail);
+      final emailMatch = userEmail != null &&
+          (data['toEmail'] == userEmail ||
+              data['data']?['toEmail'] == userEmail);
       if ((type == 'invitation' || type == 'comment') &&
           (tokenMatch || emailMatch)) {
         await doc.reference.update({'read': true});
         markedCount++;
-        print('[Shared Notification Service] Marked notification ${doc.id} as read');
+        print(
+            '[Shared Notification Service] Marked notification ${doc.id} as read');
       }
     }
-    
-    print('[Shared Notification Service] Marked $markedCount notifications as read');
+
+    print(
+        '[Shared Notification Service] Marked $markedCount notifications as read');
+  }
+
+  // Clean up orphaned notifications that don't belong to any current user
+  static Future<void> cleanupOrphanedNotifications() async {
+    try {
+      print('[Cleanup] Starting orphaned notification cleanup...');
+
+      final snapshot = await FirebaseFirestore.instance
+          .collection('notifications')
+          .where('read', isEqualTo: false)
+          .get();
+
+      print(
+          '[Cleanup] Found ${snapshot.docs.length} unread notifications to check');
+
+      int deletedCount = 0;
+      for (final doc in snapshot.docs) {
+        final data = doc.data();
+        final token = data['token'];
+        final toEmail = data['toEmail'];
+        final dataEmail = data['data']?['toEmail'];
+
+        // Check if notification has valid recipient info
+        if ((token == null || token.toString().isEmpty) &&
+            (toEmail == null || toEmail.toString().isEmpty) &&
+            (dataEmail == null || dataEmail.toString().isEmpty)) {
+          print(
+              '[Cleanup] Deleting orphaned notification ${doc.id} - no valid recipient');
+          await doc.reference.delete();
+          deletedCount++;
+        }
+      }
+
+      print('[Cleanup] Deleted $deletedCount orphaned notifications');
+    } catch (e) {
+      print('[Cleanup] Error cleaning up notifications: $e');
+    }
+  }
+
+  // Force clear all notifications for current user (for testing)
+  static Future<void> clearAllNotificationsForCurrentUser() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+
+      final fcmToken = await FirebaseMessaging.instance.getToken();
+      final userEmail = user.email;
+
+      print(
+          '[Clear All] Clearing notifications for user: $userEmail, token: ${fcmToken?.substring(0, 10)}...');
+
+      final snapshot = await FirebaseFirestore.instance
+          .collection('notifications')
+          .where('read', isEqualTo: false)
+          .get();
+
+      int clearedCount = 0;
+      for (final doc in snapshot.docs) {
+        final data = doc.data();
+        final tokenMatch = fcmToken != null && data['token'] == fcmToken;
+        final emailMatch = userEmail != null &&
+            (data['toEmail'] == userEmail ||
+                data['data']?['toEmail'] == userEmail);
+
+        if (tokenMatch || emailMatch) {
+          await doc.reference.update({'read': true});
+          clearedCount++;
+          print('[Clear All] Marked notification ${doc.id} as read');
+        }
+      }
+
+      print('[Clear All] Cleared $clearedCount notifications for current user');
+    } catch (e) {
+      print('[Clear All] Error clearing notifications: $e');
+    }
   }
 }

@@ -19,6 +19,7 @@ class CollaborationService {
     required String todoName,
     required String inviteeId,
     required String inviteeName,
+    String? inviteeEmail, // Add email parameter
   }) async {
     final currentUser = _auth.currentUser;
     if (currentUser == null) {
@@ -45,7 +46,7 @@ class CollaborationService {
         await _firestore.collection('users').doc(currentUser.uid).get();
     final inviterName = inviterDoc.data()?['name'] ?? 'Unknown';
 
-    // Check if invitation already exists
+    // Check if invitation already exists (check by email for consistency)
     final existingInvitation = await _firestore
         .collection('invitations')
         .where('todoId', isEqualTo: todoId)
@@ -84,13 +85,30 @@ class CollaborationService {
     print('DEBUG: Creating invitation for todoId: '
         '\x1B[33m$todoId\x1B[0m, todoName: \x1B[32m$finalTodoName\x1B[0m');
 
-    // Create new invitation
+    // Get invitee email if not provided
+    String finalInviteeEmail = inviteeEmail ?? '';
+    if (finalInviteeEmail.isEmpty && inviteeId.isNotEmpty) {
+      // Look up invitee email by ID
+      try {
+        final inviteeDoc =
+            await _firestore.collection('users').doc(inviteeId).get();
+        if (inviteeDoc.exists) {
+          finalInviteeEmail = inviteeDoc.data()?['email'] ?? '';
+        }
+      } catch (e) {
+        print('Error fetching invitee email: $e');
+      }
+    }
+
+    // Create new invitation with email fields
     await _firestore.collection('invitations').add({
       'todoId': todoId,
       'todoName': finalTodoName,
       'inviterId': currentUser.uid,
+      'inviterEmail': currentUser.email, // Add inviter email
       'inviterName': inviterName,
       'inviteeId': inviteeId,
+      'inviteeEmail': finalInviteeEmail, // Add invitee email
       'inviteeName': inviteeName,
       'status': 'pending',
       'createdAt': FieldValue.serverTimestamp(),
@@ -504,6 +522,55 @@ class CollaborationService {
     }
   }
 
+  // NEW SIMPLE REVOKE: Delete invitation to revoke access
+  Future<void> revokeInvitation(String invitationId) async {
+    try {
+      print('🔵 [DEBUG] Revoking invitation: $invitationId');
+
+      // Simply delete the invitation document
+      await _firestore.collection('invitations').doc(invitationId).delete();
+
+      print('🔵 [DEBUG] Invitation revoked successfully');
+    } catch (e) {
+      print('🔴 [ERROR] Failed to revoke invitation: $e');
+      throw e;
+    }
+  }
+
+  // NEW SIMPLE REVOKE: Delete all invitations for a specific user
+  Future<void> revokeAllInvitationsForUser(String inviteeEmail) async {
+    try {
+      final currentUser = _auth.currentUser;
+      if (currentUser == null) {
+        throw Exception('User not authenticated');
+      }
+
+      print('🔵 [DEBUG] Revoking all invitations for user: $inviteeEmail');
+
+      // Find all invitations sent by current user to the specified user
+      final invitationsSnapshot = await _firestore
+          .collection('invitations')
+          .where('inviterEmail', isEqualTo: currentUser.email)
+          .where('inviteeEmail', isEqualTo: inviteeEmail)
+          .where('status', isEqualTo: 'accepted')
+          .get();
+
+      print(
+          '🔵 [DEBUG] Found ${invitationsSnapshot.docs.length} invitations to revoke');
+
+      // Delete all found invitations
+      for (var doc in invitationsSnapshot.docs) {
+        await doc.reference.delete();
+        print('🔵 [DEBUG] Deleted invitation: ${doc.id}');
+      }
+
+      print('🔵 [DEBUG] All invitations revoked successfully');
+    } catch (e) {
+      print('🔴 [ERROR] Failed to revoke all invitations: $e');
+      throw e;
+    }
+  }
+
   // Send collaboration invitation for ALL todos
   Future<void> sendInvitationForAllTodos({
     required String inviteeEmail,
@@ -525,8 +592,10 @@ class CollaborationService {
         await _firestore.collection('users').doc(currentUser.uid).get();
     final inviterName = inviterDoc.data()?['name'] ?? 'Unknown';
 
-    // Fetch the invitee's FCM token
+    // Fetch the invitee's FCM token and check if user is registered
     String? inviteeFcmToken;
+    bool isUserRegistered = false;
+    String? inviteeUserId;
     try {
       final inviteeQuery = await _firestore
           .collection('users')
@@ -534,10 +603,16 @@ class CollaborationService {
           .limit(1)
           .get();
       if (inviteeQuery.docs.isNotEmpty) {
-        inviteeFcmToken = inviteeQuery.docs.first.data()['fcmToken'];
+        final inviteeDoc = inviteeQuery.docs.first;
+        inviteeFcmToken = inviteeDoc.data()['fcmToken'];
+        isUserRegistered = true;
+        inviteeUserId = inviteeDoc.id;
+        print('📧 User is registered: $inviteeEmail (ID: $inviteeUserId)');
+      } else {
+        print('📧 User is NOT registered: $inviteeEmail');
       }
     } catch (e) {
-      print('Error fetching invitee FCM token: $e');
+      print('Error fetching invitee data: $e');
     }
 
     // Get all todos for the current user
@@ -586,6 +661,23 @@ class CollaborationService {
       'status': 'pending',
       'createdAt': FieldValue.serverTimestamp(),
     });
+
+    // Set todoUnreadStatus to true for the invitee
+    if (isUserRegistered && inviteeUserId != null) {
+      // User is registered - update their user document
+      try {
+        await _firestore.collection('users').doc(inviteeUserId).update({
+          'todoUnreadStatus': true,
+        });
+        print('✅ Set todoUnreadStatus=true for registered user: $inviteeEmail');
+      } catch (e) {
+        print('❌ Failed to set todoUnreadStatus for registered user: $e');
+      }
+    } else {
+      // User is not registered - this will be handled in the todo page when saving to non_registered_users
+      print(
+          '📝 todoUnreadStatus will be set when saving to non_registered_users collection');
+    }
 
     // Only send notification if inviteeFcmToken is found
     if (inviteeFcmToken != null && inviteeFcmToken.isNotEmpty) {
@@ -651,10 +743,16 @@ class CollaborationService {
     print('🔵 [DEBUG] Invitation document found for ALL todos');
 
     final invitation = invitationDoc.data()!;
+    print('🔵 [DEBUG] Invitation data for ALL todos: $invitation');
+
     if (invitation['inviteeEmail'] != currentUser.email) {
+      print(
+          '🔴 [ERROR] Not authorized for ALL todos - inviteeEmail: ${invitation['inviteeEmail']}, currentUser: ${currentUser.email}');
       throw Exception('Not authorized to respond to this invitation');
     }
     if (invitation['status'] != 'pending') {
+      print(
+          '🔴 [ERROR] Invitation status is not pending for ALL todos: ${invitation['status']}');
       throw Exception('Invitation is no longer pending');
     }
 
@@ -665,29 +763,63 @@ class CollaborationService {
     });
 
     if (accept) {
-      // If accepted, add the receiver to the collaborators array of each todo
+      // If accepted, add the receiver to the collaborators array of ALL current todos
       final ownerEmail = invitation['inviterEmail'];
-      final todoIds = List<String>.from(invitation['todoIds'] ?? []);
+      print(
+          '🔵 [DEBUG] Processing ALL todos acceptance - ownerEmail: $ownerEmail');
+
       // Find the owner's userId by email
+      print('🔵 [DEBUG] Looking up owner by email for ALL todos: $ownerEmail');
       final ownerQuery = await _firestore
           .collection('users')
           .where('email', isEqualTo: ownerEmail)
           .limit(1)
           .get();
       if (ownerQuery.docs.isEmpty) {
+        print(
+            '🔴 [ERROR] Owner not found for ALL todos with email: $ownerEmail');
         throw Exception('Owner not found');
       }
       final ownerId = ownerQuery.docs.first.id;
-      for (final todoId in todoIds) {
+      print('🔵 [DEBUG] Owner found for ALL todos: $ownerId');
+
+      // Fetch ALL current todos from the owner (not just the ones in invitation)
+      print('🔵 [DEBUG] Fetching ALL current todos from owner...');
+      final allTodosSnapshot = await _firestore
+          .collection('users')
+          .doc(ownerId)
+          .collection('todos')
+          .get();
+
+      final currentTodoIds =
+          allTodosSnapshot.docs.map((doc) => doc.id).toList();
+      print(
+          '🔵 [DEBUG] Found ${currentTodoIds.length} current todos: $currentTodoIds');
+      for (final todoId in currentTodoIds) {
+        print('🔵 [DEBUG] Processing todo: $todoId');
         final todoRef = _firestore
             .collection('users')
             .doc(ownerId)
             .collection('todos')
             .doc(todoId);
-        // Always add email to collaborators, and set ownerEmail if not present
+
+        print(
+            '🔵 [DEBUG] Accessing todo document at path: users/$ownerId/todos/$todoId');
+
+        // Check if todo document exists before updating
         final todoDoc = await todoRef.get();
+        if (!todoDoc.exists) {
+          print(
+              '🔴 [ERROR] Todo document not found at path: users/$ownerId/todos/$todoId');
+          continue; // Skip this todo and continue with others
+        }
+
         final todoData = todoDoc.data() ?? {};
+        print('🔵 [DEBUG] Todo document found, current data: $todoData');
+
         if (currentUser.email != ownerEmail) {
+          print(
+              '🔵 [DEBUG] Updating todo document with collaborator: ${currentUser.email}');
           final updates = {
             'collaborators': FieldValue.arrayUnion([currentUser.email]),
             'isShared': true,
@@ -696,14 +828,23 @@ class CollaborationService {
           if (todoData['ownerEmail'] == null && ownerEmail != null) {
             updates['ownerEmail'] = ownerEmail;
           }
-          await _pushNotificationService.sendNotification(
-            userId: todoId,
-            title: 'Zugriff erhalten',
-            body:
-                'Du hast Zugriff auf die Liste "${todoData['toDoName']}" erhalten',
-            data: {'type': 'access_granted'},
-          );
+
           await todoRef.update(updates);
+          print('🔵 [DEBUG] Todo document updated successfully');
+
+          // Verify the update was successful
+          final verifyDoc = await todoRef.get();
+          if (verifyDoc.exists) {
+            final verifyData = verifyDoc.data()!;
+            print(
+                '🔵 [DEBUG] Verification - Updated collaborators: ${verifyData['collaborators']}');
+            print(
+                '🔵 [DEBUG] Verification - isShared: ${verifyData['isShared']}');
+            print(
+                '🔵 [DEBUG] Verification - revokedFor: ${verifyData['revokedFor']}');
+          }
+        } else {
+          print('🔵 [DEBUG] Skipping update - user is the owner');
         }
         // Debug print
         final updatedDoc = await todoRef.get();

@@ -199,13 +199,18 @@ class WeddingDayScheduleService {
 
       // Optionally, schedule the alarm if reminder is enabled AND reminderTime is not null
       if (reminderEnabled && reminderTime != null) {
-        await NotificationService.scheduleAlarmNotification(
-          id: id.hashCode, // Use a unique ID, e.g., hash of the document ID
-          dateTime: reminderTime,
-          title: "Hochzeits-Erinnerung: $title",
-          body: notes,
-          payload: id,
-        );
+        try {
+          await NotificationService.scheduleAlarmNotification(
+            id: id.hashCode, // Use a unique ID, e.g., hash of the document ID
+            dateTime: reminderTime,
+            title: "Hochzeits-Erinnerung: $title",
+            body: notes,
+            payload: id,
+          );
+          print("✅ Notification scheduled for: $title at $reminderTime");
+        } catch (e) {
+          print("❌ Failed to schedule notification for: $title - Error: $e");
+        }
       }
 
       return id; // Return the non-null ID
@@ -264,17 +269,28 @@ class WeddingDayScheduleService {
       }
 
       // Schedule alarms for items with reminders enabled AND reminderTime is not null
+      int scheduledCount = 0;
+      int skippedCount = 0;
       for (var item in weddingDayScheduleList) {
         if (item.reminderEnabled && item.reminderTime != null) {
-          await NotificationService.scheduleAlarmNotification(
-            id: item.id.hashCode, // Unique ID based on document ID
-            dateTime: item.reminderTime!,
-            title: "Wedding Reminder: ${item.title}",
-            body: item.notes,
-            payload: item.id,
-          );
+          try {
+            await NotificationService.scheduleAlarmNotification(
+              id: item.id.hashCode, // Unique ID based on document ID
+              dateTime: item.reminderTime!,
+              title: "Wedding Reminder: ${item.title}",
+              body: item.notes,
+              payload: item.id,
+            );
+            scheduledCount++;
+          } catch (e) {
+            print(
+                "❌ Failed to schedule notification for: ${item.title} - Error: $e");
+            skippedCount++;
+          }
         }
       }
+      print(
+          "📅 Notification scheduling complete: $scheduledCount scheduled, $skippedCount skipped");
     } catch (e) {
       print('Error loading schedule: $e');
     }

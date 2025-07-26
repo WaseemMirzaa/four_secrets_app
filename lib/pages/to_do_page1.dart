@@ -19,6 +19,7 @@ import 'package:four_secrets_wedding_app/widgets/custom_button_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_dialog.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_text_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
+import 'package:four_secrets_wedding_app/services/todo_unread_status_service.dart';
 
 import '../models/non_registered_user.dart';
 import '../widgets/collaboration_todo_tile.dart';
@@ -108,53 +109,109 @@ class _ToDoPageState extends State<ToDoPage1> {
           '[ToDo Debug] Owned todo IDs: ${ownedTodos.map((t) => t.id).toList()}');
       print(
           '[LOAD_LOG] ${DateTime.now().millisecondsSinceEpoch}: Starting shared todos query');
-      // Fetch shared todos (isShared == true and collaborators contains me, but not owned by me)
-      final sharedSnapshot = await FirebaseFirestore.instance
-          .collectionGroup('todos')
-          .where('isShared', isEqualTo: true)
-          .where('collaborators', arrayContains: myEmail)
+      // NEW LOGIC: Fetch shared todos based on accepted invitations
+      print('[SHARED_DEBUG] Querying accepted invitations for email: $myEmail');
+      final acceptedInvitationsSnapshot = await FirebaseFirestore.instance
+          .collection('invitations')
+          .where('inviteeEmail', isEqualTo: myEmail)
+          .where('status', isEqualTo: 'accepted')
           .get();
+
       print(
-          '[LOAD_LOG] ${DateTime.now().millisecondsSinceEpoch}: Shared todos query completed');
-      final sharedTodos = sharedSnapshot.docs
-          .where((doc) => doc.data()['userId'] != myUid)
-          .map((doc) => ToDoModel.fromFirestore(doc))
-          .toList();
+          '[SHARED_DEBUG] Found ${acceptedInvitationsSnapshot.docs.length} accepted invitations');
+
+      // [ACCEPTED_INVITATIONS_LOG] Print all accepted invitations details
       print(
-          '[LOAD_LOG] ${DateTime.now().millisecondsSinceEpoch}: Shared todos mapped to models');
+          '[ACCEPTED_INVITATIONS_LOG] ===== ALL ACCEPTED INVITATIONS FOR USER: $myEmail =====');
+      for (int i = 0; i < acceptedInvitationsSnapshot.docs.length; i++) {
+        final doc = acceptedInvitationsSnapshot.docs[i];
+        final data = doc.data();
+        print('[ACCEPTED_INVITATIONS_LOG] Invitation ${i + 1}:');
+        print('[ACCEPTED_INVITATIONS_LOG]   - ID: ${doc.id}');
+        print(
+            '[ACCEPTED_INVITATIONS_LOG]   - Inviter Email: ${data['inviterEmail']}');
+        print(
+            '[ACCEPTED_INVITATIONS_LOG]   - Inviter Name: ${data['inviterName']}');
+        print(
+            '[ACCEPTED_INVITATIONS_LOG]   - Invitee Email: ${data['inviteeEmail']}');
+        print(
+            '[ACCEPTED_INVITATIONS_LOG]   - Invitee Name: ${data['inviteeName']}');
+        print('[ACCEPTED_INVITATIONS_LOG]   - Status: ${data['status']}');
+        print(
+            '[ACCEPTED_INVITATIONS_LOG]   - Created At: ${data['createdAt']}');
+        print(
+            '[ACCEPTED_INVITATIONS_LOG]   - Responded At: ${data['respondedAt']}');
+        print(
+            '[ACCEPTED_INVITATIONS_LOG]   - Todo Count: ${data['todoCount']}');
+        print('[ACCEPTED_INVITATIONS_LOG]   - Todo IDs: ${data['todoIds']}');
+        print(
+            '[ACCEPTED_INVITATIONS_LOG]   - Todo Names: ${data['todoNames']}');
+        print('[ACCEPTED_INVITATIONS_LOG]   ---');
+      }
+      print('[ACCEPTED_INVITATIONS_LOG] ===== END ACCEPTED INVITATIONS =====');
+
+      List<ToDoModel> sharedTodos = [];
+
+      // For each accepted invitation, fetch all todos from the inviter
+      for (var invitationDoc in acceptedInvitationsSnapshot.docs) {
+        final invitationData = invitationDoc.data();
+        final inviterEmail = invitationData['inviterEmail'];
+
+        print('[SHARED_DEBUG] Processing invitation from: $inviterEmail');
+
+        // Find inviter's user ID by email
+        final inviterQuery = await FirebaseFirestore.instance
+            .collection('users')
+            .where('email', isEqualTo: inviterEmail)
+            .limit(1)
+            .get();
+
+        if (inviterQuery.docs.isNotEmpty) {
+          final inviterId = inviterQuery.docs.first.id;
+          print('[SHARED_DEBUG] Found inviter ID: $inviterId');
+
+          // Fetch ALL todos from this inviter
+          final inviterTodosSnapshot = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(inviterId)
+              .collection('todos')
+              .get();
+
+          print(
+              '[SHARED_DEBUG] Found ${inviterTodosSnapshot.docs.length} todos from inviter');
+
+          // Add all inviter's todos to shared list
+          for (var todoDoc in inviterTodosSnapshot.docs) {
+            try {
+              final todo = ToDoModel.fromFirestore(todoDoc);
+              sharedTodos.add(todo);
+              print(
+                  '[SHARED_DEBUG] Added shared todo: ${todo.id} - ${todo.toDoName}');
+            } catch (e) {
+              print('[SHARED_DEBUG] Error parsing todo ${todoDoc.id}: $e');
+            }
+          }
+        } else {
+          print('[SHARED_DEBUG] Inviter not found for email: $inviterEmail');
+        }
+      }
+
       print(
-          '[ToDo Debug] Shared todos count: \x1B[34m${sharedTodos.length}\x1B[0m');
+          '[LOAD_LOG] ${DateTime.now().millisecondsSinceEpoch}: Shared todos loaded via invitations');
+      print('[ToDo Debug] Shared todos count: ${sharedTodos.length}');
       print(
           '[ToDo Debug] Shared todo IDs: ${sharedTodos.map((t) => t.id).toList()}');
-      // Fetch revoked todos (revokedFor contains me, but not owned by me)
-      final revokedSnapshot = await FirebaseFirestore.instance
-          .collectionGroup('todos')
-          .where('revokedFor', arrayContains: myEmail)
-          .get();
-      final revokedTodos = revokedSnapshot.docs
-          .where((doc) => doc.data()['userId'] != myUid)
-          .map((doc) => ToDoModel.fromFirestore(doc))
-          .toList();
-      print(
-          '[ToDo Debug] Revoked todos count: \x1B[31m${revokedTodos.length}\x1B[0m');
-      print(
-          '[ToDo Debug] Revoked todo IDs: ${revokedTodos.map((t) => t.id).toList()}');
       print(
           '[LOAD_LOG] ${DateTime.now().millisecondsSinceEpoch}: Starting todos combination and filtering');
-      // Combine owned, shared, and revoked, avoid duplicates
+      // Combine owned and shared todos, avoid duplicates
       final allTodos = <String, ToDoModel>{};
-      for (final todo in [...ownedTodos, ...sharedTodos, ...revokedTodos]) {
+      for (final todo in [...ownedTodos, ...sharedTodos]) {
         allTodos[todo.id ?? ''] = todo;
       }
       print(
           '[LOAD_LOG] ${DateTime.now().millisecondsSinceEpoch}: Todos combined, starting filtering');
-      // Filter: only show todos where user is owner, collaborator, or revokedFor
-      final filteredTodos = allTodos.values.where((todo) {
-        final isOwner = todo.userId == myUid;
-        final isCollaborator = todo.collaborators.contains(myEmail);
-        final isRevoked = todo.revokedFor.contains(myEmail);
-        return isOwner || isCollaborator || isRevoked;
-      }).toList();
+      // Simple filter: show all owned and shared todos (no revoked logic needed)
+      final filteredTodos = allTodos.values.toList();
       print(
           '[LOAD_LOG] ${DateTime.now().millisecondsSinceEpoch}: Filtering completed');
       print('[ToDo Debug] All todos count: ${filteredTodos.length}');
@@ -411,27 +468,7 @@ class _ToDoPageState extends State<ToDoPage1> {
                                                             '[INVITE_LOG] ${DateTime.now().millisecondsSinceEpoch}: sendInvitationForAllTodos completed');
 
                                                         print(
-                                                            '[INVITE_LOG] ${DateTime.now().millisecondsSinceEpoch}: Starting save to non_registered_users collection');
-                                                        // Save to non_registered_users collection
-                                                        final nonRegisteredUser =
-                                                            NonRegisteredUser(
-                                                          email: user['email'],
-                                                          name: user['name'],
-                                                          invitedAt:
-                                                              DateTime.now(),
-                                                        );
-                                                        print(
-                                                            '[INVITE_LOG] ${DateTime.now().millisecondsSinceEpoch}: NonRegisteredUser object created');
-                                                        await FirebaseFirestore
-                                                            .instance
-                                                            .collection(
-                                                                'non_registered_users')
-                                                            .doc(
-                                                                nonRegisteredUser
-                                                                    .email)
-                                                            .set(
-                                                                nonRegisteredUser
-                                                                    .toMap());
+                                                            '[INVITE_LOG] ${DateTime.now().millisecondsSinceEpoch}: Invitation sent to registered user - todoUnreadStatus handled by collaboration service');
                                                         print(
                                                             '[INVITE_LOG] ${DateTime.now().millisecondsSinceEpoch}: Firestore save completed');
 
@@ -630,6 +667,8 @@ class _ToDoPageState extends State<ToDoPage1> {
                                                       email: email,
                                                       name: userName,
                                                       invitedAt: DateTime.now(),
+                                                      todoUnreadStatus:
+                                                          true, // Set to true when inviting
                                                     );
                                                     await FirebaseFirestore
                                                         .instance
@@ -913,23 +952,35 @@ class _ToDoPageState extends State<ToDoPage1> {
     return SafeArea(
         child: Scaffold(
             drawer: Menue.getInstance(key),
+            onDrawerChanged: (isOpened) {
+              if (isOpened) {
+                // Dismiss keyboard when drawer is opened
+                FocusScope.of(context).unfocus();
+              }
+            },
             appBar: AppBar(
               foregroundColor: Colors.white,
               title: const Text(AppConstants.toDoPageTitle),
               backgroundColor: const Color.fromARGB(255, 107, 69, 106),
               actions: [
                 StreamBuilder<bool>(
-                  stream: _hasNewCollabNotificationStream,
+                  stream: TodoUnreadStatusService
+                      .getCurrentUserUnreadStatusStream(),
                   initialData: false,
                   builder: (context, snapshot) {
-                    final hasNewCollabNotification = snapshot.data ?? false;
+                    final hasUnreadTodos = snapshot.data ?? false;
                     return Stack(
                       children: [
                         IconButton(
                           icon: Icon(Icons.group),
                           tooltip: 'Zusammenarbeit',
                           onPressed: () async {
-                            // Optionally mark as read here if you want
+                            // Mark as read when user clicks the collaboration icon
+                            if (hasUnreadTodos) {
+                              await TodoUnreadStatusService
+                                  .markAsReadForCurrentUser();
+                            }
+
                             await Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -940,7 +991,7 @@ class _ToDoPageState extends State<ToDoPage1> {
                             setState(() {});
                           },
                         ),
-                        if (hasNewCollabNotification)
+                        if (hasUnreadTodos)
                           Positioned(
                             right: 8,
                             top: 8,
@@ -1167,9 +1218,11 @@ class _ToDoPageState extends State<ToDoPage1> {
                           listToDoModel.indexWhere((todo) => todo.id == todoId);
                       if (index == -1) index = 0;
                       final isOwner = todoModel.userId == myUid;
-                      final isCollaborator =
-                          todoModel.collaborators.contains(myEmail) ?? false;
-                      final canComment = isOwner || isCollaborator;
+                      // NEW LOGIC: For invitation-based system, if todo is in our shared list, we can interact
+                      final isSharedWithMe =
+                          !isOwner; // If not owner and in our list, it's shared with us
+                      final canComment = isOwner || isSharedWithMe;
+                      final canEdit = isOwner || isSharedWithMe;
                       // Use correct collectionPath for owned or shared todos
                       final collectionPath = isOwner
                           ? 'users/$myUid/todos'
@@ -1185,7 +1238,7 @@ class _ToDoPageState extends State<ToDoPage1> {
                         avatarColor:
                             Color.fromARGB(255, 107, 69, 106).withAlpha(100),
                         collectionPath: collectionPath,
-                        showTag: isOwner || isCollaborator,
+                        showTag: isOwner || isSharedWithMe,
                       );
                     }).toList(),
                     SpacerWidget(height: 1),

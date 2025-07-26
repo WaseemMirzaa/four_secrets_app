@@ -596,13 +596,14 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
             categories[0]['categoryName'].toString().isNotEmpty)
         ? categories[0]['categoryName']
         : todoName;
-    final isOwned =
-        (data['isShared'] == false) || (ownerId == currentUserEmail);
+    // NEW LOGIC: Check if current user is the actual owner
+    final isOwned = (ownerId == currentUserEmail);
     final isRevokedFlag = !isOwned && revokedFor.contains(currentUserEmail);
     // Debug prints for collaboration state
     debugPrint('[CollabTile] currentUserId: $currentUserEmail');
-    debugPrint('[CollabTile] collaborators: $collaborators');
-    debugPrint('[CollabTile] revokedFor: $revokedFor');
+    debugPrint('[CollabTile] ownerId: $ownerId');
+    debugPrint('[CollabTile] isOwned: $isOwned');
+    debugPrint('[CollabTile] isRevoked parameter: $isRevoked');
     // --- Unread logic for comments and checkbox changes ---
     final bool _hasUnread = calculateHasUnread(data, currentUserEmail);
 
@@ -661,6 +662,10 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
     final avatarColor = widget.avatarColor;
     final checkboxColor = widget.checkboxColor;
     final showTag = widget.showTag;
+
+    // Debug tag visibility
+    debugPrint(
+        '[CollabTile] showTag: $showTag, Will show tag: ${showTag && !isOwned}');
 
     final reminderStr = data['reminder'] as String?;
     if (reminderStr != null && reminderStr.isNotEmpty) {
@@ -1002,140 +1007,123 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                   // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // if (isOwned) ...[
-
-                    IconButton(
-                      icon: Icon(FontAwesomeIcons.penToSquare,
-                          color: Color(0xFF6B456A), size: 20),
-                      tooltip: 'Bearbeiten',
-                      onPressed: () async {
-                        // Ensure we have the owner's UID (ownerId) and email (ownerEmail)
-                        String? ownerUid = data['ownerId'];
-                        String? ownerEmail = data['ownerEmail'];
-                        if ((ownerUid == null || ownerUid.isEmpty) &&
-                            ownerEmail != null &&
-                            ownerEmail.isNotEmpty) {
-                          // Fetch UID from users collection by email
-                          final userQuery = await FirebaseFirestore.instance
-                              .collection('users')
-                              .where('email', isEqualTo: ownerEmail)
-                              .limit(1)
-                              .get();
-                          if (userQuery.docs.isNotEmpty) {
-                            ownerUid = userQuery.docs.first.id;
+                    if (isOwned) ...[
+                      IconButton(
+                        icon: Icon(FontAwesomeIcons.penToSquare,
+                            color: Color(0xFF6B456A), size: 20),
+                        tooltip: 'Bearbeiten',
+                        onPressed: () async {
+                          // Ensure we have the owner's UID (ownerId) and email (ownerEmail)
+                          String? ownerUid = data['ownerId'];
+                          String? ownerEmail = data['ownerEmail'];
+                          if ((ownerUid == null || ownerUid.isEmpty) &&
+                              ownerEmail != null &&
+                              ownerEmail.isNotEmpty) {
+                            // Fetch UID from users collection by email
+                            final userQuery = await FirebaseFirestore.instance
+                                .collection('users')
+                                .where('email', isEqualTo: ownerEmail)
+                                .limit(1)
+                                .get();
+                            if (userQuery.docs.isNotEmpty) {
+                              ownerUid = userQuery.docs.first.id;
+                            }
                           }
-                        }
-                        if (ownerUid == null || ownerUid.isEmpty) {
-                          SnackBarHelper.showErrorSnackBar(
-                              context, 'Owner UID not found!');
-                          return;
-                        }
-                        Navigator.of(context).pushNamed(
-                          '/addToDoPage',
-                          arguments: {
-                            'toDoModel': ToDoModel(
-                              id: widget.collabId,
-                              toDoName: todoName,
-                              userId: ownerUid,
-                              ownerEmail: ownerEmail,
-                              categoryId: data['categoryId'],
-                              collaborators: List<String>.from(
-                                  data['collaborators'] ?? []),
-                              comments: List<Map<String, dynamic>>.from(
-                                  data['comments'] ?? []),
-                              toDoItems: data['toDoItems'] != null
-                                  ? List<Map<String, dynamic>>.from(
-                                      data['toDoItems'])
-                                  : null,
-                              reminder: data['reminder'],
-                              categories: categories,
-                              isShared: data['isShared'] ?? false,
+                          if (ownerUid == null || ownerUid.isEmpty) {
+                            SnackBarHelper.showErrorSnackBar(
+                                context, 'Owner UID not found!');
+                            return;
+                          }
+                          Navigator.of(context).pushNamed(
+                            '/addToDoPage',
+                            arguments: {
+                              'toDoModel': ToDoModel(
+                                id: widget.collabId,
+                                toDoName: todoName,
+                                userId: ownerUid,
+                                ownerEmail: ownerEmail,
+                                categoryId: data['categoryId'],
+                                collaborators: List<String>.from(
+                                    data['collaborators'] ?? []),
+                                comments: List<Map<String, dynamic>>.from(
+                                    data['comments'] ?? []),
+                                toDoItems: data['toDoItems'] != null
+                                    ? List<Map<String, dynamic>>.from(
+                                        data['toDoItems'])
+                                    : null,
+                                reminder: data['reminder'],
+                                categories: categories,
+                                isShared: data['isShared'] ?? false,
+                              ),
+                              'id': widget.collabId,
+                            },
+                          );
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(FontAwesomeIcons.trashCan,
+                            color: Colors.red, size: 20),
+                        tooltip: 'Löschen',
+                        onPressed: () async {
+                          final confirm = await showDialog<bool>(
+                            context: context,
+                            builder: (context) => CustomDialog(
+                              title: 'To-Do löschen',
+                              message:
+                                  'Möchten Sie dieses To-Do wirklich löschen?',
+                              confirmText: 'Löschen',
+                              cancelText: 'Abbrechen',
+                              onConfirm: () async {
+                                Navigator.pop(context, true);
+                              },
+                              onCancel: () {
+                                Navigator.pop(context, false);
+                              },
                             ),
-                            'id': widget.collabId,
-                          },
-                        );
-                      },
-                    ),
-                    IconButton(
-                      icon: Icon(FontAwesomeIcons.trashCan,
-                          color: Colors.red, size: 20),
-                      tooltip: 'Löschen',
-                      onPressed: () async {
-                        final confirm = await showDialog<bool>(
-                          context: context,
-                          builder: (context) => CustomDialog(
-                            title: 'To-Do löschen',
-                            message:
-                                'Möchten Sie dieses To-Do wirklich löschen?',
-                            confirmText: 'Löschen',
-                            cancelText: 'Abbrechen',
-                            onConfirm: () async {
-                              Navigator.pop(context, true);
-                            },
-                            onCancel: () {
-                              Navigator.pop(context, false);
-                            },
-                          ),
-                        );
-                        if (confirm == true) {
-                          try {
-                            await FirebaseFirestore.instance
-                                .collection(widget.collectionPath)
-                                .doc(widget.collabId)
-                                .delete();
-                            if (context.mounted) {
-                              SnackBarHelper.showSuccessSnackBar(
-                                  context, 'To-Do gelöscht');
-                            }
-                          } catch (e) {
-                            if (context.mounted) {
-                              SnackBarHelper.showErrorSnackBar(
-                                  context, 'Fehler beim Löschen: $e');
+                          );
+                          if (confirm == true) {
+                            try {
+                              await FirebaseFirestore.instance
+                                  .collection(widget.collectionPath)
+                                  .doc(widget.collabId)
+                                  .delete();
+                              if (context.mounted) {
+                                SnackBarHelper.showSuccessSnackBar(
+                                    context, 'To-Do gelöscht');
+                              }
+                            } catch (e) {
+                              if (context.mounted) {
+                                SnackBarHelper.showErrorSnackBar(
+                                    context, 'Fehler beim Löschen: $e');
+                              }
                             }
                           }
-                        }
-                      },
-                    ),
+                        },
+                      ),
+                    ],
                   ],
-                  // ],
                 ),
                 SizedBox(height: 2),
-                if (showTag && (data['isShared'] ?? false))
+                // Always show "Shared by" tag for non-owned todos
+                if (showTag && !isOwned)
                   FutureBuilder<String>(
                     future: _getOwnerName(ownerId, ownerName),
                     builder: (context, snapshot) {
                       final displayName =
                           snapshot.hasData ? snapshot.data! : ownerName;
-                      if (isOwned) {
-                        return Container(
-                            // padding:
-                            //     EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                            // decoration: BoxDecoration(
-                            //   color: labelColor,
-                            //   borderRadius: BorderRadius.circular(8),
-                            // ),
-                            // child: CustomTextWidget(
-                            //   text: 'Eigentümer',
-                            //   color: labelTextColor,
-                            //   fontSize: 14,
-                            // ),
-                            );
-                      } else {
-                        // Always show 'Geteilt von ...' for non-owners, even if revoked
-                        return Container(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                          decoration: BoxDecoration(
-                            color: labelColor,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: CustomTextWidget(
-                            text: 'Geteilt von $displayName',
-                            color: labelTextColor,
-                            fontSize: 14,
-                          ),
-                        );
-                      }
+                      return Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: labelColor,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: CustomTextWidget(
+                          text: 'Geteilt von $displayName',
+                          color: labelTextColor,
+                          fontSize: 14,
+                        ),
+                      );
                     },
                   ),
               ],
@@ -1248,53 +1236,42 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                             children: [
                               Checkbox(
                                 value: isChecked,
-                                onChanged: (isOwned ||
-                                        (!isRevoked &&
-                                            allCollaborators.isNotEmpty &&
-                                            allCollaborators
-                                                .contains(currentUserEmail)))
-                                    ? (bool? value) async {
-                                        try {
-                                          var categoriesCopy =
-                                              List<Map<String, dynamic>>.from(
-                                                  categories);
-                                          var itemsCopy =
-                                              (categoriesCopy[catIdx]['items']
-                                                      as List)
-                                                  .map((e) =>
-                                                      e is Map<String, dynamic>
-                                                          ? e
-                                                          : {
-                                                              'name':
-                                                                  e.toString(),
-                                                              'isChecked': false
-                                                            })
-                                                  .toList();
-                                          itemsCopy[itemIdx] = {
-                                            ...item,
-                                            'isChecked':
-                                                !(item['isChecked'] ?? false),
-                                          };
-                                          categoriesCopy[catIdx]['items'] =
-                                              itemsCopy;
-                                          final now = Timestamp.now();
-                                          await FirebaseFirestore.instance
-                                              .collection(widget.collectionPath)
-                                              .doc(widget.collabId)
-                                              .update({
-                                            'categories': categoriesCopy,
-                                            'lastActivityTimestamp': now,
-                                          });
-                                          if (mounted) setState(() {});
-                                        } catch (e) {
-                                          if (context.mounted) {
-                                            SnackBarHelper.showErrorSnackBar(
-                                                context,
-                                                "Failed to update item: $e");
-                                          }
-                                        }
-                                      }
-                                    : null,
+                                onChanged: (bool? value) async {
+                                  try {
+                                    var categoriesCopy =
+                                        List<Map<String, dynamic>>.from(
+                                            categories);
+                                    var itemsCopy = (categoriesCopy[catIdx]
+                                            ['items'] as List)
+                                        .map((e) => e is Map<String, dynamic>
+                                            ? e
+                                            : {
+                                                'name': e.toString(),
+                                                'isChecked': false
+                                              })
+                                        .toList();
+                                    itemsCopy[itemIdx] = {
+                                      ...item,
+                                      'isChecked':
+                                          !(item['isChecked'] ?? false),
+                                    };
+                                    categoriesCopy[catIdx]['items'] = itemsCopy;
+                                    final now = Timestamp.now();
+                                    await FirebaseFirestore.instance
+                                        .collection(widget.collectionPath)
+                                        .doc(widget.collabId)
+                                        .update({
+                                      'categories': categoriesCopy,
+                                      'lastActivityTimestamp': now,
+                                    });
+                                    if (mounted) setState(() {});
+                                  } catch (e) {
+                                    if (context.mounted) {
+                                      SnackBarHelper.showErrorSnackBar(
+                                          context, "Failed to update item: $e");
+                                    }
+                                  }
+                                },
                                 activeColor: checkboxColor,
                               ),
                               SizedBox(width: 8),
@@ -1535,10 +1512,7 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                 // Send notifications to all collaborators and owner except the commenter
                 await _sendCommentNotifications(userName, value);
               },
-              enabled: isOwned ||
-                  (!isRevoked &&
-                      allCollaborators.isNotEmpty &&
-                      allCollaborators.contains(currentUserEmail)),
+              enabled: true, // Always allow commenting
             ),
           ),
           SpacerWidget(height: 3),
@@ -1598,31 +1572,22 @@ class _CollabTileContentState extends State<_CollabTileContent> {
         if (!snapshot.hasData || !snapshot.data!.exists) {
           return SizedBox();
         }
-        final data = snapshot.data!.data()!;
-        final revokedFor = List<String>.from(data['revokedFor'] ?? []);
-        final isOwned = data['ownerEmail'] == widget.currentUserEmail;
-        final isRevoked =
-            !isOwned && revokedFor.contains(widget.currentUserEmail);
-        if (isRevoked) {
-          return widget.buildTileContent(context, data, widget.currentUserEmail,
-              isRevoked: true);
-        } else {
-          return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-            stream: FirebaseFirestore.instance
-                .collection(widget.collectionPath)
-                .doc(widget.collabId)
-                .snapshots(),
-            builder: (context, streamSnapshot) {
-              if (!streamSnapshot.hasData || !streamSnapshot.data!.exists) {
-                return SizedBox();
-              }
-              final liveData = streamSnapshot.data!.data()!;
-              return widget.buildTileContent(
-                  context, liveData, widget.currentUserEmail,
-                  isRevoked: false);
-            },
-          );
-        }
+        // NEW LOGIC: No revocation checks - if todo is in our list, we can interact with it
+        return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+          stream: FirebaseFirestore.instance
+              .collection(widget.collectionPath)
+              .doc(widget.collabId)
+              .snapshots(),
+          builder: (context, streamSnapshot) {
+            if (!streamSnapshot.hasData || !streamSnapshot.data!.exists) {
+              return SizedBox();
+            }
+            final liveData = streamSnapshot.data!.data()!;
+            return widget.buildTileContent(
+                context, liveData, widget.currentUserEmail,
+                isRevoked: false); // Always false - no revocation logic
+          },
+        );
       },
     );
   }

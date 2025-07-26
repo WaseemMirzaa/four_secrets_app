@@ -103,6 +103,7 @@ class _AddCustomCategoryWeddingSchedulePageState
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 5),
                 child: CustomTextField(
+                  
                   controller: _itemControllerList[index],
                   label: "Programmpunkt ${index + 1}",
                   inputDecoration: InputDecoration(
