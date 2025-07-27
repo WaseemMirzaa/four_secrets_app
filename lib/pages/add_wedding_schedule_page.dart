@@ -74,7 +74,7 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
       _selectedTime =
           TimeOfDay.fromDateTime(widget.weddingDayScheduleModel!.time);
       _selectedTimeText =
-          "${widget.weddingDayScheduleModel!.time.hour > 12 ? (widget.weddingDayScheduleModel!.time.hour - 12).toString().padLeft(2, '0') : widget.weddingDayScheduleModel!.time.hour.toString().padLeft(2, '0')}:${widget.weddingDayScheduleModel!.time.minute.toString().padLeft(2, '0')} ${widget.weddingDayScheduleModel!.time.hour >= 12 ? 'PM' : 'AM'}";
+          "${widget.weddingDayScheduleModel!.time.hour > 12 ? (widget.weddingDayScheduleModel!.time.hour).toString() : widget.weddingDayScheduleModel!.time.hour.toString().padLeft(2, '0')}:${widget.weddingDayScheduleModel!.time.minute.toString().padLeft(2, '0')} Uhr";
 
       _reminderEnabled = widget.weddingDayScheduleModel!.reminderEnabled;
       if (widget.weddingDayScheduleModel!.reminderTime != null) {
@@ -84,7 +84,7 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
         _selectedReminder = TimeOfDay.fromDateTime(
             widget.weddingDayScheduleModel!.reminderTime!);
         _selectedReminderText =
-            "${widget.weddingDayScheduleModel!.reminderTime!.hour > 12 ? (widget.weddingDayScheduleModel!.reminderTime!.hour - 12).toString().padLeft(2, '0') : widget.weddingDayScheduleModel!.reminderTime!.hour.toString().padLeft(2, '0')}:${widget.weddingDayScheduleModel!.reminderTime!.minute.toString().padLeft(2, '0')} ${widget.weddingDayScheduleModel!.reminderTime!.hour >= 12 ? 'PM' : 'AM'}";
+            "${widget.weddingDayScheduleModel!.reminderTime!.hour > 12 ? (widget.weddingDayScheduleModel!.reminderTime!.hour).toString().padLeft(2, '0') : widget.weddingDayScheduleModel!.reminderTime!.hour.toString().padLeft(2, '0')}:${widget.weddingDayScheduleModel!.reminderTime!.minute.toString().padLeft(2, '0')} Uhr";
       } else {
         _selectedReminderDate = null;
         _selectedReminderDateText = null;
@@ -136,9 +136,7 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
 
   Future<void> _selectReminderDate() async {
     final DateTime? picked = await showDatePicker(
-      
       context: context,
-      
       initialDate: _selectedReminderDate ?? DateTime.now(),
       firstDate: DateTime.now(),
       lastDate: DateTime(2030),
@@ -161,7 +159,7 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
       setState(() {
         _selectedReminder = picked;
         _selectedReminderText =
-            "${picked.hour > 12 ? (picked.hour - 12).toString().padLeft(2, '0') : picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')} ${picked.hour >= 12 ? 'Uhr' : 'Uhr'}";
+            "${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')} Uhr";
       });
     }
   }

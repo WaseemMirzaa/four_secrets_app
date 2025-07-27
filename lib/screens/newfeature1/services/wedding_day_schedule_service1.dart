@@ -103,6 +103,54 @@ class WeddingDayScheduleService1 {
     }
   }
 
+  /// Checks if items have been manually reordered by looking for
+  /// order values that don't match the timestamp-based order
+  bool _hasManualReordering(List<WeddingDayScheduleModel1> items) {
+    if (items.length <= 1) return false;
+
+    // Check for problematic order values (all items have the same order)
+    final uniqueOrders = items.map((item) => item.order).toSet();
+    if (uniqueOrders.length == 1 && uniqueOrders.first == 0) {
+      print("Problematic order values detected: all items have order 0");
+      return false; // Use timestamp sorting
+    }
+
+    // Check if items are using manual ordering (small sequential numbers)
+    final hasSmallOrders = items.any((item) => item.order < 1000);
+    if (hasSmallOrders) {
+      // Verify if this is valid manual ordering (sequential numbers)
+      final sortedByOrder = List<WeddingDayScheduleModel1>.from(items)
+        ..sort((a, b) => a.order.compareTo(b.order));
+
+      // Check if orders are sequential or at least unique
+      final orders = sortedByOrder.map((item) => item.order).toList();
+      final hasUniqueOrders = orders.toSet().length == orders.length;
+
+      if (hasUniqueOrders) {
+        print("Valid manual reordering detected (sequential order values)");
+        return true;
+      }
+    }
+
+    // Additional check: if items are not in chronological order by their order field
+    final sortedByOrder = List<WeddingDayScheduleModel1>.from(items)
+      ..sort((a, b) => a.order.compareTo(b.order));
+
+    for (int i = 0; i < sortedByOrder.length - 1; i++) {
+      final current = sortedByOrder[i];
+      final next = sortedByOrder[i + 1];
+
+      // If a later item in order has an earlier time, manual reordering occurred
+      if (current.time.isAfter(next.time)) {
+        print(
+            "Manual reordering detected: chronological order doesn't match order field");
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   Future<void> loadData() async {
     if (userId == null) {
       print("Cannot load data: User not logged in");
@@ -114,8 +162,7 @@ class WeddingDayScheduleService1 {
           .collection('users')
           .doc(userId)
           .collection('weddingDaySchedule1')
-          .orderBy('order', descending: false)
-          .get();
+          .get(); // Remove orderBy to get all items first
 
       weddingDayScheduleList = snapshot.docs.map((doc) {
         print(doc.data());
@@ -124,6 +171,35 @@ class WeddingDayScheduleService1 {
       }).toList();
 
       print("Loaded ${weddingDayScheduleList.length} schedule items");
+
+      // Check if items have been manually reordered
+      final hasManualOrder = _hasManualReordering(weddingDayScheduleList);
+
+      if (hasManualOrder) {
+        // Use manual order (sort by order field)
+        weddingDayScheduleList.sort((a, b) => a.order.compareTo(b.order));
+        print("Using manual order (items have been reordered)");
+      } else {
+        // Sort by date/time in ascending order (default behavior)
+        weddingDayScheduleList.sort((a, b) {
+          final aDateTime = DateTime(
+            a.time.year,
+            a.time.month,
+            a.time.day,
+            a.time.hour,
+            a.time.minute,
+          );
+          final bDateTime = DateTime(
+            b.time.year,
+            b.time.month,
+            b.time.day,
+            b.time.hour,
+            b.time.minute,
+          );
+          return aDateTime.compareTo(bDateTime); // Ascending order
+        });
+        print("Applied automatic date/time ascending sort");
+      }
 
       // Schedule alarms for items with reminders enabled AND reminderTime is not null
       int scheduledCount = 0;

@@ -47,6 +47,48 @@ class ImageUploadService {
     }
   }
 
+  /// Upload a file (PDF, documents, etc.) with file prefix instead of image prefix
+  Future<ImageUploadResponse> uploadFile(File file) async {
+    try {
+      final uri = Uri.parse('$baseUrl$uploadEndpoint');
+
+      // Create multipart request
+      final request = http.MultipartRequest('POST', uri);
+
+      // Add a parameter to indicate this is a file upload (not image)
+      request.fields['file_type'] = 'file';
+
+      // Add the file to the request
+      final fileStream = http.ByteStream(file.openRead());
+      final fileLength = await file.length();
+
+      final multipartFile = http.MultipartFile(
+        'image', // Keep same parameter name for compatibility
+        fileStream,
+        fileLength,
+        filename: basename(file.path),
+      );
+
+      request.files.add(multipartFile);
+
+      // Send the request
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      // Accept both 200 and 201 status codes as success
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final jsonResponse = json.decode(response.body);
+        return ImageUploadResponse.fromJson(jsonResponse);
+      } else {
+        throw Exception(
+            'Failed to upload file: ${response.statusCode} - ${response.body}');
+      }
+    } catch (e) {
+      print('Error uploading file: $e');
+      throw Exception('Failed to upload file: $e');
+    }
+  }
+
   /// Upload and optionally replace an existing image on the server
   Future<ImageUploadResponse> uploadImageAndUpdateImage(
     File imageFile, {

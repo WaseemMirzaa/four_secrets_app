@@ -284,7 +284,7 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
                     ));
               },
             ),
-            const SpacerWidget(height: 4),
+            // const SpacerWidget(height: 4),
             Expanded(
                 child: isLoading
                     ? Center(child: CircularProgressIndicator())
@@ -382,7 +382,7 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
                                                     fontWeight: FontWeight.bold,
                                                     fontSize: 16,
                                                     color: Colors.black,
-                                                    maxLines: 1,
+                                                    maxLines: 3,
                                                     overflow:
                                                         TextOverflow.ellipsis,
                                                   ),

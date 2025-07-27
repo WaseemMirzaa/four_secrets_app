@@ -19,6 +19,9 @@ import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
 import 'package:four_secrets_wedding_app/screens/newfeature1/widgets/swipeable_item_widget1.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:printing/printing.dart';
+import 'package:share_plus/share_plus.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 class WeddingSchedulePage1 extends StatefulWidget {
   const WeddingSchedulePage1({super.key});
@@ -116,20 +119,41 @@ class _WeddingSchedulePage1State extends State<WeddingSchedulePage1> {
     try {
       print('🔵 ===== WEDDING SCHEDULE DOWNLOAD STARTED =====');
 
-      // Use the current order from the service (respects user's drag-and-drop reordering)
+      // Use the same sorting logic as the main list display
       final sortedScheduleList = List<WeddingDayScheduleModel1>.from(
-          weddingDayScheduleService.weddingDayScheduleList)
-        ..sort((a, b) =>
-            a.order.compareTo(b.order)); // Sort by user's custom order
+          weddingDayScheduleService.weddingDayScheduleList);
 
-      print('🔵 Using current list order (respects user reordering)');
-      print('🔵 Schedule list length: ${sortedScheduleList.length}');
+      // Check if items have been manually reordered (same logic as service)
+      final hasManualOrder = _hasManualReordering(sortedScheduleList);
 
-      // Debug: Print order information
-      for (int i = 0; i < sortedScheduleList.length; i++) {
-        final item = sortedScheduleList[i];
-        print('🔵 Item $i: "${item.title}" (order: ${item.order})');
+      if (hasManualOrder) {
+        // Use manual order (sort by order field)
+        sortedScheduleList.sort((a, b) => a.order.compareTo(b.order));
+        print(
+            "🔵 PDF Download: Using manual order (items have been reordered)");
+      } else {
+        // Sort by date/time in ascending order (default behavior)
+        sortedScheduleList.sort((a, b) {
+          final aDateTime = DateTime(
+            a.time.year,
+            a.time.month,
+            a.time.day,
+            a.time.hour,
+            a.time.minute,
+          );
+          final bDateTime = DateTime(
+            b.time.year,
+            b.time.month,
+            b.time.day,
+            b.time.hour,
+            b.time.minute,
+          );
+          return aDateTime.compareTo(bDateTime); // Ascending order
+        });
+        print("🔵 PDF Download: Applied automatic date/time ascending sort");
       }
+
+      print('🔵 Schedule list length: ${sortedScheduleList.length}');
 
       print('🔵 Generating PDF bytes...');
       final pdfBytes =
@@ -150,6 +174,17 @@ class _WeddingSchedulePage1State extends State<WeddingSchedulePage1> {
       );
 
       print('🔵 Download result: $result');
+
+      // After successful download, also trigger share intent
+      if (result == true && mounted) {
+        try {
+          print('🔵 Triggering share intent...');
+          await _sharePdfFile(pdfBytes, filename);
+        } catch (shareError) {
+          print('🔴 Error sharing PDF: $shareError');
+          // Don't show error to user as download was successful
+        }
+      }
     } catch (e) {
       print('🔴 Error in _downloadWeddingSchedulePdf: $e');
       print('🔴 Stack trace: ${StackTrace.current}');
@@ -160,34 +195,42 @@ class _WeddingSchedulePage1State extends State<WeddingSchedulePage1> {
     }
   }
 
-  /// Simple test download function to verify download functionality
-  Future<void> _testDownload() async {
+  /// Share PDF file using the share intent
+  Future<void> _sharePdfFile(Uint8List pdfBytes, String filename) async {
     try {
-      print('🔵 ===== TEST DOWNLOAD STARTED =====');
+      print('🔵 Creating temporary file for sharing...');
 
-      // Create a simple test PDF content
-      final testContent = 'Test PDF Content - ${DateTime.now()}';
-      final testBytes = Uint8List.fromList(testContent.codeUnits);
-      final filename =
-          'test_download_${DateTime.now().millisecondsSinceEpoch}.txt';
+      // Get temporary directory
+      final tempDir = await getTemporaryDirectory();
+      final tempFile = File('${tempDir.path}/$filename');
 
-      print('🔵 Test file: $filename');
-      print('🔵 Test content length: ${testBytes.length} bytes');
+      // Write PDF bytes to temporary file
+      await tempFile.writeAsBytes(pdfBytes);
+      print('🔵 Temporary file created: ${tempFile.path}');
 
-      // Use native download service
-      final result = await NativeDownloadService.downloadPdf(
-        context: context,
-        pdfBytes: testBytes,
-        filename: filename,
-        successMessage: 'Test download completed',
+      // Share the file using share_plus
+      await Share.shareXFiles(
+        [XFile(tempFile.path)],
+        text: 'Eigene Dienstleister - Hochzeitsplanung',
+        subject: 'Eigene Dienstleister PDF',
       );
 
-      print('🔵 Test download result: $result');
+      print('🔵 Share intent triggered successfully');
+
+      // Clean up temporary file after a delay to ensure sharing is complete
+      Future.delayed(const Duration(seconds: 5), () {
+        try {
+          if (tempFile.existsSync()) {
+            tempFile.deleteSync();
+            print('🔵 Temporary file cleaned up');
+          }
+        } catch (e) {
+          print('🔴 Error cleaning up temporary file: $e');
+        }
+      });
     } catch (e) {
-      print('🔴 Error in test download: $e');
-      if (mounted) {
-        SnackBarHelper.showErrorSnackBar(context, 'Test download failed: $e');
-      }
+      print('🔴 Error in _sharePdfFile: $e');
+      rethrow;
     }
   }
 
@@ -205,15 +248,43 @@ class _WeddingSchedulePage1State extends State<WeddingSchedulePage1> {
           actions: [
             IconButton(
                 onPressed: () async {
-                  // Use the current order from the service (respects user's drag-and-drop reordering)
+                  // Use the same sorting logic as the main list display
                   final sortedScheduleList =
                       List<WeddingDayScheduleModel1>.from(
-                          weddingDayScheduleService.weddingDayScheduleList)
-                        ..sort((a, b) => a.order
-                            .compareTo(b.order)); // Sort by user's custom order
+                          weddingDayScheduleService.weddingDayScheduleList);
 
-                  print(
-                      '🔵 PDF View: Using current list order (respects user reordering)');
+                  // Check if items have been manually reordered (same logic as service)
+                  final hasManualOrder =
+                      _hasManualReordering(sortedScheduleList);
+
+                  if (hasManualOrder) {
+                    // Use manual order (sort by order field)
+                    sortedScheduleList
+                        .sort((a, b) => a.order.compareTo(b.order));
+                    print(
+                        "🔵 PDF View: Using manual order (items have been reordered)");
+                  } else {
+                    // Sort by date/time in ascending order (default behavior)
+                    sortedScheduleList.sort((a, b) {
+                      final aDateTime = DateTime(
+                        a.time.year,
+                        a.time.month,
+                        a.time.day,
+                        a.time.hour,
+                        a.time.minute,
+                      );
+                      final bDateTime = DateTime(
+                        b.time.year,
+                        b.time.month,
+                        b.time.day,
+                        b.time.hour,
+                        b.time.minute,
+                      );
+                      return aDateTime.compareTo(bDateTime); // Ascending order
+                    });
+                    print(
+                        "🔵 PDF View: Applied automatic date/time ascending sort");
+                  }
 
                   // Debug: Print order information for PDF view
                   for (int i = 0; i < sortedScheduleList.length; i++) {
@@ -412,8 +483,8 @@ class _WeddingSchedulePage1State extends State<WeddingSchedulePage1> {
                           },
                         ),
                       ),
-            if (weddingDayScheduleService.weddingDayScheduleList.isNotEmpty)
-              FourSecretsDivider(),
+            // if (weddingDayScheduleService.weddingDayScheduleList.isNotEmpty)
+            FourSecretsDivider(),
             SpacerWidget(height: 18)
           ],
         ),

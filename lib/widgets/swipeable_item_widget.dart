@@ -138,15 +138,17 @@ class _SwipeableItemWidgetState extends State<SlidableItemWidget> {
             fontWeight: FontWeight.bold,
           ),
           SpacerWidget(height: 3),
-          CustomTextWidget(
-            text: "Verantwortliche Person ",
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-          ),
-          SpacerWidget(height: 1),
-          CustomTextWidget(text: widget.item.responsiblePerson, fontSize: 14),
-          SpacerWidget(height: 3),
-          SpacerWidget(height: 3),
+          if (widget.item.responsiblePerson.isNotEmpty) ...[
+            CustomTextWidget(
+              text: "Zuständige Person ",
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+            SpacerWidget(height: 1),
+            CustomTextWidget(text: widget.item.responsiblePerson, fontSize: 14),
+            SpacerWidget(height: 3),
+          ],
+
           CustomTextWidget(
             text: "Notizen",
             fontSize: 14,
@@ -165,7 +167,8 @@ class _SwipeableItemWidgetState extends State<SlidableItemWidget> {
                 fontWeight: FontWeight.bold),
           ),
           SpacerWidget(height: 3),
-          SpacerWidget(height: 3),
+          // if(widget.)
+          // SpacerWidget(height: 3),
           if (widget.item.reminderTime != null)
             CustomTextWidget(
               text: "Erinnerung",
@@ -180,8 +183,7 @@ class _SwipeableItemWidgetState extends State<SlidableItemWidget> {
                 Icon(FontAwesomeIcons.clock, size: 18),
                 CustomTextWidget(
                   text:
-                      "${widget.item.reminderTime!.hour.toString().padLeft(2, '0')}:${widget.item.reminderTime!.minute.toString().padLeft(2, '0')} "
-                      "${widget.item.reminderTime!.hour >= 12 ? 'Uhr' : 'Uhr'}",
+                      " ${widget.item.reminderTime!.hour.toString().padLeft(2, '0')}:${widget.item.reminderTime!.minute.toString().padLeft(2, '0')} Uhr",
                   fontSize: 14,
                 ),
                 SizedBox(
@@ -197,61 +199,74 @@ class _SwipeableItemWidgetState extends State<SlidableItemWidget> {
                 ),
                 CustomTextWidget(
                   text:
-                      "${widget.item.reminderTime!.day.toString().padLeft(2, '0')}-${widget.item.reminderTime!.month.toString().padLeft(2, '0')}-${widget.item.reminderTime!.year}",
+                      " ${widget.item.reminderTime!.day.toString().padLeft(2, '0')}-${widget.item.reminderTime!.month.toString().padLeft(2, '0')}-${widget.item.reminderTime!.year}",
                   fontSize: 14,
                 ),
               ],
             ),
-          SpacerWidget(height: 3),
-          CustomTextWidget(
-            text: "Ort",
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-          ),
-          SpacerWidget(height: 3),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(15),
-            child: Stack(
-              children: [
-                Container(
-                  height: context.screenHeight * 0.2,
-                  width: context.screenWidth,
-                  decoration: BoxDecoration(boxShadow: [
-                    BoxShadow(
-                        color: Colors.grey,
-                        blurRadius: 10,
-                        offset: Offset(10, 0))
-                  ]),
-                  child: GoogleMap(
-                    initialCameraPosition: CameraPosition(
-                      target: LatLng(widget.item.lat, widget.item.long),
-                      zoom: 14.0,
-                    ),
-                    onMapCreated: (controller) {
-                      mapController = controller;
-                      setState(() {
-                        _isMapLoading = false;
-                      });
-                    },
-                    markers: {
-                      Marker(
-                        markerId: const MarkerId("selected-location"),
-                        position: LatLng(widget.item.lat, widget.item.long),
-                      ),
-                    },
-                  ),
-                ),
-                if (_isMapLoading)
-                  Positioned.fill(
-                    child: Container(
-                      color: Colors.white.withOpacity(0.7),
-                      child: Center(child: CircularProgressIndicator()),
-                    ),
-                  ),
-              ],
+
+          if (widget.item.reminderTime != null) SpacerWidget(height: 3),
+          if (widget.item.lat != 0 && widget.item.long != 0) ...[
+            // if (widget.item.reminderTime != null) SpacerWidget(height: 3),
+            CustomTextWidget(
+              text: "Ort",
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
             ),
-          ),
-          SpacerWidget(height: 4),
+            // SpacerWidget(height: 3),
+
+            //   text: "Ort",
+            //   fontSize: 14,
+            //   fontWeight: FontWeight.bold,
+            // ),
+            SpacerWidget(height: 2),
+
+            ClipRRect(
+              borderRadius: BorderRadius.circular(15),
+              child: Stack(
+                children: [
+                  Container(
+                    height: context.screenHeight * 0.2,
+                    width: context.screenWidth,
+                    decoration: BoxDecoration(boxShadow: [
+                      BoxShadow(
+                          color: Colors.grey,
+                          blurRadius: 10,
+                          offset: Offset(10, 0))
+                    ]),
+                    child: GoogleMap(
+                      initialCameraPosition: CameraPosition(
+                        target: LatLng(widget.item.lat, widget.item.long),
+                        zoom: 14.0,
+                      ),
+                      onMapCreated: (controller) {
+                        mapController = controller;
+                        setState(() {
+                          _isMapLoading = false;
+                        });
+                      },
+                      markers: {
+                        Marker(
+                          markerId: const MarkerId("selected-location"),
+                          position: LatLng(widget.item.lat, widget.item.long),
+                        ),
+                      },
+                    ),
+                  ),
+                  if (_isMapLoading)
+                    Positioned.fill(
+                      child: Container(
+                        color: Colors.white.withOpacity(0.7),
+                        child: Center(child: CircularProgressIndicator()),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            SpacerWidget(height: 4),
+          ],
+          // CustomTextWidg
+
           CustomButtonWidget(
             width: widget.screenWidth,
             color: Colors.red.shade300,

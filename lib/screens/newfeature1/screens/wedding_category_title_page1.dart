@@ -284,7 +284,7 @@ class _WeddingCategoryTitlePage1State extends State<WeddingCategoryTitlePage1> {
                     ));
               },
             ),
-            const SpacerWidget(height: 4),
+            // const SpacerWidget(height: 4),
             Expanded(
                 child: isLoading
                     ? Center(child: CircularProgressIndicator())
@@ -341,10 +341,10 @@ class _WeddingCategoryTitlePage1State extends State<WeddingCategoryTitlePage1> {
                                       filteredCategory[categoryName]!;
 
                                   return Container(
-                                    margin: const EdgeInsets.symmetric(
-                                      horizontal: 5,
-                                      vertical: 8,
-                                    ),
+                                    margin: const EdgeInsets.only(top: 16
+                                        // horizontal: 5,
+                                        // vertical: 8,
+                                        ),
                                     decoration: BoxDecoration(
                                       color: Colors.white,
                                       borderRadius: BorderRadius.circular(15),
@@ -378,7 +378,7 @@ class _WeddingCategoryTitlePage1State extends State<WeddingCategoryTitlePage1> {
                                                   fontWeight: FontWeight.bold,
                                                   fontSize: 16,
                                                   color: Colors.black,
-                                                  maxLines: 1,
+                                                  maxLines: 3,
                                                   overflow:
                                                       TextOverflow.ellipsis,
                                                 ),

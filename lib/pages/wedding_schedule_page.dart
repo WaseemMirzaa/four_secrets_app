@@ -19,6 +19,9 @@ import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/swipeable_item_widget.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:printing/printing.dart';
+import 'package:share_plus/share_plus.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 class WeddingSchedulePage extends StatefulWidget {
   const WeddingSchedulePage({super.key});
@@ -172,6 +175,17 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
       );
 
       print('🔵 Download result: $result');
+
+      // After successful download, also trigger share intent
+      if (result == true && mounted) {
+        try {
+          print('🔵 Triggering share intent...');
+          await _sharePdfFile(pdfBytes, filename);
+        } catch (shareError) {
+          print('🔴 Error sharing PDF: $shareError');
+          // Don't show error to user as download was successful
+        }
+      }
     } catch (e) {
       print('🔴 Error in _downloadWeddingSchedulePdf: $e');
       print('🔴 Stack trace: ${StackTrace.current}');
@@ -179,6 +193,45 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
         SnackBarHelper.showErrorSnackBar(
             context, 'Fehler beim Herunterladen: $e');
       }
+    }
+  }
+
+  /// Share PDF file using the share intent
+  Future<void> _sharePdfFile(Uint8List pdfBytes, String filename) async {
+    try {
+      print('🔵 Creating temporary file for sharing...');
+
+      // Get temporary directory
+      final tempDir = await getTemporaryDirectory();
+      final tempFile = File('${tempDir.path}/$filename');
+
+      // Write PDF bytes to temporary file
+      await tempFile.writeAsBytes(pdfBytes);
+      print('🔵 Temporary file created: ${tempFile.path}');
+
+      // Share the file using share_plus
+      await Share.shareXFiles(
+        [XFile(tempFile.path)],
+        text: 'Tagesablauf - Hochzeitsplanung',
+        subject: 'Tagesablauf PDF',
+      );
+
+      print('🔵 Share intent triggered successfully');
+
+      // Clean up temporary file after a delay to ensure sharing is complete
+      Future.delayed(const Duration(seconds: 5), () {
+        try {
+          if (tempFile.existsSync()) {
+            tempFile.deleteSync();
+            print('🔵 Temporary file cleaned up');
+          }
+        } catch (e) {
+          print('🔴 Error cleaning up temporary file: $e');
+        }
+      });
+    } catch (e) {
+      print('🔴 Error in _sharePdfFile: $e');
+      rethrow;
     }
   }
 
@@ -271,7 +324,7 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
                     MaterialPageRoute(
                       builder: (context) => PdfViewPage(
                         pdfBytes: pdfBytes,
-                        title: 'Zeitplan der Hochzeit',
+                        title: 'Tagesablauf',
                       ),
                     ),
                   );

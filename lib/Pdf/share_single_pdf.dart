@@ -107,7 +107,7 @@ Future<Uint8List> generateSingleSchedulePdf(
 
                         if (weddingSchedule.responsiblePerson.isNotEmpty) ...[
                           pw.SizedBox(height: 10),
-                          pw.Text('Verantwortliche Person',
+                          pw.Text('Zuständige Person',
                               style: pw.TextStyle(
                                   fontSize: 18,
                                   fontWeight: pw.FontWeight.bold)),

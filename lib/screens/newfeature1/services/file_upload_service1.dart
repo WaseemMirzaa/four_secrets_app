@@ -85,11 +85,17 @@ class FileUploadService1 {
 
       final File file = File(filePath);
 
-      // Upload using existing image upload service (works for all file types)
-      final ImageUploadResponse? response =
-          await _imageUploadService.uploadImage(file);
+      // Use appropriate upload method based on file type
+      final ImageUploadResponse response;
+      if (isPdfFile(fileName)) {
+        // Use file upload endpoint for PDFs
+        response = await _imageUploadService.uploadFile(file);
+      } else {
+        // Use image upload endpoint for images and other files
+        response = await _imageUploadService.uploadImage(file);
+      }
 
-      if (response != null && response.image.url.isNotEmpty) {
+      if (response.image.url.isNotEmpty) {
         return FileUploadResult(
           fileName: fileName,
           fileUrl: response.image.getFullImageUrl(),
@@ -102,7 +108,8 @@ class FileUploadService1 {
           fileUrl: '',
           fileType: _getFileType(fileName),
           success: false,
-          error: response?.message ?? 'Upload failed',
+          error:
+              response.message.isNotEmpty ? response.message : 'Upload failed',
         );
       }
     } catch (e) {

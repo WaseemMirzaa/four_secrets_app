@@ -111,7 +111,7 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
       _selectedTime =
           TimeOfDay.fromDateTime(widget.weddingDayScheduleModel!.time);
       _selectedTimeText =
-          "${widget.weddingDayScheduleModel!.time.hour > 12 ? (widget.weddingDayScheduleModel!.time.hour - 12).toString().padLeft(2, '0') : widget.weddingDayScheduleModel!.time.hour.toString().padLeft(2, '0')}:${widget.weddingDayScheduleModel!.time.minute.toString().padLeft(2, '0')} ${widget.weddingDayScheduleModel!.time.hour >= 12 ? 'PM' : 'AM'}";
+          "${widget.weddingDayScheduleModel!.time.hour.toString().padLeft(2, '0')}:${widget.weddingDayScheduleModel!.time.minute.toString().padLeft(2, '0')} Uhr";
 
       _reminderEnabled = widget.weddingDayScheduleModel!.reminderEnabled;
       if (widget.weddingDayScheduleModel!.reminderTime != null) {
@@ -121,7 +121,7 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
         _selectedReminder = TimeOfDay.fromDateTime(
             widget.weddingDayScheduleModel!.reminderTime!);
         _selectedReminderText =
-            "${widget.weddingDayScheduleModel!.reminderTime!.hour > 12 ? (widget.weddingDayScheduleModel!.reminderTime!.hour - 12).toString().padLeft(2, '0') : widget.weddingDayScheduleModel!.reminderTime!.hour.toString().padLeft(2, '0')}:${widget.weddingDayScheduleModel!.reminderTime!.minute.toString().padLeft(2, '0')} ${widget.weddingDayScheduleModel!.reminderTime!.hour >= 12 ? 'PM' : 'AM'}";
+            "${widget.weddingDayScheduleModel!.reminderTime!.hour.toString().padLeft(2, '0')}:${widget.weddingDayScheduleModel!.reminderTime!.minute.toString().padLeft(2, '0')} Uhr";
       } else {
         _selectedReminderDate = null;
         _selectedReminderDateText = null;
@@ -148,6 +148,7 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
 
     final DateTime? picked = await showDatePicker(
       context: context,
+
       initialDate: _selectedEventDate ?? today,
       firstDate: today, // Prevent selecting past dates
       lastDate: DateTime(2030),
@@ -174,7 +175,7 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
       setState(() {
         _selectedTime = picked;
         _selectedTimeText =
-            "${picked.hour > 12 ? (picked.hour - 12).toString().padLeft(2, '0') : picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')} ${picked.hour >= 12 ? 'Uhr' : 'Uhr'}";
+            "${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')} Uhr";
       });
 
       // Validate if both date and time are selected
@@ -217,7 +218,7 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
       setState(() {
         _selectedReminder = picked;
         _selectedReminderText =
-            "${picked.hour > 12 ? (picked.hour - 12).toString().padLeft(2, '0') : picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')} ${picked.hour >= 12 ? 'Uhr' : 'Uhr'}";
+            "${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')} Uhr";
       });
 
       // Validate if both reminder date and time are selected
@@ -668,10 +669,7 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
                     decoration: BoxDecoration(
                       color: Colors.grey.withValues(alpha: 0.2),
                       border: Border.all(
-                        color: (_titleController == null ||
-                                _titleController!.trim().isEmpty)
-                            ? Colors.red.withValues(alpha: 0.5)
-                            : Colors.white,
+                        color: Colors.white,
                       ),
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -693,9 +691,7 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
                   decoration: BoxDecoration(
                     color: Colors.grey.withValues(alpha: 0.2),
                     border: Border.all(
-                      color: _dienstleisternameController.text.trim().isEmpty
-                          ? Colors.red.withValues(alpha: 0.5)
-                          : Colors.white,
+                      color: Colors.white,
                     ),
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -736,11 +732,7 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
                   decoration: BoxDecoration(
                     color: Colors.grey.withValues(alpha: 0.2),
                     border: Border.all(
-                      color: _telefonnummerController.text.isNotEmpty &&
-                              !_isValidPhoneNumber(
-                                  _telefonnummerController.text)
-                          ? Colors.red.withValues(alpha: 0.5)
-                          : Colors.white,
+                      color: Colors.white,
                     ),
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -800,7 +792,7 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
                     border: Border.all(
                       color: _emailController.text.isNotEmpty &&
                               !_isValidEmail(_emailController.text)
-                          ? Colors.red.withValues(alpha: 0.5)
+                          ? Colors.white
                           : Colors.white,
                     ),
                     borderRadius: BorderRadius.circular(8),
@@ -842,7 +834,7 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
                     border: Border.all(
                       color: _homepageController.text.isNotEmpty &&
                               !_isValidUrl(_homepageController.text)
-                          ? Colors.red.withValues(alpha: 0.5)
+                          ? Colors.white
                           : Colors.white,
                     ),
                     borderRadius: BorderRadius.circular(8),
@@ -1129,9 +1121,8 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
                     decoration: BoxDecoration(
                       color: Colors.grey.withValues(alpha: 0.2),
                       border: Border.all(
-                        color: _selectedTime == null
-                            ? Colors.red.withValues(alpha: 0.5)
-                            : Colors.white,
+                        color:
+                            _selectedTime == null ? Colors.white : Colors.white,
                       ),
                       borderRadius: BorderRadius.circular(8),
                     ),

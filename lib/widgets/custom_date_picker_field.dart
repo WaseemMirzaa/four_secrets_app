@@ -42,12 +42,7 @@ class CustomDatePickerField extends StatelessWidget {
             decoration: BoxDecoration(
               color: backgroundColor ?? Colors.grey.withValues(alpha: 0.2),
               border: Border.all(
-                color: borderColor ??
-                    (isRequired &&
-                            (selectedDateText == null ||
-                                selectedDateText!.isEmpty)
-                        ? Colors.red.withValues(alpha: 0.5)
-                        : Colors.white),
+                color: Colors.white,
               ),
               borderRadius: BorderRadius.circular(8),
             ),

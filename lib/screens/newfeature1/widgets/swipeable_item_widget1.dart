@@ -632,59 +632,60 @@ class _SwipeableItemWidget1State extends State<SlidableItemWidget1> {
             SpacerWidget(height: 3),
           ],
           // SpacerWidget(height: 4),
-
-          CustomTextWidget(
-            text: "Ort",
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-          ),
-          SpacerWidget(height: 3),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(15),
-            child: Stack(
-              children: [
-                Container(
-                  height: context.screenHeight * 0.2,
-                  width: context.screenWidth,
-                  decoration: BoxDecoration(boxShadow: [
-                    BoxShadow(
-                        color: Colors.grey,
-                        blurRadius: 10,
-                        offset: Offset(10, 0))
-                  ]),
-                  child: GoogleMap(
-                    initialCameraPosition: CameraPosition(
-                      target: LatLng(widget.item.lat, widget.item.long),
-                      zoom: 14.0,
-                    ),
-                    onMapCreated: (controller) {
-                      mapController = controller;
-                      setState(() {
-                        _isMapLoading = false;
-                      });
-                    },
-                    markers: {
-                      Marker(
-                        markerId: const MarkerId("selected-location"),
-                        position: LatLng(widget.item.lat, widget.item.long),
-                      ),
-                    },
-                  ),
-                ),
-                if (_isMapLoading)
-                  Positioned.fill(
-                    child: Container(
-                      color: Colors.white.withValues(alpha: 0.7),
-                      child: Center(child: CircularProgressIndicator()),
-                    ),
-                  ),
-              ],
+          if (widget.item.lat != 0 && widget.item.long != 0) ...[
+            // SpacerWidget(height: 3),
+            CustomTextWidget(
+              text: "Ort",
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
             ),
-          ),
-
-          SpacerWidget(height: 4),
+            SpacerWidget(height: 3),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(15),
+              child: Stack(
+                children: [
+                  Container(
+                    height: context.screenHeight * 0.2,
+                    width: context.screenWidth,
+                    decoration: BoxDecoration(boxShadow: [
+                      BoxShadow(
+                          color: Colors.grey,
+                          blurRadius: 10,
+                          offset: Offset(10, 0))
+                    ]),
+                    child: GoogleMap(
+                      initialCameraPosition: CameraPosition(
+                        target: LatLng(widget.item.lat, widget.item.long),
+                        zoom: 14.0,
+                      ),
+                      onMapCreated: (controller) {
+                        mapController = controller;
+                        setState(() {
+                          _isMapLoading = false;
+                        });
+                      },
+                      markers: {
+                        Marker(
+                          markerId: const MarkerId("selected-location"),
+                          position: LatLng(widget.item.lat, widget.item.long),
+                        ),
+                      },
+                    ),
+                  ),
+                  if (_isMapLoading)
+                    Positioned.fill(
+                      child: Container(
+                        color: Colors.white.withValues(alpha: 0.7),
+                        child: Center(child: CircularProgressIndicator()),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            SpacerWidget(height: 4),
+          ],
           // CustomTextWidget(
-          //   text: "Verantwortliche Person ",
+          //   text: "Zuständige Person ",
           //   fontSize: 14,
           //   fontWeight: FontWeight.bold,
           // ),
@@ -692,24 +693,26 @@ class _SwipeableItemWidget1State extends State<SlidableItemWidget1> {
           // CustomTextWidget(text: widget.item.responsiblePerson, fontSize: 14),
           // SpacerWidget(height: 3),
           // SpacerWidget(height: 4),
-          CustomTextWidget(
-            text: "Notizen",
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-          ),
-          SpacerWidget(height: 1),
-          SeeMoreWidget(
-            widget.item.notes,
-            textStyle: TextStyle(fontSize: 14, color: Colors.black),
-            trimLength: 90,
-            seeMoreStyle: TextStyle(
-                color: Color.fromARGB(255, 107, 69, 106),
-                fontWeight: FontWeight.bold),
-            seeLessStyle: TextStyle(
-                color: Color.fromARGB(255, 107, 69, 106),
-                fontWeight: FontWeight.bold),
-          ),
-          SpacerWidget(height: 3),
+          if (widget.item.notes.isNotEmpty) ...[
+            CustomTextWidget(
+              text: "Notizen",
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+            SpacerWidget(height: 1),
+            SeeMoreWidget(
+              widget.item.notes,
+              textStyle: TextStyle(fontSize: 14, color: Colors.black),
+              trimLength: 90,
+              seeMoreStyle: TextStyle(
+                  color: Color.fromARGB(255, 107, 69, 106),
+                  fontWeight: FontWeight.bold),
+              seeLessStyle: TextStyle(
+                  color: Color.fromARGB(255, 107, 69, 106),
+                  fontWeight: FontWeight.bold),
+            ),
+            SpacerWidget(height: 3),
+          ],
 
           // Angebot Text
           if (widget.item.angebotText.isNotEmpty) ...[
