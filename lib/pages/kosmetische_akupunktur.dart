@@ -8,8 +8,7 @@ import 'package:four_secrets_wedding_app/menue.dart';
 class KosmetischeAkupunktur extends StatelessWidget {
   KosmetischeAkupunktur({super.key});
   final List items = KosmetischeAkupunkturCardItems.getCardItems();
-
-  final key = GlobalKey<MenueState>();
+  final Key key = GlobalKey<MenueState>();
 
   @override
   Widget build(BuildContext context) {
