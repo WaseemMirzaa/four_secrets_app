@@ -1,17 +1,19 @@
 name: four_secrets_wedding_app
-description: "A new Flutter project."
+description: "Wedding App for Four Secrets Wedding"
 
 # Prevent accidental publishing to pub.dev
-publish_to: 'none'
+publish_to: "none"
 
 version: 1.0.2+2
 
 environment:
-  sdk: '>=3.2.3 <4.0.0'
+  sdk: ">=3.2.3 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
+
+  # Core Dependencies
   analyzer: ^6.11.0
   animated_splash_screen: ^1.3.0
   animated_text_kit: ^4.2.3
@@ -30,7 +32,6 @@ dependencies:
   flutter_sticky_header: ^0.7.0
   font_awesome_flutter: ^10.8.0
   google_fonts: ^6.2.1
- 
   page_transition: ^2.2.1
   path_provider: ^2.1.5
   shared_preferences: ^2.5.3
@@ -38,10 +39,14 @@ dependencies:
   sticky_footer_scrollview: ^1.1.1
   url_launcher: ^6.3.1
   video_player: ^2.9.5
-  
+  flutter_dotenv: ^5.1.0
+
   # State Management & Data Persistence
   provider: ^6.1.1
-  
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  hive_generator: ^2.0.1
+
   # Image Handling
   image_picker: ^1.0.7
   image_cropper: ^9.1.0
@@ -49,7 +54,7 @@ dependencies:
   cached_network_image: ^3.3.1
   flutter_image_compress: ^2.1.0
   file_picker: ^8.0.0+1
-  
+
   # Permissions
   permission_handler: ^12.0.0+1
   device_info_plus: ^11.3.0
@@ -62,41 +67,46 @@ dependencies:
   firebase_storage: ^12.4.5
   firebase_messaging: ^15.2.6
   firebase_app_check: ^0.3.2+5
+
   # UI Components
   shimmer: ^3.0.0
   fluttertoast: ^8.2.4
-  
-  # Utils
-  path: ^1.8.3
-  uuid: ^4.2.1
-  intl: ^0.19.0
   staggered_grid_view: ^0.0.1
+  see_more: ^0.0.5
+  dotted_border: ^2.1.0
+  readmore: ^3.0.0
+  flutter_speed_dial: ^7.0.0
+  flutter_card_swiper: ^7.0.2
+
+  # Notifications & Alarms
   flutter_local_notifications: ^19.2.1
   timezone: ^0.10.1
-  see_more: ^0.0.5
   android_alarm_manager_plus: ^4.0.7
-  dotted_border: ^2.1.0
+
+  # PDF & Document Handling
   pdf: ^3.11.3
   printing: ^5.14.2
-  share_plus: ^11.0.0
+  syncfusion_flutter_pdfviewer: ^29.1.38
+
+  # Location & Maps
   geolocator: ^13.0.4
   google_maps_flutter: ^2.2.0
   geocoding: ^2.0.5
   flutter_typeahead: ^5.2.0
   google_places_flutter: ^2.1.0
-  readmore: ^3.0.0
-  flutter_speed_dial: ^7.0.0
-  syncfusion_flutter_pdfviewer: ^29.1.38
-  flutter_card_swiper: ^7.0.2
+
+  # Utils
+  path: ^1.8.3
+  uuid: ^4.2.2
+  chat_gpt_sdk: ^3.1.5
+  intl: ^0.19.0
+  dash_chat_2: ^0.0.21
+  share_plus: ^11.0.0
   http: ^1.2.1
-  
-
-
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
 
 flutter_launcher_icons:
   android: true
@@ -110,70 +120,98 @@ flutter_launcher_icons:
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-
-  # Pictures
   assets:
+    # Folder-based asset declarations (more efficient)
     - assets/images/logo/
     - assets/images/home/
     - assets/images/inspirations/
-    - assets/images/logo/
     - assets/images/about_me/
     - assets/icons/
     - assets/images/bachelorette_party/
     - assets/images/hair_makeup/
     - assets/images/budget/
-    - assets/icons/oval.png
-    - assets/icons/circle.png
-    - assets/icons/square.png
-    - assets/icons/rectangle.png
-    - assets/images/background/home_bg.png
     - assets/images/showroom_event/
     - assets/images/card/
-    - assets/images/inspirations/eigene.jpg
     - assets/images/gaestelist/
     - assets/images/kontakt/
     - assets/images/background/
     - assets/images/checklist/
     - assets/images/divider/
-    
 
-  # Videos
-    - assets/videos/2.mp4
+    # Specific assets that need explicit declaration
+    - assets/images/logo/secrets-logo.jpg
+    - assets/images/logo/secrets-logo-app-bar.jpg
+    - assets/images/inspirations/Bacheloretteparty.jpg
+    - assets/images/inspirations/Band_DJ.jpg
+    - assets/images/inspirations/Braut_Braeutigam_Atelier.jpg
+    - assets/images/inspirations/Cake.jpg
+    - assets/images/inspirations/Florist_Floristin.jpg
+    - assets/images/inspirations/Fotograf_Fotografin.jpg
+    - assets/images/inspirations/Kosmetische_Akupunktur.jpg
+    - assets/images/inspirations/Hair_und_MakeUp_Styling.jpg
+    - assets/images/inspirations/Location.jpg
+    - assets/images/inspirations/Catering.jpg
+    - assets/images/inspirations/Patiserie.jpg
+    - assets/images/inspirations/Unterhaltung.jpg
+    - assets/images/inspirations/Tanzschule.jpg
+    - assets/images/inspirations/Gesang.jpg
+    - assets/images/inspirations/Personal_Training.jpg
+    - assets/images/inspirations/Wedding_Designer.jpg
+    - assets/images/inspirations/Papeterie.jpg
+    - assets/images/inspirations/Trauredner.jpg
+    - assets/images/inspirations/Trauringe.jpg
+    - assets/images/inspirations/eigene.jpg
+    - assets/images/about_me/about_me_header.jpg
+    - assets/images/about_me/about_me_main.jpg
+    - assets/icons/secrets-icon.png
+    - assets/icons/oval.png
+    - assets/icons/circle.png
+    - assets/icons/square.png
+    - assets/icons/rectangle.png
+    - assets/images/background/home_bg.png
+    - assets/images/kontakt/kontaktseite.png
+    - assets/images/checklist/checklist.jpg
+    - assets/images/divider/wedding_rings.png
+    - assets/images/gaestelist/gaesteliste.png
+    - assets/images/budget/budget.png
+
+    # Videos
+    - assets/videos/hair_makeup.mp4
     - assets/videos/bachelorette.mp4
     - assets/videos/akupunktur.mp4
+    - assets/videos/about_me.mp4
     - assets/videos/1.mp4
+    - assets/videos/2.mp4
     - assets/videos/YouCut_20250520_023034496.mp4
     - assets/videos/X_20250521_003728_0001.mp4
+# An image asset can refer to one or more resolution-specific "variants", see
+# https://flutter.dev/assets-and-images/#resolution-aware
 
-  # An image asset can refer to one or more resolution-specific "variants", see
-  # https://flutter.dev/assets-and-images/#resolution-aware
+# For details regarding adding assets from package dependencies, see
+# https://flutter.dev/assets-and-images/#from-packages
 
-  # For details regarding adding assets from package dependencies, see
-  # https://flutter.dev/assets-and-images/#from-packages
-
-  # To add custom fonts to your application, add a fonts section here,
-  # in this "flutter" section. Each entry in this list should have a
-  # "family" key with the font family name, and a "fonts" key with a
-  # list giving the asset and other descriptors for the font. For
-  # example:
-  # fonts:
-  #   - family: 
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-  #   - family: Trajan Pro
-  #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
-  #       - asset: fonts/TrajanPro_Bold.ttf
-  #         weight: 700
-  #
-  # For details regarding fonts from package dependencies,
-  # see https://flutter.dev/custom-fonts/#from-packages
+# To add custom fonts to your application, add a fonts section here,
+# in this "flutter" section. Each entry in this list should have a
+# "family" key with the font family name, and a "fonts" key with a
+# list giving the asset and other descriptors for the font. For
+# example:
+# fonts:
+#   - family:
+#     fonts:
+#       - asset: fonts/Schyler-Regular.ttf
+#       - asset: fonts/Schyler-Italic.ttf
+#         style: italic
+#   - family: Trajan Pro
+#     fonts:
+#       - asset: fonts/TrajanPro.ttf
+#       - asset: fonts/TrajanPro_Bold.ttf
+#         weight: 700
+#
+# For details regarding fonts from package dependencies,
+# see https://flutter.dev/custom-fonts/#from-packages
