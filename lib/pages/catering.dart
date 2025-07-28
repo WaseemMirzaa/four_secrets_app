@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 class Catering extends StatelessWidget {
   Catering({super.key});
   final List items = CateringCardItems.getCardItems();
+  final Key key = GlobalKey<MenueState>();
 
   @override
   Widget build(BuildContext context) {
