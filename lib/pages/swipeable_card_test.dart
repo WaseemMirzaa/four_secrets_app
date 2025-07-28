@@ -29,7 +29,7 @@ class _SwipeableCardTestState extends State<SwipeableCardTest> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: Menue(),
+        drawer: Menue.getInstance(key),
         appBar: AppBar(
           foregroundColor: Colors.white,
           title: const Text('Swipeable Card Test'),
