@@ -13,11 +13,7 @@ class Location extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-<<<<<<< HEAD
-        drawer: Menue(),
-=======
-        drawer: const Menue(),
->>>>>>> merge-elena-wazeem
+        drawer: Menue.getInstance(key),
         appBar: AppBar(
           // automaticallyImplyLeading: false,
           foregroundColor: Color.fromARGB(255, 255, 255, 255),
