@@ -338,8 +338,7 @@ class _ChecklistState extends State<Checklist> with TickerProviderStateMixin {
                   int targetCategory = 0;
                   if (db.weddingDate != null) {
                     targetCategory =
-                        WeddingDateHelper.getCurrentCategory(db.weddingDate!) ??
-                            0;
+                        WeddingDateHelper.getCurrentCategory(db.weddingDate!);
                   }
 
                   saveNewTask(_controller.text, targetCategory);
