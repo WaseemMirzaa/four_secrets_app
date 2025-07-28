@@ -16,11 +16,7 @@ class MuenchnerGeheimtipp extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-<<<<<<< HEAD:lib/pages/inspirations.dart
-        drawer: Menue(),
-=======
-        drawer: const Menue(),
->>>>>>> merge-elena-wazeem:lib/pages/muenchner_geheimtipp.dart
+        drawer: Menue.getInstance(key),
         appBar: AppBar(
           // automaticallyImplyLeading: false,
           title: const Text('Münchner Geheimtipp'),
