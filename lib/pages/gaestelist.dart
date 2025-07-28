@@ -22,11 +22,10 @@ class _GaestelistState extends State<Gaestelist> {
   // Firebase references
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final Key key = GlobalKey<MenueState>();
 
   // List to store guests
   List<Map<String, dynamic>> guestList = [];
-
-  final key = GlobalKey<MenueState>();
 
   // Text controller
   final _controller = TextEditingController();
@@ -542,4 +541,4 @@ Future<Map<String, dynamic>> _addGuestInBackground(
       'error': e.toString(),
     };
   }
-}merge-elena-wazeem
+}
