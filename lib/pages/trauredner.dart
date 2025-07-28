@@ -6,6 +6,7 @@ class Trauredner extends StatelessWidget {
   Trauredner({super.key});
 
   final List items = TraurednerCardItems.getCardItems();
+  final Key key = GlobalKey<MenueState>();
 
   @override
   Widget build(BuildContext context) {
