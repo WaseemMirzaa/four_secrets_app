@@ -10,7 +10,7 @@ class MuenchnerGeheimtipp extends StatelessWidget {
   final List<String> content = MuenchnerGeheimtippContent.getContent();
   final List routes = MuenchnerGeheimtippRoutes.getRoutes();
 
-  final key = GlobalKey<MenueState>();
+  final Key key = GlobalKey<MenueState>();
 
   @override
   Widget build(BuildContext context) {
