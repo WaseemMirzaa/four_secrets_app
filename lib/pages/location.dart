@@ -5,9 +5,7 @@ import 'package:four_secrets_wedding_app/menue.dart';
 class Location extends StatelessWidget {
   Location({super.key});
   final List items = LocationCardItems.getCardItems();
-
-
-
+  final Key key = GlobalKey<MenueState>();
 
   @override
   Widget build(BuildContext context) {
