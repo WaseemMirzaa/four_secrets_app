@@ -6,6 +6,7 @@ class Patiserie extends StatelessWidget {
   Patiserie({super.key});
 
   final List items = PatiserieCardItems.getCardItems();
+  final Key key = GlobalKey<MenueState>();
 
   @override
   Widget build(BuildContext context) {
