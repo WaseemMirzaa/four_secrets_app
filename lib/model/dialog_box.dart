@@ -51,7 +51,7 @@ class DialogBox extends StatelessWidget {
                   enabled: !isLoading, // Disable text field when loading
                 ),
               ),
-              
+
               // Buttons row
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -65,7 +65,7 @@ class DialogBox extends StatelessWidget {
                         color: Colors.white,
                         textColor: Colors.black,
                         onPressed: isLoading ? null : onCancel,
-                        enabled: !isLoading,
+                        isLoading: !isLoading,
                       ),
                     ),
 
@@ -75,11 +75,10 @@ class DialogBox extends StatelessWidget {
                     Expanded(
                       child: CustomButtonWidget(
                         text: "Speichern",
-                        isLoading: isLoading,
-                        textColor: Colors.white,
                         color: const Color.fromARGB(255, 107, 69, 106),
+                        textColor: Colors.white,
                         onPressed: onSave,
-                        enabled: !isLoading,
+                        isLoading: isLoading,
                       ),
                     ),
                   ],
