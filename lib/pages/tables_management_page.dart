@@ -8,22 +8,14 @@ import '../models/table_model.dart';
 import '../services/table_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:four_secrets_wedding_app/Pdf/generate_table_pdf.dart';
 import 'package:four_secrets_wedding_app/constants/app_constants.dart';
-import 'package:four_secrets_wedding_app/menue.dart';
-import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
-import 'package:four_secrets_wedding_app/model/table_dialog_box.dart';
 import 'package:four_secrets_wedding_app/pages/PdfViewPage.dart';
 import 'package:four_secrets_wedding_app/services/native_download_service.dart';
 import 'package:four_secrets_wedding_app/utils/snackbar_helper.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_dialog.dart';
 import 'package:four_secrets_wedding_app/widgets/table_mangemant_widget.dart';
-
-import '../models/table_model.dart';
-import '../services/table_service.dart';
 
 class TablesManagementPage extends StatefulWidget {
   const TablesManagementPage({Key? key}) : super(key: key);

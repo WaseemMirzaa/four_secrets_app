@@ -4,7 +4,6 @@ import 'package:four_secrets_wedding_app/screens/newfeature1/models/wedding_day_
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:http/http.dart' as http;
-import 'dart:typed_data';
 
 /// Helper function to fetch attachment from URL
 Future<Uint8List?> _fetchAttachment(String url) async {
