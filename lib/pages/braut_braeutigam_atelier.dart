@@ -1,35 +1,37 @@
-import 'package:four_secrets_wedding_app/data/braut_braeutigam_card_items.dart';
 import 'package:flutter/material.dart';
+import 'package:four_secrets_wedding_app/data/braut_braeutigam_card_items.dart';
 import 'package:four_secrets_wedding_app/menue.dart';
 
-class BrautBraeutigam extends StatelessWidget {
+class BrautBraeutigam extends StatefulWidget {
   BrautBraeutigam({super.key});
-  final List items = BrautBraeutigamCardItems.getCardItems();
 
   @override
-<<<<<<< HEAD
   State<BrautBraeutigam> createState() => _BrautBraeutigamState();
 }
 
 class _BrautBraeutigamState extends State<BrautBraeutigam> {
+  final List items = BrautBraeutigamCardItems.getCardItems();
   final key = GlobalKey<MenueState>();
 
   @override
-=======
->>>>>>> merge-elena-wazeem
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: Menue(key: key,),
+        drawer: Menue.getInstance(key),
         appBar: AppBar(
-          // automaticallyImplyLeading: false,
-          foregroundColor: Color.fromARGB(255, 255, 255, 255),
-          title: const Text('Braut Atelier'),
+          foregroundColor: const Color.fromARGB(255, 255, 255, 255),
+          title: const Text(
+            'Braut Atelier',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           backgroundColor: const Color.fromARGB(255, 107, 69, 106),
         ),
         body: Container(
           height: double.infinity,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             image: DecorationImage(
               opacity: 0.4,
               image: AssetImage(
@@ -38,7 +40,7 @@ class _BrautBraeutigamState extends State<BrautBraeutigam> {
             ),
           ),
           child: ListView(
-            physics: ClampingScrollPhysics(),
+            physics: const ClampingScrollPhysics(),
             children: [
               ListView.builder(
                 primary: false, // disable scrolling
