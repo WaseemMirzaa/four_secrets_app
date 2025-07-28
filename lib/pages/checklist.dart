@@ -1105,7 +1105,7 @@ class _ChecklistState extends State<Checklist> with TickerProviderStateMixin {
 
     return SafeArea(
       child: Scaffold(
-        drawer: const Menue(),
+        drawer: Menue.getInstance(key),
         appBar: AppBar(
           foregroundColor: const Color.fromARGB(255, 255, 255, 255),
           title: const Text('Checkliste'),
