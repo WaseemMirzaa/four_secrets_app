@@ -8,7 +8,7 @@ import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:four_secrets_wedding_app/services/notification_alaram-service.dart';
 import 'package:four_secrets_wedding_app/services/push_notification_service.dart';
 import 'package:google_fonts/google_fonts.dart';
-<<<<<<< HEAD
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
@@ -22,17 +22,15 @@ void alarmCallback(int id) {
     body: 'Time for your event!',
   );
 }
-=======
-import 'package:hive_flutter/hive_flutter.dart';
->>>>>>> merge-elena-wazeem
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Initialize timezone data for alarm functionality
   tz.initializeTimeZones();
 
+  // Initialize Firebase
   try {
-
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
@@ -42,12 +40,30 @@ Future<void> main() async {
           kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity,
       appleProvider: kDebugMode ? AppleProvider.debug : AppleProvider.appAttest,
     );
+    
+    print('🔥 Firebase initialized successfully');
   } catch (e) {
-    debugPrint('Failed to initialize Firebase: $e');
+    debugPrint('❌ Failed to initialize Firebase: $e');
+  }
+
+  // Initialize Hive for local data storage
+  try {
+    await Hive.initFlutter();
+    await Hive.openBox('myboxToDo');
+    await Hive.openBox('myboxGuest');
+    
+    print('💾 Hive initialized successfully');
+  } catch (e) {
+    debugPrint('❌ Failed to initialize Hive: $e');
   }
 
   // Request location permission before running the app, but do not show dialog if denied
-  await Permission.location.request();
+  try {
+    await Permission.location.request();
+    print('📍 Location permission requested');
+  } catch (e) {
+    debugPrint('❌ Failed to request location permission: $e');
+  }
 
   // Initialize NotificationService
   try {
@@ -68,25 +84,27 @@ Future<void> main() async {
 
   // Get FCM token in background to avoid blocking UI
   Future.microtask(() async {
-    final testToken = await PushNotificationService().getFcmTokenDirect();
-    if (testToken != null) {
-      print('🟢 Test FCM token successful');
-    } else {
-      print('🟡 Test FCM token returned null');
+    try {
+      final testToken = await PushNotificationService().getFcmTokenDirect();
+      if (testToken != null) {
+        print('🟢 Test FCM token successful');
+      } else {
+        print('🟡 Test FCM token returned null');
+      }
+    } catch (e) {
+      print('❌ FCM token test failed: $e');
     }
   });
 
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-  ]);
-<<<<<<< HEAD
-=======
-
-  // init Hive
-  await Hive.initFlutter();
-  await Hive.openBox('myboxToDo');
-  await Hive.openBox('myboxGuest');
->>>>>>> merge-elena-wazeem
+  // Set preferred orientations
+  try {
+    await SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
+    print('📱 Device orientation set to portrait');
+  } catch (e) {
+    debugPrint('❌ Failed to set device orientation: $e');
+  }
 
   runApp(
     MaterialApp(
