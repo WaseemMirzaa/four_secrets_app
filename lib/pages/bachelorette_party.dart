@@ -1,18 +1,14 @@
+import 'package:flutter/material.dart';
 import 'package:four_secrets_wedding_app/data/bachelorette_data.dart';
 import 'package:four_secrets_wedding_app/data/bachelorette_images.dart';
+import 'package:four_secrets_wedding_app/data/bachelorette_card_items.dart';
 import 'package:four_secrets_wedding_app/model/swipeable_card_widget.dart';
 import 'package:four_secrets_wedding_app/model/footer_buttons.dart';
 import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
 import 'package:four_secrets_wedding_app/routes/routes.dart';
-import 'package:flutter/material.dart';
-<<<<<<< HEAD
 import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
-=======
 import 'package:four_secrets_wedding_app/menue.dart';
-import 'package:four_secrets_wedding_app/data/bachelorette_card_items.dart';
->>>>>>> merge-elena-wazeem
 
-// // ignore: must_be_immutable
 // ignore: must_be_immutable
 class BacheloretteParty extends StatelessWidget {
   BacheloretteParty({super.key});
@@ -44,20 +40,16 @@ class BacheloretteParty extends StatelessWidget {
       ? BacheloretteData.map["videoRatio"]!
       : "";
 
-<<<<<<< HEAD
-=======
   int activeIndex = 0;
->>>>>>> merge-elena-wazeem
   String urlMode = "default";
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-<<<<<<< HEAD
+        drawer: Menue.getInstance(GlobalKey()),
         appBar: AppBar(
           foregroundColor: const Color.fromARGB(255, 255, 255, 255),
-          // automaticallyImplyLeading: false,
           title: const Text(
             'Bachelorette-Party',
             style: TextStyle(
@@ -65,12 +57,6 @@ class BacheloretteParty extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-=======
-        drawer: const Menue(),
-        appBar: AppBar(
-          foregroundColor: Color.fromARGB(255, 255, 255, 255),
-          title: const Text('Bachelorette-Party'),
->>>>>>> merge-elena-wazeem
           backgroundColor: const Color.fromARGB(255, 107, 69, 106),
           actions: [
             // White video icon button in top right
@@ -100,7 +86,7 @@ class BacheloretteParty extends StatelessWidget {
             // Hintergrundbild
             Container(
               height: double.infinity,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 image: DecorationImage(
                   opacity: 0.2,
                   image: AssetImage(
@@ -116,31 +102,25 @@ class BacheloretteParty extends StatelessWidget {
                 children: [
                   // Card Items ohne weitere ListView
                   ...items,
-                  Padding(padding: EdgeInsets.only(top: 15)),
+                  const Padding(padding: EdgeInsets.only(top: 15)),
                   FourSecretsDivider(),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-<<<<<<< HEAD
-                        SpacerWidget(height: 10),
-                        SwipeableCardWidget(
-                          images: images,
-                          height: 330,
-=======
-                        Text(
+                        const SpacerWidget(height: 10),
+                        const Text(
                           "Begleitet von engsten Freundinnen, startet der besondere Tag "
                           "mit einem JGA, der einen exklusiven Hairstyling- und Make-up-Workshop "
                           "in einer stilvollen Lounge beinhaltet.",
->>>>>>> merge-elena-wazeem
                         ),
-                        SizedBox(height: 10),
-                        Text(
+                        const SizedBox(height: 10),
+                        const Text(
                           "Was erwartet euch?",
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        SizedBox(height: 6),
+                        const SizedBox(height: 6),
 
                         // Bullet Point Liste
                         BulletPoint(
@@ -150,8 +130,8 @@ class BacheloretteParty extends StatelessWidget {
                         BulletPoint(
                             "Spaß & Beauty-Vibes sowie alle Tools und Produkte"),
 
-                        SizedBox(height: 10),
-                        Text(
+                        const SizedBox(height: 10),
+                        const Text(
                           "Nachdem ihr eure perfekten Looks kreiert habt, könnt "
                           "ihr gemeinsam das lebendige Glockenbachviertel erkunden "
                           "und ein vielseitiges Abendprogramm genießen. "
@@ -161,22 +141,28 @@ class BacheloretteParty extends StatelessWidget {
                     ),
                   ),
 
-                  Padding(
+                  const Padding(
                     padding: EdgeInsets.only(top: 12.5),
                   ),
 
                   FourSecretsDivider(),
 
-                  CarouselSliderWidget(
-                    images: images,
-                    activeIndex: activeIndex,
-                    height: 330,
-                    viewportFraction: 0.95,
-                    enlargeFactor: 0.4,
+                  // Image Carousel Section
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Column(
+                      children: [
+                        const SpacerWidget(height: 10),
+                        SwipeableCardWidget(
+                          images: images,
+                          height: 330,
+                        ),
+                      ],
+                    ),
                   ),
 
                   // Platz für Footer-Buttons
-                  SizedBox(height: 80),
+                  const SizedBox(height: 80),
                 ],
               ),
             ),
@@ -215,7 +201,7 @@ Widget BulletPoint(String text) {
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("• ", style: TextStyle(fontSize: 16)),
+        const Text("• ", style: TextStyle(fontSize: 16)),
         Expanded(child: Text(text)),
       ],
     ),
