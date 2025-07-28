@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 
 class Impressum extends StatelessWidget {
   Impressum({super.key});
+  final Key key = GlobalKey<MenueState>();
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: const Menue(),
+        drawer: Menue.getInstance(key),
         appBar: AppBar(
           foregroundColor: const Color.fromARGB(255, 255, 255, 255),
           title: const Text('Impressum & Datenschutz'),
