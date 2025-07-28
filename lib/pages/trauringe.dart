@@ -6,6 +6,7 @@ class Trauringe extends StatelessWidget {
   Trauringe({super.key});
 
   final List items = TrauringeCardItems.getCardItems();
+  final Key key = GlobalKey<MenueState>();
 
   @override
   Widget build(BuildContext context) {
