@@ -103,7 +103,6 @@ class ShowroomEvent extends StatelessWidget {
                   Padding(
                     padding: EdgeInsets.only(top: 12.5),
                   ),
-<<<<<<< HEAD
                   FourSecretsDivider(
                       // padValue: 0,
                       ),
@@ -111,15 +110,6 @@ class ShowroomEvent extends StatelessWidget {
                     images: images,
                     height: 480,
                   ),
-=======
-                  FourSecretsDivider(),
-                  CarouselSliderWidget(
-                      images: images,
-                      activeIndex: activeIndex,
-                      height: 480,
-                      viewportFraction: 0.8,
-                      enlargeFactor: 0.4),
->>>>>>> merge-elena-wazeem
                   SizedBox(
                     height: 15,
                   ),
