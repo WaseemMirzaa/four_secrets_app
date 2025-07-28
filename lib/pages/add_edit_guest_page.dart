@@ -56,6 +56,7 @@ class _AddEditGuestPageState extends State<AddEditGuestPage> {
     }
   }
 
+  // ignore: unused_element
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);

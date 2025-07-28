@@ -5,14 +5,13 @@ class PersonalTrainingCardData {
     "videoRatio": "0.7",
     "email": "info@phillipschmitt.de",
     "homepage": "https://www.phillipschmitt.de",
-    "instagram": "https://www.instagram.com/phillipschmitt93/",
-    "phoneNumber": "+49 (0)171 3191056",
+    "instagram": "https://www.instagram.com/phillip_schmitt_personal_coach/",
+    "phoneNumber": "+49 171 319 10 56",
     "avatar": "assets/images/card/phillip_schmitt_card.jpg",
     "vorname": "Phillip",
     "nachname": "Schmitt",
     "bezeichnung": "Personal Trainer",
     "backCardTaetigkeit": "Personal Training",
-    "backCardAdresse1": "Fitness First\nEinsteinstraße 130\n81667 München",
-    "backCardAdresse2": "",
+    "slogan": "Dein Ziel. Mein Plan. Unser Weg."
   };
 }

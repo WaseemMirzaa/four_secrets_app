@@ -52,6 +52,7 @@ class DialogBox extends StatelessWidget {
                 ),
               ),
               // Buttons row
+<<<<<<< HEAD
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 15),
                 child: Row(
@@ -79,6 +80,43 @@ class DialogBox extends StatelessWidget {
                     )),
                   ],
                 ),
+=======
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // save button
+                  isLoading
+                      ? Container(
+                          width: 100,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: Color.fromARGB(255, 107, 69, 106),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Center(
+                            child: SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            ),
+                          ),
+                        )
+                      : MyButton(onPressed: onSave, text: "Speichern"),
+                  const SizedBox(
+                    width: 35,
+                  ),
+                  // cancel button
+                  MyButton(
+                    onPressed: isLoading ? null : onCancel,
+                    text: "Abbrechen",
+                    color: isLoading ? Colors.grey : null,
+                  ),
+                ],
+>>>>>>> merge-elena-wazeem
               ),
             ],
           ),

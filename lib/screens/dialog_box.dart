@@ -58,11 +58,15 @@ class DialogBox extends StatelessWidget {
                     width: 35,
                   ),
                   // cancel button
+<<<<<<< HEAD
                   MyButton(
                       onPressed: onSave,
                       textColor: Colors.white,
                       color: Color.fromARGB(255, 107, 69, 106),
                       text: "Speichern"),
+=======
+                  MyButton(onPressed: onCancel, text: "Abbrechen"),
+>>>>>>> merge-elena-wazeem
                 ],
               ),
             ],

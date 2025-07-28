@@ -525,3 +525,24 @@ class _GaestelistState extends State<Gaestelist> {
 }
 
 enum States { takePart, mayBeTakePart, canceled }
+<<<<<<< HEAD
+=======
+
+// Add this function outside the class to be used with compute()
+// ignore: unused_element
+Future<Map<String, dynamic>> _addGuestInBackground(
+    Map<String, dynamic> params) async {
+  try {
+    // This function runs in a separate isolate
+    return {
+      'success': true,
+      'name': params['name'],
+    };
+  } catch (e) {
+    return {
+      'success': false,
+      'error': e.toString(),
+    };
+  }
+}
+>>>>>>> merge-elena-wazeem

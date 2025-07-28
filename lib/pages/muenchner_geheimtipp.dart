@@ -1,14 +1,14 @@
-import 'package:four_secrets_wedding_app/data/inspirations_content.dart';
-import 'package:four_secrets_wedding_app/data/inspirations_images.dart';
-import 'package:four_secrets_wedding_app/data/inspirations_routes.dart';
+import 'package:four_secrets_wedding_app/data/muenchner_geheimtipp_content.dart';
+import 'package:four_secrets_wedding_app/data/muenchner_geheimtipp_images.dart';
+import 'package:four_secrets_wedding_app/data/muenchner_geheimtipp_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:four_secrets_wedding_app/menue.dart';
 
-class Inspirations extends StatelessWidget {
-  Inspirations({super.key});
-  final List<String> images = InspirationsImages.getImages();
-  final List<String> content = InspirationsContent.getContent();
-  final List routes = InspirationsRoutes.getRoutes();
+class MuenchnerGeheimtipp extends StatelessWidget {
+  MuenchnerGeheimtipp({super.key});
+  final List<String> images = MuenchnerGeheimtippImages.getImages();
+  final List<String> content = MuenchnerGeheimtippContent.getContent();
+  final List routes = MuenchnerGeheimtippRoutes.getRoutes();
 
   final key = GlobalKey<MenueState>();
 
@@ -16,7 +16,11 @@ class Inspirations extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+<<<<<<< HEAD:lib/pages/inspirations.dart
         drawer: Menue(),
+=======
+        drawer: const Menue(),
+>>>>>>> merge-elena-wazeem:lib/pages/muenchner_geheimtipp.dart
         appBar: AppBar(
           // automaticallyImplyLeading: false,
           title: const Text('Münchner Geheimtipp'),

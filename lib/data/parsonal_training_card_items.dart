@@ -13,8 +13,7 @@ class PersonalTrainingCardItems {
         bezeichnung: PersonalTrainingCardData.map1['bezeichnung']!,
         backCardTaetigkeit:
             PersonalTrainingCardData.map1['backCardTaetigkeit']!,
-        backCardAdress1: PersonalTrainingCardData.map1['backCardAdresse1']!,
-        backCardAdress2: PersonalTrainingCardData.map1['backCardAdresse2']!,
+        slogan: PersonalTrainingCardData.map1["slogan"]!,
         homepage: PersonalTrainingCardData.map1['homepage']!,
         email: PersonalTrainingCardData.map1['email']!,
         instagram: PersonalTrainingCardData.map1["instagram"]!,

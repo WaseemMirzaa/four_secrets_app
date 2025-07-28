@@ -12,8 +12,7 @@ class LocationCardItems {
         nachname: LocationCardData.map1['nachname']!,
         bezeichnung: LocationCardData.map1['bezeichnung']!,
         backCardTaetigkeit: LocationCardData.map1['backCardTaetigkeit']!,
-        backCardAdress1: LocationCardData.map1['backCardAdresse1']!,
-        backCardAdress2: LocationCardData.map1['backCardAdresse2']!,
+        slogan: LocationCardData.map1['slogan']!,
         homepage: LocationCardData.map1['homepage']!,
         email: LocationCardData.map1['email']!,
         instagram: LocationCardData.map1["instagram"]!,
@@ -21,6 +20,22 @@ class LocationCardItems {
         videoAsset: LocationCardData.map1["videoAsset"]!,
         videoRatio: LocationCardData.map1["videoRatio"]!,
         videoUri: LocationCardData.map1["videoUri"]!,
+      ),
+      CardWidget(
+        className: LocationCardData,
+        avatarImage: LocationCardData.map2['avatar']!,
+        vorname: LocationCardData.map2['vorname']!,
+        nachname: LocationCardData.map2['nachname']!,
+        bezeichnung: LocationCardData.map2['bezeichnung']!,
+        backCardTaetigkeit: LocationCardData.map2['backCardTaetigkeit']!,
+        slogan: LocationCardData.map2['slogan']!,
+        homepage: LocationCardData.map2['homepage']!,
+        email: LocationCardData.map2['email']!,
+        instagram: LocationCardData.map2["instagram"]!,
+        phoneNumber: LocationCardData.map2["phoneNumber"]!,
+        videoAsset: LocationCardData.map2["videoAsset"]!,
+        videoRatio: LocationCardData.map2["videoRatio"]!,
+        videoUri: LocationCardData.map2["videoUri"]!,
       )
     ];
     return items;

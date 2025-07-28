@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 
+=======
+>>>>>>> merge-elena-wazeem
 class UserModel {
   final String uid;
   final String name;

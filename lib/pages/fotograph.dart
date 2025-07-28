@@ -14,7 +14,11 @@ class Fotograph extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+<<<<<<< HEAD
         drawer: Menue.getInstance(key!),
+=======
+        drawer: const Menue(),
+>>>>>>> merge-elena-wazeem
         appBar: AppBar(
           // automaticallyImplyLeading: false,
           foregroundColor: Color.fromARGB(255, 255, 255, 255),

@@ -8,6 +8,7 @@ import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:four_secrets_wedding_app/services/notification_alaram-service.dart';
 import 'package:four_secrets_wedding_app/services/push_notification_service.dart';
 import 'package:google_fonts/google_fonts.dart';
+<<<<<<< HEAD
 import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
@@ -21,6 +22,9 @@ void alarmCallback(int id) {
     body: 'Time for your event!',
   );
 }
+=======
+import 'package:hive_flutter/hive_flutter.dart';
+>>>>>>> merge-elena-wazeem
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -75,6 +79,14 @@ Future<void> main() async {
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);
+<<<<<<< HEAD
+=======
+
+  // init Hive
+  await Hive.initFlutter();
+  await Hive.openBox('myboxToDo');
+  await Hive.openBox('myboxGuest');
+>>>>>>> merge-elena-wazeem
 
   runApp(
     MaterialApp(

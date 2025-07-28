@@ -1,21 +1,21 @@
 import 'package:four_secrets_wedding_app/routes/routes.dart';
 
-class InspirationsRoutes {
+class MuenchnerGeheimtippRoutes {
   static List getRoutes() {
     final List<String> routes = [
-      RouteManager.bachelorettePartyEventPage,
       RouteManager.hairMakeUpPage,
       RouteManager.brauBraeutigamPage,
       RouteManager.locationPage,
-      RouteManager.weddingDesignerPage,
+      RouteManager.gesangPage,
       RouteManager.bandDjPage,
       RouteManager.floristPage,
-      RouteManager.weddingCakePage,
-      RouteManager.weddingCarServicePage,
+      RouteManager.patiseriePage,
+      RouteManager.traurednerPage,
       RouteManager.fotographPage,
       RouteManager.tanzschulePage,
-      RouteManager.kosmetischeAkupunktur,
-      RouteManager.personalTraining,
+      RouteManager.papeteriePage,
+      RouteManager.unterhaltungPage,
+      RouteManager.trauringePage,
     ];
     return routes;
   }

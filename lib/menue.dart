@@ -6,7 +6,11 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+<<<<<<< HEAD
 import 'package:four_secrets_wedding_app/models/drawer_model.dart';
+=======
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+>>>>>>> merge-elena-wazeem
 import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:four_secrets_wedding_app/services/auth_service.dart';
 import 'package:four_secrets_wedding_app/services/push_notification_service.dart';
@@ -165,10 +169,43 @@ class MenueState extends State<Menue> {
     }
   }
 
+<<<<<<< HEAD
   // Optimized navigation method to eliminate Timer delays
   void _navigateTo(String routeName) {
     if (!mounted) return;
     Navigator.of(context).pushNamed(routeName);
+=======
+  bool isPressedBtn0 = false; // Home
+  bool isPressedBtn1 = false; // Profil bearbeiten
+  bool isPressedBtn2 = false; // Inspirationen
+  bool isPressedBtn3 = false; // Budget
+  bool isPressedBtn4 = false; // Checkliste
+  bool isPressedBtn5 = false; // Gästeliste
+  bool isPressedBtn6 = false; // Tischverwaltung
+  bool isPressedBtn7 = false; // Showroom
+  bool isPressedBtn8 = false; // About me
+  bool isPressedBtn9 = false; // Kontakt
+  bool isPressedBtn10 = false; // KI-Assistent (Chatbot)
+  bool isPressedBtn11 = false; // Impressum
+  bool isPressedBtn12 = false; // Logout
+
+  void buttonIsPressed(int buttonNumber) {
+    setState(() {
+      isPressedBtn0 = buttonNumber == 0;
+      isPressedBtn1 = buttonNumber == 1;
+      isPressedBtn2 = buttonNumber == 2;
+      isPressedBtn3 = buttonNumber == 3;
+      isPressedBtn4 = buttonNumber == 4;
+      isPressedBtn5 = buttonNumber == 5;
+      isPressedBtn6 = buttonNumber == 6;
+      isPressedBtn7 = buttonNumber == 7;
+      isPressedBtn8 = buttonNumber == 8;
+      isPressedBtn9 = buttonNumber == 9;
+      isPressedBtn10 = buttonNumber == 10;
+      isPressedBtn11 = buttonNumber == 11;
+      isPressedBtn11 = buttonNumber == 12;
+    });
+>>>>>>> merge-elena-wazeem
   }
 
   Future<void> _handleLogout(BuildContext context) async {
@@ -414,6 +451,411 @@ class MenueState extends State<Menue> {
                       ),
                     ],
                   ),
+<<<<<<< HEAD
+=======
+                ],
+              ),
+            ),
+          ),
+          // 1. Home
+          Card(
+            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: ListTile(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 0,
+              ),
+              tileColor: isPressedBtn0 ? Colors.purple[50] : Colors.white,
+              leading: const Icon(Icons.home),
+              title: const Text(
+                'Home',
+                style: TextStyle(fontSize: 18),
+              ),
+              onTap: () {
+                buttonIsPressed(0);
+                Timer(
+                  const Duration(milliseconds: 100),
+                  () {
+                    Navigator.of(context).pushNamed(RouteManager.homePage);
+                  },
+                );
+              },
+            ),
+          ),
+          // 2. Muenchner Geheimtipp
+          Card(
+            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: ListTile(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 0,
+              ),
+              tileColor: isPressedBtn2 ? Colors.purple[50] : Colors.white,
+              leading: const Icon(Icons.auto_stories),
+              title: const Text(
+                'Münchner Geheimtipp',
+                style: TextStyle(fontSize: 18),
+              ),
+              onTap: () {
+                buttonIsPressed(2);
+                Timer(
+                  const Duration(milliseconds: 100),
+                  () {
+                    Navigator.of(context)
+                        .pushNamed(RouteManager.muenchnerGeheimtippPage);
+                  },
+                );
+              },
+            ),
+          ),
+          // 3. Checkliste
+          Card(
+            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: ListTile(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 0,
+              ),
+              tileColor: isPressedBtn4 ? Colors.purple[50] : Colors.white,
+              leading: const Icon(Icons.checklist),
+              title: const Text(
+                'Checkliste',
+                style: TextStyle(fontSize: 18),
+              ),
+              onTap: () {
+                buttonIsPressed(4);
+                Timer(
+                  const Duration(milliseconds: 100),
+                  () {
+                    Navigator.of(context).pushNamed(RouteManager.checklistPage);
+                  },
+                );
+              },
+            ),
+          ),
+          // 4. Budget
+          Card(
+            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: ListTile(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 0,
+              ),
+              tileColor: isPressedBtn3 ? Colors.purple[50] : Colors.white,
+              leading: const Icon(Icons.euro_rounded),
+              title: const Text(
+                'Budget',
+                style: TextStyle(fontSize: 18),
+              ),
+              onTap: () {
+                buttonIsPressed(3);
+                Timer(
+                  const Duration(milliseconds: 100),
+                  () {
+                    Navigator.of(context).pushNamed(RouteManager.budgetPage);
+                  },
+                );
+              },
+            ),
+          ),
+          // 5. Gästeliste
+          Card(
+            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: ListTile(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 0,
+              ),
+              tileColor: isPressedBtn5 ? Colors.purple[50] : Colors.white,
+              leading: const Icon(Icons.group),
+              title: const Text(
+                'Gästeliste',
+                style: TextStyle(fontSize: 18),
+              ),
+              onTap: () {
+                buttonIsPressed(5);
+                Timer(
+                  const Duration(milliseconds: 100),
+                  () {
+                    Navigator.of(context)
+                        .pushNamed(RouteManager.gaestelistPage);
+                  },
+                );
+              },
+            ),
+          ),
+          // 6. Tischverwaltung
+          Card(
+            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: ListTile(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 0,
+              ),
+              tileColor: isPressedBtn6 ? Colors.purple[50] : Colors.white,
+              leading: const Icon(Icons.table_bar),
+              title: const Text('Tischverwaltung'),
+              onTap: () {
+                buttonIsPressed(6);
+                Timer(
+                  const Duration(milliseconds: 100),
+                  () {
+                    Navigator.of(context)
+                        .pushNamed(RouteManager.tablesManagementPage);
+                  },
+                );
+              },
+            ),
+          ),
+          // 7. Showroom
+          Card(
+            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: ListTile(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 0,
+              ),
+              tileColor: isPressedBtn7 ? Colors.purple[50] : Colors.white,
+              leading: const Icon(Icons.celebration),
+              title: const Text(
+                'Showroom-Event',
+                style: TextStyle(fontSize: 18),
+              ),
+              onTap: () {
+                buttonIsPressed(7);
+                Timer(
+                  const Duration(milliseconds: 100),
+                  () {
+                    Navigator.of(context)
+                        .pushNamed(RouteManager.showroomEventPage);
+                  },
+                );
+              },
+            ),
+          ),
+          // 8. About me
+          Card(
+            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: ListTile(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 0,
+              ),
+              tileColor: isPressedBtn8 ? Colors.purple[50] : Colors.white,
+              leading: const Icon(
+                Icons.account_box_sharp,
+              ),
+              title: const Text(
+                'About me',
+                style: TextStyle(fontSize: 18),
+              ),
+              onTap: () {
+                buttonIsPressed(8);
+                Timer(
+                  const Duration(milliseconds: 100),
+                  () {
+                    Navigator.of(context).pushNamed(RouteManager.aboutMePage);
+                  },
+                );
+              },
+            ),
+          ),
+          // 9. Kontakt
+          Card(
+            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: ListTile(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 0,
+              ),
+              tileColor: isPressedBtn9 ? Colors.purple[50] : Colors.white,
+              leading: Icon(FontAwesomeIcons.mapLocationDot),
+              title: const Text(
+                'Kontakt',
+                style: TextStyle(fontSize: 18),
+              ),
+              onTap: () {
+                buttonIsPressed(9);
+                Timer(
+                  const Duration(milliseconds: 100),
+                  () {
+                    Navigator.of(context).pushNamed(RouteManager.kontakt);
+                  },
+                );
+              },
+            ),
+          ),
+          // 9. KI-Assistent (Chatbot)
+          Card(
+            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: ListTile(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 0,
+              ),
+              tileColor: isPressedBtn10 ? Colors.purple[50] : Colors.white,
+              leading: Icon(FontAwesomeIcons.mapLocationDot),
+              title: const Text(
+                'KI-Assistent',
+                style: TextStyle(fontSize: 18),
+              ),
+              onTap: () {
+                buttonIsPressed(9);
+                Timer(
+                  const Duration(milliseconds: 100),
+                  () {
+                    Navigator.of(context).pushNamed(RouteManager.chatbotPage);
+                  },
+                );
+              },
+            ),
+          ),
+          // 10. Impressum und Datenschutz
+          Card(
+            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: ListTile(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 0,
+              ),
+              tileColor: isPressedBtn11 ? Colors.purple[50] : Colors.white,
+              leading: Icon(
+                FontAwesomeIcons.circleInfo,
+              ),
+              title: const Text(
+                'Impressum und Datenschutz',
+                style: TextStyle(fontSize: 18),
+              ),
+              onTap: () {
+                buttonIsPressed(10);
+                Timer(
+                  const Duration(milliseconds: 100),
+                  () {
+                    Navigator.of(context).pushNamed(RouteManager.impressum);
+                  },
+                );
+              },
+            ),
+          ),
+          // 11. Profil bearbeiten
+          Card(
+            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: ListTile(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 0,
+              ),
+              tileColor: isPressedBtn1 ? Colors.purple[50] : Colors.white,
+              leading: const Icon(
+                Icons.person,
+              ),
+              title: const Text(
+                'Profil bearbeiten',
+                style: TextStyle(fontSize: 18),
+              ),
+              onTap: () {
+                buttonIsPressed(1);
+                Timer(
+                  const Duration(milliseconds: 100),
+                  () => _navigateToEditProfile(),
+                );
+              },
+            ),
+          ),
+          const Divider(
+            color: Colors.grey,
+            thickness: 0.5,
+            indent: 8,
+            endIndent: 8,
+          ),
+          // 12. Log Out
+          Card(
+            margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 8),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: ListTile(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 0,
+              ),
+              tileColor: isPressedBtn12 ? Colors.purple[50] : Colors.white,
+              leading: const Icon(
+                Icons.logout,
+                color: Colors.red,
+              ),
+              title: const Text(
+                'Logout',
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Colors.red,
+>>>>>>> merge-elena-wazeem
                 ),
               ),
 

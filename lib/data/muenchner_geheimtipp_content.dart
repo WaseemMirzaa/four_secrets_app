@@ -1,20 +1,23 @@
-class InspirationsContent {
+class MuenchnerGeheimtippContent {
   // List with all assets images
   static List<String> getContent() {
     final List<String> content = [
       'Bachelorette Party',
-      'Hair & Make-Up Styling',
+      'Make-up & Hairstyling',
       'Braut & Bräutigam Ateliér',
       'Location',
-      'Wedding Design',
+      'Gesang',
       'Band / DJ',
       'Floristik',
-      'Wedding Cake',
-      'Wedding Car Service',
+      'Patiserie',
+      'Trauredner',
       'Fotografie',
       'Tanzschule',
       'Kosmetische Akupunktur',
-      'Personal Training'
+      'Personal Training',
+      'Papeterie',
+      'Unterhaltung',
+      'Trauringe'
     ];
 
     return content;

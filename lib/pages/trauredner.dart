@@ -1,21 +1,21 @@
-import 'package:four_secrets_wedding_app/data/wedding_designer_card_items.dart';
-import 'package:flutter/material.dart';
+import 'package:four_secrets_wedding_app/data/trauredner_cart_items.dart';
 import 'package:four_secrets_wedding_app/menue.dart';
+import 'package:flutter/material.dart';
 
-class WeddingDesigner extends StatelessWidget {
-  WeddingDesigner({super.key});
-  final List items = WeddingDesignerCardItems.getCardItems();
+class Trauredner extends StatelessWidget {
+  Trauredner({super.key});
 
+  final List items = TraurednerCardItems.getCardItems();
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: Menue(),
+        drawer: const Menue(),
         appBar: AppBar(
-          foregroundColor: Color.fromARGB(255, 255, 255, 255),
           // automaticallyImplyLeading: false,
-          title: const Text('Wedding Designer'),
+          foregroundColor: Color.fromARGB(255, 255, 255, 255),
+          title: const Text('Trauredner'),
           backgroundColor: const Color.fromARGB(255, 107, 69, 106),
         ),
         body: Container(
@@ -23,8 +23,7 @@ class WeddingDesigner extends StatelessWidget {
           decoration: BoxDecoration(
             image: DecorationImage(
               opacity: 0.4,
-              image: AssetImage(
-                  "assets/images/background/wedding_design_back.jpg"),
+              image: AssetImage("assets/images/inspirations/Trauredner.jpg"),
               fit: BoxFit.cover,
             ),
           ),

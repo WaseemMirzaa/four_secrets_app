@@ -14,12 +14,16 @@ class Florist extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+<<<<<<< HEAD
          backgroundColor: Colors.white,
         drawer: Menue.getInstance(key!),
+=======
+        drawer: const Menue(),
+>>>>>>> merge-elena-wazeem
         appBar: AppBar(
           // automaticallyImplyLeading: false,
           foregroundColor: Color.fromARGB(255, 255, 255, 255),
-          title: const Text('Florist(in)'),
+          title: const Text('Floristik'),
           backgroundColor: const Color.fromARGB(255, 107, 69, 106),
         ),
         body: Container(

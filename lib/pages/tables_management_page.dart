@@ -1,5 +1,15 @@
+<<<<<<< HEAD
 import 'dart:typed_data';
 
+=======
+import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:four_secrets_wedding_app/menue.dart';
+import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
+import 'package:four_secrets_wedding_app/model/table_dialog_box.dart';
+import '../models/table_model.dart';
+import '../services/table_service.dart';
+>>>>>>> merge-elena-wazeem
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -659,6 +669,7 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
     }
 
     // Check if table type is oval to use image instead of icon
+    // ignore: unused_local_variable
     bool isOvalTable = table.tableType.toLowerCase() == 'oval';
 
     return Card(

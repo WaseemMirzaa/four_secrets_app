@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+<<<<<<< HEAD
 import 'package:four_secrets_wedding_app/model/category_model.dart';
 import 'package:four_secrets_wedding_app/model/to_do_model.dart';
 import 'package:four_secrets_wedding_app/model/video_player.dart';
@@ -6,6 +7,13 @@ import 'package:four_secrets_wedding_app/model/video_player2.dart';
 import 'package:four_secrets_wedding_app/model/wedding_category_model.dart';
 import 'package:four_secrets_wedding_app/models/inspiration_image.dart';
 import 'package:four_secrets_wedding_app/models/wedding_day_schedule_model.dart';
+=======
+import 'package:four_secrets_wedding_app/pages/edit_profile_page.dart';
+import 'package:four_secrets_wedding_app/pages/gaestelist.dart';
+import 'package:four_secrets_wedding_app/pages/impressum.dart';
+import 'package:four_secrets_wedding_app/pages/kontakt.dart';
+import 'package:four_secrets_wedding_app/pages/parsonal_training.dart';
+>>>>>>> merge-elena-wazeem
 import 'package:four_secrets_wedding_app/pages/about_me.dart';
 import 'package:four_secrets_wedding_app/pages/add_title_category_wed_schedule_page.dart';
 import 'package:four_secrets_wedding_app/pages/add_todo_categories_page.dart';
@@ -23,12 +31,15 @@ import 'package:four_secrets_wedding_app/pages/fotograph.dart';
 import 'package:four_secrets_wedding_app/pages/gaestelist.dart';
 import 'package:four_secrets_wedding_app/pages/hair_makeup.dart';
 import 'package:four_secrets_wedding_app/pages/home.dart';
+<<<<<<< HEAD
 import 'package:four_secrets_wedding_app/pages/impressum.dart';
 import 'package:four_secrets_wedding_app/pages/inspiration_folder.dart';
 import 'package:four_secrets_wedding_app/pages/inspiration_page_details_screen.dart';
 import 'package:four_secrets_wedding_app/pages/inspirations.dart';
 import 'package:four_secrets_wedding_app/pages/kontakt.dart';
 import 'package:four_secrets_wedding_app/pages/kosmetische_akupunktur.dart';
+=======
+>>>>>>> merge-elena-wazeem
 import 'package:four_secrets_wedding_app/pages/location.dart';
 import 'package:four_secrets_wedding_app/pages/map_picker_page.dart';
 import 'package:four_secrets_wedding_app/pages/parsonal_training.dart';
@@ -36,6 +47,7 @@ import 'package:four_secrets_wedding_app/pages/showroom_event.dart';
 import 'package:four_secrets_wedding_app/pages/splash_screen.dart';
 import 'package:four_secrets_wedding_app/pages/tables_management_page.dart';
 import 'package:four_secrets_wedding_app/pages/tanzschule.dart';
+<<<<<<< HEAD
 import 'package:four_secrets_wedding_app/pages/to_do_page.dart';
 import 'package:four_secrets_wedding_app/pages/wedding_cake.dart';
 import 'package:four_secrets_wedding_app/pages/wedding_car_service.dart';
@@ -50,6 +62,16 @@ import 'package:four_secrets_wedding_app/screens/newfeature1/screens/wedding_cat
 import 'package:four_secrets_wedding_app/screens/newfeature1/models/wedding_day_schedule_model1.dart';
 import 'package:four_secrets_wedding_app/screens/newfeature1/models/wedding_category_model1.dart';
 import 'package:four_secrets_wedding_app/screens/budget.dart';
+=======
+import 'package:four_secrets_wedding_app/pages/muenchner_geheimtipp.dart';
+import 'package:four_secrets_wedding_app/pages/trauringe.dart';
+import 'package:four_secrets_wedding_app/pages/patiserie.dart';
+import 'package:four_secrets_wedding_app/pages/papeterie.dart';
+import 'package:four_secrets_wedding_app/pages/trauredner.dart';
+import 'package:four_secrets_wedding_app/pages/unterhaltung.dart';
+import 'package:four_secrets_wedding_app/pages/chatbot.dart';
+import 'package:four_secrets_wedding_app/pages/catering.dart';
+>>>>>>> merge-elena-wazeem
 import 'package:four_secrets_wedding_app/screens/email_verification_screen.dart';
 import 'package:four_secrets_wedding_app/screens/forgot_password_screen.dart';
 import 'package:four_secrets_wedding_app/screens/signin_screen.dart';
@@ -63,8 +85,12 @@ class RouteManager {
   static const String signupPage = '/signup';
   static const String forgotPasswordPage = '/forgot-password';
   static const String emailVerificationPage = '/email-verification';
+<<<<<<< HEAD
   static const String inspirationsPage = '/inspirations';
   static const String inspirationFolderPage = '/inspirationsFolder';
+=======
+  static const String muenchnerGeheimtippPage = '/muenchner_geheimtipp';
+>>>>>>> merge-elena-wazeem
   static const String aboutMePage = '/aboutMe';
   static const String checklistPage = '/checklist';
   static const String budgetPage = '/budget';
@@ -74,21 +100,35 @@ class RouteManager {
   static const String bachelorettePartyEventPage = '/bachelorette_party';
   static const String brauBraeutigamPage = '/braut_braeutigam_atelier';
   static const String locationPage = '/location';
+<<<<<<< HEAD
   static const String weddingDesignerPage = '/wedding_designer';
   static const String inspirationDetailPage = '/inspiration_detail';
+=======
+>>>>>>> merge-elena-wazeem
   static const String bandDjPage = '/band_dj';
+  static const String gesangPage = '/gesang';
+  static const String patiseriePage = '/patiserie';
   static const String floristPage = '/florist';
+<<<<<<< HEAD
   static const String weddingCakePage = '/weddingCake';
   static const String weddingSchedulePage = '/wedding_schedule';
   static const String weddingCarServicePage = '/wedding_car_service';
+=======
+>>>>>>> merge-elena-wazeem
   static const String fotographPage = '/fotograph';
   static const String tanzschulePage = '/tanzschule';
+  static const String papeteriePage = '/papeterie';
+  static const String unterhaltungPage = '/unterhaltung';
+  static const String traurednerPage = '/trauredner';
   static const String kosmetischeAkupunktur = '/kosmetische_akupunktur';
   static const String personalTraining = '/personal_training';
   static const String videoPlayer = '/video_player';
   static const String videoPlayer2 = '/video_player2';
   static const String kontakt = '/kontakt';
   static const String impressum = '/impressum';
+  static const String trauringePage = '/trauringe';
+  static const String chatbotPage = '/chatbot';
+  static const String cateringPage = '/catering';
   static const String editProfilePage = '/edit-profile';
   static const String guestsPage = '/guests';
   static const String tablesManagementPage = '/tables-management';
@@ -122,6 +162,7 @@ class RouteManager {
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
         );
+
       case signinPage:
         return PageTransition(
           child: const SignInScreen(),
@@ -129,6 +170,7 @@ class RouteManager {
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
         );
+
       case signupPage:
         return PageTransition(
           child: const SignUpScreen(),
@@ -136,6 +178,7 @@ class RouteManager {
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
         );
+
       case forgotPasswordPage:
         return PageTransition(
           child: const ForgotPasswordScreen(),
@@ -143,6 +186,7 @@ class RouteManager {
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
         );
+
       case homePage:
         return PageTransition(
           child: const HomePage(),
@@ -150,13 +194,19 @@ class RouteManager {
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
         );
+<<<<<<< HEAD
       case inspirationsPage:
+=======
+
+      case muenchnerGeheimtippPage:
+>>>>>>> merge-elena-wazeem
         return PageTransition(
-          child: Inspirations(),
+          child: MuenchnerGeheimtipp(),
           settings: settings,
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
         );
+<<<<<<< HEAD
       case toDoPage:
         return PageTransition(
           child: ToDoPage(),
@@ -176,6 +226,9 @@ class RouteManager {
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
         );
+=======
+
+>>>>>>> merge-elena-wazeem
       case aboutMePage:
         return PageTransition(
           child: const AboutMe(),
@@ -183,6 +236,7 @@ class RouteManager {
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
         );
+<<<<<<< HEAD
       case weddingSchedulePage:
         return PageTransition(
           child: const WeddingSchedulePage(),
@@ -190,6 +244,9 @@ class RouteManager {
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
         );
+=======
+
+>>>>>>> merge-elena-wazeem
       case checklistPage:
         return PageTransition(
           child: const Checklist(),
@@ -197,6 +254,7 @@ class RouteManager {
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
         );
+
       case gaestelistPage:
         return PageTransition(
           child: const Gaestelist(),
@@ -204,6 +262,7 @@ class RouteManager {
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
         );
+
       case showroomEventPage:
         return PageTransition(
           child: ShowroomEvent(),
@@ -275,7 +334,7 @@ class RouteManager {
 
       case hairMakeUpPage:
         return PageTransition(
-          child: HairMakeUp(), // Placeholder
+          child: HairMakeUp(),
           settings: settings,
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
@@ -283,7 +342,7 @@ class RouteManager {
 
       case bachelorettePartyEventPage:
         return PageTransition(
-          child: BacheloretteParty(), // Placeholder
+          child: BacheloretteParty(),
           settings: settings,
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
@@ -291,7 +350,7 @@ class RouteManager {
 
       case brauBraeutigamPage:
         return PageTransition(
-          child: const BrautBraeutigam(), // Placeholder
+          child: BrautBraeutigam(),
           settings: settings,
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
@@ -299,15 +358,7 @@ class RouteManager {
 
       case locationPage:
         return PageTransition(
-          child: Location(), // Placeholder
-          settings: settings,
-          duration: const Duration(milliseconds: 250),
-          type: PageTransitionType.rightToLeft,
-        );
-
-      case weddingDesignerPage:
-        return PageTransition(
-          child: WeddingDesigner(), // Placeholder
+          child: Location(),
           settings: settings,
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
@@ -315,7 +366,7 @@ class RouteManager {
 
       case bandDjPage:
         return PageTransition(
-          child: BandDj(), // Placeholder
+          child: BandDj(),
           settings: settings,
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
@@ -323,6 +374,7 @@ class RouteManager {
 
       case floristPage:
         return PageTransition(
+<<<<<<< HEAD
           child: Florist(), // Placeholder
           settings: settings,
           duration: const Duration(milliseconds: 250),
@@ -348,6 +400,9 @@ class RouteManager {
       case weddingCarServicePage:
         return PageTransition(
           child: const WeddingCarService(), // Placeholder
+=======
+          child: Florist(),
+>>>>>>> merge-elena-wazeem
           settings: settings,
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
@@ -355,7 +410,63 @@ class RouteManager {
 
       case fotographPage:
         return PageTransition(
-          child: Fotograph(), // Placeholder
+          child: Fotograph(),
+          settings: settings,
+          duration: const Duration(milliseconds: 250),
+          type: PageTransitionType.rightToLeft,
+        );
+
+      case patiseriePage:
+        return PageTransition(
+          child: Patiserie(),
+          settings: settings,
+          duration: const Duration(milliseconds: 250),
+          type: PageTransitionType.rightToLeft,
+        );
+
+      case papeteriePage:
+        return PageTransition(
+          child: Papeterie(),
+          settings: settings,
+          duration: const Duration(milliseconds: 250),
+          type: PageTransitionType.rightToLeft,
+        );
+
+      case chatbotPage:
+        return PageTransition(
+          child: Chatbot(),
+          settings: settings,
+          duration: const Duration(milliseconds: 250),
+          type: PageTransitionType.rightToLeft,
+        );
+
+      case traurednerPage:
+        return PageTransition(
+          child: Trauredner(),
+          settings: settings,
+          duration: const Duration(milliseconds: 250),
+          type: PageTransitionType.rightToLeft,
+        );
+
+      case trauringePage:
+        return PageTransition(
+          child: Trauringe(),
+          settings: settings,
+          duration: const Duration(milliseconds: 250),
+          type: PageTransitionType.rightToLeft,
+        );
+
+      case cateringPage:
+        return PageTransition(
+          child: Catering(),
+          settings: settings,
+          duration: const Duration(milliseconds: 250),
+          type: PageTransitionType.rightToLeft,
+        );
+
+      case unterhaltungPage:
+        return PageTransition(
+          child: Unterhaltung(),
           settings: settings,
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
@@ -363,7 +474,7 @@ class RouteManager {
 
       case tanzschulePage:
         return PageTransition(
-          child: Tanzschule(), // Placeholder
+          child: Tanzschule(),
           settings: settings,
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
