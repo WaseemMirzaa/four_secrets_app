@@ -214,7 +214,7 @@ class _ChatbotState extends State<Chatbot> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: const Menue(),
+        drawer: Menue.getInstance(key),
         appBar: AppBar(
           foregroundColor: Colors.white,
           title: const Text('KI-Assistent'),
