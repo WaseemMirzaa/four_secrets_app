@@ -25,7 +25,7 @@ class ShowroomEvent extends StatelessWidget {
       ? ShowroomEventData.map["videoRatio"]!
       : "";
 
-  final key = GlobalKey<MenueState>();
+  final Key key = GlobalKey<MenueState>();
 
   @override
   Widget build(BuildContext context) {
