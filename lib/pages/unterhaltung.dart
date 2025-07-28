@@ -6,6 +6,7 @@ class Unterhaltung extends StatelessWidget {
   Unterhaltung({super.key});
 
   final List items = UnterhaltungCardItems.getCardItems();
+  final Key key = GlobalKey<MenueState>();
 
   @override
   Widget build(BuildContext context) {
