@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
+import 'package:page_transition/page_transition.dart';
+
+// Models
 import 'package:four_secrets_wedding_app/model/category_model.dart';
 import 'package:four_secrets_wedding_app/model/to_do_model.dart';
 import 'package:four_secrets_wedding_app/model/video_player.dart';
@@ -7,13 +9,25 @@ import 'package:four_secrets_wedding_app/model/video_player2.dart';
 import 'package:four_secrets_wedding_app/model/wedding_category_model.dart';
 import 'package:four_secrets_wedding_app/models/inspiration_image.dart';
 import 'package:four_secrets_wedding_app/models/wedding_day_schedule_model.dart';
-=======
-import 'package:four_secrets_wedding_app/pages/edit_profile_page.dart';
-import 'package:four_secrets_wedding_app/pages/gaestelist.dart';
-import 'package:four_secrets_wedding_app/pages/impressum.dart';
-import 'package:four_secrets_wedding_app/pages/kontakt.dart';
-import 'package:four_secrets_wedding_app/pages/parsonal_training.dart';
->>>>>>> merge-elena-wazeem
+
+// New Feature Models
+import 'package:four_secrets_wedding_app/screens/newfeature1/models/wedding_day_schedule_model1.dart';
+import 'package:four_secrets_wedding_app/screens/newfeature1/models/wedding_category_model1.dart';
+
+// Screens (Authentication & Core)
+import 'package:four_secrets_wedding_app/screens/signin_screen.dart';
+import 'package:four_secrets_wedding_app/screens/signup_screen.dart';
+import 'package:four_secrets_wedding_app/screens/email_verification_screen.dart';
+import 'package:four_secrets_wedding_app/screens/forgot_password_screen.dart';
+import 'package:four_secrets_wedding_app/screens/budget.dart';
+
+// New Feature Screens
+import 'package:four_secrets_wedding_app/screens/newfeature1/screens/wedding_schedule_page1.dart';
+import 'package:four_secrets_wedding_app/screens/newfeature1/screens/add_wedding_schedule_page1.dart';
+import 'package:four_secrets_wedding_app/screens/newfeature1/screens/add_title_category_wed_schedule_page1.dart';
+import 'package:four_secrets_wedding_app/screens/newfeature1/screens/wedding_category_title_page1.dart';
+
+// Pages (Main Application)
 import 'package:four_secrets_wedding_app/pages/about_me.dart';
 import 'package:four_secrets_wedding_app/pages/add_title_category_wed_schedule_page.dart';
 import 'package:four_secrets_wedding_app/pages/add_todo_categories_page.dart';
@@ -22,6 +36,8 @@ import 'package:four_secrets_wedding_app/pages/add_wedding_schedule_page.dart';
 import 'package:four_secrets_wedding_app/pages/bachelorette_party.dart';
 import 'package:four_secrets_wedding_app/pages/band_dj.dart';
 import 'package:four_secrets_wedding_app/pages/braut_braeutigam_atelier.dart';
+import 'package:four_secrets_wedding_app/pages/catering.dart';
+import 'package:four_secrets_wedding_app/pages/chatbot.dart';
 import 'package:four_secrets_wedding_app/pages/checklist.dart';
 import 'package:four_secrets_wedding_app/pages/collaboration_screen.dart';
 import 'package:four_secrets_wedding_app/pages/custom_todo_cateogry_page.dart';
@@ -31,126 +47,110 @@ import 'package:four_secrets_wedding_app/pages/fotograph.dart';
 import 'package:four_secrets_wedding_app/pages/gaestelist.dart';
 import 'package:four_secrets_wedding_app/pages/hair_makeup.dart';
 import 'package:four_secrets_wedding_app/pages/home.dart';
-<<<<<<< HEAD
 import 'package:four_secrets_wedding_app/pages/impressum.dart';
 import 'package:four_secrets_wedding_app/pages/inspiration_folder.dart';
 import 'package:four_secrets_wedding_app/pages/inspiration_page_details_screen.dart';
 import 'package:four_secrets_wedding_app/pages/inspirations.dart';
 import 'package:four_secrets_wedding_app/pages/kontakt.dart';
 import 'package:four_secrets_wedding_app/pages/kosmetische_akupunktur.dart';
-=======
->>>>>>> merge-elena-wazeem
 import 'package:four_secrets_wedding_app/pages/location.dart';
 import 'package:four_secrets_wedding_app/pages/map_picker_page.dart';
+import 'package:four_secrets_wedding_app/pages/muenchner_geheimtipp.dart';
+import 'package:four_secrets_wedding_app/pages/papeterie.dart';
 import 'package:four_secrets_wedding_app/pages/parsonal_training.dart';
+import 'package:four_secrets_wedding_app/pages/patiserie.dart';
 import 'package:four_secrets_wedding_app/pages/showroom_event.dart';
 import 'package:four_secrets_wedding_app/pages/splash_screen.dart';
+import 'package:four_secrets_wedding_app/pages/swipeable_card_test.dart';
 import 'package:four_secrets_wedding_app/pages/tables_management_page.dart';
 import 'package:four_secrets_wedding_app/pages/tanzschule.dart';
-<<<<<<< HEAD
 import 'package:four_secrets_wedding_app/pages/to_do_page.dart';
+import 'package:four_secrets_wedding_app/pages/trauredner.dart';
+import 'package:four_secrets_wedding_app/pages/trauringe.dart';
+import 'package:four_secrets_wedding_app/pages/unterhaltung.dart';
 import 'package:four_secrets_wedding_app/pages/wedding_cake.dart';
 import 'package:four_secrets_wedding_app/pages/wedding_car_service.dart';
 import 'package:four_secrets_wedding_app/pages/wedding_category_title_page.dart';
 import 'package:four_secrets_wedding_app/pages/wedding_designer.dart';
 import 'package:four_secrets_wedding_app/pages/wedding_schedule_page.dart';
-import 'package:four_secrets_wedding_app/pages/swipeable_card_test.dart';
-import 'package:four_secrets_wedding_app/screens/newfeature1/screens/wedding_schedule_page1.dart';
-import 'package:four_secrets_wedding_app/screens/newfeature1/screens/add_wedding_schedule_page1.dart';
-import 'package:four_secrets_wedding_app/screens/newfeature1/screens/add_title_category_wed_schedule_page1.dart';
-import 'package:four_secrets_wedding_app/screens/newfeature1/screens/wedding_category_title_page1.dart';
-import 'package:four_secrets_wedding_app/screens/newfeature1/models/wedding_day_schedule_model1.dart';
-import 'package:four_secrets_wedding_app/screens/newfeature1/models/wedding_category_model1.dart';
-import 'package:four_secrets_wedding_app/screens/budget.dart';
-=======
-import 'package:four_secrets_wedding_app/pages/muenchner_geheimtipp.dart';
-import 'package:four_secrets_wedding_app/pages/trauringe.dart';
-import 'package:four_secrets_wedding_app/pages/patiserie.dart';
-import 'package:four_secrets_wedding_app/pages/papeterie.dart';
-import 'package:four_secrets_wedding_app/pages/trauredner.dart';
-import 'package:four_secrets_wedding_app/pages/unterhaltung.dart';
-import 'package:four_secrets_wedding_app/pages/chatbot.dart';
-import 'package:four_secrets_wedding_app/pages/catering.dart';
->>>>>>> merge-elena-wazeem
-import 'package:four_secrets_wedding_app/screens/email_verification_screen.dart';
-import 'package:four_secrets_wedding_app/screens/forgot_password_screen.dart';
-import 'package:four_secrets_wedding_app/screens/signin_screen.dart';
-import 'package:four_secrets_wedding_app/screens/signup_screen.dart';
-import 'package:page_transition/page_transition.dart';
 
 class RouteManager {
+  // Core Routes
   static const String splashScreen = '/';
   static const String homePage = '/home';
   static const String signinPage = '/signin';
   static const String signupPage = '/signup';
   static const String forgotPasswordPage = '/forgot-password';
   static const String emailVerificationPage = '/email-verification';
-<<<<<<< HEAD
+  
+  // Main Feature Routes
   static const String inspirationsPage = '/inspirations';
   static const String inspirationFolderPage = '/inspirationsFolder';
-=======
   static const String muenchnerGeheimtippPage = '/muenchner_geheimtipp';
->>>>>>> merge-elena-wazeem
   static const String aboutMePage = '/aboutMe';
   static const String checklistPage = '/checklist';
   static const String budgetPage = '/budget';
   static const String gaestelistPage = '/gaestelist';
+  
+  // Wedding Service Routes
   static const String showroomEventPage = '/showroom_event';
   static const String hairMakeUpPage = '/hair_makeup';
   static const String bachelorettePartyEventPage = '/bachelorette_party';
   static const String brauBraeutigamPage = '/braut_braeutigam_atelier';
   static const String locationPage = '/location';
-<<<<<<< HEAD
   static const String weddingDesignerPage = '/wedding_designer';
-  static const String inspirationDetailPage = '/inspiration_detail';
-=======
->>>>>>> merge-elena-wazeem
   static const String bandDjPage = '/band_dj';
   static const String gesangPage = '/gesang';
   static const String patiseriePage = '/patiserie';
   static const String floristPage = '/florist';
-<<<<<<< HEAD
   static const String weddingCakePage = '/weddingCake';
-  static const String weddingSchedulePage = '/wedding_schedule';
   static const String weddingCarServicePage = '/wedding_car_service';
-=======
->>>>>>> merge-elena-wazeem
   static const String fotographPage = '/fotograph';
   static const String tanzschulePage = '/tanzschule';
   static const String papeteriePage = '/papeterie';
   static const String unterhaltungPage = '/unterhaltung';
   static const String traurednerPage = '/trauredner';
+  static const String trauringePage = '/trauringe';
+  static const String chatbotPage = '/chatbot';
+  static const String cateringPage = '/catering';
   static const String kosmetischeAkupunktur = '/kosmetische_akupunktur';
   static const String personalTraining = '/personal_training';
+  
+  // Detail & Interaction Routes
+  static const String inspirationDetailPage = '/inspiration_detail';
   static const String videoPlayer = '/video_player';
   static const String videoPlayer2 = '/video_player2';
   static const String kontakt = '/kontakt';
   static const String impressum = '/impressum';
-  static const String trauringePage = '/trauringe';
-  static const String chatbotPage = '/chatbot';
-  static const String cateringPage = '/catering';
   static const String editProfilePage = '/edit-profile';
+  
+  // Management Routes
   static const String guestsPage = '/guests';
   static const String tablesManagementPage = '/tables-management';
+  static const String weddingSchedulePage = '/wedding_schedule';
   static const String addWedidngSchedulePage = '/addWedidngSchedulePage';
   static const String weddingCategoryTitlePage = '/weddingCategoryTitlePage';
-  static const String weddingCategoryCustomAddPage =
-      '/weddingCategoryCustomAddPage';
+  static const String weddingCategoryCustomAddPage = '/weddingCategoryCustomAddPage';
   static const String weddingCategoryMap = '/weddingCategoryMap';
+  
+  // Todo Management Routes
   static const String toDoPage = '/toDoPage';
   static const String addToDoPage = '/addToDoPage';
+  static const String addTodoCategoriesPage = '/addTodoCategoriesPage';
+  static const String customTodoCategoryPage = '/customTodoCategoryPage';
+  
+  // Collaboration Routes
   static const String collaborationPage = '/collaboration';
   static const String collaborationTodosPage = '/collaboration-todos';
-  static const String addTodoCategoriesPage = '/addTodoCategoriesPage';
   static const String collaboratorDetailsPage = '/collaborator-details';
-  static const String customTodoCategoryPage = '/customTodoCategoryPage';
+  
+  // Test Routes
   static const String swipeableCardTestPage = '/swipeableCardTest';
-
-  // Tagesablauf1 routes
+  
+  // New Feature Routes (Tagesablauf1)
   static const String weddingSchedulePage1 = '/wedding_schedule1';
   static const String addWedidngSchedulePage1 = '/addWedidngSchedulePage1';
-  static const String addTitleCategoryWedSchedulePage1 =
-      '/addTitleCategoryWedSchedulePage1';
+  static const String addTitleCategoryWedSchedulePage1 = '/addTitleCategoryWedSchedulePage1';
   static const String weddingCategoryTitlePage1 = '/weddingCategoryTitlePage1';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -187,6 +187,11 @@ class RouteManager {
           type: PageTransitionType.rightToLeft,
         );
 
+      case emailVerificationPage:
+        return MaterialPageRoute(
+          builder: (_) => const EmailVerificationScreen(),
+        );
+
       case homePage:
         return PageTransition(
           child: const HomePage(),
@@ -194,41 +199,31 @@ class RouteManager {
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
         );
-<<<<<<< HEAD
+
       case inspirationsPage:
-=======
+        return PageTransition(
+          child: const Inspirations(),
+          settings: settings,
+          duration: const Duration(milliseconds: 250),
+          type: PageTransitionType.rightToLeft,
+        );
+
+      case inspirationFolderPage:
+        return PageTransition(
+          child: InspirationFolder(),
+          settings: settings,
+          duration: const Duration(milliseconds: 250),
+          type: PageTransitionType.rightToLeft,
+        );
 
       case muenchnerGeheimtippPage:
->>>>>>> merge-elena-wazeem
         return PageTransition(
           child: MuenchnerGeheimtipp(),
           settings: settings,
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
         );
-<<<<<<< HEAD
-      case toDoPage:
-        return PageTransition(
-          child: ToDoPage(),
-          settings: settings,
-          duration: const Duration(milliseconds: 250),
-          type: PageTransitionType.rightToLeft,
-        );
-      case weddingCategoryMap:
-        final args = settings.arguments as Map<String, dynamic>;
-        return PageTransition(
-          child: MapSelectionPage(
-            address: args['address'] as String,
-            lat: args['lat'] as double,
-            long: args['long'] as double,
-          ),
-          settings: settings,
-          duration: const Duration(milliseconds: 250),
-          type: PageTransitionType.rightToLeft,
-        );
-=======
 
->>>>>>> merge-elena-wazeem
       case aboutMePage:
         return PageTransition(
           child: const AboutMe(),
@@ -236,20 +231,18 @@ class RouteManager {
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
         );
-<<<<<<< HEAD
-      case weddingSchedulePage:
+
+      case checklistPage:
         return PageTransition(
-          child: const WeddingSchedulePage(),
+          child: const Checklist(),
           settings: settings,
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
         );
-=======
 
->>>>>>> merge-elena-wazeem
-      case checklistPage:
+      case budgetPage:
         return PageTransition(
-          child: const Checklist(),
+          child: Budget(),
           settings: settings,
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
@@ -266,67 +259,6 @@ class RouteManager {
       case showroomEventPage:
         return PageTransition(
           child: ShowroomEvent(),
-          settings: settings,
-          duration: const Duration(milliseconds: 250),
-          type: PageTransitionType.rightToLeft,
-        );
-      case weddingCategoryTitlePage:
-        return PageTransition(
-          child: const WeddingCategoryTitlePage(),
-          settings: settings,
-          duration: const Duration(milliseconds: 250),
-          type: PageTransitionType.rightToLeft,
-        );
-      case weddingCategoryCustomAddPage:
-        final args = settings.arguments as Map<String, dynamic>;
-        return PageTransition(
-          child: AddCustomCategoryWeddingSchedulePage(
-            weddingCategoryModel:
-                args['weddingCategoryModel'] as WeddingCategoryModel?,
-            index: args['index'] as String?,
-          ),
-          settings: settings,
-          duration: const Duration(milliseconds: 250),
-          type: PageTransitionType.rightToLeft,
-        );
-      case addToDoPage:
-        final args = settings.arguments as Map<String, dynamic>;
-        return PageTransition(
-          child: AddTodoPage(
-            toDoModel: args['toDoModel'] as ToDoModel?,
-            id: args['id'] as String?,
-            showOnlyCustomCategories:
-                args['showOnlyCustomCategories'] as bool? ?? false,
-          ),
-          settings: settings,
-          duration: const Duration(milliseconds: 250),
-          type: PageTransitionType.rightToLeft,
-        );
-      case inspirationDetailPage:
-        final args = settings.arguments as Map<String, dynamic>;
-        return PageTransition(
-          child: InspirationDetailPage(
-            inspirationImage: args['inspirationImage'] as InspirationImageModel,
-          ),
-          settings: settings,
-          duration: const Duration(milliseconds: 250),
-          type: PageTransitionType.rightToLeft,
-        );
-      case addWedidngSchedulePage:
-        final args = settings.arguments as Map<String, dynamic>?;
-        final model =
-            args?['weddingDayScheduleModel'] as WeddingDayScheduleModel?;
-        return PageTransition(
-          child: AddWeddingSchedulePage(
-            weddingDayScheduleModel: model,
-          ),
-          settings: settings,
-          duration: const Duration(milliseconds: 250),
-          type: PageTransitionType.rightToLeft,
-        );
-      case budgetPage:
-        return PageTransition(
-          child: Budget(),
           settings: settings,
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
@@ -364,6 +296,14 @@ class RouteManager {
           type: PageTransitionType.rightToLeft,
         );
 
+      case weddingDesignerPage:
+        return PageTransition(
+          child: WeddingDesigner(),
+          settings: settings,
+          duration: const Duration(milliseconds: 250),
+          type: PageTransitionType.rightToLeft,
+        );
+
       case bandDjPage:
         return PageTransition(
           child: BandDj(),
@@ -374,16 +314,7 @@ class RouteManager {
 
       case floristPage:
         return PageTransition(
-<<<<<<< HEAD
-          child: Florist(), // Placeholder
-          settings: settings,
-          duration: const Duration(milliseconds: 250),
-          type: PageTransitionType.rightToLeft,
-        );
-
-      case inspirationFolderPage:
-        return PageTransition(
-          child: InspirationFolder(), // Placeholder
+          child: Florist(),
           settings: settings,
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
@@ -391,7 +322,7 @@ class RouteManager {
 
       case weddingCakePage:
         return PageTransition(
-          child: const WeddingCake(), // Placeholder
+          child: const WeddingCake(),
           settings: settings,
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
@@ -399,10 +330,7 @@ class RouteManager {
 
       case weddingCarServicePage:
         return PageTransition(
-          child: const WeddingCarService(), // Placeholder
-=======
-          child: Florist(),
->>>>>>> merge-elena-wazeem
+          child: const WeddingCarService(),
           settings: settings,
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
@@ -482,7 +410,15 @@ class RouteManager {
 
       case kosmetischeAkupunktur:
         return PageTransition(
-          child: KosmetischeAkupunktur(), // Placeholder
+          child: KosmetischeAkupunktur(),
+          settings: settings,
+          duration: const Duration(milliseconds: 250),
+          type: PageTransitionType.rightToLeft,
+        );
+
+      case personalTraining:
+        return PageTransition(
+          child: PersonalTraining(),
           settings: settings,
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
@@ -520,14 +456,6 @@ class RouteManager {
           type: PageTransitionType.rightToLeft,
         );
 
-      case personalTraining:
-        return PageTransition(
-          child: PersonalTraining(),
-          settings: settings,
-          duration: const Duration(milliseconds: 250),
-          type: PageTransitionType.rightToLeft,
-        );
-
       case editProfilePage:
         final args = settings.arguments as Map<String, dynamic>;
         return MaterialPageRoute(
@@ -535,11 +463,6 @@ class RouteManager {
             currentName: args['currentName'],
             currentProfilePicUrl: args['currentProfilePicUrl'],
           ),
-        );
-
-      case emailVerificationPage:
-        return MaterialPageRoute(
-          builder: (_) => const EmailVerificationScreen(),
         );
 
       case tablesManagementPage:
@@ -550,21 +473,79 @@ class RouteManager {
           type: PageTransitionType.rightToLeft,
         );
 
-      case collaborationPage:
+      case weddingSchedulePage:
         return PageTransition(
-          child: const CollaborationScreen(),
+          child: const WeddingSchedulePage(),
           settings: settings,
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
         );
 
-      // case collaborationTodosPage:
-      //   return PageTransition(
-      //     child: const CollaborationTodosScreen(),
-      //     settings: settings,
-      //     duration: const Duration(milliseconds: 250),
-      //     type: PageTransitionType.rightToLeft,
-      //   );
+      case addWedidngSchedulePage:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final model = args?['weddingDayScheduleModel'] as WeddingDayScheduleModel?;
+        return PageTransition(
+          child: AddWeddingSchedulePage(
+            weddingDayScheduleModel: model,
+          ),
+          settings: settings,
+          duration: const Duration(milliseconds: 250),
+          type: PageTransitionType.rightToLeft,
+        );
+
+      case weddingCategoryTitlePage:
+        return PageTransition(
+          child: const WeddingCategoryTitlePage(),
+          settings: settings,
+          duration: const Duration(milliseconds: 250),
+          type: PageTransitionType.rightToLeft,
+        );
+
+      case weddingCategoryCustomAddPage:
+        final args = settings.arguments as Map<String, dynamic>;
+        return PageTransition(
+          child: AddCustomCategoryWeddingSchedulePage(
+            weddingCategoryModel: args['weddingCategoryModel'] as WeddingCategoryModel?,
+            index: args['index'] as String?,
+          ),
+          settings: settings,
+          duration: const Duration(milliseconds: 250),
+          type: PageTransitionType.rightToLeft,
+        );
+
+      case weddingCategoryMap:
+        final args = settings.arguments as Map<String, dynamic>;
+        return PageTransition(
+          child: MapSelectionPage(
+            address: args['address'] as String,
+            lat: args['lat'] as double,
+            long: args['long'] as double,
+          ),
+          settings: settings,
+          duration: const Duration(milliseconds: 250),
+          type: PageTransitionType.rightToLeft,
+        );
+
+      case toDoPage:
+        return PageTransition(
+          child: ToDoPage(),
+          settings: settings,
+          duration: const Duration(milliseconds: 250),
+          type: PageTransitionType.rightToLeft,
+        );
+
+      case addToDoPage:
+        final args = settings.arguments as Map<String, dynamic>;
+        return PageTransition(
+          child: AddTodoPage(
+            toDoModel: args['toDoModel'] as ToDoModel?,
+            id: args['id'] as String?,
+            showOnlyCustomCategories: args['showOnlyCustomCategories'] as bool? ?? false,
+          ),
+          settings: settings,
+          duration: const Duration(milliseconds: 250),
+          type: PageTransitionType.rightToLeft,
+        );
 
       case addTodoCategoriesPage:
         final args = settings.arguments as Map<String, dynamic>?;
@@ -580,22 +561,28 @@ class RouteManager {
           type: PageTransitionType.rightToLeft,
         );
 
-      // case collaboratorDetailsPage:
-      //   final args = settings.arguments as Map<String, dynamic>;
-      //   return PageTransition(
-      //     child: CollaboratorDetailsScreen(
-      //       todoId: args['todoId'] as String,
-      //       todoName: args['todoName'] as String,
-      //       inviteeName: args['inviteeName'] as String,
-      //     ),
-      //     settings: settings,
-      //     duration: const Duration(milliseconds: 250),
-      //     type: PageTransitionType.rightToLeft,
-      //   );
-
       case customTodoCategoryPage:
         return PageTransition(
           child: const CustomTodoCategoryPage(),
+          settings: settings,
+          duration: const Duration(milliseconds: 250),
+          type: PageTransitionType.rightToLeft,
+        );
+
+      case collaborationPage:
+        return PageTransition(
+          child: const CollaborationScreen(),
+          settings: settings,
+          duration: const Duration(milliseconds: 250),
+          type: PageTransitionType.rightToLeft,
+        );
+
+      case inspirationDetailPage:
+        final args = settings.arguments as Map<String, dynamic>;
+        return PageTransition(
+          child: InspirationDetailPage(
+            inspirationImage: args['inspirationImage'] as InspirationImageModel,
+          ),
           settings: settings,
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
@@ -609,7 +596,7 @@ class RouteManager {
           type: PageTransitionType.rightToLeft,
         );
 
-      // Tagesablauf1 routes
+      // New Feature Routes (Tagesablauf1)
       case weddingSchedulePage1:
         return PageTransition(
           child: const WeddingSchedulePage1(),
@@ -620,8 +607,7 @@ class RouteManager {
 
       case addWedidngSchedulePage1:
         final args = settings.arguments as Map<String, dynamic>?;
-        final model =
-            args?['weddingDayScheduleModel'] as WeddingDayScheduleModel1?;
+        final model = args?['weddingDayScheduleModel'] as WeddingDayScheduleModel1?;
         return PageTransition(
           child: AddWeddingSchedulePage1(
             weddingDayScheduleModel: model,
@@ -635,8 +621,7 @@ class RouteManager {
         final args = settings.arguments as Map<String, dynamic>?;
         return PageTransition(
           child: AddCustomCategoryWeddingSchedulePage1(
-            weddingCategoryModel:
-                args?['weddingCategoryModel'] as WeddingCategoryModel1?,
+            weddingCategoryModel: args?['weddingCategoryModel'] as WeddingCategoryModel1?,
             index: args?['index'] as String?,
           ),
           settings: settings,
