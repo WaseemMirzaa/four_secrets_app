@@ -3,10 +3,8 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:four_secrets_wedding_app/models/drawer_model.dart';
 import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:four_secrets_wedding_app/services/auth_service.dart';
@@ -308,7 +306,7 @@ class MenueState extends State<Menue> {
           print(
               '[Menu Debug] ✅ Red dot is NOT showing - No matching notifications');
         }
-        
+
         return Drawer(
           width: 225,
           backgroundColor: Colors.white70,
@@ -568,14 +566,14 @@ class MenueState extends State<Menue> {
                   },
                 ),
               ),
-              
+
               const Divider(
                 color: Colors.grey,
                 thickness: 0.5,
                 indent: 8,
                 endIndent: 8,
               ),
-              
+
               // Log Out
               Card(
                 margin:
