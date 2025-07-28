@@ -24,6 +24,7 @@ class _ChatbotState extends State<Chatbot> with TickerProviderStateMixin {
 
   // UX Improvements
   final FocusNode _inputFocusNode = FocusNode();
+  final Key key = GlobalKey<MenueState>();
   final GlobalKey _dashChatKey = GlobalKey();
 
   // State Variables
