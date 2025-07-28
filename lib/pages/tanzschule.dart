@@ -6,11 +6,7 @@ class Tanzschule extends StatelessWidget {
   Tanzschule({super.key});
 
   final List items = TanzschuleCardItems.getCardItems();
-
-
-
   final key = GlobalKey<MenueState>();
-
 
   @override
   Widget build(BuildContext context) {
