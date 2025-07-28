@@ -8,11 +8,7 @@ class Impressum extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-<<<<<<< HEAD
-        drawer: Menue(),
-=======
         drawer: const Menue(),
->>>>>>> merge-elena-wazeem
         appBar: AppBar(
           foregroundColor: const Color.fromARGB(255, 255, 255, 255),
           title: const Text('Impressum & Datenschutz'),
