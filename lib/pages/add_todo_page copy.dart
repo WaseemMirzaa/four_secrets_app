@@ -1197,7 +1197,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
                         reminderIso = reminderDateTime.toIso8601String();
                       }
                       if (widget.toDoModel != null) {
-                        // EDITING EXISTING TODO
+                        // EDITING EXISTING ToDo
                         final updatedTodo = widget.toDoModel!.copyWith(
                           categories: categories,
                           reminder: reminderIso,
@@ -1217,7 +1217,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
                             context, 'Todo erfolgreich aktualisiert');
                         Navigator.of(context).pop(true);
                       } else {
-                        // CREATING NEW TODO
+                        // CREATING NEW ToDo
                         await toDoService.createTodo(
                           categories: categories,
                           reminder: reminderIso,
