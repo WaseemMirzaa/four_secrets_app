@@ -1,20 +1,14 @@
-<<<<<<< HEAD
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-class ChecklistItemModel {
-  final String id;
-  final String taskName;
-   bool isCompleted;
-  final DateTime createdAt;
-  final String userId;
-=======
 import 'package:hive_flutter/hive_flutter.dart';
 import 'todo_item.dart';
 
-class ToDoDataBase {
-  List<TodoItem> toDoList = [];
-  DateTime? weddingDate;
->>>>>>> merge-elena-wazeem
+// Firestore-basiertes Checklist Model (für Cloud-Sync)
+class ChecklistItemModel {
+  final String id;
+  final String taskName;
+  bool isCompleted;
+  final DateTime createdAt;
+  final String userId;
 
   ChecklistItemModel({
     required this.id,
@@ -24,7 +18,6 @@ class ToDoDataBase {
     required this.userId,
   });
 
-<<<<<<< HEAD
   // Convert to Map for Firestore
   Map<String, dynamic> toMap() {
     return {
@@ -62,7 +55,22 @@ class ToDoDataBase {
       createdAt: createdAt ?? this.createdAt,
       userId: userId ?? this.userId,
     );
-=======
+  }
+
+  @override
+  String toString() {
+    return 'ChecklistItemModel(id: $id, taskName: $taskName, isCompleted: $isCompleted, createdAt: $createdAt, userId: $userId)';
+  }
+}
+
+// Hive-basierte lokale ToDo Database (für Offline-Funktionalität)
+class ToDoDataBase {
+  List<TodoItem> toDoList = [];
+  DateTime? weddingDate;
+
+  // Hive box reference
+  final Box _myBoxToDo = Hive.box('myboxToDo');
+
   // run this method if this is the 1st time ever opening this app
   void createInitialDataToDo() {
     toDoList = [
@@ -122,7 +130,7 @@ class ToDoDataBase {
       // 10-12 Monate vor Hochzeit
       TodoItem(task: "Location aussuchen", category: 4),
       TodoItem(task: "Stil der Hochzeit überlegen", category: 4),
-      TodoItem(task: "Gästeliste grob planenn", category: 4),
+      TodoItem(task: "Gästeliste grob planen", category: 4),
       TodoItem(task: "Trauzeugen bestimmen", category: 4),
       TodoItem(task: "Hochzeitsversicherung prüfen", category: 4),
       TodoItem(task: "Standesamt & Kirche/Freie Trauung anfragen", category: 4),
@@ -364,6 +372,34 @@ class ToDoDataBase {
     };
   }
 
+  // === SYNC-METHODEN (Cloud-Sync zwischen Hive und Firestore) ===
+
+  // Konvertiere lokale TodoItem zu Firestore ChecklistItemModel
+  ChecklistItemModel todoItemToChecklistModel(TodoItem todoItem, String userId) {
+    return ChecklistItemModel(
+      id: '', // Firestore generiert die ID
+      taskName: todoItem.task,
+      isCompleted: todoItem.isCompleted,
+      createdAt: DateTime.now(),
+      userId: userId,
+    );
+  }
+
+  // Konvertiere Firestore ChecklistItemModel zu lokale TodoItem
+  TodoItem checklistModelToTodoItem(ChecklistItemModel checklistModel) {
+    return TodoItem(
+      task: checklistModel.taskName,
+      isCompleted: checklistModel.isCompleted,
+      category: 2, // Default-Kategorie, kann später angepasst werden
+    );
+  }
+
+  // Synchronisiere lokale Daten mit Firestore
+  Future<void> syncWithFirestore(String userId) async {
+    // Implementation für Cloud-Sync würde hier stehen
+    // Dies würde die lokalen Hive-Daten mit Firestore abgleichen
+  }
+
   // === DEBUG-METHODEN (nur für Entwicklung) ===
 
   // Debugging-Methode: Zeige alle Daten in der Hive-Box (optional)
@@ -384,11 +420,5 @@ class ToDoDataBase {
     _myBoxToDo.clear();
     toDoList.clear();
     weddingDate = null;
->>>>>>> merge-elena-wazeem
-  }
-
-  @override
-  String toString() {
-    return 'ChecklistItemModel(id: $id, taskName: $taskName, isCompleted: $isCompleted, createdAt: $createdAt, userId: $userId)';
   }
 }
