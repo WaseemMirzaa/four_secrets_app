@@ -9,15 +9,13 @@ class KosmetischeAkupunktur extends StatelessWidget {
   KosmetischeAkupunktur({super.key});
   final List items = KosmetischeAkupunkturCardItems.getCardItems();
 
-
   final key = GlobalKey<MenueState>();
-
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: Menue.getInstance(key)
+        drawer: Menue.getInstance(key),
         appBar: AppBar(
           foregroundColor: Color.fromARGB(255, 255, 255, 255),
           // automaticallyImplyLeading: false,
