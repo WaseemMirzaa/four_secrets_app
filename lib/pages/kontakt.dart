@@ -23,11 +23,7 @@ class Kontakt extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-<<<<<<< HEAD
-        drawer: Menue(),
-=======
-        drawer: const Menue(),
->>>>>>> merge-elena-wazeem
+        drawer: Menue.getInstance(key),
         appBar: AppBar(
           foregroundColor: Color.fromARGB(255, 255, 255, 255),
           title: const Text('Kontakt'),
