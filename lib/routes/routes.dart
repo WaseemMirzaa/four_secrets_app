@@ -50,7 +50,6 @@ import 'package:four_secrets_wedding_app/pages/home.dart';
 import 'package:four_secrets_wedding_app/pages/impressum.dart';
 import 'package:four_secrets_wedding_app/pages/inspiration_folder.dart';
 import 'package:four_secrets_wedding_app/pages/inspiration_page_details_screen.dart';
-import 'package:four_secrets_wedding_app/pages/inspirations.dart';
 import 'package:four_secrets_wedding_app/pages/kontakt.dart';
 import 'package:four_secrets_wedding_app/pages/kosmetische_akupunktur.dart';
 import 'package:four_secrets_wedding_app/pages/location.dart';
@@ -71,7 +70,6 @@ import 'package:four_secrets_wedding_app/pages/unterhaltung.dart';
 import 'package:four_secrets_wedding_app/pages/wedding_cake.dart';
 import 'package:four_secrets_wedding_app/pages/wedding_car_service.dart';
 import 'package:four_secrets_wedding_app/pages/wedding_category_title_page.dart';
-import 'package:four_secrets_wedding_app/pages/wedding_designer.dart';
 import 'package:four_secrets_wedding_app/pages/wedding_schedule_page.dart';
 
 class RouteManager {
@@ -82,7 +80,7 @@ class RouteManager {
   static const String signupPage = '/signup';
   static const String forgotPasswordPage = '/forgot-password';
   static const String emailVerificationPage = '/email-verification';
-  
+
   // Main Feature Routes
   static const String inspirationsPage = '/inspirations';
   static const String inspirationFolderPage = '/inspirationsFolder';
@@ -91,7 +89,7 @@ class RouteManager {
   static const String checklistPage = '/checklist';
   static const String budgetPage = '/budget';
   static const String gaestelistPage = '/gaestelist';
-  
+
   // Wedding Service Routes
   static const String showroomEventPage = '/showroom_event';
   static const String hairMakeUpPage = '/hair_makeup';
@@ -115,7 +113,7 @@ class RouteManager {
   static const String cateringPage = '/catering';
   static const String kosmetischeAkupunktur = '/kosmetische_akupunktur';
   static const String personalTraining = '/personal_training';
-  
+
   // Detail & Interaction Routes
   static const String inspirationDetailPage = '/inspiration_detail';
   static const String videoPlayer = '/video_player';
@@ -123,34 +121,36 @@ class RouteManager {
   static const String kontakt = '/kontakt';
   static const String impressum = '/impressum';
   static const String editProfilePage = '/edit-profile';
-  
+
   // Management Routes
   static const String guestsPage = '/guests';
   static const String tablesManagementPage = '/tables-management';
   static const String weddingSchedulePage = '/wedding_schedule';
   static const String addWedidngSchedulePage = '/addWedidngSchedulePage';
   static const String weddingCategoryTitlePage = '/weddingCategoryTitlePage';
-  static const String weddingCategoryCustomAddPage = '/weddingCategoryCustomAddPage';
+  static const String weddingCategoryCustomAddPage =
+      '/weddingCategoryCustomAddPage';
   static const String weddingCategoryMap = '/weddingCategoryMap';
-  
+
   // Todo Management Routes
   static const String toDoPage = '/toDoPage';
   static const String addToDoPage = '/addToDoPage';
   static const String addTodoCategoriesPage = '/addTodoCategoriesPage';
   static const String customTodoCategoryPage = '/customTodoCategoryPage';
-  
+
   // Collaboration Routes
   static const String collaborationPage = '/collaboration';
   static const String collaborationTodosPage = '/collaboration-todos';
   static const String collaboratorDetailsPage = '/collaborator-details';
-  
+
   // Test Routes
   static const String swipeableCardTestPage = '/swipeableCardTest';
-  
+
   // New Feature Routes (Tagesablauf1)
   static const String weddingSchedulePage1 = '/wedding_schedule1';
   static const String addWedidngSchedulePage1 = '/addWedidngSchedulePage1';
-  static const String addTitleCategoryWedSchedulePage1 = '/addTitleCategoryWedSchedulePage1';
+  static const String addTitleCategoryWedSchedulePage1 =
+      '/addTitleCategoryWedSchedulePage1';
   static const String weddingCategoryTitlePage1 = '/weddingCategoryTitlePage1';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -195,14 +195,6 @@ class RouteManager {
       case homePage:
         return PageTransition(
           child: const HomePage(),
-          settings: settings,
-          duration: const Duration(milliseconds: 250),
-          type: PageTransitionType.rightToLeft,
-        );
-
-      case inspirationsPage:
-        return PageTransition(
-          child: const Inspirations(),
           settings: settings,
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
@@ -291,14 +283,6 @@ class RouteManager {
       case locationPage:
         return PageTransition(
           child: Location(),
-          settings: settings,
-          duration: const Duration(milliseconds: 250),
-          type: PageTransitionType.rightToLeft,
-        );
-
-      case weddingDesignerPage:
-        return PageTransition(
-          child: WeddingDesigner(),
           settings: settings,
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
@@ -483,7 +467,8 @@ class RouteManager {
 
       case addWedidngSchedulePage:
         final args = settings.arguments as Map<String, dynamic>?;
-        final model = args?['weddingDayScheduleModel'] as WeddingDayScheduleModel?;
+        final model =
+            args?['weddingDayScheduleModel'] as WeddingDayScheduleModel?;
         return PageTransition(
           child: AddWeddingSchedulePage(
             weddingDayScheduleModel: model,
@@ -505,7 +490,8 @@ class RouteManager {
         final args = settings.arguments as Map<String, dynamic>;
         return PageTransition(
           child: AddCustomCategoryWeddingSchedulePage(
-            weddingCategoryModel: args['weddingCategoryModel'] as WeddingCategoryModel?,
+            weddingCategoryModel:
+                args['weddingCategoryModel'] as WeddingCategoryModel?,
             index: args['index'] as String?,
           ),
           settings: settings,
@@ -540,7 +526,8 @@ class RouteManager {
           child: AddTodoPage(
             toDoModel: args['toDoModel'] as ToDoModel?,
             id: args['id'] as String?,
-            showOnlyCustomCategories: args['showOnlyCustomCategories'] as bool? ?? false,
+            showOnlyCustomCategories:
+                args['showOnlyCustomCategories'] as bool? ?? false,
           ),
           settings: settings,
           duration: const Duration(milliseconds: 250),
@@ -607,7 +594,8 @@ class RouteManager {
 
       case addWedidngSchedulePage1:
         final args = settings.arguments as Map<String, dynamic>?;
-        final model = args?['weddingDayScheduleModel'] as WeddingDayScheduleModel1?;
+        final model =
+            args?['weddingDayScheduleModel'] as WeddingDayScheduleModel1?;
         return PageTransition(
           child: AddWeddingSchedulePage1(
             weddingDayScheduleModel: model,
@@ -621,7 +609,8 @@ class RouteManager {
         final args = settings.arguments as Map<String, dynamic>?;
         return PageTransition(
           child: AddCustomCategoryWeddingSchedulePage1(
-            weddingCategoryModel: args?['weddingCategoryModel'] as WeddingCategoryModel1?,
+            weddingCategoryModel:
+                args?['weddingCategoryModel'] as WeddingCategoryModel1?,
             index: args?['index'] as String?,
           ),
           settings: settings,
