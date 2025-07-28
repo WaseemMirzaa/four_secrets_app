@@ -1,15 +1,14 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart';
-import 'package:animated_text_kit/animated_text_kit.dart';
-import 'package:expandable_text/expandable_text.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'dart:async';
+
 import 'package:four_secrets_wedding_app/data/about_me_data.dart';
-import 'package:four_secrets_wedding_app/data/about_me_images.dart';
-import 'package:four_secrets_wedding_app/model/swipeable_card_widget.dart';
-import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
 import 'package:four_secrets_wedding_app/model/url_email_instagram.dart';
 import 'package:four_secrets_wedding_app/routes/routes.dart';
+import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:expandable_text/expandable_text.dart';
+import 'package:flutter/gestures.dart';
 import 'package:four_secrets_wedding_app/menue.dart';
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AboutMe extends StatefulWidget {
   const AboutMe({super.key});
@@ -19,10 +18,9 @@ class AboutMe extends StatefulWidget {
 }
 
 class _AboutMeState extends State<AboutMe> {
-  late List<String> images = AboutMeImages.getImages();
+  final Key key = GlobalKey<MenueState>();
   int activeIndex = 0;
   String modeUrl = "default";
-  
   var videoAsset = AboutMeData.map["videoAsset"] != null
       ? AboutMeData.map["videoAsset"]!
       : "";
@@ -53,22 +51,14 @@ class _AboutMeState extends State<AboutMe> {
     );
   }
 
-  final key = GlobalKey<MenueState>();
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
         drawer: Menue.getInstance(key),
         appBar: AppBar(
-          foregroundColor: const Color.fromARGB(255, 255, 255, 255),
-          title: const Text(
-            'Über mich',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          foregroundColor: Color.fromARGB(255, 255, 255, 255),
+          title: const Text('About me'),
           backgroundColor: const Color.fromARGB(255, 107, 69, 106),
         ),
         body: SingleChildScrollView(
@@ -158,25 +148,25 @@ class _AboutMeState extends State<AboutMe> {
                                       height: 1.5,
                                     ),
                                     children: [
-                                      const TextSpan(text: 'Die '),
-                                      const TextSpan(
+                                      TextSpan(text: 'Die '),
+                                      TextSpan(
                                         text: 'Gründerin',
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                             fontWeight: FontWeight.bold),
                                       ),
-                                      const TextSpan(text: ' der '),
-                                      const TextSpan(
+                                      TextSpan(text: ' der '),
+                                      TextSpan(
                                         text: '4secrets-wedding App',
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                             fontWeight: FontWeight.bold),
                                       ),
-                                      const TextSpan(text: ' und des '),
-                                      const TextSpan(
+                                      TextSpan(text: ' und des '),
+                                      TextSpan(
                                         text: '4secrets Studios',
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                             fontWeight: FontWeight.bold),
                                       ),
-                                      const TextSpan(text: ' in München.'),
+                                      TextSpan(text: ' in München.'),
                                     ],
                                   ),
                                 )),
@@ -191,6 +181,7 @@ class _AboutMeState extends State<AboutMe> {
                         padding: const EdgeInsets.only(
                             left: 5, right: 20, top: 5, bottom: 5),
                         width: 320,
+                        // height: 350,
                         color: Colors.white,
                         child: RichText(
                           text: TextSpan(
@@ -251,7 +242,8 @@ class _AboutMeState extends State<AboutMe> {
                       ),
                     ),
                     Positioned(
-                      top: 520,
+                      top:
+                          520, // Passe diesen Wert ggf. an, damit das Bild direkt unter dem Text erscheint
                       left: 20,
                       right: 20,
                       child: Image.asset(
@@ -262,28 +254,15 @@ class _AboutMeState extends State<AboutMe> {
                   ],
                 ),
               ),
-              
-              FourSecretsDivider(),
-              
-              // Image Gallery Section
-              Column(
-                children: [
-                  SwipeableCardWidget(
-                    images: images,
-                    height: 450,
-                  ),
-                ],
+              SizedBox(
+                height: 15,
               ),
-              
-              const SizedBox(height: 15),
-              
-              // Expandable Text Section
               Container(
                 width: 320,
-                margin: const EdgeInsets.only(left: 20),
+                margin: EdgeInsets.only(left: 20),
                 color: Colors.white,
-                child: const Padding(
-                  padding: EdgeInsets.all(5),
+                child: Padding(
+                  padding: EdgeInsetsGeometry.all(5),
                   child: ExpandableText(
                     "Bereits seit über 15 Jahren begleite ich Paare an einem der wichtigsten Tage ihres Lebens. "
                     "Ich durfte Freudentränen sehen, Nervosität lindern - und dabei immer wieder "
@@ -309,40 +288,42 @@ class _AboutMeState extends State<AboutMe> {
                   ),
                 ),
               ),
-              
-              const SizedBox(height: 15),
-              
-              // Video Play Button
+              SizedBox(
+                height: 15,
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   ElevatedButton(
+                    child: Icon(
+                      Icons.play_circle,
+                      size: 30,
+                    ),
                     onPressed: () {
                       if (videoAsset.isNotEmpty || videoUri.isNotEmpty) {
-                        Navigator.of(context).pushNamed(
-                          RouteManager.videoPlayer2,
-                          arguments: {
-                            'asset': videoAsset,
-                            'uri': videoUri,
-                            'ratio': videoRatio,
+                        Timer(
+                          const Duration(milliseconds: 100),
+                          () {
+                            Navigator.of(context).pushNamed(
+                              RouteManager.videoPlayer2,
+                              arguments: {
+                                'asset': videoAsset,
+                                'uri': videoUri,
+                                'ratio': videoRatio,
+                              },
+                            );
                           },
                         );
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      shape: const CircleBorder(),
-                      foregroundColor: const Color.fromARGB(255, 107, 69, 106),
-                      elevation: 2.5,
-                    ),
-                    child: const Icon(
-                      Icons.play_circle,
-                      size: 30,
-                    ),
+                        shape: CircleBorder(),
+                        foregroundColor: Color.fromARGB(255, 107, 69, 106),
+                        elevation: 2.5),
                   ),
                 ],
               ),
-              
-              const Padding(
+              Padding(
                 padding: EdgeInsets.only(bottom: 25),
               ),
             ],
