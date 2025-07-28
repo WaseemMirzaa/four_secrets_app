@@ -7,13 +7,11 @@ class BandDj extends StatelessWidget {
 
   final List items = BandDjCardItems.getCardItems();
 
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
         drawer: Menue.getInstance(key),
-        merge-elena-wazeem
         appBar: AppBar(
           // automaticallyImplyLeading: false,
           foregroundColor: Color.fromARGB(255, 255, 255, 255),
