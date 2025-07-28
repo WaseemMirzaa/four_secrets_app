@@ -6,6 +6,7 @@ class BandDj extends StatelessWidget {
   BandDj({super.key});
 
   final List items = BandDjCardItems.getCardItems();
+  final Key key = GlobalKey<MenueState>();
 
   @override
   Widget build(BuildContext context) {
