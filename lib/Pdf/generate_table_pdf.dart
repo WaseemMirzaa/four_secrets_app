@@ -1,11 +1,7 @@
-import 'dart:typed_data';
-
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:four_secrets_wedding_app/models/table_model.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
 
 // Determines the status of a guest based on their attendance flags.
 /// Returns a string representing the guest's status in German:

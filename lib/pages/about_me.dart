@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:four_secrets_wedding_app/data/about_me_data.dart';
 import 'package:four_secrets_wedding_app/data/about_me_images.dart';
 import 'package:four_secrets_wedding_app/model/swipeable_card_widget.dart';

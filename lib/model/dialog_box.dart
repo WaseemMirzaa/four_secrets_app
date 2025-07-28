@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:four_secrets_wedding_app/model/checklist_button.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_button_widget.dart';
 
 // ignore: must_be_immutable

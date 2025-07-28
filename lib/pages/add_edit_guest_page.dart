@@ -1,11 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:four_secrets_wedding_app/widgets/add_guest_bg.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/guest_service.dart';
 import '../services/guest_type_service.dart';
 import '../models/guest.dart';
-import '../widgets/auth_background.dart';
 import '../widgets/auth_text_field.dart';
 
 class AddEditGuestPage extends StatefulWidget {

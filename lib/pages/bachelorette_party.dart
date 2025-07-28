@@ -5,7 +5,6 @@ import 'package:four_secrets_wedding_app/model/footer_buttons.dart';
 import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
 import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:flutter/material.dart';
-import 'package:four_secrets_wedding_app/menue.dart';
 import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
 
 // ignore: must_be_immutable
