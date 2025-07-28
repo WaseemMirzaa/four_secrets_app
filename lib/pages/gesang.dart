@@ -11,11 +11,7 @@ class Gesang extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-<<<<<<< HEAD:lib/pages/wedding_designer.dart
-        drawer: Menue(),
-=======
-        drawer: const Menue(),
->>>>>>> merge-elena-wazeem:lib/pages/gesang.dart
+        drawer: Menue.getInstance(key),
         appBar: AppBar(
           foregroundColor: Color.fromARGB(255, 255, 255, 255),
           // automaticallyImplyLeading: false,
