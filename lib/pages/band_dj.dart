@@ -12,7 +12,7 @@ class BandDj extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: const Menue(),
+        drawer: Menue.getInstance(key),
         merge-elena-wazeem
         appBar: AppBar(
           // automaticallyImplyLeading: false,
