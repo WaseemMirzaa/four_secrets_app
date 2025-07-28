@@ -13,11 +13,7 @@ class Kontakt extends StatelessWidget {
   String instagram = KontaktData.map["instagram"] ?? "";
   String email = KontaktData.map["email"] ?? "";
   String homepage = KontaktData.map["homepage"] ?? "";
-
-
-
-  // final key = GlobalKey<MenueState>();
-
+  final Key key = GlobalKey<MenueState>();
 
   @override
   Widget build(BuildContext context) {
