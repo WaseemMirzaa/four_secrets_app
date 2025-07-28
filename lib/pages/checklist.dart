@@ -742,7 +742,8 @@ class _ChecklistState extends State<Checklist> with TickerProviderStateMixin {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 25, vertical: 8),
       child: DragTarget<TodoItem>(
-        onAccept: (item) => _onDragAccept(item, categoryId),
+        onAcceptWithDetails: (details) =>
+            _onDragAccept(details.data, categoryId),
         onMove: (details) {
           if (canDropHere && _draggingItem != null) {
             _onDragEnter(categoryId);
