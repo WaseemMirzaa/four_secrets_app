@@ -8,7 +8,6 @@ import 'package:four_secrets_wedding_app/model/to_do_data_base.dart';
 import 'package:four_secrets_wedding_app/model/todo_item.dart';
 import 'package:four_secrets_wedding_app/model/checklist_item.dart';
 import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
-import 'package:four_secrets_wedding_app/services/check_list_service.dart';
 import 'package:four_secrets_wedding_app/menue.dart';
 
 class Checklist extends StatefulWidget {
@@ -23,7 +22,7 @@ class _ChecklistState extends State<Checklist> with TickerProviderStateMixin {
   final Box _myBoxToDo = Hive.box('myboxToDo');
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  final key = GlobalKey<MenueState>();
+  final Key key = GlobalKey<MenueState>();
 
   ToDoDataBase db = ToDoDataBase();
   bool _isLoading = false;
@@ -157,7 +156,7 @@ class _ChecklistState extends State<Checklist> with TickerProviderStateMixin {
       return;
     }
     print("User is logged in ${_auth.currentUser!.uid}.");
-    
+
     // Hier könnte eine Firebase-Integration implementiert werden
     // Für jetzt verwenden wir die lokale Hive-Implementierung
   }
@@ -338,9 +337,11 @@ class _ChecklistState extends State<Checklist> with TickerProviderStateMixin {
                   // Add task with default category (current active category or 0)
                   int targetCategory = 0;
                   if (db.weddingDate != null) {
-                    targetCategory = WeddingDateHelper.getCurrentCategory(db.weddingDate!) ?? 0;
+                    targetCategory =
+                        WeddingDateHelper.getCurrentCategory(db.weddingDate!) ??
+                            0;
                   }
-                  
+
                   saveNewTask(_controller.text, targetCategory);
                   _controller.clear();
 
