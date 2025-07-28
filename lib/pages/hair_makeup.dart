@@ -11,10 +11,10 @@ import 'package:four_secrets_wedding_app/menue.dart';
 // ignore: must_be_immutable
 class HairMakeUp extends StatelessWidget {
   HairMakeUp({super.key});
-  
+
   final List items = HairMakeUpCardItems.getCardItems();
   late List<String> images = HairMakeUpImages.getImages();
-  final key = GlobalKey<MenueState>();
+  final Key key = GlobalKey<MenueState>();
 
   int activeIndex = 0;
   String urlMode = "default";
@@ -110,10 +110,10 @@ class HairMakeUp extends StatelessWidget {
 
                   // Card Items (falls vorhanden)
                   ...items,
-                  
+
                   const Padding(padding: EdgeInsets.only(top: 15)),
                   FourSecretsDivider(),
-                  
+
                   // Text Content Section
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -132,18 +132,14 @@ class HairMakeUp extends StatelessWidget {
                           "ich nehme mir Zeit dich kennenzulernen und dein "
                           "Styling ganz individuell auf dich abzustimmen.",
                         ),
-                        
                         const SizedBox(height: 16),
-                        
                         const Text(
                           "Für das Probestyling empfange ich dich in meinem Studio, "
                           "einer Privat-Lounge nur für dich, im Glockenbachviertel in München. "
                           "Für deinen Hochzeitstag entscheidest du selbst, ob dein Styling "
                           "bei mir im Studio oder direkt bei dir vor Ort stattfinden soll.",
                         ),
-                        
                         const SizedBox(height: 16),
-                        
                         const Text(
                           "Mit der Option, den Vor-Ort-Service zu wählen, erlebt "
                           "nicht nur ihr als Brautpaar entspannte Momente, "
