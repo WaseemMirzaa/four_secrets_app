@@ -325,11 +325,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
         setState(() => _isUploadingImage = false);
       }
 
-<<<<<<< HEAD
-=======
       // Create the user with optional image URL
       // ignore: unused_local_variable
->>>>>>> merge-elena-wazeem
       final userCredential = await AuthService().signUp(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
