@@ -1,23 +1,15 @@
-<<<<<<< HEAD
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
-import 'package:flutter/material.dart';
-import 'package:four_secrets_wedding_app/menue.dart';
-import 'package:four_secrets_wedding_app/model/checklist_item.dart';
-import 'package:four_secrets_wedding_app/model/dialog_box.dart';
-import 'package:four_secrets_wedding_app/services/check_list_service.dart';
-=======
 // checklist.dart - Erweitert mit Drag-and-Drop-Funktionalität
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:hive/hive.dart';
 import 'package:four_secrets_wedding_app/model/dialog_box.dart';
 import 'package:four_secrets_wedding_app/model/to_do_data_base.dart';
 import 'package:four_secrets_wedding_app/model/todo_item.dart';
-import 'package:flutter/material.dart';
-import 'package:four_secrets_wedding_app/menue.dart';
 import 'package:four_secrets_wedding_app/model/checklist_item.dart';
 import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
-import 'package:hive/hive.dart';
-import 'package:flutter/services.dart';
->>>>>>> merge-elena-wazeem
+import 'package:four_secrets_wedding_app/services/check_list_service.dart';
+import 'package:four_secrets_wedding_app/menue.dart';
 
 class Checklist extends StatefulWidget {
   const Checklist({super.key});
@@ -28,12 +20,13 @@ class Checklist extends StatefulWidget {
 
 class _ChecklistState extends State<Checklist> with TickerProviderStateMixin {
   // reference the hive box
+  final Box _myBoxToDo = Hive.box('myboxToDo');
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   final key = GlobalKey<MenueState>();
 
   ToDoDataBase db = ToDoDataBase();
-  bool _isLoading = true;
+  bool _isLoading = false;
 
   // text controller
   final _controller = TextEditingController();
@@ -56,40 +49,10 @@ class _ChecklistState extends State<Checklist> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-<<<<<<< HEAD
-    _loadChecklist();
-  }
-
-  Future<void> _loadChecklist() async {
-    setState(() => _isLoading = true);
-
-    if (_auth.currentUser == null) {
-      print("User not logged in.");
-      setState(() => _isLoading = false);
-      return;
-    }
-    print("User is logged in ${_auth.currentUser!.uid}.");
-
-    await db.loadDataToDo();
-
-    setState(() => _isLoading = false);
-  }
-
-  // Checkbox was tapped
-  void checkboxChanged(bool? value, int index) async {
-    if (value == null) return;
-
-    setState(() {
-      // Update UI immediately for better UX
-      db.toDoList[index].isCompleted = value;
-    });
-
-    // Update in Firebase
-    await db.updateTaskStatus(index, value);
-=======
     _initializeData();
     _initializeExpandedState();
     _initializeAnimations();
+    _loadChecklist();
   }
 
   void _initializeAnimations() {
@@ -185,6 +148,18 @@ class _ChecklistState extends State<Checklist> with TickerProviderStateMixin {
   int _getOpenTasksCount(int categoryId) {
     final categoryTodos = db.getTodosByCategory(categoryId);
     return categoryTodos.where((todo) => !todo.isCompleted).length;
+  }
+
+  // Firebase Integration für Cloud-Sync
+  Future<void> _loadChecklist() async {
+    if (_auth.currentUser == null) {
+      print("User not logged in.");
+      return;
+    }
+    print("User is logged in ${_auth.currentUser!.uid}.");
+    
+    // Hier könnte eine Firebase-Integration implementiert werden
+    // Für jetzt verwenden wir die lokale Hive-Implementierung
   }
 
   // NEU: Prüfe ob Drop in Kategorie erlaubt ist
@@ -338,7 +313,6 @@ class _ChecklistState extends State<Checklist> with TickerProviderStateMixin {
     }
 
     _controller.clear();
->>>>>>> merge-elena-wazeem
   }
 
   void createNewTask() async {
@@ -346,53 +320,47 @@ class _ChecklistState extends State<Checklist> with TickerProviderStateMixin {
       context: context,
       barrierDismissible: false, // Prevent closing dialog while loading
       builder: (context) {
-<<<<<<< HEAD
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return DialogBox(
-                controller: _controller,
-                isLoading: _isLoading,
-                onSave: () async {
-                  if (_controller.text.isEmpty) {
-                    Navigator.of(context).pop();
-                    return;
+              controller: _controller,
+              isLoading: _isLoading,
+              onSave: () async {
+                if (_controller.text.isEmpty) {
+                  Navigator.of(context).pop();
+                  return;
+                }
+
+                // Set loading state within dialog
+                setDialogState(() => _isLoading = true);
+
+                try {
+                  // Add task with default category (current active category or 0)
+                  int targetCategory = 0;
+                  if (db.weddingDate != null) {
+                    targetCategory = WeddingDateHelper.getCurrentCategory(db.weddingDate!) ?? 0;
                   }
+                  
+                  saveNewTask(_controller.text, targetCategory);
+                  _controller.clear();
 
-                  // Set loading state within dialog
-                  setDialogState(() => _isLoading = true);
-
-                  try {
-                    // Add task to Firebase
-                    await db.addTask(_controller.text);
-                    _controller.clear();
-
-                    // Close dialog after successful save
-                    if (context.mounted) {
-                      Navigator.of(context).pop(true);
-                    }
-                  } catch (e) {
-                    // Handle error if needed
-                    print("Error adding task: $e");
-                  } finally {
-                    // Reset loading state
-                    setDialogState(() => _isLoading = false);
+                  // Close dialog after successful save
+                  if (context.mounted) {
+                    Navigator.of(context).pop(true);
                   }
-                },
-                onCancel: () => Navigator.of(context).pop(),
-                isToDo: true,
-                isGuest: false);
+                } catch (e) {
+                  // Handle error if needed
+                  print("Error adding task: $e");
+                } finally {
+                  // Reset loading state
+                  setDialogState(() => _isLoading = false);
+                }
+              },
+              onCancel: () => Navigator.of(context).pop(),
+              isToDo: true,
+              isGuest: false,
+            );
           },
-=======
-        return DialogBox(
-          controller: _controller,
-          onSave: () {
-            // Provide default category or prompt for category selection as needed
-            saveNewTask(_controller.text, 0);
-          },
-          onCancel: () => Navigator.of(context).pop(),
-          isToDo: true,
-          isGuest: false,
->>>>>>> merge-elena-wazeem
         );
       },
     );
@@ -401,21 +369,11 @@ class _ChecklistState extends State<Checklist> with TickerProviderStateMixin {
     }
   }
 
-<<<<<<< HEAD
-  void onDelete(int index) async {
-    setState(() => _isLoading = true);
-
-    // Delete from Firebase
-    await db.deleteTask(index);
-
-    setState(() => _isLoading = false);
-=======
   void onDelete(TodoItem todo) {
     setState(() {
       db.deleteTodo(todo);
       _updateCategoryCache();
     });
->>>>>>> merge-elena-wazeem
   }
 
   void _selectWeddingDate() async {
@@ -1147,11 +1105,7 @@ class _ChecklistState extends State<Checklist> with TickerProviderStateMixin {
 
     return SafeArea(
       child: Scaffold(
-<<<<<<< HEAD
-        drawer: Menue.getInstance(key),
-=======
         drawer: const Menue(),
->>>>>>> merge-elena-wazeem
         appBar: AppBar(
           foregroundColor: const Color.fromARGB(255, 255, 255, 255),
           title: const Text('Checkliste'),
@@ -1177,34 +1131,6 @@ class _ChecklistState extends State<Checklist> with TickerProviderStateMixin {
 
             // Divider
             FourSecretsDivider(),
-<<<<<<< HEAD
-            // if (db.toDoList.isEmpty)
-            //       Padding(
-            //         padding: const EdgeInsets.all(16.0),
-            //         child: Center(
-            //           child: Text(
-            //             'Keine Aufgaben vorhanden. Füge deine erste Aufgabe hinzu!',
-            //             style: TextStyle(fontSize: 16),
-            //             textAlign: TextAlign.center,
-            //           ),
-            //         ),
-            //       ),
-            ListView.builder(
-              physics: ClampingScrollPhysics(),
-              padding: EdgeInsets.only(bottom: 90),
-              itemCount: db.toDoList.length,
-              shrinkWrap: true,
-              itemBuilder: (context, index) {
-                print(db.toDoList.length);
-                return CheckListItem(
-                  taskName: db.toDoList[index].taskName,
-                  taskCompleted: db.toDoList[index].isCompleted,
-                  onChanged: (value) => checkboxChanged(value, index),
-                  deleteFunction: (context) => onDelete(index),
-                );
-              },
-            ),
-=======
 
             // Hochzeitsdatum Section
             _buildWeddingDateSection(),
@@ -1216,7 +1142,6 @@ class _ChecklistState extends State<Checklist> with TickerProviderStateMixin {
 
             // Bottom Padding für FloatingActionButton
             const SizedBox(height: 100),
->>>>>>> merge-elena-wazeem
           ],
         ),
       ),
