@@ -6,15 +6,13 @@ class Fotograph extends StatelessWidget {
   Fotograph({super.key});
 
   final List items = FotographCardItems.getCardItems();
-
-  final key = GlobalKey<MenueState>();
-
+  final Key key = GlobalKey<MenueState>();
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: Menue.getInstance(key!),
+        drawer: Menue.getInstance(key),
         appBar: AppBar(
           // automaticallyImplyLeading: false,
           foregroundColor: Color.fromARGB(255, 255, 255, 255),

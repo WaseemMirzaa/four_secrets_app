@@ -22,11 +22,10 @@ class _GaestelistState extends State<Gaestelist> {
   // Firebase references
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final Key key = GlobalKey<MenueState>();
 
   // List to store guests
   List<Map<String, dynamic>> guestList = [];
-
-  final key = GlobalKey<MenueState>();
 
   // Text controller
   final _controller = TextEditingController();
@@ -525,3 +524,21 @@ class _GaestelistState extends State<Gaestelist> {
 }
 
 enum States { takePart, mayBeTakePart, canceled }
+
+// Add this function outside the class to be used with compute()
+// ignore: unused_element
+Future<Map<String, dynamic>> _addGuestInBackground(
+    Map<String, dynamic> params) async {
+  try {
+    // This function runs in a separate isolate
+    return {
+      'success': true,
+      'name': params['name'],
+    };
+  } catch (e) {
+    return {
+      'success': false,
+      'error': e.toString(),
+    };
+  }
+}

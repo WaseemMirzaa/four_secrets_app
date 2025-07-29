@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:four_secrets_wedding_app/constants/app_constants.dart';
 import 'package:pdf/pdf.dart';
@@ -6,7 +5,6 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:http/http.dart' as http;
 
 import 'package:four_secrets_wedding_app/screens/newfeature1/models/wedding_day_schedule_model1.dart';
-import 'package:printing/printing.dart';
 
 /// Helper function to fetch attachment from URL
 Future<Uint8List?> _fetchAttachment(String url) async {

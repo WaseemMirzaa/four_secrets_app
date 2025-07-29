@@ -25,13 +25,13 @@ class ShowroomEvent extends StatelessWidget {
       ? ShowroomEventData.map["videoRatio"]!
       : "";
 
-  final key = GlobalKey<MenueState>();
+  final Key key = GlobalKey<MenueState>();
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: Menue(),
+        drawer: Menue.getInstance(key),
         appBar: AppBar(
           // automaticallyImplyLeading: false,
           foregroundColor: Color.fromARGB(255, 255, 255, 255),
@@ -44,7 +44,7 @@ class ShowroomEvent extends StatelessWidget {
               height: double.infinity,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  opacity: 0.2,
+                  opacity: 0.15,
                   image: AssetImage(
                       "assets/images/background/showroom_event_back.jpg"),
                   fit: BoxFit.cover,
@@ -69,23 +69,23 @@ class ShowroomEvent extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: ExpandableText(
-                        "Das exklusive Showroom Event schafft eine einzigartige "
-                        "Umgebung für kleine Gruppen von 10-15 Teilnehmern, "
-                        "um die besten Hochzeitsdienstleister Münchens hautnah "
-                        "zu erleben. Renommierte Floristen, Fotografen, "
+                        "Willkommen im 4secrets-wedding Showroom München. Hier ist der "
+                        "Treffpunkt für Brautpaare, die ihre Hochzeit stilvoll "
+                        "und mit echten Profis planen möchten. Renommierte "
+                        "Hochzeitsdienstleister, wie z.B. Floristen, Fotografen, "
                         "Hairstylisten oder Entertainer präsentieren sich an "
                         "ausgewählten Tagen. Hier kann man sich von kreativen "
                         "Ideen inspirieren lassen, wie durch atemberaubende "
                         "Blumenarrangements oder innovative Hochzeitsdesigner. "
                         "Dadurch gewinnst du  einen ersten Eindruck für die eigene "
                         "Traumhochzeit. Bei jedem Event sorgt der regelmäßige "
-                        "Wechsel der Aussteller dafür, dass man ständig positive "
-                        "Überraschungen erlebt. Man kann zum Beispiel die "
-                        "Köstlichkeiten talentierter Konditoren probieren oder die "
-                        "Schönheit der Brautkleider bewundern. Diese einzigartige "
-                        "Gelegenheit ermöglicht es, die Vielfalt der Anbieter in "
-                        "der App zu entdecken und vereinfacht die präzise Auswahl "
-                        "für deine eigene Hochzeit.",
+                        "Wechsel, der in der App präsentierten top Dienstleister dafür, "
+                        "dass man positive Überraschungen erlebt. "
+                        "Diese einzigartige Gelegenheit ermöglicht es, "
+                        "die Vielfalt der Anbieter in der App zu entdecken und "
+                        "vereinfacht die präzise Auswahl für deine eigene Hochzeit. "
+                        "Bleibt informiert: folge uns auf Instagram unter @4secrets_wedding, "
+                        "um keine Events und Ankündigungen zu verpassen.",
                         maxLines: 8,
                         expandText: 'show more',
                         collapseText: 'show less',

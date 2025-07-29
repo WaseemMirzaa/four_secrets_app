@@ -19,6 +19,8 @@ class _SwipeableCardTestState extends State<SwipeableCardTest> {
     "assets/images/background/wedding_design_back.jpg",
   ];
 
+  final Key key = GlobalKey<MenueState>();
+
   // Settings for the swipeable card
   String selectedFitMode = "contain";
   bool showIndicators = true;
@@ -29,7 +31,7 @@ class _SwipeableCardTestState extends State<SwipeableCardTest> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: Menue(),
+        drawer: Menue.getInstance(key),
         appBar: AppBar(
           foregroundColor: Colors.white,
           title: const Text('Swipeable Card Test'),
@@ -60,9 +62,9 @@ class _SwipeableCardTestState extends State<SwipeableCardTest> {
                     showSwipeHints: showSwipeHints,
                   ),
                 ),
-                
+
                 FourSecretsDivider(),
-                
+
                 // Controls
                 Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -77,7 +79,7 @@ class _SwipeableCardTestState extends State<SwipeableCardTest> {
                         ),
                       ),
                       SizedBox(height: 16),
-                      
+
                       // Image Fit Mode
                       Text("Image Fit Mode:"),
                       DropdownButton<String>(
@@ -103,7 +105,7 @@ class _SwipeableCardTestState extends State<SwipeableCardTest> {
                         }).toList(),
                       ),
                       SizedBox(height: 16),
-                      
+
                       // Show Indicators
                       Row(
                         children: [
@@ -118,7 +120,7 @@ class _SwipeableCardTestState extends State<SwipeableCardTest> {
                           ),
                         ],
                       ),
-                      
+
                       // Show Swipe Hints
                       Row(
                         children: [
@@ -133,7 +135,7 @@ class _SwipeableCardTestState extends State<SwipeableCardTest> {
                           ),
                         ],
                       ),
-                      
+
                       // Card Height
                       Text("Card Height: ${cardHeight.toInt()}"),
                       Slider(
@@ -150,9 +152,9 @@ class _SwipeableCardTestState extends State<SwipeableCardTest> {
                     ],
                   ),
                 ),
-                
+
                 FourSecretsDivider(),
-                
+
                 // Instructions
                 Padding(
                   padding: const EdgeInsets.all(16.0),

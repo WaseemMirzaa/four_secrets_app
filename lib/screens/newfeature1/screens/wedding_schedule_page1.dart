@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:four_secrets_wedding_app/screens/newfeature1/pdf/share_single_pdf1.dart';
 import 'package:four_secrets_wedding_app/screens/newfeature1/pdf/shcedule_pdf1.dart';
-import 'package:four_secrets_wedding_app/constants/app_constants.dart';
 import 'package:four_secrets_wedding_app/extension.dart';
 import 'package:four_secrets_wedding_app/menue.dart';
 import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';

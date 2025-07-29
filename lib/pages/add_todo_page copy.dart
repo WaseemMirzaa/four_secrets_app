@@ -14,11 +14,6 @@ import 'package:four_secrets_wedding_app/utils/snackbar_helper.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_button_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_dialog.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_text_widget.dart';
-import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
-import 'package:four_secrets_wedding_app/utils/snackbar_helper.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_typeahead/flutter_typeahead.dart';
-import 'package:four_secrets_wedding_app/services/notification_alaram-service.dart';
 
 class AddTodoPage extends StatefulWidget {
   final ToDoModel? toDoModel;
@@ -1202,7 +1197,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
                         reminderIso = reminderDateTime.toIso8601String();
                       }
                       if (widget.toDoModel != null) {
-                        // EDITING EXISTING TODO
+                        // EDITING EXISTING ToDo
                         final updatedTodo = widget.toDoModel!.copyWith(
                           categories: categories,
                           reminder: reminderIso,
@@ -1222,7 +1217,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
                             context, 'Todo erfolgreich aktualisiert');
                         Navigator.of(context).pop(true);
                       } else {
-                        // CREATING NEW TODO
+                        // CREATING NEW ToDo
                         await toDoService.createTodo(
                           categories: categories,
                           reminder: reminderIso,

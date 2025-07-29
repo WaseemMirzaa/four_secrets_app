@@ -6,243 +6,167 @@ import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable
 class Kontakt extends StatelessWidget {
+  UrlEmailInstagram urlEmailInstagram = UrlEmailInstagram();
+
   Kontakt({super.key});
-  var phoneNumber = KontaktData.map["phoneNumber"] != null
-      ? KontaktData.map["phoneNumber"]!
-      : "";
 
-
-
-  // final key = GlobalKey<MenueState>();
-
+  String instagram = KontaktData.map["instagram"] ?? "";
+  String email = KontaktData.map["email"] ?? "";
+  String homepage = KontaktData.map["homepage"] ?? "";
+  final Key key = GlobalKey<MenueState>();
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: Menue(),
+        drawer: Menue.getInstance(key),
         appBar: AppBar(
           foregroundColor: Color.fromARGB(255, 255, 255, 255),
-          // automaticallyImplyLeading: false,
           title: const Text('Kontakt'),
           backgroundColor: Color.fromARGB(255, 107, 69, 106),
         ),
         body: Container(
-          height: double.infinity,
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
           decoration: BoxDecoration(
             image: DecorationImage(
-              opacity: 0.2,
-              image: AssetImage("assets/images/kontakt/kontaktseite.jpg"),
-              fit: BoxFit.cover,
+              image: AssetImage("assets/images/kontakt/kontaktseite.png"),
+              fit: BoxFit.cover, // Füllt den gesamten Hintergrund
             ),
           ),
-          child: SingleChildScrollView(
-            physics: ClampingScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 45),
-                ),
-                Container(
-                  margin: EdgeInsets.symmetric(horizontal: 20),
-                  child: Text(
-                    "Hi, schön von Dir zu hören!",
-                    style: TextStyle(
-                      fontSize: 24,
-                      color: Color.fromARGB(255, 107, 69, 106),
-                    ),
-                  ),
-                ),
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                  child: Column(
+          child: SafeArea(
+            child: Padding(
+              padding: EdgeInsets.all(20.0), // Abstand vom Rand
+              child: Column(
+                crossAxisAlignment:
+                    CrossAxisAlignment.start, // Links ausrichten
+                children: [
+                  // INSTAGRAM
+                  Row(
                     children: [
-                      Row(
-                        children: [
-                          Text(
-                            "HIER FINDEST DU MICH:",
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Color.fromARGB(255, 107, 69, 106),
-                            ),
-                          ),
-                        ],
+                      Icon(
+                        Icons.camera_alt,
+                        color: Color.fromARGB(255, 107, 69, 106),
+                        size: 24,
                       ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(vertical: 10),
-                      ),
-                      Row(
-                        children: [
-                          Text(
-                            "4secrets Studio München",
-                            style: TextStyle(fontSize: 16),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Text(
-                            "Inhaberin & Gründerin: Elena Koller",
-                            style: TextStyle(
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Text(
-                            "Baaderstraße 88",
-                            style: TextStyle(fontSize: 16),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Text(
-                            "80469 München",
-                            style: TextStyle(fontSize: 16),
-                          ),
-                        ],
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(vertical: 1.5),
-                      ),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.phone,
-                          ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 2.5,
-                            ),
-                          ),
-                          Text.rich(
+                      SizedBox(width: 10), // Einheitlicher Abstand
+                      Text.rich(
+                        TextSpan(
+                          children: [
                             TextSpan(
-                              children: [
-                                TextSpan(
-                                  recognizer: TapGestureRecognizer()
-                                    ..onTap = () {
-                                      if (phoneNumber.isNotEmpty) {
-                                        UrlEmailInstagram.openDialPad(
-                                            phoneNumber);
-                                      }
-                                    },
-                                  text: phoneNumber,
-                                  style: TextStyle(fontSize: 16),
-                                ),
-                              ],
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () {
+                                  if (instagram.isNotEmpty) {
+                                    UrlEmailInstagram.getlaunchInstagram(
+                                        url: instagram,
+                                        modeString: "appBrowser");
+                                  }
+                                },
+                              text: "@4secrets_wedding_planner",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black,
+                                shadows: [
+                                  Shadow(
+                                    offset: Offset(1, 1),
+                                    blurRadius: 3,
+                                    color: Colors.black54,
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(vertical: 20),
-                      ),
-                      Row(
-                        children: [
-                          Text(
-                            "UNSERE ÖFFNUNGSZEITEN:",
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Color.fromARGB(255, 107, 69, 106),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(vertical: 10),
-                      ),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              "Dienstag:",
-                              style: TextStyle(fontSize: 16),
-                            ),
-                          ),
-                          Expanded(
-                            child: Text(
-                              "nach Vereinbarung",
-                              style: TextStyle(fontSize: 16),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              "Mittwoch:",
-                              style: TextStyle(fontSize: 16),
-                            ),
-                          ),
-                          Expanded(
-                            child: Text(
-                              "09:00 - 18:00",
-                              style: TextStyle(fontSize: 16),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              "Donnerstag:",
-                              style: TextStyle(fontSize: 16),
-                            ),
-                          ),
-                          Expanded(
-                            child: Text(
-                              "10:00 - 19:00",
-                              style: TextStyle(fontSize: 16),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              "Freitag:",
-                              style: TextStyle(fontSize: 16),
-                            ),
-                          ),
-                          Expanded(
-                            child: Text(
-                              "09:00 - 18:00",
-                              style: TextStyle(fontSize: 16),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              "Samstag:",
-                              style: TextStyle(fontSize: 16),
-                            ),
-                          ),
-                          Expanded(
-                            child: Text(
-                              "09:00 - 14:00",
-                              style: TextStyle(fontSize: 16),
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(bottom: 25),
-                ),
-              ],
+                  SizedBox(
+                      height: 15), // Einheitlicher Abstand zwischen den Zeilen
+
+                  // EMAIL
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.email,
+                        color: Color.fromARGB(255, 107, 69, 106),
+                        size: 24,
+                      ),
+                      SizedBox(width: 10), // Einheitlicher Abstand
+                      Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () {
+                                  if (email.isNotEmpty) {
+                                    UrlEmailInstagram.sendEmail(
+                                        toEmail: email,
+                                        subject: "Kontaktanfrage",
+                                        body: "Hier ihre Nachricht...");
+                                  }
+                                },
+                              text: "4secrets-wedding@gmx.de",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black,
+                                shadows: [
+                                  Shadow(
+                                    offset: Offset(1, 1),
+                                    blurRadius: 3,
+                                    color: Colors.black54,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                      height: 15), // Einheitlicher Abstand zwischen den Zeilen
+
+                  // WEBSITE
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.public,
+                        color: Color.fromARGB(255, 107, 69, 106),
+                        size: 24,
+                      ),
+                      SizedBox(width: 10), // Einheitlicher Abstand
+                      Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () {
+                                  if (homepage.isNotEmpty) {
+                                    UrlEmailInstagram.getLaunchHomepage(
+                                        url: homepage,
+                                        modeString: "appBrowser");
+                                  }
+                                },
+                              text: "www.4secrets-wedding-planner.de",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black,
+                                shadows: [
+                                  Shadow(
+                                    offset: Offset(1, 1),
+                                    blurRadius: 3,
+                                    color: Colors.black54,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),

@@ -1,11 +1,8 @@
-import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:four_secrets_wedding_app/constants/app_constants.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-
 import 'package:four_secrets_wedding_app/models/wedding_day_schedule_model.dart';
-import 'package:printing/printing.dart';
 
 /// Generates a PDF document for a single wedding day schedule.
 /// Takes a single wedding day schedule model and creates a PDF with its details.

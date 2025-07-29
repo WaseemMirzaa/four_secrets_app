@@ -35,34 +35,38 @@ class DialogBox extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 15),
+                padding: const EdgeInsets.symmetric(horizontal: 15),
                 child: TextField(
                   controller: controller,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
                     ),
-                    hintText: "",
-                    fillColor: Color.fromARGB(255, 255, 255, 255),
+                    hintText: _getHintText(),
+                    fillColor: const Color.fromARGB(255, 255, 255, 255),
+                    filled: true,
                   ),
                 ),
               ),
-              // inside there are 2 Buttons
+              // Action buttons row
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // save - button
-                  MyButton(onPressed: onCancel, text: "Stornieren"),
-
-                  const SizedBox(
-                    width: 35,
-                  ),
-                  // cancel button
+                  // Cancel button
                   MyButton(
-                      onPressed: onSave,
-                      textColor: Colors.white,
-                      color: Color.fromARGB(255, 107, 69, 106),
-                      text: "Speichern"),
+                    onPressed: onCancel,
+                    text: "Abbrechen",
+                  ),
+
+                  const SizedBox(width: 35),
+
+                  // Save button with custom styling
+                  MyButton(
+                    onPressed: onSave,
+                    text: "Speichern",
+                    textColor: Colors.white,
+                    color: const Color.fromARGB(255, 107, 69, 106),
+                  ),
                 ],
               ),
             ],
@@ -70,5 +74,18 @@ class DialogBox extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// Returns appropriate hint text based on dialog type
+  String _getHintText() {
+    if (isToDo) {
+      return "Neue Aufgabe eingeben...";
+    } else if (isGuest) {
+      return "Gast hinzufügen...";
+    } else if (isBudget) {
+      return "Budget-Eintrag...";
+    } else {
+      return "Eingabe...";
+    }
   }
 }

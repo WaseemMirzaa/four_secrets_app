@@ -1,5 +1,6 @@
 # Miscellaneous
 *.class
+*.env
 *.log
 *.pyc
 *.swp
@@ -31,12 +32,49 @@ migrate_working_dir/
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
+.packages
+pubspec.lock
 /build/
+
+# Android related
+/android/app/debug/
+/android/app/profile/
+/android/app/release/
 /android/app/build/
-/*.apk
+android/app/build/
+*.apk
+*.aab
+
+# iOS related
 /ios/build/
 /ios/Flutter/.last_build_id
-android/app/build/
+/ios/Runner.xcworkspace/xcuserdata/
+/ios/Runner.xcodeproj/xcuserdata/
+/ios/Flutter/Generated.xcconfig
+/ios/Flutter/Flutter.framework
+/ios/Flutter/Flutter.podspec
+
+# Platform-specific generated files (usually auto-generated)
+/linux/
+/macos/
+/windows/
+/web/
+
+# Firebase related (keep config files but ignore cache)
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+
+# FVM Version Cache
+.fvm/
+
+# Coverage reports
+coverage/
+*.lcov
+
+# Test related
+test/.test_coverage.dart
+test_driver/
 
 # Symbolication related
 app.*.symbols
@@ -44,11 +82,49 @@ app.*.symbols
 # Obfuscation related
 app.*.map.json
 
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
-android/app/build/outputs/apk/debug/app-debug.apk
+# Generated files
+*.g.dart
+*.freezed.dart
+*.chopper.dart
+*.config.dart
 
-# FVM Version Cache
-.fvm/
+# Local development
+.env.local
+.env.development
+.env.production
+
+# Temporary files
+*.tmp
+*.temp
+*~
+
+# Archive files
+*.zip
+*.tar.gz
+*.rar
+
+# Logs
+logs/
+*.log.*
+
+# Database files (if using local databases)
+*.db
+*.sqlite
+*.sqlite3
+
+# Cache directories
+.cache/
+node_modules/
+
+# Flutter Web specific
+web/main.dart.js
+web/main.dart.js.map
+
+# Flutter Desktop specific
+*.exe
+*.dmg
+*.app
+
+# Hive database files (if you want to ignore local DB files)
+*.hive
+*.lock

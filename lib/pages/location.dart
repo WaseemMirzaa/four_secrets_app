@@ -5,15 +5,13 @@ import 'package:four_secrets_wedding_app/menue.dart';
 class Location extends StatelessWidget {
   Location({super.key});
   final List items = LocationCardItems.getCardItems();
-
-
-
+  final Key key = GlobalKey<MenueState>();
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: Menue(),
+        drawer: Menue.getInstance(key),
         appBar: AppBar(
           // automaticallyImplyLeading: false,
           foregroundColor: Color.fromARGB(255, 255, 255, 255),

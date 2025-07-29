@@ -1,8 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:four_secrets_wedding_app/constants/app_constants.dart';
-import 'package:four_secrets_wedding_app/extension.dart';
 import 'package:four_secrets_wedding_app/screens/newfeature1/models/wedding_category_model1.dart';
 import 'package:four_secrets_wedding_app/screens/newfeature1/services/wedidng_category_service1.dart';
 import 'package:four_secrets_wedding_app/utils/snackbar_helper.dart';

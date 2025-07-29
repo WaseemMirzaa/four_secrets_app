@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:four_secrets_wedding_app/models/drawer_model.dart';
@@ -303,12 +302,11 @@ class MenueState extends State<Menue> {
         if (hasNewCollabNotification) {
           print(
               '[Menu Debug] ⚠️ RED DOT IS SHOWING - This means there are matching notifications');
-          // Don't call _testStream() here as it might cause infinite loops
-          // Instead, just log the issue
         } else {
           print(
               '[Menu Debug] ✅ Red dot is NOT showing - No matching notifications');
         }
+
         return Drawer(
           width: 225,
           backgroundColor: Colors.white70,
@@ -417,6 +415,7 @@ class MenueState extends State<Menue> {
                 ),
               ),
 
+              // Dynamic menu items from listDrawerModel
               ...listDrawerModel.map((e) {
                 bool isSelected = _pressedStates[e.name]!;
                 return Card(
@@ -452,7 +451,7 @@ class MenueState extends State<Menue> {
                               _navigateTo(RouteManager.homePage);
                               break;
                             case "Münchner Geheimtipp":
-                              _navigateTo(RouteManager.inspirationsPage);
+                              _navigateTo(RouteManager.muenchnerGeheimtippPage);
                               break;
                             case "Checkliste":
                               _navigateTo(RouteManager.checklistPage);
@@ -474,6 +473,9 @@ class MenueState extends State<Menue> {
                               break;
                             case "Kontakt":
                               _navigateTo(RouteManager.kontakt);
+                              break;
+                            case "KI-Assistent":
+                              _navigateTo(RouteManager.chatbotPage);
                               break;
                             case "Mitgestalter":
                               _navigateTo(RouteManager.collaborationPage);
@@ -532,7 +534,7 @@ class MenueState extends State<Menue> {
                 );
               }),
 
-              // 12. Profil bearbeiten
+              // Profil bearbeiten
               Card(
                 margin:
                     const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 0),
@@ -564,13 +566,15 @@ class MenueState extends State<Menue> {
                   },
                 ),
               ),
+
               const Divider(
                 color: Colors.grey,
                 thickness: 0.5,
                 indent: 8,
                 endIndent: 8,
               ),
-              // 12. Log Out
+
+              // Log Out
               Card(
                 margin:
                     const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 8),

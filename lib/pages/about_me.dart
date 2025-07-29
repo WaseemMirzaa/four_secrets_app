@@ -1,9 +1,6 @@
 import 'dart:async';
 
 import 'package:four_secrets_wedding_app/data/about_me_data.dart';
-import 'package:four_secrets_wedding_app/data/about_me_images.dart';
-import 'package:four_secrets_wedding_app/model/swipeable_card_widget.dart';
-import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
 import 'package:four_secrets_wedding_app/model/url_email_instagram.dart';
 import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
@@ -21,7 +18,8 @@ class AboutMe extends StatefulWidget {
 }
 
 class _AboutMeState extends State<AboutMe> {
-  late List<String> images = AboutMeImages.getImages();
+  final Key key = GlobalKey<MenueState>();
+  int activeIndex = 0;
   String modeUrl = "default";
   var videoAsset = AboutMeData.map["videoAsset"] != null
       ? AboutMeData.map["videoAsset"]!
@@ -47,20 +45,11 @@ class _AboutMeState extends State<AboutMe> {
     fontFamily: 'Horizon',
   );
 
-  TextStyle? _textStyleBlackBold() {
-    return const TextStyle(
-      color: Colors.black,
-      fontWeight: FontWeight.bold,
-    );
-  }
-
   TextStyle? _textStyleBlack() {
     return const TextStyle(
       color: Colors.black,
     );
   }
-
-  final key = GlobalKey<MenueState>();
 
   @override
   Widget build(BuildContext context) {
@@ -69,14 +58,15 @@ class _AboutMeState extends State<AboutMe> {
         drawer: Menue.getInstance(key),
         appBar: AppBar(
           foregroundColor: Color.fromARGB(255, 255, 255, 255),
-          title: const Text('Über mich'),
+          title: const Text('About me'),
           backgroundColor: const Color.fromARGB(255, 107, 69, 106),
         ),
         body: SingleChildScrollView(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(
-                height: 440,
+                height: 860,
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: <Widget>[
@@ -100,7 +90,7 @@ class _AboutMeState extends State<AboutMe> {
                       left: 20,
                       child: Image.asset(
                         'assets/images/about_me/about_me_header.jpg',
-                        height: 150,
+                        height: 158,
                       ),
                     ),
                     Positioned(
@@ -148,71 +138,76 @@ class _AboutMeState extends State<AboutMe> {
                               ),
                             ),
                             Positioned(
-                              top: 65,
-                              left: 8,
-                              right: 8,
-                              child: RichText(
-                                text: TextSpan(
-                                  children: <TextSpan>[
-                                    TextSpan(
-                                      text: 'Die ',
-                                      style: GoogleFonts.openSans(
-                                          color: Colors.black),
+                                top: 65,
+                                left: 4,
+                                right: 2,
+                                child: RichText(
+                                  text: TextSpan(
+                                    style: GoogleFonts.openSans(
+                                      color: Colors.black,
+                                      height: 1.5,
                                     ),
-                                    TextSpan(
-                                      text: 'Gründerin',
-                                      style: GoogleFonts.openSans(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    TextSpan(
-                                      text: ' des ',
-                                      style: _textStyleBlack(),
-                                    ),
-                                    TextSpan(
-                                      text: '4secrets Studios',
-                                      style: _textStyleBlackBold(),
-                                    ),
-                                    TextSpan(
-                                      text: ' in ',
-                                      style: _textStyleBlack(),
-                                    ),
-                                    TextSpan(
-                                      text: 'München',
-                                      style: _textStyleBlackBold(),
-                                    ),
-                                    TextSpan(
-                                      text: ' und der dazugehörigen',
-                                      style: _textStyleBlack(),
-                                    ),
-                                    TextSpan(
-                                      text: ' App.',
-                                      style: _textStyleBlackBold(),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
+                                    children: [
+                                      TextSpan(text: 'Die '),
+                                      TextSpan(
+                                        text: 'Gründerin',
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      TextSpan(text: ' der '),
+                                      TextSpan(
+                                        text: '4secrets-wedding App',
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      TextSpan(text: ' und des '),
+                                      TextSpan(
+                                        text: '4secrets Studios',
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      TextSpan(text: ' in München.'),
+                                    ],
+                                  ),
+                                )),
                           ],
                         ),
                       ),
                     ),
                     Positioned(
-                      top: 178,
+                      top: 195,
                       left: 20,
                       child: Container(
-                        padding: const EdgeInsets.only(right: 20),
+                        padding: const EdgeInsets.only(
+                            left: 5, right: 20, top: 5, bottom: 5),
                         width: 320,
-                        height: 255,
+                        // height: 350,
                         color: Colors.white,
                         child: RichText(
                           text: TextSpan(
-                            children: <TextSpan>[
+                            children: [
                               TextSpan(
                                 text:
-                                    "Mit 19 Jahren Berufserfahrung bin ich eine erfahrene Friseurmeisterin und Make-up Artistin. Im Jahr 2012 eröffnete ich mein erstes Friseur- und Make-up-Studio mit einem klaren Fokus auf Hochzeiten. Ein weiteres Studio folgte 2021 im malerischen Glockenbachviertel in München. Im Verlauf meiner Karriere habe ich mit renommierten Zeitschriften und zahlreichen Fotografen zusammengearbeitet. Mein Studio erhielt in den Jahren 2019 und 2024 Anerkennung",
-                                style:
-                                    GoogleFonts.openSans(color: Colors.black),
+                                    "Wer steckt hinter der 4secrets-wedding App?\n\n",
+                                style: GoogleFonts.openSans(
+                                  color: Colors.black,
+                                ),
+                              ),
+                              TextSpan(
+                                text:
+                                    "Mit über 18 Jahren Berufserfahrung bin ich eine "
+                                    "erfahrene Friseurmeisterin und Make-up Artistin. "
+                                    "Im Jahr 2012 eröffnete ich mein Friseur- "
+                                    "und Make-up-Studio mit einem klaren Fokus auf "
+                                    "Hochzeiten. Heute findet ihr mich "
+                                    "im malerischen Glockenbachviertel in München. "
+                                    "Im Verlauf meiner Karriere habe ich mit renommierten "
+                                    "Zeitschriften und zahlreichen Fotografen zusammengearbeitet. "
+                                    "Mein 4Secrets Studio erhielt schon mehrfach Anerkennung",
+                                style: GoogleFonts.openSans(
+                                  color: Colors.black,
+                                  height: 1.5, // Erhöht den Zeilenabstand
+                                ),
                               ),
                               TextSpan(
                                 text: ' von',
@@ -237,7 +232,7 @@ class _AboutMeState extends State<AboutMe> {
                               ),
                               TextSpan(
                                 text:
-                                    " als eines der 15 besten in Deutschland, Österreich und der Schweiz.",
+                                    " als eines der 15 besten Studios in Deutschland, Österreich und der Schweiz.",
                                 style:
                                     GoogleFonts.openSans(color: Colors.black),
                               ),
@@ -246,45 +241,52 @@ class _AboutMeState extends State<AboutMe> {
                         ),
                       ),
                     ),
+                    Positioned(
+                      top:
+                          520, // Passe diesen Wert ggf. an, damit das Bild direkt unter dem Text erscheint
+                      left: 20,
+                      right: 20,
+                      child: Image.asset(
+                        'assets/images/about_me/about_me_main.jpg',
+                        height: 350,
+                      ),
+                    ),
                   ],
                 ),
               ),
-              FourSecretsDivider(),
-              Column(
-                children: [
-                  SwipeableCardWidget(
-                    images: images,
-                    height: 450,
-                  ),
-                ],
+              SizedBox(
+                height: 15,
               ),
-              FourSecretsDivider(),
-              Row(
-                children: [
-                  Container(
-                    margin: const EdgeInsets.only(
-                      left: 20,
+              Container(
+                width: 320,
+                margin: EdgeInsets.only(left: 20),
+                color: Colors.white,
+                child: Padding(
+                  padding: EdgeInsetsGeometry.all(5),
+                  child: ExpandableText(
+                    "Bereits seit über 15 Jahren begleite ich Paare an einem der wichtigsten Tage ihres Lebens. "
+                    "Ich durfte Freudentränen sehen, Nervosität lindern - und dabei immer wieder "
+                    "hautnah miterleben, wie viel Organisation, Zeit und Stress hinter einer Hochzeit steckt. "
+                    "Eins viel mir dabei besonders auf: Viele Paare verlieren sich in der Planung "
+                    "und vergessen dabei, den Moment zu genießen. "
+                    "Aus dem Wunsch heraus, Brautpaare nicht nur am Hochzeitstag, sondern schon während "
+                    "der gesamten Planung zur Seite zu stehen, entstand 4secrets-wedding App - eine liebevoll gestaltete App, "
+                    "die euch Klarheit, Struktur und Ruhe schenkt. "
+                    "Jede Braut, jede Freundin, jede Begegnung ist für mich mehr als ein Job - "
+                    "es ist Teil einer Herzensgeschichte, die ich mitschreiben darf. ",
+                    maxLines: 3,
+                    expandText: 'show more',
+                    collapseText: 'show less',
+                    collapseOnTextTap: true,
+                    linkStyle: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromARGB(255, 107, 69, 106),
                     ),
-                    width: 320,
-                    color: Colors.white,
-                    padding: const EdgeInsets.only(top: 8, right: 8, bottom: 8),
-                    child: ExpandableText(
-                      "Während ich Brautpaare an ihren besonderen Tagen begleitete, wurde mir die zeitaufwendige Natur der Hochzeitsvorbereitungen bewusst. Diese Erkenntnis inspirierte mich dazu, Brautpaare in diesem Prozess zu unterstützen. Aus dieser Inspiration heraus entstand meine Wedding-Planner-App, die darauf abzielt, einen reibungslosen und harmonischen Ablauf für diesen Tag zu gewährleisten.\n\n" +
-                          "Als erfahrene Hochzeits- und Make-up-Künstlerin halte ich mich kontinuierlich über die aktuellen Trends im Hochzeitsbereich auf dem Laufenden. Meine kreative Gestaltung kennt dabei keine Grenzen, und ich lege besonderen Wert darauf, die Einzigartigkeit jedes Brautpaares in meiner Arbeit zum Ausdruck zu bringen.",
-                      maxLines: 8,
-                      expandText: 'show more',
-                      collapseText: 'show less',
-                      collapseOnTextTap: true,
-                      linkStyle: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Color.fromARGB(255, 107, 69, 106),
-                      ),
-                      animation: true,
-                      animationDuration: Duration(milliseconds: 600),
-                      animationCurve: Curves.easeInOut,
-                    ),
+                    animation: true,
+                    animationDuration: Duration(milliseconds: 600),
+                    animationCurve: Curves.easeInOut,
                   ),
-                ],
+                ),
               ),
               SizedBox(
                 height: 15,
@@ -299,12 +301,17 @@ class _AboutMeState extends State<AboutMe> {
                     ),
                     onPressed: () {
                       if (videoAsset.isNotEmpty || videoUri.isNotEmpty) {
-                        Navigator.of(context).pushNamed(
-                          RouteManager.videoPlayer2,
-                          arguments: {
-                            'asset': videoAsset,
-                            'uri': videoUri,
-                            'ratio': videoRatio,
+                        Timer(
+                          const Duration(milliseconds: 100),
+                          () {
+                            Navigator.of(context).pushNamed(
+                              RouteManager.videoPlayer2,
+                              arguments: {
+                                'asset': videoAsset,
+                                'uri': videoUri,
+                                'ratio': videoRatio,
+                              },
+                            );
                           },
                         );
                       }

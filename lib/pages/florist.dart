@@ -5,21 +5,18 @@ import 'package:four_secrets_wedding_app/menue.dart';
 class Florist extends StatelessWidget {
   Florist({super.key});
   final List items = FloristCardItems.getCardItems();
-
-
-  final key = GlobalKey<MenueState>();
-
+  final Key key = GlobalKey<MenueState>();
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-         backgroundColor: Colors.white,
-        drawer: Menue.getInstance(key!),
+        backgroundColor: Colors.white,
+        drawer: Menue.getInstance(key),
         appBar: AppBar(
           // automaticallyImplyLeading: false,
           foregroundColor: Color.fromARGB(255, 255, 255, 255),
-          title: const Text('Florist(in)'),
+          title: const Text('Floristik'),
           backgroundColor: const Color.fromARGB(255, 107, 69, 106),
         ),
         body: Container(

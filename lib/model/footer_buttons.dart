@@ -2,7 +2,6 @@ import 'package:four_secrets_wedding_app/model/url_email_instagram.dart';
 import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'dart:async';
 
 // ignore: must_be_immutable
 class FooterButtons extends StatelessWidget {

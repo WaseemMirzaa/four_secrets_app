@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:four_secrets_wedding_app/menue.dart';
 import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:four_secrets_wedding_app/services/notificaiton_helper.dart';
-import 'package:four_secrets_wedding_app/widgets/notification_test_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class HomePage extends StatefulWidget {
@@ -97,7 +95,7 @@ class _HomePageState extends State<HomePage> {
                         const Duration(milliseconds: 100),
                         () {
                           Navigator.of(context)
-                              .pushNamed(RouteManager.inspirationsPage);
+                              .pushNamed(RouteManager.muenchnerGeheimtippPage);
                         },
                       );
                     },

@@ -1,10 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:four_secrets_wedding_app/constants/app_constants.dart';
 import 'package:four_secrets_wedding_app/extension.dart';
 import 'package:four_secrets_wedding_app/models/wedding_day_schedule_model.dart';
-import 'package:four_secrets_wedding_app/pages/map_picker_page.dart';
 import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:four_secrets_wedding_app/services/wedding_day_schedule_service.dart';
 import 'package:four_secrets_wedding_app/utils/snackbar_helper.dart';
@@ -13,8 +11,6 @@ import 'package:four_secrets_wedding_app/widgets/custom_text_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/wedding_schedule_page_widget.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_date_picker_field.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 
 class AddWeddingSchedulePage extends StatefulWidget {

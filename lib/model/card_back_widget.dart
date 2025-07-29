@@ -19,21 +19,23 @@ class CardBackWidget extends StatelessWidget {
   var videoRatio;
   final String videoUri;
   var phoneNumber;
+  var slogan;
 
   CardBackWidget(
       {super.key,
       required this.className,
       required this.backCardTaetigkeit,
-      required this.backCardAdress1,
-      required this.backCardAdress2,
       required this.homepage,
       required this.modeString,
       required this.email,
       required this.phoneNumber,
+      required this.slogan,
       required this.instagram,
       required this.videoAsset,
       required this.videoRatio,
-      required this.videoUri});
+      required this.videoUri,
+      this.backCardAdress2,
+      this.backCardAdress1});
 
   // Params for checking, if there are one adress or two
   int amountOfAdress = 0;
@@ -145,6 +147,18 @@ class CardBackWidget extends StatelessWidget {
                       ? CardAdress.twoAdress(backCardTaetigkeit,
                           backCardAdress1, backCardAdress2, phoneNumber)
                       : Text("no adress"),
+            ),
+            Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                    horizontal: 12.0), // Hier kannst du den Wert anpassen
+                child: Text(
+                  "\"" + slogan + "\"",
+                  style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic),
+                  softWrap: true,
+                  textAlign: TextAlign.center,
+                ),
+              ),
             ),
           ],
         ),

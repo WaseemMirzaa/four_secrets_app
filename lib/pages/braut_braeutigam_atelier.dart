@@ -1,33 +1,55 @@
 import 'package:flutter/material.dart';
+import 'package:four_secrets_wedding_app/data/braut_braeutigam_card_items.dart';
 import 'package:four_secrets_wedding_app/menue.dart';
 
 class BrautBraeutigam extends StatefulWidget {
-  const BrautBraeutigam({super.key});
+  BrautBraeutigam({super.key});
 
   @override
   State<BrautBraeutigam> createState() => _BrautBraeutigamState();
 }
 
 class _BrautBraeutigamState extends State<BrautBraeutigam> {
+  final List items = BrautBraeutigamCardItems.getCardItems();
   final key = GlobalKey<MenueState>();
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: Menue(key: key,),
+        drawer: Menue.getInstance(key),
         appBar: AppBar(
-          // automaticallyImplyLeading: false,
-          foregroundColor: Color.fromARGB(255, 255, 255, 255),
-          title: const Text('Braut & Braeutigam Atelier'),
+          foregroundColor: const Color.fromARGB(255, 255, 255, 255),
+          title: const Text(
+            'Braut Atelier',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           backgroundColor: const Color.fromARGB(255, 107, 69, 106),
         ),
-        body: const Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
+        body: Container(
+          height: double.infinity,
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              opacity: 0.4,
+              image: AssetImage(
+                  "assets/images/background/braut_und_braeutigam_back.jpg"),
+              fit: BoxFit.cover,
+            ),
+          ),
+          child: ListView(
+            physics: const ClampingScrollPhysics(),
             children: [
-              Text('Hier entsteht in Kürze eine weiter Seite'),
+              ListView.builder(
+                primary: false, // disable scrolling
+                shrinkWrap: true, // limit height
+                itemCount: items.length,
+                itemBuilder: (context, index) {
+                  return items[index];
+                },
+              ),
             ],
           ),
         ),

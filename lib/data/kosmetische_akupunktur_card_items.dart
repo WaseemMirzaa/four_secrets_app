@@ -13,10 +13,7 @@ class KosmetischeAkupunkturCardItems {
         bezeichnung: KosmetischeAkupunkturCardData.map1['bezeichnung']!,
         backCardTaetigkeit:
             KosmetischeAkupunkturCardData.map1['backCardTaetigkeit']!,
-        backCardAdress1:
-            KosmetischeAkupunkturCardData.map1['backCardAdresse1']!,
-        backCardAdress2:
-            KosmetischeAkupunkturCardData.map1['backCardAdresse2']!,
+        slogan: KosmetischeAkupunkturCardData.map1['slogan']!,
         homepage: KosmetischeAkupunkturCardData.map1['homepage']!,
         email: KosmetischeAkupunkturCardData.map1["email"]!,
         instagram: KosmetischeAkupunkturCardData.map1["instagram"]!,

@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:four_secrets_wedding_app/widgets/auth_background.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:image_cropper/image_cropper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import '../services/auth_service.dart';
 import '../services/image_upload_service.dart';
 import '../widgets/auth_text_field.dart';
@@ -327,6 +325,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
         setState(() => _isUploadingImage = false);
       }
 
+      // Create the user with optional image URL
+      // ignore: unused_local_variable
       final userCredential = await AuthService().signUp(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
