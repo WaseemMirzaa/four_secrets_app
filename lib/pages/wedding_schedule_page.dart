@@ -116,7 +116,9 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
   }
 
   Future<void> _downloadWeddingSchedulePdf() async {
+    
     try {
+
       print('🔵 ===== WEDDING SCHEDULE DOWNLOAD STARTED =====');
 
       // Use the same sorting logic as the main list display
@@ -151,22 +153,28 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
           );
           return aDateTime.compareTo(bDateTime); // Ascending order
         });
+    
         print("🔵 PDF Download: Applied automatic date/time ascending sort");
+    
       }
 
       print('🔵 Schedule list length: ${sortedScheduleList.length}');
 
       print('🔵 Generating PDF bytes...');
+    
       final pdfBytes =
           await generateWeddingSchedulePdfBytes(sortedScheduleList);
+    
       print('🔵 PDF bytes generated: ${pdfBytes.length} bytes');
 
       final filename =
           NativeDownloadService.generateTimestampedFilename('Tagesablauf');
+    
       print('🔵 Generated filename: $filename');
 
       // Use native download service
       print('🔵 Calling native download service...');
+    
       final result = await NativeDownloadService.downloadPdf(
         context: context,
         pdfBytes: pdfBytes,
@@ -198,40 +206,61 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
 
   /// Share PDF file using the share intent
   Future<void> _sharePdfFile(Uint8List pdfBytes, String filename) async {
+    
     try {
+    
       print('🔵 Creating temporary file for sharing...');
 
       // Get temporary directory
+    
       final tempDir = await getTemporaryDirectory();
+    
       final tempFile = File('${tempDir.path}/$filename');
 
       // Write PDF bytes to temporary file
       await tempFile.writeAsBytes(pdfBytes);
+    
       print('🔵 Temporary file created: ${tempFile.path}');
 
       // Share the file using share_plus
       await Share.shareXFiles(
+    
         [XFile(tempFile.path)],
+    
         text: 'Tagesablauf - Hochzeitsplanung',
+    
         subject: 'Tagesablauf PDF',
+    
       );
 
       print('🔵 Share intent triggered successfully');
 
       // Clean up temporary file after a delay to ensure sharing is complete
       Future.delayed(const Duration(seconds: 5), () {
+      
         try {
+    
           if (tempFile.existsSync()) {
+    
             tempFile.deleteSync();
+    
             print('🔵 Temporary file cleaned up');
+    
           }
         } catch (e) {
+    
           print('🔴 Error cleaning up temporary file: $e');
+    
         }
+    
       });
+    
     } catch (e) {
+    
       print('🔴 Error in _sharePdfFile: $e');
+    
       rethrow;
+    
     }
   }
 

@@ -261,23 +261,35 @@ class _ToDoPageState extends State<ToDoPage> {
   }
 
   Future<void> _checkUnreadNotifications() async {
+
     final user = FirebaseAuth.instance.currentUser;
+
     if (user == null) return;
+    
     final fcmToken = await FirebaseMessaging.instance.getToken();
+    
     if (fcmToken == null) return;
+
     final snapshot = await FirebaseFirestore.instance
         .collection('notifications')
         .where('token', isEqualTo: fcmToken)
         .where('read', isEqualTo: false)
         .get();
+    
     print("notifications");
     // Only set to true if there is an unread invitation notification
+    
     final hasInvite = snapshot.docs
         .any((doc) => (doc.data()['data']?['type'] ?? '') == 'invitation');
+    
     setState(() {
+    
       hasNewCollabNotification = hasInvite;
+    
       print(hasNewCollabNotification);
+    
     });
+  
   }
 
   /// Validates email format using regex

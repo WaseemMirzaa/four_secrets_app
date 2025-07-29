@@ -75,9 +75,7 @@ class WeddingCategoryDatabase {
           "items": [
             "Hochzeitstorte anschneiden",
             "Kaffee & Kuchen",
-            "Abendessen / Dinner",
-            "Reden & Ansprachen",
-            "Spiele oder Programmpunkte"
+            "Abendessen / Dinner"
           ]
         },
         {
