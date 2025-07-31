@@ -28,9 +28,11 @@ class CustomTextWidget extends StatelessWidget {
         maxLines: maxLines,
         overflow: overflow,
         style: TextStyle(
+          
             fontSize: fontSize ?? 14,
             fontWeight: fontWeight ?? FontWeight.normal,
             color: color ?? Colors.black,
+            
             decorationColor: Colors.black,
             decorationThickness: 2,
             decoration: decoration));

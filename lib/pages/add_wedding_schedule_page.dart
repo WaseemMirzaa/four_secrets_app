@@ -208,8 +208,9 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: CustomTextWidget(
-                      text: _titleController ?? "",
+                      text: _titleController ?? "Titel auswählen...",
                       fontSize: 16,
+                      color: _titleController == null ? Colors.grey : null,
                     ),
                   ),
                 ),
@@ -220,7 +221,7 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                   label: "Datum",
                   selectedDateText: _selectedEventDateText,
                   onTap: _selectEventDate,
-                  hint: "",
+                  hint: "Datum auswählen",
                 ),
 
                 SpacerWidget(height: 4),
@@ -246,8 +247,10 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                         child: GestureDetector(
                           onTap: _selectEventTime,
                           child: CustomTextWidget(
-                            text: _selectedTimeText ?? "",
+                            text: _selectedTimeText ?? "Uhrzeit auswählen...",
                             fontSize: 16,
+                            color:
+                                _selectedTimeText == null ? Colors.grey : null,
                           ),
                         ),
                       ),
@@ -267,6 +270,7 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                   // label: AppConstants.weddingSchedulePageNotes,
                   text: "Beschreibung/${AppConstants.weddingSchedulePageNotes}",
                   maxLines: 3,
+                  hint: "Details und Hinweise",
                 ),
                 // SpacerWidget(height: 4),
                 // WeddingSchedulePageWidget(
@@ -281,6 +285,7 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                   // label: AppConstants.weddingSchedulePageResponsiblePerson,
                   text: AppConstants.weddingSchedulePageResponsiblePerson,
                   maxLines: 1,
+                  hint: "Z. B. Elena Koller",
                 ),
 
                 SpacerWidget(height: 4),
@@ -306,8 +311,9 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                     children: [
                       Expanded(
                         child: CustomTextWidget(
-                          text: address ?? "",
+                          text: address ?? "Name oder Adresse eingeben",
                           fontSize: 16,
+                          color: address == null ? Colors.grey : null,
                         ),
                       ),
                       IconButton(
@@ -381,14 +387,14 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                     label: AppConstants.weddingSchedulePageReminderDate,
                     selectedDateText: _selectedReminderDateText,
                     onTap: _selectReminderDate,
-                    hint: "Erinnerungsdatum auswählen",
+                    hint: "",
                   ),
                   SpacerWidget(height: 4),
                   CustomTimePickerField(
                     label: AppConstants.weddingSchedulePageReminderTime,
                     selectedTimeText: _selectedReminderText,
                     onTap: _selectReminderTime,
-                    hint: "Erinnerungszeit auswählen",
+                    hint: "",
                   ),
                 ],
 

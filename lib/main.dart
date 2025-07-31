@@ -40,7 +40,7 @@ Future<void> main() async {
           kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity,
       appleProvider: kDebugMode ? AppleProvider.debug : AppleProvider.appAttest,
     );
-    
+
     print('🔥 Firebase initialized successfully');
   } catch (e) {
     debugPrint('❌ Failed to initialize Firebase: $e');
@@ -51,7 +51,7 @@ Future<void> main() async {
     await Hive.initFlutter();
     await Hive.openBox('myboxToDo');
     await Hive.openBox('myboxGuest');
-    
+
     print('💾 Hive initialized successfully');
   } catch (e) {
     debugPrint('❌ Failed to initialize Hive: $e');
@@ -77,6 +77,10 @@ Future<void> main() async {
   try {
     final pushNotificationService = PushNotificationService();
     await pushNotificationService.initialize();
+
+    // Get and save FCM token
+    await pushNotificationService.getFcmTokenAndSaveToFirestore();
+
     print('🔔 PushNotificationService initialized successfully');
   } catch (e) {
     print('❌ PushNotificationService initialization failed: $e');

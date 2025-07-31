@@ -262,7 +262,7 @@ class _AboutMeState extends State<AboutMe> {
                 margin: EdgeInsets.only(left: 20),
                 color: Colors.white,
                 child: Padding(
-                  padding: EdgeInsetsGeometry.all(5),
+                  padding: EdgeInsets.all(5),
                   child: ExpandableText(
                     "Bereits seit über 15 Jahren begleite ich Paare an einem der wichtigsten Tage ihres Lebens. "
                     "Ich durfte Freudentränen sehen, Nervosität lindern - und dabei immer wieder "

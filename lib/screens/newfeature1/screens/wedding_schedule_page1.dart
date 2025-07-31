@@ -48,6 +48,7 @@ class _WeddingSchedulePage1State extends State<WeddingSchedulePage1> {
   /// Checks if items have been manually reordered by looking for
   /// order values that don't match the timestamp-based order
   bool _hasManualReordering(List<WeddingDayScheduleModel1> items) {
+
     if (items.length <= 1) return false;
 
     // Check for problematic order values (all items have the same order)
@@ -60,17 +61,25 @@ class _WeddingSchedulePage1State extends State<WeddingSchedulePage1> {
     // Check if items are using manual ordering (small sequential numbers)
     final hasSmallOrders = items.any((item) => item.order < 1000);
     if (hasSmallOrders) {
+  
       // Verify if this is valid manual ordering (sequential numbers)
+  
       final sortedByOrder = List<WeddingDayScheduleModel1>.from(items)
+  
         ..sort((a, b) => a.order.compareTo(b.order));
 
       // Check if orders are sequential or at least unique
+  
       final orders = sortedByOrder.map((item) => item.order).toList();
+  
       final hasUniqueOrders = orders.toSet().length == orders.length;
 
       if (hasUniqueOrders) {
+  
         print("Valid manual reordering detected (sequential order values)");
+  
         return true;
+  
       }
     }
 
@@ -247,70 +256,96 @@ class _WeddingSchedulePage1State extends State<WeddingSchedulePage1> {
           actions: [
             IconButton(
                 onPressed: () async {
-                  // Use the same sorting logic as the main list display
-                  final sortedScheduleList =
-                      List<WeddingDayScheduleModel1>.from(
-                          weddingDayScheduleService.weddingDayScheduleList);
+                  try {
+                    print('🔵 ===== PDF VIEW STARTED =====');
 
-                  // Check if items have been manually reordered (same logic as service)
-                  final hasManualOrder =
-                      _hasManualReordering(sortedScheduleList);
+                    // Use the same sorting logic as the main list display
+                    final sortedScheduleList =
+                        List<WeddingDayScheduleModel1>.from(
+                            weddingDayScheduleService.weddingDayScheduleList);
 
-                  if (hasManualOrder) {
-                    // Use manual order (sort by order field)
-                    sortedScheduleList
-                        .sort((a, b) => a.order.compareTo(b.order));
+                    // Check if items have been manually reordered (same logic as service)
+                    final hasManualOrder =
+                        _hasManualReordering(sortedScheduleList);
+
+                    if (hasManualOrder) {
+                      // Use manual order (sort by order field)
+                      sortedScheduleList
+                          .sort((a, b) => a.order.compareTo(b.order));
+                      print(
+                          "🔵 PDF View: Using manual order (items have been reordered)");
+                    } else {
+                      // Sort by date/time in ascending order (default behavior)
+                      sortedScheduleList.sort((a, b) {
+                        final aDateTime = DateTime(
+                          a.time.year,
+                          a.time.month,
+                          a.time.day,
+                          a.time.hour,
+                          a.time.minute,
+                        );
+                        final bDateTime = DateTime(
+                          b.time.year,
+                          b.time.month,
+                          b.time.day,
+                          b.time.hour,
+                          b.time.minute,
+                        );
+                        return aDateTime
+                            .compareTo(bDateTime); // Ascending order
+                      });
+                      print(
+                          "🔵 PDF View: Applied automatic date/time ascending sort");
+                    }
+
+                    // Debug: Print order information for PDF view
+                    for (int i = 0; i < sortedScheduleList.length; i++) {
+                      final item = sortedScheduleList[i];
+                      print(
+                          '🔵 PDF View Item $i: "${item.title}" (order: ${item.order})');
+                    }
+
+                    print('🔵 Generating PDF bytes for view...');
+                    // Step 2: Pass it to the PDF generator
+                    final pdfBytes = await generateWeddingSchedulePdfBytes1(
+                        sortedScheduleList);
                     print(
-                        "🔵 PDF View: Using manual order (items have been reordered)");
-                  } else {
-                    // Sort by date/time in ascending order (default behavior)
-                    sortedScheduleList.sort((a, b) {
-                      final aDateTime = DateTime(
-                        a.time.year,
-                        a.time.month,
-                        a.time.day,
-                        a.time.hour,
-                        a.time.minute,
+                        '🔵 PDF bytes generated successfully: ${pdfBytes.length} bytes');
+
+                    if (mounted) {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => PdfViewPage(
+                            pdfBytes: pdfBytes,
+                            title: 'Eigene Dienstleister',
+                          ),
+                        ),
                       );
-                      final bDateTime = DateTime(
-                        b.time.year,
-                        b.time.month,
-                        b.time.day,
-                        b.time.hour,
-                        b.time.minute,
-                      );
-                      return aDateTime.compareTo(bDateTime); // Ascending order
-                    });
-                    print(
-                        "🔵 PDF View: Applied automatic date/time ascending sort");
+                    }
+                  } catch (e) {
+                    print('🔴 Error in PDF view: $e');
+                    print('🔴 Stack trace: ${StackTrace.current}');
+                    if (mounted) {
+                      SnackBarHelper.showErrorSnackBar(
+                          context, 'Fehler beim Anzeigen der PDF: $e');
+                    }
                   }
-
-                  // Debug: Print order information for PDF view
-                  for (int i = 0; i < sortedScheduleList.length; i++) {
-                    final item = sortedScheduleList[i];
-                    print(
-                        '🔵 PDF View Item $i: "${item.title}" (order: ${item.order})');
-                  }
-
-                  // Step 2: Pass it to the PDF generator
-                  final pdfBytes = await generateWeddingSchedulePdfBytes1(
-                      sortedScheduleList);
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => PdfViewPage(
-                        pdfBytes: pdfBytes,
-                        title: 'Eigene Dienstleister',
-                      ),
-                    ),
-                  );
                 },
                 icon: Icon(
                   FontAwesomeIcons.eye,
                   size: 18,
                 )),
             IconButton(
-                onPressed: () {
-                  _downloadWeddingSchedulePdf();
+                onPressed: () async {
+                  try {
+                    await _downloadWeddingSchedulePdf();
+                  } catch (e) {
+                    print('🔴 Error in download button: $e');
+                    if (mounted) {
+                      SnackBarHelper.showErrorSnackBar(
+                          context, 'Fehler beim Herunterladen: $e');
+                    }
+                  }
                 },
                 icon: Icon(
                   FontAwesomeIcons.download,
@@ -413,12 +448,34 @@ class _WeddingSchedulePage1State extends State<WeddingSchedulePage1> {
                                     index: index,
                                     screenWidth: context.screenWidth,
                                     onShare: () async {
-                                      final pdfBytes =
-                                          await generateSingleSchedulePdf1(
-                                              item);
-                                      await Printing.sharePdf(
-                                          bytes: pdfBytes,
-                                          filename: 'Eigene Dienstleister.pdf');
+                                      try {
+                                        print(
+                                            '🔵 ===== SINGLE ITEM SHARE STARTED =====');
+                                        print('🔵 Sharing item: ${item.title}');
+
+                                        final pdfBytes =
+                                            await generateSingleSchedulePdf1(
+                                                item);
+                                        print(
+                                            '🔵 Single PDF bytes generated: ${pdfBytes.length} bytes');
+
+                                        await Printing.sharePdf(
+                                            bytes: pdfBytes,
+                                            filename:
+                                                'Eigene_Dienstleister_${item.title.replaceAll(' ', '_')}.pdf');
+                                        print(
+                                            '🔵 Single item share completed successfully');
+                                      } catch (e) {
+                                        print(
+                                            '🔴 Error sharing single item: $e');
+                                        print(
+                                            '🔴 Stack trace: ${StackTrace.current}');
+                                        if (mounted) {
+                                          SnackBarHelper.showErrorSnackBar(
+                                              context,
+                                              'Fehler beim Teilen: $e');
+                                        }
+                                      }
                                     },
                                     onEdit: () {
                                       Navigator.of(context).pushNamed(

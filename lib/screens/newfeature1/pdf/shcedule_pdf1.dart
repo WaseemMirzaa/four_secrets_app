@@ -36,6 +36,70 @@ bool _isPdfUrl(String url) {
   return url.toLowerCase().contains('.pdf');
 }
 
+/// Helper function to create enhanced PDF attachment widget
+pw.Widget _createPdfAttachmentWidget(
+    Uint8List pdfBytes, String fileName, String fileUrl) {
+  return pw.Container(
+    width: double.infinity,
+    margin: pw.EdgeInsets.symmetric(vertical: 10),
+    padding: pw.EdgeInsets.all(15),
+    decoration: pw.BoxDecoration(
+      border: pw.Border.all(color: PdfColors.blue300),
+      borderRadius: pw.BorderRadius.circular(8),
+      color: PdfColors.blue50,
+    ),
+    child: pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Row(
+          children: [
+            pw.Container(
+              width: 50,
+              height: 50,
+              decoration: pw.BoxDecoration(
+                color: PdfColors.blue,
+                borderRadius: pw.BorderRadius.circular(8),
+              ),
+              child: pw.Center(
+                child: pw.Text('PDF',
+                    style: pw.TextStyle(
+                        fontSize: 14,
+                        fontWeight: pw.FontWeight.bold,
+                        color: PdfColors.white)),
+              ),
+            ),
+            pw.SizedBox(width: 15),
+            pw.Expanded(
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Text('PDF Anhang',
+                      style: pw.TextStyle(
+                          fontSize: 16, fontWeight: pw.FontWeight.bold)),
+                  pw.SizedBox(height: 3),
+                  pw.Text(fileName,
+                      style:
+                          pw.TextStyle(fontSize: 12, color: PdfColors.grey700)),
+                  pw.SizedBox(height: 3),
+                  pw.Text(
+                      'Größe: ${(pdfBytes.length / 1024).toStringAsFixed(1)} KB',
+                      style: pw.TextStyle(fontSize: 10, color: PdfColors.grey)),
+                ],
+              ),
+            ),
+          ],
+        ),
+        pw.SizedBox(height: 10),
+        pw.Text('Download Link:',
+            style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold)),
+        pw.SizedBox(height: 3),
+        pw.Text(fileUrl,
+            style: pw.TextStyle(fontSize: 9, color: PdfColors.blue)),
+      ],
+    ),
+  );
+}
+
 /// Helper function to create consistent header
 pw.Widget _buildHeader(pw.MemoryImage logo) {
   return pw.Container(
@@ -67,6 +131,9 @@ pw.Widget _buildHeader(pw.MemoryImage logo) {
 
 Future<Uint8List> generateWeddingSchedulePdfBytes1(
     List<WeddingDayScheduleModel1> weddingScheduleList) async {
+  print('🔵 ===== MULTI PDF GENERATION STARTED =====');
+  print('🔵 Generating PDF for ${weddingScheduleList.length} items');
+
   final pdf = pw.Document();
   final logoPath = 'assets/images/logo/secrets-logo.jpg';
   final logoClock = 'assets/images/logo/time.png';
@@ -307,68 +374,10 @@ Future<Uint8List> generateWeddingSchedulePdfBytes1(
                           ),
                         )
                       else if (_isPdfUrl(weddingSchedule.angebotFileUrl))
-                        pw.Container(
-                          width: double.infinity,
-                          padding: pw.EdgeInsets.all(15),
-                          decoration: pw.BoxDecoration(
-                            border: pw.Border.all(color: PdfColors.grey300),
-                            borderRadius: pw.BorderRadius.circular(8),
-                          ),
-                          child: pw.Column(
-                            crossAxisAlignment: pw.CrossAxisAlignment.start,
-                            children: [
-                              pw.Row(
-                                children: [
-                                  pw.Container(
-                                    width: 40,
-                                    height: 40,
-                                    decoration: pw.BoxDecoration(
-                                      color: PdfColors.red,
-                                      borderRadius: pw.BorderRadius.circular(4),
-                                    ),
-                                    child: pw.Center(
-                                      child: pw.Text('PDF',
-                                          style: pw.TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: pw.FontWeight.bold,
-                                              color: PdfColors.white)),
-                                    ),
-                                  ),
-                                  pw.SizedBox(width: 10),
-                                  pw.Expanded(
-                                    child: pw.Column(
-                                      crossAxisAlignment:
-                                          pw.CrossAxisAlignment.start,
-                                      children: [
-                                        pw.Text('PDF Dokument',
-                                            style: pw.TextStyle(
-                                                fontSize: 14,
-                                                fontWeight:
-                                                    pw.FontWeight.bold)),
-                                        pw.Text(
-                                            '${weddingSchedule.angebotFileName}',
-                                            style: pw.TextStyle(fontSize: 10)),
-                                        pw.Text(
-                                            'Größe: ${(attachmentBytes.length / 1024).toStringAsFixed(1)} KB',
-                                            style: pw.TextStyle(
-                                                fontSize: 8,
-                                                color: PdfColors.grey)),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              pw.SizedBox(height: 10),
-                              pw.Text('Download Link:',
-                                  style: pw.TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: pw.FontWeight.bold)),
-                              pw.SizedBox(height: 5),
-                              pw.Text('${weddingSchedule.angebotFileUrl}',
-                                  style: pw.TextStyle(
-                                      fontSize: 10, color: PdfColors.blue)),
-                            ],
-                          ),
+                        _createPdfAttachmentWidget(
+                          attachmentBytes,
+                          weddingSchedule.angebotFileName,
+                          weddingSchedule.angebotFileUrl,
                         )
                       else
                         pw.Container(
@@ -463,5 +472,9 @@ Future<Uint8List> generateWeddingSchedulePdfBytes1(
     ),
   );
 
-  return pdf.save();
+  final pdfBytes = await pdf.save();
+  print(
+      '🔵 Multi PDF generation completed successfully: ${pdfBytes.length} bytes');
+  print('🔵 ===== MULTI PDF GENERATION FINISHED =====');
+  return pdfBytes;
 }

@@ -174,7 +174,8 @@ flutter:
     - assets/icons/circle.png
     - assets/icons/square.png
     - assets/icons/rectangle.png
-    - assets/images/background/home_bg.png
+    - assets/icons/person1.png
+
     - assets/images/kontakt/kontaktseite.png
     - assets/images/checklist/checklist.jpg
     - assets/images/divider/wedding_rings.png

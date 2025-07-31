@@ -261,13 +261,12 @@ class _ToDoPageState extends State<ToDoPage> {
   }
 
   Future<void> _checkUnreadNotifications() async {
-
     final user = FirebaseAuth.instance.currentUser;
 
     if (user == null) return;
-    
+
     final fcmToken = await FirebaseMessaging.instance.getToken();
-    
+
     if (fcmToken == null) return;
 
     final snapshot = await FirebaseFirestore.instance
@@ -275,21 +274,18 @@ class _ToDoPageState extends State<ToDoPage> {
         .where('token', isEqualTo: fcmToken)
         .where('read', isEqualTo: false)
         .get();
-    
+
     print("notifications");
     // Only set to true if there is an unread invitation notification
-    
+
     final hasInvite = snapshot.docs
         .any((doc) => (doc.data()['data']?['type'] ?? '') == 'invitation');
-    
+
     setState(() {
-    
       hasNewCollabNotification = hasInvite;
-    
+
       print(hasNewCollabNotification);
-    
     });
-  
   }
 
   /// Validates email format using regex
@@ -310,6 +306,7 @@ class _ToDoPageState extends State<ToDoPage> {
     bool isSendingInvite = false;
     String? currentlyInvitingEmail;
     Set<String> sentInvitations = {}; // Track successfully sent invitations
+
     String? inviteEmai;
     String? errorMessage; // Add error message state
     final currentUser = FirebaseAuth.instance.currentUser;
@@ -981,6 +978,7 @@ class _ToDoPageState extends State<ToDoPage> {
   Widget build(BuildContext context) {
     final myUid = FirebaseAuth.instance.currentUser?.uid;
     final myEmail = FirebaseAuth.instance.currentUser?.email;
+
     return SafeArea(
         child: Scaffold(
             drawer: Menue.getInstance(key),

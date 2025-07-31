@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:four_secrets_wedding_app/model/to_do_model.dart';
 import 'package:four_secrets_wedding_app/services/notification_alaram-service.dart';
+import 'package:four_secrets_wedding_app/services/push_notification_service.dart';
 import 'package:four_secrets_wedding_app/widgets/comment_input_field.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_dialog.dart';
 import 'package:four_secrets_wedding_app/widgets/custom_text_widget.dart';
@@ -216,25 +217,137 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
       final truncatedComment =
           comment.length > 50 ? '${comment.substring(0, 50)}...' : comment;
 
-      // Create notification
-      await FirebaseFirestore.instance.collection('notifications').add({
-        'token': fcmToken,
-        'toEmail': userEmail,
-        'title': 'Neuer Kommentar in $categoryName',
-        'body': '$commenterName: $truncatedComment',
-        'data': {
+      // Send notification via external API
+      final pushService = PushNotificationService();
+      await pushService.sendNotificationByEmail(
+        email: userEmail,
+        title: 'Neuer Kommentar in $categoryName',
+        body: '$commenterName: $truncatedComment',
+        data: {
           'type': 'comment',
           'todoId': widget.collabId,
           'categoryName': categoryName,
           'commenterName': commenterName,
         },
-        'timestamp': FieldValue.serverTimestamp(),
-        'read': false,
-      });
+      );
 
       print('🔔 Notification sent to $userEmail for comment in $categoryName');
     } catch (e) {
       print('🔴 Error sending notification to $userEmail: $e');
+    }
+  }
+
+  // Send notification to a specific user for checkbox changes
+  Future<void> _sendCheckboxNotificationToUser({
+    required String userEmail,
+    required String changerName,
+    required String itemName,
+    required bool isChecked,
+    required String categoryName,
+  }) async {
+    try {
+      // Send notification via external API
+      final action = isChecked ? 'abgehakt' : 'nicht abgehakt';
+      final pushService = PushNotificationService();
+      await pushService.sendNotificationByEmail(
+        email: userEmail,
+        title: 'Aufgabe $action in $categoryName',
+        body: '$changerName hat "$itemName" $action',
+        data: {
+          'type': 'checkbox_change',
+          'todoId': widget.collabId,
+          'categoryName': categoryName,
+          'changerName': changerName,
+          'itemName': itemName,
+          'isChecked': isChecked,
+        },
+      );
+
+      print('🔔 Checkbox notification sent to $userEmail for item: $itemName');
+    } catch (e) {
+      print('🔴 Error sending checkbox notification to $userEmail: $e');
+    }
+  }
+
+  // Send checkbox notifications to all collaborators and owner except the changer
+  Future<void> _sendCheckboxNotifications(
+      String changerName, String itemName, bool isChecked) async {
+    try {
+      // Get category name from document data
+      final todoDoc = await FirebaseFirestore.instance
+          .collection(widget.collectionPath)
+          .doc(widget.collabId)
+          .get();
+
+      if (!todoDoc.exists) {
+        print('🔴 Todo document not found');
+        return;
+      }
+
+      final data = todoDoc.data()!;
+      final categories =
+          List<Map<String, dynamic>>.from(data['categories'] ?? []);
+      final categoryName = categories.isNotEmpty
+          ? (categories.first['categoryName'] ?? 'Todo')
+          : 'Todo';
+
+      // Get current user email
+      final currentUserEmail = FirebaseAuth.instance.currentUser?.email ?? '';
+
+      // Use the already fetched data
+      final ownerEmail = data['ownerEmail'] as String?;
+      final collaborators = List<String>.from(data['collaborators'] ?? []);
+
+      // Create list of users to notify (exclude the changer)
+      final usersToNotify = <String>{};
+
+      // Add owner if different from changer
+      if (ownerEmail != null && ownerEmail != currentUserEmail) {
+        usersToNotify.add(ownerEmail);
+      }
+
+      // Add collaborators (exclude changer)
+      for (final collaborator in collaborators) {
+        if (collaborator != currentUserEmail) {
+          usersToNotify.add(collaborator);
+        }
+      }
+
+      // Send notifications to all relevant users
+      for (final userEmail in usersToNotify) {
+        await _sendCheckboxNotificationToUser(
+          userEmail: userEmail,
+          changerName: changerName,
+          itemName: itemName,
+          isChecked: isChecked,
+          categoryName: categoryName,
+        );
+      }
+
+      print('🔔 Sent checkbox notifications to ${usersToNotify.length} users');
+    } catch (e) {
+      print('🔴 Error sending checkbox notifications: $e');
+    }
+  }
+
+  // Get current user's name
+  Future<String> _getCurrentUserName() async {
+    try {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) return 'Unbekannt';
+
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.uid)
+          .get();
+
+      if (userDoc.exists) {
+        return userDoc.data()?['name'] ?? 'Unbekannt';
+      }
+      return 'Unbekannt';
+    } catch (e) {
+      print('🔴 Error getting current user name: $e');
+      return 'Unbekannt';
     }
   }
 
@@ -1263,6 +1376,19 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                                       'categories': categoriesCopy,
                                       'lastActivityTimestamp': now,
                                     });
+
+                                    // Send push notifications to all collaborators and owner
+                                    final currentUser =
+                                        FirebaseAuth.instance.currentUser;
+                                    if (currentUser != null) {
+                                      final userName =
+                                          await _getCurrentUserName();
+                                      final newIsChecked =
+                                          !(item['isChecked'] ?? false);
+                                      await _sendCheckboxNotifications(
+                                          userName, itemName, newIsChecked);
+                                    }
+
                                     if (mounted) setState(() {});
                                   } catch (e) {
                                     if (context.mounted) {

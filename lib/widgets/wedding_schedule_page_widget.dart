@@ -9,6 +9,7 @@ class WeddingSchedulePageWidget extends StatelessWidget {
   final String? text;
   final int? maxLines;
   final bool isReadOnly;
+  final String? hint;
 
   const WeddingSchedulePageWidget(
       {super.key,
@@ -16,6 +17,7 @@ class WeddingSchedulePageWidget extends StatelessWidget {
       this.isReadOnly = false,
       this.label,
       this.maxLines,
+      this.hint,
       this.text});
 
   @override
@@ -30,9 +32,11 @@ class WeddingSchedulePageWidget extends StatelessWidget {
         SpacerWidget(height: 2),
         CustomTextField(
           controller: titleController,
-          hintStyle: TextStyle(fontSize: 16),
+          hintStyle: TextStyle(color: Colors.grey, fontSize: 16),
           inputDecoration: InputDecoration(
               filled: true,
+              hintText: hint,
+              hintStyle: TextStyle(color: Colors.grey, fontSize: 16),
               fillColor: Colors.grey.withValues(alpha: 0.2),
               border: OutlineInputBorder(
                 borderSide: BorderSide.none,

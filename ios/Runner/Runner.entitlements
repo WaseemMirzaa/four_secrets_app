@@ -14,5 +14,8 @@
 		<string>background-processing</string>
 		<string>remote-notification</string>
 	</array>
+	<!-- Push notifications -->
+	<key>aps-environment</key>
+	<string>development</string>
 </dict>
 </plist>

@@ -471,7 +471,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
                         FontAwesomeIcons.magnifyingGlass,
                         color: Colors.grey.withValues(alpha: 0.8),
                       ),
-                      hintText: "suchen...",
+                      hintText: "Kategorie oder Aufgabe suchen...",
                       fillColor: Colors.grey.withValues(alpha: 0.2),
                       filled: true,
                       suffixIcon: controller.text.isNotEmpty

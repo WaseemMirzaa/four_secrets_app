@@ -52,9 +52,8 @@ class CustomDatePickerField extends StatelessWidget {
                   child: CustomTextWidget(
                     fontSize: 16,
                     text: selectedDateText ?? hint ?? "Datum auswählen",
-                    color: selectedDateText != null
-                        ? Colors.black
-                        : Colors.grey.withValues(alpha: 0.6),
+                    color:
+                        selectedDateText != null ? Colors.black : Colors.grey,
                   ),
                 ),
                 IconButton(
@@ -129,9 +128,8 @@ class CustomTimePickerField extends StatelessWidget {
                   child: CustomTextWidget(
                     fontSize: 16,
                     text: selectedTimeText ?? hint ?? "Zeit auswählen",
-                    color: selectedTimeText != null
-                        ? Colors.black
-                        : Colors.grey.withValues(alpha: 0.6),
+                    color:
+                        selectedTimeText != null ? Colors.black : Colors.grey,
                   ),
                 ),
                 IconButton(

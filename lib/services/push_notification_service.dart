@@ -2,6 +2,21 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Added for shared notification stream
+import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+// Background message handler - must be top-level function
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  print('🔵 FCM Background: Handling background message: ${message.messageId}');
+  print('🔵 FCM Background: Title: ${message.notification?.title}');
+  print('🔵 FCM Background: Body: ${message.notification?.body}');
+  print('🔵 FCM Background: Data: ${message.data}');
+
+  // You can perform background tasks here like updating local database
+  // Note: Don't show notifications here as they're handled automatically by the system
+}
 
 class PushNotificationService {
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
@@ -9,9 +24,19 @@ class PushNotificationService {
   final FlutterLocalNotificationsPlugin _localNotifications =
       FlutterLocalNotificationsPlugin();
 
+  // External notification API endpoint
+  static const String _notificationApiUrl =
+      'http://164.92.175.72:3001/api/notifications/send';
+
   // Initialize the service
   Future<void> initialize() async {
     try {
+      print('🔵 FCM: Starting initialization...');
+
+      // Set background message handler
+      FirebaseMessaging.onBackgroundMessage(
+          _firebaseMessagingBackgroundHandler);
+
       // Initialize local notifications first
       const AndroidInitializationSettings androidSettings =
           AndroidInitializationSettings('notificationicon');
@@ -20,6 +45,10 @@ class PushNotificationService {
         requestAlertPermission: true,
         requestBadgePermission: true,
         requestSoundPermission: true,
+        requestCriticalPermission: true,
+        defaultPresentAlert: true,
+        defaultPresentBadge: true,
+        defaultPresentSound: true,
       );
       const InitializationSettings initSettings = InitializationSettings(
         android: androidSettings,
@@ -67,6 +96,9 @@ class PushNotificationService {
       // Handle incoming messages when app is in foreground
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
         print('🟢 FCM: Received foreground message');
+        print('🟢 FCM: Title: ${message.notification?.title}');
+        print('🟢 FCM: Body: ${message.notification?.body}');
+        print('🟢 FCM: Data: ${message.data}');
         try {
           _showNotification(
             title: message.notification?.title ?? 'New Notification',
@@ -76,6 +108,22 @@ class PushNotificationService {
           print('🔴 FCM: Error showing notification: $e');
         }
       });
+
+      // Handle notification when app is opened from terminated state
+      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+        print('🟢 FCM: App opened from notification');
+        print('🟢 FCM: Message data: ${message.data}');
+        _handleNotificationTap(message);
+      });
+
+      // Check for initial message when app is launched from notification
+      final RemoteMessage? initialMessage =
+          await FirebaseMessaging.instance.getInitialMessage();
+      if (initialMessage != null) {
+        print('🟢 FCM: App launched from notification');
+        print('🟢 FCM: Initial message data: ${initialMessage.data}');
+        _handleNotificationTap(initialMessage);
+      }
 
       print('🟢 FCM: Initialization completed successfully');
     } catch (e) {
@@ -104,6 +152,30 @@ class PushNotificationService {
       print('🟢 FCM: Notification channel created');
     } catch (e) {
       print('🔴 FCM: Error creating notification channel: $e');
+    }
+  }
+
+  // Handle notification tap
+  void _handleNotificationTap(RemoteMessage message) {
+    print('🟢 FCM: Handling notification tap');
+
+    // Extract notification type and data
+    final String? type = message.data['type'];
+    print('🟢 FCM: Notification type: $type');
+
+    // Handle different notification types
+    switch (type) {
+      case 'invitation':
+        print('🟢 FCM: Handling invitation notification');
+        // Navigate to collaboration screen or show invitation dialog
+        break;
+      case 'comment':
+        print('🟢 FCM: Handling comment notification');
+        // Navigate to the specific todo item with comments
+        break;
+      default:
+        print('🟢 FCM: Unknown notification type: $type');
+        break;
     }
   }
 
@@ -140,6 +212,45 @@ class PushNotificationService {
     );
   }
 
+  // Send notification using external API
+  Future<void> _sendNotificationViaAPI({
+    required String fcmToken,
+    required String title,
+    required String body,
+    Map<String, dynamic>? data,
+  }) async {
+    try {
+      print('🔵 Sending notification via external API...');
+      print('🔵 Token: ${fcmToken.substring(0, 20)}...');
+      print('🔵 Title: $title');
+      print('🔵 Body: $body');
+
+      final response = await http.post(
+        Uri.parse(_notificationApiUrl),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          'token': fcmToken,
+          'title': title,
+          'body': body,
+          'data': data ?? {},
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        print('🟢 Notification sent successfully via external API');
+        print('🟢 Response: ${response.body}');
+      } else {
+        print('🔴 Failed to send notification via external API');
+        print('🔴 Status: ${response.statusCode}');
+        print('🔴 Response: ${response.body}');
+      }
+    } catch (e) {
+      print('🔴 Error sending notification via external API: $e');
+    }
+  }
+
   // Send notification to a specific user
   Future<void> sendNotification({
     required String userId,
@@ -158,7 +269,15 @@ class PushNotificationService {
         return;
       }
 
-      // Send the notification using Cloud Functions
+      // Send the notification using external API
+      await _sendNotificationViaAPI(
+        fcmToken: fcmToken,
+        title: title,
+        body: body,
+        data: data,
+      );
+
+      // Also save to Firestore for notification history/tracking
       await _firestore.collection('notifications').add({
         'token': fcmToken,
         'toEmail': email,
@@ -167,6 +286,7 @@ class PushNotificationService {
         'data': data ?? {},
         'timestamp': FieldValue.serverTimestamp(),
         'read': false,
+        'sentViaAPI': true,
       });
     } catch (e) {
       print('Error sending notification: $e');
@@ -258,6 +378,41 @@ class PushNotificationService {
     );
   }
 
+// Get FCM token and save to Firestore
+  Future<String?> getFcmTokenAndSaveToFirestore() async {
+    try {
+      print('🔵 FCM: Getting token and saving to Firestore...');
+
+      // Get the FCM token
+      final fcmToken = await FirebaseMessaging.instance.getToken();
+
+      if (fcmToken != null) {
+        print('🟢 FCM: Token received: ${fcmToken.substring(0, 20)}...');
+
+        // Save token to Firestore for current user
+        final user = FirebaseAuth.instance.currentUser;
+        if (user != null) {
+          await _firestore.collection('users').doc(user.uid).set({
+            'fcmToken': fcmToken,
+            'email': user.email,
+            'lastTokenUpdate': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
+
+          print('🟢 FCM: Token saved to Firestore for user: ${user.email}');
+        } else {
+          print('🟡 FCM: No authenticated user, token not saved to Firestore');
+        }
+      } else {
+        print('🔴 FCM: Token is null');
+      }
+
+      return fcmToken;
+    } catch (e) {
+      print('🔴 FCM: Error getting/saving token: $e');
+      return null;
+    }
+  }
+
 // Alternative method without permission check for debugging
   Future<String?> getFcmTokenDirect() async {
     try {
@@ -303,7 +458,15 @@ class PushNotificationService {
         return;
       }
 
-      // Send the notification using Cloud Functions
+      // Send the notification using external API
+      await _sendNotificationViaAPI(
+        fcmToken: fcmToken,
+        title: title,
+        body: body,
+        data: data,
+      );
+
+      // Also save to Firestore for notification history/tracking
       await _firestore.collection('notifications').add({
         'token': fcmToken,
         'toEmail': email,
@@ -312,6 +475,7 @@ class PushNotificationService {
         'data': data ?? {},
         'timestamp': FieldValue.serverTimestamp(),
         'read': false,
+        'sentViaAPI': true,
       });
     } catch (e) {
       print('Error sending notification by email: $e');
@@ -436,6 +600,41 @@ class PushNotificationService {
       print('[Cleanup] Deleted $deletedCount orphaned notifications');
     } catch (e) {
       print('[Cleanup] Error cleaning up notifications: $e');
+    }
+  }
+
+  // Test notification function
+  Future<void> sendTestNotification() async {
+    try {
+      print('🔵 FCM: Sending test notification...');
+
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        print('🔴 FCM: No authenticated user for test notification');
+        return;
+      }
+
+      // Get current user's FCM token
+      final fcmToken = await FirebaseMessaging.instance.getToken();
+      if (fcmToken == null) {
+        print('🔴 FCM: No FCM token available for test notification');
+        return;
+      }
+
+      // Send test notification directly via external API
+      await _sendNotificationViaAPI(
+        fcmToken: fcmToken,
+        title: '🔥 Firebase Fixed!',
+        body: 'FCM notifications are working again!',
+        data: {
+          'type': 'test',
+          'timestamp': DateTime.now().toIso8601String(),
+        },
+      );
+
+      print('🟢 FCM: Test notification sent successfully via external API');
+    } catch (e) {
+      print('🔴 FCM: Error sending test notification: $e');
     }
   }
 

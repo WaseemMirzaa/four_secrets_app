@@ -436,7 +436,14 @@ class MenueState extends State<Menue> {
                         ),
                         tileColor:
                             isSelected ? Colors.purple[50] : Colors.white,
-                        leading: Icon(e.icon),
+                        leading: e.customIconPath != null
+                            ? Image.asset(
+                                e.customIconPath!,
+                                width: 32,
+                                height: 32,
+                                fit: BoxFit.contain,
+                              )
+                            : Icon(e.icon),
                         title: CustomTextWidget(
                           text: e.name,
                           fontSize: 16,
@@ -453,11 +460,12 @@ class MenueState extends State<Menue> {
                             case "Münchner Geheimtipp":
                               _navigateTo(RouteManager.muenchnerGeheimtippPage);
                               break;
-                            case "Checkliste":
-                              _navigateTo(RouteManager.checklistPage);
-                              break;
                             case "Budget":
                               _navigateTo(RouteManager.budgetPage);
+                              break;
+
+                            case "Checkliste":
+                              _navigateTo(RouteManager.checklistPage);
                               break;
                             case "Gästeliste":
                               _navigateTo(RouteManager.gaestelistPage);

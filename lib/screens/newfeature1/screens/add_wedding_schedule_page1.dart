@@ -674,6 +674,7 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
                     ),
                     child: CustomTextWidget(
                       fontSize: 16,
+                      color: Colors.grey,
                       text: _titleController ?? "Kategorie auswählen",
                     ),
                   ),
@@ -697,9 +698,9 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
                   child: TextField(
                     controller: _dienstleisternameController,
                     decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintText: "Dienstleistername eingeben",
-                    ),
+                        border: InputBorder.none,
+                        hintText: "z.B. DJ Tom",
+                        hintStyle: TextStyle(color: Colors.grey, fontSize: 16)),
                     onChanged: (value) {
                       setState(() {}); // Refresh validation styling
                     },
@@ -715,7 +716,7 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
                   titleController: _kontaktpersonController,
                   text: "Kontaktperson",
                   maxLines: 1,
-                  // fontSize: 16,
+                  hint: "Z.B. Elena Koller",
                 ),
                 SpacerWidget(height: 4),
 
@@ -743,9 +744,10 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
                           controller: _telefonnummerController,
                           keyboardType: TextInputType.phone,
                           decoration: InputDecoration(
-                            border: InputBorder.none,
-                            // hintText: "Telefonnummer eingeben",
-                          ),
+                              border: InputBorder.none,
+                              hintText: "Telefonnummer eingeben",
+                              hintStyle:
+                                  TextStyle(color: Colors.grey, fontSize: 16)),
                           onChanged: (value) {
                             setState(
                                 () {}); // Refresh to show/hide phone icon and validation
@@ -802,7 +804,8 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
                       border: InputBorder.none,
-                      // hintText: "E-Mail-Adresse eingeben",
+                      hintStyle: TextStyle(color: Colors.grey, fontSize: 16),
+                      hintText: "E-Mail-Adresse eingeben",
                     ),
                     onChanged: (value) {
                       setState(() {}); // Refresh validation styling
@@ -844,7 +847,8 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
                     keyboardType: TextInputType.url,
                     decoration: InputDecoration(
                       border: InputBorder.none,
-                      // hintText: "https://www.beispiel.de",
+                      hintStyle: TextStyle(color: Colors.grey, fontSize: 16),
+                      hintText: "https://www.beispiel.de",
                     ),
                     onChanged: (value) {
                       setState(() {}); // Refresh validation styling
@@ -867,6 +871,7 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
                   titleController: _instagramController,
                   text: "Instagram",
                   maxLines: 1,
+                  hint: "@benutzername",
                 ),
 
                 // Event Date Section
@@ -915,7 +920,11 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(
-                          child: CustomTextWidget(text: address ?? ""),
+                          child: CustomTextWidget(
+                            fontSize: 16,
+                            text: address ?? "Name oder Adresse eingeben",
+                            color: address == null ? Colors.grey : null,
+                          ),
                         ),
                         IconButton(
                           onPressed: () async {
@@ -951,8 +960,9 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
                 // Address Details field
                 WeddingSchedulePageWidget(
                   titleController: _addressDetailsController,
-                  text: "Adresse Details",
+                  text: "Adressdetails",
                   maxLines: 2,
+                  hint: "z.B.1. OG, Hintereingang",
                 ),
                 SpacerWidget(height: 4),
 
@@ -962,20 +972,22 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
                   // label: AppConstants.weddingSchedulePageNotes,
                   text: "${AppConstants.weddingSchedulePageNotes}",
                   maxLines: 3,
+                  hint: "Platz für eigene Anmerkungen",
                 ),
                 SpacerWidget(height: 4),
 
                 // Angebot text field
                 WeddingSchedulePageWidget(
                   titleController: _angebotTextController,
-                  text: "Angebot Beschreibung",
+                  text: "Angebot",
                   maxLines: 3,
+                  hint: "Z.B. Trauredner, Band",
                 ),
                 SpacerWidget(height: 4),
 
                 // Angebot file upload
                 CustomTextWidget(
-                  text: "Angebot Datei",
+                  text: "Angebotsdatei",
                   fontSize: 18,
                 ),
                 SpacerWidget(height: 2),
@@ -994,9 +1006,12 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             CustomTextWidget(
+                              color: (_angebotFileName.isEmpty)
+                                  ? Colors.grey
+                                  : Colors.black,
                               fontSize: 16,
                               text: _angebotFileName.isEmpty
-                                  ? "Keine Datei ausgewählt"
+                                  ? "Datei hochladen"
                                   : _angebotFileName,
                             ),
                             if (_angebotFileName.isNotEmpty)
@@ -1097,18 +1112,18 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
                 SpacerWidget(height: 4),
 
                 CustomDatePickerField(
-                  label: "Probetermin Datum",
+                  label: "Probetermin-Datum",
                   selectedDateText: _selectedEventDateText,
                   onTap: _selectEventDate,
                   isRequired: true,
-                  hint: "Probetermin Datum auswählen",
+                  hint: "Tag für z. B. Probestyling",
                 ),
 
                 SpacerWidget(height: 4),
 
                 // Event Time Section
                 CustomTextWidget(
-                  text: "Probetermin ${AppConstants.weddingSchedulePageDate} *",
+                  text: "Probetermin-Uhrzeit *",
                   fontSize: 18,
                 ),
                 SpacerWidget(height: 2),
@@ -1132,8 +1147,11 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
                           child: GestureDetector(
                             onTap: _selectEventTime,
                             child: CustomTextWidget(
-                              text: _selectedTimeText ?? "",
+                              text: _selectedTimeText ?? "Uhrzeit auswählen...",
                               fontSize: 16,
+                              color: _selectedTimeText == null
+                                  ? Colors.grey[600]
+                                  : null,
                             ),
                           ),
                         ),
@@ -1191,14 +1209,14 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
                     label: AppConstants.weddingSchedulePageReminderDate,
                     selectedDateText: _selectedReminderDateText,
                     onTap: _selectReminderDate,
-                    hint: "Erinnerungsdatum auswählen",
+                    hint: "",
                   ),
                   SpacerWidget(height: 4),
                   CustomTimePickerField(
                     label: AppConstants.weddingSchedulePageReminderTime,
                     selectedTimeText: _selectedReminderText,
                     onTap: _selectReminderTime,
-                    hint: "Erinnerungszeit auswählen",
+                    hint: "",
                   ),
                 ],
 

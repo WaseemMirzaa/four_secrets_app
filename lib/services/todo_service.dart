@@ -401,6 +401,106 @@ class TodoService {
         .collection('todos')
         .doc(todoId)
         .update(updatedTodo.toMap());
+
+    // Send push notifications to all collaborators and owner except the commenter
+    await _sendCommentNotifications(todo, userName, comment);
+  }
+
+  // Send comment notifications to all collaborators and owner except the commenter
+  Future<void> _sendCommentNotifications(
+      ToDoModel todo, String commenterName, String comment) async {
+    try {
+      final currentUser = _auth.currentUser;
+      if (currentUser == null) return;
+
+      // Get category name
+      final categoryName = todo.categories?.isNotEmpty == true
+          ? todo.categories!.first['categoryName'] ?? 'Todo'
+          : 'Todo';
+
+      // Collect all users to notify (collaborators + owner, excluding commenter)
+      final usersToNotify = <String>{};
+
+      // Add collaborators
+      for (final collaboratorEmail in todo.collaborators) {
+        if (collaboratorEmail != currentUser.email) {
+          usersToNotify.add(collaboratorEmail);
+        }
+      }
+
+      // Add owner if different from commenter
+      if (todo.ownerEmail != null && todo.ownerEmail != currentUser.email) {
+        usersToNotify.add(todo.ownerEmail!);
+      }
+
+      print('🔔 Sending comment notifications to: $usersToNotify');
+
+      // Send notifications to each user
+      for (final userEmail in usersToNotify) {
+        await _sendCommentNotificationToUser(
+          userEmail: userEmail,
+          commenterName: commenterName,
+          comment: comment,
+          categoryName: categoryName,
+          todoId: todo.id!,
+        );
+      }
+    } catch (e) {
+      print('🔴 Error sending comment notifications: $e');
+    }
+  }
+
+  // Send notification to a specific user for comments
+  Future<void> _sendCommentNotificationToUser({
+    required String userEmail,
+    required String commenterName,
+    required String comment,
+    required String categoryName,
+    required String todoId,
+  }) async {
+    try {
+      // Find user by email to get FCM token
+      final userQuery = await _firestore
+          .collection('users')
+          .where('email', isEqualTo: userEmail)
+          .limit(1)
+          .get();
+
+      if (userQuery.docs.isEmpty) {
+        print('🔴 User not found for email: $userEmail');
+        return;
+      }
+
+      final userDoc = userQuery.docs.first;
+      final fcmToken = userDoc.data()['fcmToken'] as String?;
+
+      if (fcmToken == null) {
+        print('🔴 No FCM token found for user: $userEmail');
+        return;
+      }
+
+      // Truncate comment if too long for notification
+      final truncatedComment =
+          comment.length > 50 ? '${comment.substring(0, 50)}...' : comment;
+
+      // Send notification via external API
+      final pushService = PushNotificationService();
+      await pushService.sendNotificationByEmail(
+        email: userEmail,
+        title: 'Neuer Kommentar in $categoryName',
+        body: '$commenterName: $truncatedComment',
+        data: {
+          'type': 'comment',
+          'todoId': todoId,
+          'categoryName': categoryName,
+          'commenterName': commenterName,
+        },
+      );
+
+      print('🔔 Notification sent to $userEmail for comment in $categoryName');
+    } catch (e) {
+      print('🔴 Error sending notification to $userEmail: $e');
+    }
   }
 
   // Add a collaborator to a todo list

@@ -681,17 +681,16 @@ class CollaborationService {
 
     // Only send notification if inviteeFcmToken is found
     if (inviteeFcmToken != null && inviteeFcmToken.isNotEmpty) {
-      await _firestore.collection('notifications').add({
-        'token': inviteeFcmToken,
-        'toEmail': inviteeEmail,
-        'title': 'Einladung zur Zusammenarbeit',
-        'body':
+      // Send notification via external API
+      final pushService = PushNotificationService();
+      await pushService.sendNotificationByEmail(
+        email: inviteeEmail,
+        title: 'Einladung zur Zusammenarbeit',
+        body:
             '$inviterName hat Sie eingeladen, an folgendem/followenden Element(en) zusammenzuarbeiten: ' +
                 (todoCount == 1 ? todoNames.first : todoNames.join(', ')),
-        'data': {'type': 'invitation', 'toEmail': inviteeEmail},
-        'timestamp': FieldValue.serverTimestamp(),
-        'read': false,
-      });
+        data: {'type': 'invitation', 'toEmail': inviteeEmail},
+      );
     } else {
       print(
           'No FCM token found for invitee $inviteeEmail, notification not sent.');
