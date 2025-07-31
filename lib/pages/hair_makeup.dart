@@ -104,7 +104,7 @@ class HairMakeUp extends StatelessWidget {
                     padding: const EdgeInsets.only(top: 12.0),
                     child: SwipeableCardWidget(
                       images: images,
-                      height: 450,
+                      height: 430,
                     ),
                   ),
 

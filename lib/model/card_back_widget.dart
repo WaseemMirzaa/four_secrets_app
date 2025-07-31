@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 class CardBackWidget extends StatelessWidget {
   Object className;
 
-  final backCardAdress2;
-  final backCardAdress1;
+  final String? backCardAdress2;
+  final String? backCardAdress1;
   final backCardTaetigkeit;
   final homepage;
   var modeString;
@@ -42,9 +42,14 @@ class CardBackWidget extends StatelessWidget {
 
   // Check Amount of adresses
   int chooseAmountOfAdress() {
-    if (backCardAdress1.isNotEmpty && backCardAdress2.isEmpty) {
+    if (backCardAdress1 != null &&
+        backCardAdress1!.isNotEmpty &&
+        (backCardAdress2 == null || backCardAdress2!.isEmpty)) {
       return 1;
-    } else if (backCardAdress1.isNotEmpty && backCardAdress2.isNotEmpty) {
+    } else if (backCardAdress1 != null &&
+        backCardAdress1!.isNotEmpty &&
+        backCardAdress2 != null &&
+        backCardAdress2!.isNotEmpty) {
       return 2;
     }
     return 0;
@@ -75,11 +80,11 @@ class CardBackWidget extends StatelessWidget {
             Center(
               child: chooseAmountOfAdress() == 1
                   ? CardAdress.oneAdress(
-                      backCardTaetigkeit, backCardAdress1, phoneNumber)
+                      backCardTaetigkeit, backCardAdress1!, phoneNumber)
                   : chooseAmountOfAdress() == 2
                       ? CardAdress.twoAdress(backCardTaetigkeit,
-                          backCardAdress1, backCardAdress2, phoneNumber)
-                      : Text("no adress"),
+                          backCardAdress1!, backCardAdress2!, phoneNumber)
+                      : Text(''),
             ),
             Align(
               alignment: Alignment.bottomCenter,
@@ -138,15 +143,6 @@ class CardBackWidget extends StatelessWidget {
                       blurStyle: BlurStyle.normal)
                 ],
               ),
-            ),
-            Center(
-              child: chooseAmountOfAdress() == 1
-                  ? CardAdress.oneAdress(
-                      backCardTaetigkeit, backCardAdress1, phoneNumber)
-                  : chooseAmountOfAdress() == 2
-                      ? CardAdress.twoAdress(backCardTaetigkeit,
-                          backCardAdress1, backCardAdress2, phoneNumber)
-                      : Text("no adress"),
             ),
             Center(
               child: Padding(

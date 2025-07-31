@@ -13,7 +13,7 @@ class SwipeableCardWidget extends StatefulWidget {
     super.key,
     required this.images,
     required this.height,
-    this.imageFit = "contain", // Default to contain to prevent cropping
+    this.imageFit = "cover", // Default to cover to fill card shape
     this.showIndicators = true,
     this.showSwipeHints = true,
   });
@@ -171,30 +171,32 @@ class _SwipeableCardWidgetState extends State<SwipeableCardWidget>
   Widget buildImage(
       BuildContext context, String image, int index, String mode) {
     return Container(
-      width: MediaQuery.of(context).size.width,
-      margin: const EdgeInsets.symmetric(horizontal: 5),
+      width: double.infinity,
+      height: double.infinity,
       decoration: BoxDecoration(
         color: Colors.grey[100], // Background color for loading
         borderRadius: BorderRadius.circular(20),
       ),
-      child: ClipRRect(
-        borderRadius:
-            BorderRadius.circular(20), // Fixed: Enable rounded corners
-        child: Image.asset(
-          image,
-          fit: _BoxFitMode(mode),
-          filterQuality: FilterQuality.medium,
-          errorBuilder: (context, error, stackTrace) {
-            return Container(
+      child: Image.asset(
+        image,
+        fit: _BoxFitMode(mode) ??
+            BoxFit.cover, // Use the mode parameter and default to cover
+        width: double.infinity,
+        height: double.infinity,
+        filterQuality: FilterQuality.medium,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            decoration: BoxDecoration(
               color: Colors.grey[300],
-              child: Icon(
-                Icons.broken_image,
-                color: Colors.grey[600],
-                size: 50,
-              ),
-            );
-          },
-        ),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Icon(
+              Icons.broken_image,
+              color: Colors.grey[600],
+              size: 50,
+            ),
+          );
+        },
       ),
     );
   }
@@ -422,32 +424,32 @@ class _SwipeableCardWidgetState extends State<SwipeableCardWidget>
             ),
 
           // Swipe instruction hint (only shown for the top card when not swiping)
-          if (widget.showSwipeHints &&
-              widget.images.length > 1 &&
-              index == 0 &&
-              swipeProgress < 0.1)
-            Positioned(
-              bottom: widget.showIndicators ? 30 : 10,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Text(
-                    "← Swipe →",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            ),
+          // if (widget.showSwipeHints &&
+          //     widget.images.length > 1 &&
+          //     index == 0 &&
+          //     swipeProgress < 0.1)
+            // Positioned(
+            //   bottom: widget.showIndicators ? 30 : 10,
+            //   left: 0,
+            //   right: 0,
+            //   child: Center(
+            //     child: Container(
+            //       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            //       decoration: BoxDecoration(
+            //         color: Colors.black.withValues(alpha: 0.5),
+            //         borderRadius: BorderRadius.circular(15),
+            //       ),
+            //       child: Text(
+            //         "← Swipe →",
+            //         style: TextStyle(
+            //           color: Colors.white,
+            //           fontSize: 12,
+            //           fontWeight: FontWeight.bold,
+            //         ),
+            //       ),
+            //     ),
+            //   ),
+            // ),
         ],
       ),
     );

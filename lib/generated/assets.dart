@@ -85,9 +85,9 @@ class Assets {
   static const String hairMakeupHairMakeup10 = 'assets/images/hair_makeup/hair_makeup_10.jpg';
   static const String hairMakeupHairMakeup11 = 'assets/images/hair_makeup/hair_makeup_11.jpg';
   static const String hairMakeupHairMakeup12 = 'assets/images/hair_makeup/hair_makeup_12.jpg';
-  static const String hairMakeupHairMakeup13 = 'assets/images/hair_makeup/hair_makeup_13.jpg';
-  static const String hairMakeupHairMakeup14 = 'assets/images/hair_makeup/hair_makeup_14.jpg';
-  static const String hairMakeupHairMakeup15 = 'assets/images/hair_makeup/hair_makeup_15.jpg';
+  // static const String hairMakeupHairMakeup13 = 'assets/images/hair_makeup/hair_makeup_13.jpg';
+  // static const String hairMakeupHairMakeup14 = 'assets/images/hair_makeup/hair_makeup_14.jpg';
+  // static const String hairMakeupHairMakeup15 = 'assets/images/hair_makeup/hair_makeup_15.jpg';
   static const String hairMakeupHairMakeup2 = 'assets/images/hair_makeup/hair_makeup_2.jpg';
   static const String hairMakeupHairMakeup3 = 'assets/images/hair_makeup/hair_makeup_3.jpg';
   static const String hairMakeupHairMakeup4 = 'assets/images/hair_makeup/hair_makeup_4.jpg';
