@@ -234,7 +234,7 @@ class PushNotificationService {
           'token': fcmToken,
           'title': title,
           'body': body,
-          'data': data ?? {},
+          'data': '',
         }),
       );
 

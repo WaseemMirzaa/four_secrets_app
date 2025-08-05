@@ -1,5 +1,5 @@
 ================================================================================
-4 SECRETS WEDDING - FIREBASE CLOUD FUNCTIONS CURL COMMANDS
+4secrets - Wedding Planner - FIREBASE CLOUD FUNCTIONS CURL COMMANDS
 ================================================================================
 
 🔗 Base URL: https://us-central1-secrets-wedding.cloudfunctions.net/emailService
@@ -88,13 +88,13 @@ curl -X POST https://us-central1-secrets-wedding.cloudfunctions.net/emailService
 # Send invitation from mobile app
 curl -X POST https://us-central1-secrets-wedding.cloudfunctions.net/emailService/api/email/send-invitation \
   -H "Content-Type: application/json" \
-  -H "User-Agent: 4SecretsWeddingApp/1.0" \
+  -H "User-Agent: 4secrets-WeddingPlanner/1.0" \
   -d '{"email": "friend@example.com", "inviterName": "Mobile User"}'
 
 # Send custom message from app
 curl -X POST https://us-central1-secrets-wedding.cloudfunctions.net/emailService/api/email/send-custom \
   -H "Content-Type: application/json" \
-  -H "User-Agent: 4SecretsWeddingApp/1.0" \
+  -H "User-Agent: 4secrets-WeddingPlanner/1.0" \
   -d '{"email": "support@example.com", "subject": "App Feedback", "message": "Great app! Love the wedding planning features."}'
 
 ================================================================================

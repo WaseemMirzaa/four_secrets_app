@@ -580,7 +580,7 @@ class _CollaborationScreenState extends State<CollaborationScreen>
                                         CrossAxisAlignment.start,
                                     children: [
                                       CustomTextWidget(
-                                        text: 'Eingeladene von: '
+                                        text: 'Eingeladen von: '
                                             '${invite['inviterName'] ?? invite['inviterEmail'] ?? 'Unbekannt'}',
                                         color: Colors.black,
                                       ),

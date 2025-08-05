@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:four_secrets_wedding_app/constants/app_constants.dart';
 import 'package:four_secrets_wedding_app/extension.dart';
 import 'package:four_secrets_wedding_app/screens/newfeature1/models/wedding_day_schedule_model1.dart';
 import 'package:four_secrets_wedding_app/screens/newfeature1/services/file_upload_service1.dart';
@@ -456,7 +457,7 @@ class _SwipeableItemWidget1State extends State<SlidableItemWidget1> {
           Row(
             children: [
               CustomTextWidget(
-                text: 'Kategorie: ',
+                text: '${AppConstants.kategorie}: ',
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
               ),
@@ -613,7 +614,7 @@ class _SwipeableItemWidget1State extends State<SlidableItemWidget1> {
           // Address Details
           if (widget.item.addressDetails.isNotEmpty) ...[
             CustomTextWidget(
-              text: "Adresse Details",
+              text: "Adressdetails",
               fontSize: 14,
               fontWeight: FontWeight.bold,
             ),
@@ -717,7 +718,7 @@ class _SwipeableItemWidget1State extends State<SlidableItemWidget1> {
           // Angebot Text
           if (widget.item.angebotText.isNotEmpty) ...[
             CustomTextWidget(
-              text: "Angebot Beschreibung",
+              text: "Angebot",
               fontSize: 14,
               fontWeight: FontWeight.bold,
             ),
@@ -740,7 +741,7 @@ class _SwipeableItemWidget1State extends State<SlidableItemWidget1> {
           if (widget.item.angebotFileUrl.isNotEmpty &&
               widget.item.angebotFileName.isNotEmpty) ...[
             CustomTextWidget(
-              text: "Angebot Datei",
+              text: "Angebotsdatei",
               fontSize: 14,
               fontWeight: FontWeight.bold,
             ),

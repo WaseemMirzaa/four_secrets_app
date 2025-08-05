@@ -142,26 +142,59 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
   }
 
   Future<void> _selectEventDate() async {
-    final DateTime now = DateTime.now();
-    final DateTime today = DateTime(now.year, now.month, now.day);
+    try {
+      print('🔵 _selectEventDate called');
+      final DateTime now = DateTime.now();
+      final DateTime today = DateTime(now.year, now.month, now.day);
 
-    final DateTime? picked = await showDatePicker(
-      context: context,
+      // Ensure initialDate is not before firstDate
+      final DateTime initialDate = _selectedEventDate != null &&
+              _selectedEventDate!.isAfter(today.subtract(Duration(days: 1)))
+          ? _selectedEventDate!
+          : today;
 
-      initialDate: _selectedEventDate ?? today,
-      firstDate: today, // Prevent selecting past dates
-      lastDate: DateTime(2030),
-    );
-    if (picked != null && picked != _selectedEventDate) {
-      setState(() {
-        _selectedEventDate = picked;
-        _selectedEventDateText = "${picked.day}/${picked.month}/${picked.year}";
-      });
+      final DateTime? picked = await showDatePicker(
+        context: context,
+        initialDate: initialDate,
+        firstDate: today, // Prevent selecting past dates
+        lastDate: DateTime(2030),
+        helpText: 'Select Appointment Date',
+        cancelText: 'Cancel',
+        confirmText: 'OK',
+        fieldHintText: 'dd/mm/yyyy',
+        fieldLabelText: 'Enter date',
+        errorFormatText: 'Invalid date format',
+        errorInvalidText: 'Invalid date',
+        builder: (context, child) {
+          return Theme(
+            data: Theme.of(context).copyWith(
+              colorScheme: Theme.of(context).colorScheme.copyWith(
+                    primary: const Color.fromARGB(255, 107, 69, 106),
+                  ),
+            ),
+            child: child!,
+          );
+        },
+      );
 
-      // Validate if both date and time are selected
-      if (_selectedTime != null) {
-        _validateEventDateTime();
+      print('🔵 Date picker result: $picked');
+
+      if (picked != null && picked != _selectedEventDate) {
+        setState(() {
+          _selectedEventDate = picked;
+          _selectedEventDateText =
+              "${picked.day}/${picked.month}/${picked.year}";
+        });
+
+        print('🔵 Date updated: $_selectedEventDateText');
+
+        // Validate if both date and time are selected
+        if (_selectedTime != null) {
+          _validateEventDateTime();
+        }
       }
+    } catch (e) {
+      print('🔴 Error in _selectEventDate: $e');
     }
   }
 
@@ -699,7 +732,7 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
                     controller: _dienstleisternameController,
                     decoration: InputDecoration(
                         border: InputBorder.none,
-                        hintText: "z.B. DJ Tom",
+                        hintText: "z. B. DJ Tom",
                         hintStyle: TextStyle(color: Colors.grey, fontSize: 16)),
                     onChanged: (value) {
                       setState(() {}); // Refresh validation styling
@@ -716,7 +749,7 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
                   titleController: _kontaktpersonController,
                   text: "Kontaktperson",
                   maxLines: 1,
-                  hint: "Z.B. Elena Koller",
+                  hint: "z. B. Elena Koller",
                 ),
                 SpacerWidget(height: 4),
 
@@ -962,7 +995,7 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
                   titleController: _addressDetailsController,
                   text: "Adressdetails",
                   maxLines: 2,
-                  hint: "z.B.1. OG, Hintereingang",
+                  hint: "z. B.1. OG, Hintereingang",
                 ),
                 SpacerWidget(height: 4),
 
@@ -981,7 +1014,7 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
                   titleController: _angebotTextController,
                   text: "Angebot",
                   maxLines: 3,
-                  hint: "Z.B. Trauredner, Band",
+                  hint: "z. B. Trauredner, Band",
                 ),
                 SpacerWidget(height: 4),
 

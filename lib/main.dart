@@ -112,7 +112,7 @@ Future<void> main() async {
 
   runApp(
     MaterialApp(
-      title: '4 Secrets Wedding Planer',
+      title: '4secrets - Wedding Planner',
       theme: ThemeData(
         textTheme: GoogleFonts.openSansTextTheme(),
       ),

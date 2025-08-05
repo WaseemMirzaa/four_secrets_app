@@ -48,7 +48,6 @@ class _WeddingSchedulePage1State extends State<WeddingSchedulePage1> {
   /// Checks if items have been manually reordered by looking for
   /// order values that don't match the timestamp-based order
   bool _hasManualReordering(List<WeddingDayScheduleModel1> items) {
-
     if (items.length <= 1) return false;
 
     // Check for problematic order values (all items have the same order)
@@ -61,25 +60,21 @@ class _WeddingSchedulePage1State extends State<WeddingSchedulePage1> {
     // Check if items are using manual ordering (small sequential numbers)
     final hasSmallOrders = items.any((item) => item.order < 1000);
     if (hasSmallOrders) {
-  
       // Verify if this is valid manual ordering (sequential numbers)
-  
+
       final sortedByOrder = List<WeddingDayScheduleModel1>.from(items)
-  
         ..sort((a, b) => a.order.compareTo(b.order));
 
       // Check if orders are sequential or at least unique
-  
+
       final orders = sortedByOrder.map((item) => item.order).toList();
-  
+
       final hasUniqueOrders = orders.toSet().length == orders.length;
 
       if (hasUniqueOrders) {
-  
         print("Valid manual reordering detected (sequential order values)");
-  
+
         return true;
-  
       }
     }
 
@@ -219,7 +214,7 @@ class _WeddingSchedulePage1State extends State<WeddingSchedulePage1> {
       // Share the file using share_plus
       await Share.shareXFiles(
         [XFile(tempFile.path)],
-        text: 'Eigene Dienstleister - Hochzeitsplanung',
+        text: 'Eigene Dienstleister - 4secrets Wedding Planner',
         subject: 'Eigene Dienstleister PDF',
       );
 

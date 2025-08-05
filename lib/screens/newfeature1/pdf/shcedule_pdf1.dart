@@ -290,7 +290,7 @@ Future<Uint8List> generateWeddingSchedulePdfBytes1(
                   ],
                   if (weddingSchedule.addressDetails.isNotEmpty) ...[
                     pw.SizedBox(height: 10),
-                    pw.Text('Adresse Details',
+                    pw.Text('Adressdetails',
                         style: pw.TextStyle(
                             fontSize: 18, fontWeight: pw.FontWeight.bold)),
                     pw.SizedBox(height: 5),
@@ -298,7 +298,7 @@ Future<Uint8List> generateWeddingSchedulePdfBytes1(
                   ],
                   if (weddingSchedule.angebotText.isNotEmpty) ...[
                     pw.SizedBox(height: 10),
-                    pw.Text('Angebot Beschreibung',
+                    pw.Text('Angebot',
                         style: pw.TextStyle(
                             fontSize: 18, fontWeight: pw.FontWeight.bold)),
                     pw.SizedBox(height: 5),
@@ -306,7 +306,7 @@ Future<Uint8List> generateWeddingSchedulePdfBytes1(
                   ],
                   if (weddingSchedule.angebotFileName.isNotEmpty) ...[
                     pw.SizedBox(height: 10),
-                    pw.Text('Angebot Datei',
+                    pw.Text('Angebotsdatei',
                         style: pw.TextStyle(
                             fontSize: 18, fontWeight: pw.FontWeight.bold)),
                     pw.SizedBox(height: 5),

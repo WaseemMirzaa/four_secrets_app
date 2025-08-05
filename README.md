@@ -1,6 +1,6 @@
-# four_secrets_wedding_app
+# 4secrets - Wedding Planner
 
-A new Flutter project.
+A comprehensive Flutter wedding planning application.
 
 ## Getting Started
 

@@ -1246,58 +1246,58 @@ class _ToDoPageState extends State<ToDoPage> {
                         ],
                       )
                     else
-                      SpacerWidget(height: 2),
-                    // FourSecretsDivider(),
-                    ...toDoList.entries.map((entry) {
-                      String todoId = entry.key;
-                      ToDoModel? todoModel;
-                      for (final todo in listToDoModel) {
-                        if ((todo.id ?? '') == todoId) {
-                          todoModel = todo;
-                          break;
+                      // SpacerWidget(height: 2),
+                      // FourSecretsDivider(),
+                      ...toDoList.entries.map((entry) {
+                        String todoId = entry.key;
+                        ToDoModel? todoModel;
+                        for (final todo in listToDoModel) {
+                          if ((todo.id ?? '') == todoId) {
+                            todoModel = todo;
+                            break;
+                          }
                         }
-                      }
-                      if (todoModel == null) return SizedBox();
-                      String toDoName = todoModel.toDoName ?? '';
-                      String displayName = toDoName.isNotEmpty
-                          ? toDoName
-                          : (todoModel.categories != null &&
-                                  todoModel.categories!.isNotEmpty &&
-                                  (todoModel.categories![0]['categoryName']
-                                          ?.toString()
-                                          .isNotEmpty ??
-                                      false)
-                              ? todoModel.categories![0]['categoryName']
-                              : '');
-                      List<Map<String, dynamic>> itemsToDo =
-                          todoModel.toDoItems ?? [];
-                      int index =
-                          listToDoModel.indexWhere((todo) => todo.id == todoId);
-                      if (index == -1) index = 0;
-                      final isOwner = todoModel.userId == myUid;
-                      // NEW LOGIC: For invitation-based system, if todo is in our shared list, we can interact
-                      final isSharedWithMe =
-                          !isOwner; // If not owner and in our list, it's shared with us
-                      // final canComment = isOwner || isSharedWithMe;
-                      // final canEdit = isOwner || isSharedWithMe;
-                      // Use correct collectionPath for owned or shared todos
-                      final collectionPath = isOwner
-                          ? 'users/$myUid/todos'
-                          : 'users/${todoModel.userId}/todos';
-                      // Show tag: 'Owned' for owner, 'Shared by' for collaborator
-                      return CollaborationTodoTile(
-                        collabId: todoModel.id ?? '',
-                        color: Colors.grey.withAlpha(30),
-                        labelColor:
-                            Color.fromARGB(255, 107, 69, 106).withAlpha(200),
-                        labelTextColor: Colors.white,
-                        checkboxColor: Color.fromARGB(255, 107, 69, 106),
-                        avatarColor:
-                            Color.fromARGB(255, 107, 69, 106).withAlpha(100),
-                        collectionPath: collectionPath,
-                        showTag: isOwner || isSharedWithMe,
-                      );
-                    }).toList(),
+                        if (todoModel == null) return SizedBox();
+                        String toDoName = todoModel.toDoName ?? '';
+                        String displayName = toDoName.isNotEmpty
+                            ? toDoName
+                            : (todoModel.categories != null &&
+                                    todoModel.categories!.isNotEmpty &&
+                                    (todoModel.categories![0]['categoryName']
+                                            ?.toString()
+                                            .isNotEmpty ??
+                                        false)
+                                ? todoModel.categories![0]['categoryName']
+                                : '');
+                        List<Map<String, dynamic>> itemsToDo =
+                            todoModel.toDoItems ?? [];
+                        int index = listToDoModel
+                            .indexWhere((todo) => todo.id == todoId);
+                        if (index == -1) index = 0;
+                        final isOwner = todoModel.userId == myUid;
+                        // NEW LOGIC: For invitation-based system, if todo is in our shared list, we can interact
+                        final isSharedWithMe =
+                            !isOwner; // If not owner and in our list, it's shared with us
+                        // final canComment = isOwner || isSharedWithMe;
+                        // final canEdit = isOwner || isSharedWithMe;
+                        // Use correct collectionPath for owned or shared todos
+                        final collectionPath = isOwner
+                            ? 'users/$myUid/todos'
+                            : 'users/${todoModel.userId}/todos';
+                        // Show tag: 'Owned' for owner, 'Shared by' for collaborator
+                        return CollaborationTodoTile(
+                          collabId: todoModel.id ?? '',
+                          color: Colors.grey.withAlpha(30),
+                          labelColor:
+                              Color.fromARGB(255, 107, 69, 106).withAlpha(200),
+                          labelTextColor: Colors.white,
+                          checkboxColor: Color.fromARGB(255, 107, 69, 106),
+                          avatarColor:
+                              Color.fromARGB(255, 107, 69, 106).withAlpha(100),
+                          collectionPath: collectionPath,
+                          showTag: isOwner || isSharedWithMe,
+                        );
+                      }).toList(),
                     SpacerWidget(height: 1),
                     listToDoModel.isEmpty
                         ? AbsorbPointer()

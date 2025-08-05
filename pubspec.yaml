@@ -1,5 +1,5 @@
 name: four_secrets_wedding_app
-description: "Wedding App for Four Secrets Wedding"
+description: "4secrets - Wedding Planner"
 
 # Prevent accidental publishing to pub.dev
 publish_to: "none"

@@ -166,7 +166,7 @@ class _SplashScreenState extends State<SplashScreen>
                   vertical: 0.0,
                 ),
                 child: Text(
-                  'Perfect your Wedding with 4secrets Wedding',
+                  'Perfect your Wedding with 4secrets - Wedding Planner',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                       color: Colors.black,

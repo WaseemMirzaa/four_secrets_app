@@ -1091,6 +1091,10 @@ class _AddTodoPageState extends State<AddTodoPage> {
                                                         ? Color.fromARGB(
                                                             255, 107, 69, 106)
                                                         : Colors.black,
+                                                    decoration: isSelected
+                                                        ? TextDecoration
+                                                            .lineThrough
+                                                        : null,
                                                   ),
                                                 ),
                                               ],

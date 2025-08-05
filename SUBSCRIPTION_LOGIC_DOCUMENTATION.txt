@@ -4,9 +4,9 @@
 
 OVERVIEW
 ========
-The Four Secrets Wedding App implements a subscription-based access control 
-system that restricts certain features to subscribed users only. The 
-subscription logic is currently applied EXCLUSIVELY to Todo-related 
+The 4secrets - Wedding Planner app implements a subscription-based access control
+system that restricts certain features to subscribed users only. The
+subscription logic is currently applied EXCLUSIVELY to Todo-related
 functionality.
 
 ARCHITECTURE

@@ -122,7 +122,7 @@ class _TableDialogBoxState extends State<TableDialogBox> {
                   // save button
                   MyButton(
                     onPressed: widget.onCancel,
-                    text: "Stornieren",
+                    text: "Abbrechen",
                     color: Colors.white,
                   ),
                   const SizedBox(
