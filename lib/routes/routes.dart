@@ -67,8 +67,6 @@ import 'package:four_secrets_wedding_app/pages/to_do_page.dart';
 import 'package:four_secrets_wedding_app/pages/trauredner.dart';
 import 'package:four_secrets_wedding_app/pages/trauringe.dart';
 import 'package:four_secrets_wedding_app/pages/unterhaltung.dart';
-import 'package:four_secrets_wedding_app/pages/wedding_cake.dart';
-import 'package:four_secrets_wedding_app/pages/wedding_car_service.dart';
 import 'package:four_secrets_wedding_app/pages/wedding_category_title_page.dart';
 import 'package:four_secrets_wedding_app/pages/wedding_schedule_page.dart';
 
@@ -111,8 +109,8 @@ class RouteManager {
   static const String trauringePage = '/trauringe';
   static const String chatbotPage = '/chatbot';
   static const String cateringPage = '/catering';
-  static const String kosmetischeAkupunktur = '/kosmetische_akupunktur';
-  static const String personalTraining = '/personal_training';
+  static const String kosmetischeAkupunkturPage = '/kosmetische_akupunktur';
+  static const String personalTrainingPage = '/personal_training';
 
   // Detail & Interaction Routes
   static const String inspirationDetailPage = '/inspiration_detail';
@@ -304,22 +302,6 @@ class RouteManager {
           type: PageTransitionType.rightToLeft,
         );
 
-      case weddingCakePage:
-        return PageTransition(
-          child: const WeddingCake(),
-          settings: settings,
-          duration: const Duration(milliseconds: 250),
-          type: PageTransitionType.rightToLeft,
-        );
-
-      case weddingCarServicePage:
-        return PageTransition(
-          child: const WeddingCarService(),
-          settings: settings,
-          duration: const Duration(milliseconds: 250),
-          type: PageTransitionType.rightToLeft,
-        );
-
       case fotographPage:
         return PageTransition(
           child: Fotograph(),
@@ -392,7 +374,7 @@ class RouteManager {
           type: PageTransitionType.rightToLeft,
         );
 
-      case kosmetischeAkupunktur:
+      case kosmetischeAkupunkturPage:
         return PageTransition(
           child: KosmetischeAkupunktur(),
           settings: settings,
@@ -400,7 +382,7 @@ class RouteManager {
           type: PageTransitionType.rightToLeft,
         );
 
-      case personalTraining:
+      case personalTrainingPage:
         return PageTransition(
           child: PersonalTraining(),
           settings: settings,

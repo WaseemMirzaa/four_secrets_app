@@ -13,7 +13,7 @@ class MuenchnerGeheimtippImages {
       'assets/images/inspirations/Trauredner.jpg',
       'assets/images/inspirations/Fotograf_Fotografin.jpg',
       'assets/images/inspirations/Tanzschule.jpg',
-      'assets/images/inspirations/kosmetische_akupunktur.jpg',
+      'assets/images/inspirations/Kosmetische_Akupunktur.jpg',
       'assets/images/inspirations/Personal_Training.jpg',
       'assets/images/inspirations/Papeterie.jpg',
       'assets/images/inspirations/Unterhaltung.jpg',
