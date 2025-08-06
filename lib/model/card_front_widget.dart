@@ -14,6 +14,7 @@ class CardWidget extends StatefulWidget {
   String backCardAdress2;
   String homepage;
   String email;
+  String slogan;
   String instagram;
   String videoRatio;
   String videoAsset;
@@ -32,6 +33,7 @@ class CardWidget extends StatefulWidget {
       required String this.backCardAdress2,
       required String this.homepage,
       required String this.email,
+      required String this.slogan,
       required String this.phoneNumber,
       required String this.instagram,
       required String this.videoAsset,
@@ -163,6 +165,7 @@ class _CardWidgetState extends State<CardWidget> with TickerProviderStateMixin {
         homepage: widget.homepage,
         modeString: urlMode,
         email: widget.email,
+        slogan: widget.slogan,
         phoneNumber: widget.phoneNumber,
         instagram: widget.instagram,
         videoAsset: widget.videoAsset,
