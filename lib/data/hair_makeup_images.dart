@@ -13,7 +13,10 @@ class HairMakeUpImages {
       'assets/images/hair_makeup/hair_makeup_9.jpg',
       'assets/images/hair_makeup/hair_makeup_10.jpg',
       'assets/images/hair_makeup/hair_makeup_11.jpg',
-      'assets/images/hair_makeup/hair_makeup_12.jpg'
+      'assets/images/hair_makeup/hair_makeup_12.jpg',
+      'assets/images/hair_makeup/hair_makeup_13.jpg',
+      'assets/images/hair_makeup/hair_makeup_14.jpg',
+      'assets/images/hair_makeup/hair_makeup_15.jpg',
     ];
     return images;
   }
