@@ -3,12 +3,16 @@ import 'package:four_secrets_wedding_app/data/bachelorette_data.dart';
 import 'package:four_secrets_wedding_app/data/bachelorette_images.dart';
 import 'package:four_secrets_wedding_app/data/bachelorette_card_items.dart';
 import 'package:four_secrets_wedding_app/model/swipeable_card_widget.dart';
+import 'package:four_secrets_wedding_app/model/carousel_slider_widget.dart';
 import 'package:four_secrets_wedding_app/model/footer_buttons.dart';
 import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
+import 'package:flutter/material.dart';
 import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
 import 'package:four_secrets_wedding_app/menue.dart';
+import 'package:four_secrets_wedding_app/data/bachelorette_card_items.dart';
 
+// // ignore: must_be_immutable
 // ignore: must_be_immutable
 class BacheloretteParty extends StatelessWidget {
   BacheloretteParty({super.key});
@@ -49,37 +53,9 @@ class BacheloretteParty extends StatelessWidget {
       child: Scaffold(
         drawer: Menue.getInstance(GlobalKey()),
         appBar: AppBar(
-          foregroundColor: const Color.fromARGB(255, 255, 255, 255),
-          title: const Text(
-            'Bachelorette-Party',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          foregroundColor: Color.fromARGB(255, 255, 255, 255),
+          title: const Text('Bachelorette-Party'),
           backgroundColor: const Color.fromARGB(255, 107, 69, 106),
-          actions: [
-            // White video icon button in top right
-            if (videoAsset.isNotEmpty || videoUri.isNotEmpty)
-              IconButton(
-                icon: const Icon(
-                  Icons.play_circle,
-                  color: Colors.white,
-                  size: 28,
-                ),
-                onPressed: () {
-                  Navigator.of(context).pushNamed(
-                    RouteManager.videoPlayer2,
-                    arguments: {
-                      'asset': videoAsset,
-                      'uri': videoUri,
-                      'ratio': videoRatio,
-                    },
-                  );
-                },
-                tooltip: 'Video abspielen',
-              ),
-          ],
         ),
         body: Stack(
           children: [
