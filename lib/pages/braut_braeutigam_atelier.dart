@@ -1,32 +1,19 @@
-import 'package:flutter/material.dart';
 import 'package:four_secrets_wedding_app/data/braut_braeutigam_card_items.dart';
+import 'package:flutter/material.dart';
 import 'package:four_secrets_wedding_app/menue.dart';
 
-class BrautBraeutigam extends StatefulWidget {
+class BrautBraeutigam extends StatelessWidget {
   BrautBraeutigam({super.key});
-
-  @override
-  State<BrautBraeutigam> createState() => _BrautBraeutigamState();
-}
-
-class _BrautBraeutigamState extends State<BrautBraeutigam> {
   final List items = BrautBraeutigamCardItems.getCardItems();
   final key = GlobalKey<MenueState>();
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: Menue.getInstance(key),
+        drawer: Menue.getInstance(key!),
         appBar: AppBar(
           foregroundColor: const Color.fromARGB(255, 255, 255, 255),
-          title: const Text(
-            'Braut Atelier',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          title: const Text('Braut Atelier'),
           backgroundColor: const Color.fromARGB(255, 107, 69, 106),
         ),
         body: Container(
