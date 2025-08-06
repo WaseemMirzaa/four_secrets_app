@@ -7,8 +7,6 @@ import 'package:flutter/material.dart';
 class CardBackWidget extends StatelessWidget {
   Object className;
 
-  final backCardAdress2;
-  final backCardAdress1;
   final backCardTaetigkeit;
   final homepage;
   var modeString;
@@ -25,8 +23,6 @@ class CardBackWidget extends StatelessWidget {
       {super.key,
       required this.className,
       required this.backCardTaetigkeit,
-      required this.backCardAdress1,
-      required this.backCardAdress2,
       required this.homepage,
       required this.modeString,
       required this.email,
@@ -41,14 +37,14 @@ class CardBackWidget extends StatelessWidget {
   int amountOfAdress = 0;
 
   // Check Amount of adresses
-  int chooseAmountOfAdress() {
-    if (backCardAdress1.isNotEmpty && backCardAdress2.isEmpty) {
-      return 1;
-    } else if (backCardAdress1.isNotEmpty && backCardAdress2.isNotEmpty) {
-      return 2;
-    }
-    return 0;
-  }
+  // int chooseAmountOfAdress() {
+  //   if (backCardAdress1.isNotEmpty && backCardAdress2.isEmpty) {
+  //     return 1;
+  //   } else if (backCardAdress1.isNotEmpty && backCardAdress2.isNotEmpty) {
+  //     return 2;
+  //   }
+  //   return 0;
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -72,15 +68,15 @@ class CardBackWidget extends StatelessWidget {
         height: 245,
         child: Stack(
           children: [
-            Center(
-              child: chooseAmountOfAdress() == 1
-                  ? CardAdress.oneAdress(
-                      backCardTaetigkeit, backCardAdress1, phoneNumber)
-                  : chooseAmountOfAdress() == 2
-                      ? CardAdress.twoAdress(backCardTaetigkeit,
-                          backCardAdress1, backCardAdress2, phoneNumber)
-                      : Text("no adress"),
-            ),
+            // Center(
+            //   child: chooseAmountOfAdress() == 1
+            //       ? CardAdress.oneAdress(
+            //           backCardTaetigkeit, backCardAdress1, phoneNumber)
+            //       : chooseAmountOfAdress() == 2
+            //           ? CardAdress.twoAdress(backCardTaetigkeit,
+            //               backCardAdress1, backCardAdress2, phoneNumber)
+            //           : Text("no adress"),
+            // ),
             Align(
               alignment: Alignment.bottomCenter,
               child: Container(
@@ -139,15 +135,15 @@ class CardBackWidget extends StatelessWidget {
                 ],
               ),
             ),
-            Center(
-              child: chooseAmountOfAdress() == 1
-                  ? CardAdress.oneAdress(
-                      backCardTaetigkeit, backCardAdress1, phoneNumber)
-                  : chooseAmountOfAdress() == 2
-                      ? CardAdress.twoAdress(backCardTaetigkeit,
-                          backCardAdress1, backCardAdress2, phoneNumber)
-                      : Text("no adress"),
-            ),
+            // Center(
+            //   child: chooseAmountOfAdress() == 1
+            //       ? CardAdress.oneAdress(
+            //           backCardTaetigkeit, backCardAdress1, phoneNumber)
+            //       : chooseAmountOfAdress() == 2
+            //           ? CardAdress.twoAdress(backCardTaetigkeit,
+            //               backCardAdress1, backCardAdress2, phoneNumber)
+            //           : Text("no adress"),
+            // ),
             Center(
               child: Padding(
                 padding: EdgeInsets.symmetric(

@@ -10,8 +10,6 @@ class CardWidget extends StatefulWidget {
   String nachname;
   String bezeichnung;
   String backCardTaetigkeit;
-  String backCardAdress1;
-  String backCardAdress2;
   String homepage;
   String email;
   String slogan;
@@ -29,8 +27,6 @@ class CardWidget extends StatefulWidget {
       required String this.nachname,
       required String this.bezeichnung,
       required String this.backCardTaetigkeit,
-      required String this.backCardAdress1,
-      required String this.backCardAdress2,
       required String this.homepage,
       required String this.email,
       required String this.slogan,
@@ -160,8 +156,6 @@ class _CardWidgetState extends State<CardWidget> with TickerProviderStateMixin {
       backWidget: CardBackWidget(
         className: widget.className,
         backCardTaetigkeit: widget.backCardTaetigkeit,
-        backCardAdress1: widget.backCardAdress1,
-        backCardAdress2: widget.backCardAdress2,
         homepage: widget.homepage,
         modeString: urlMode,
         email: widget.email,
