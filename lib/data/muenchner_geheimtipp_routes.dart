@@ -3,7 +3,7 @@ import 'package:four_secrets_wedding_app/routes/routes.dart';
 class MuenchnerGeheimtippRoutes {
   static List getRoutes() {
     final List<String> routes = [
-      RouteManager.bachelorettePartyPage,
+      RouteManager.bachelorettePartyEventPage,
       RouteManager.hairMakeUpPage,
       RouteManager.brauBraeutigamPage,
       RouteManager.locationPage,

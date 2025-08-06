@@ -62,8 +62,8 @@ class RouteManager {
   static const String papeteriePage = '/papeterie';
   static const String unterhaltungPage = '/unterhaltung';
   static const String traurednerPage = '/trauredner';
-  static const String kosmetischeAkupunktur = '/kosmetische_akupunktur';
-  static const String personalTraining = '/personal_training';
+  static const String kosmetischeAkupunkturPage = '/kosmetische_akupunktur';
+  static const String personalTrainingPage = '/personal_training';
   static const String videoPlayer = '/video_player';
   static const String videoPlayer2 = '/video_player2';
   static const String kontakt = '/kontakt';
@@ -285,7 +285,7 @@ class RouteManager {
           type: PageTransitionType.rightToLeft,
         );
 
-      case kosmetischeAkupunktur:
+      case kosmetischeAkupunkturPage:
         return PageTransition(
           child: KosmetischeAkupunktur(), // Placeholder
           settings: settings,
@@ -325,7 +325,7 @@ class RouteManager {
           type: PageTransitionType.rightToLeft,
         );
 
-      case personalTraining:
+      case personalTrainingPage:
         return PageTransition(
           child: PersonalTraining(),
           settings: settings,
