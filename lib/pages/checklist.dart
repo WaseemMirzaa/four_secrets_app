@@ -1,4 +1,5 @@
 // checklist.dart - Erweitert mit Drag-and-Drop-Funktionalität
+import 'package:four_secrets_wedding_app/model/dialog_box.dart';
 import 'package:four_secrets_wedding_app/model/to_do_data_base.dart';
 import 'package:four_secrets_wedding_app/model/todo_item.dart';
 import 'package:flutter/material.dart';
@@ -297,10 +298,15 @@ class _ChecklistState extends State<Checklist> with TickerProviderStateMixin {
     showDialog(
       context: context,
       builder: (context) {
-        return TodoDialogBox(
+        return DialogBox(
           controller: _controller,
-          onSave: saveNewTask,
+          onSave: () {
+            saveNewTask(_controller.text, TodoCategory.categories.length - 1);
+            Navigator.of(context).pop();
+          },
           onCancel: () => Navigator.of(context).pop(),
+          isGuest: false,
+          isToDo: true,
         );
       },
     );
@@ -1067,7 +1073,7 @@ class _ChecklistState extends State<Checklist> with TickerProviderStateMixin {
             ),
 
             // Divider
-            FourSecretsDivider(),
+            FourSecretsDivider(padValue: 0),
 
             // Hochzeitsdatum Section
             _buildWeddingDateSection(),
