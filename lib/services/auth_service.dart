@@ -3,16 +3,12 @@ import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:path/path.dart' as path;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_model.dart';
-import 'image_service.dart';
-import 'permission_service.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseStorage _storage = FirebaseStorage.instance;
 
   static const String _userKey = 'user_data';
 
@@ -30,7 +26,7 @@ class AuthService {
       );
 
       print('🟢 Firebase Auth successful, fetching user data...');
-      
+
       // Reload user to get latest verification status
       await result.user!.reload();
 
@@ -51,7 +47,8 @@ class AuthService {
       // Create UserModel from Firestore data
       final userData = userDoc.data()!;
       userData['uid'] = result.user!.uid; // Ensure UID is included
-      userData['emailVerified'] = result.user!.emailVerified; // Get latest verification status
+      userData['emailVerified'] =
+          result.user!.emailVerified; // Get latest verification status
 
       // Update verification status in Firestore if needed
       if (result.user!.emailVerified != (userData['emailVerified'] ?? false)) {
@@ -123,10 +120,10 @@ class AuthService {
         print('🔴 No current Firebase user');
         return null;
       }
-      
+
       // Reload user to get latest verification status
       await firebaseUser.reload();
-      
+
       // Try to get user data from Firestore
       print('🟢 Fetching current user data from Firestore');
       final doc =
@@ -140,8 +137,9 @@ class AuthService {
       // Create UserModel from Firestore data
       final userData = doc.data()!;
       userData['uid'] = firebaseUser.uid; // Ensure UID is included
-      userData['emailVerified'] = firebaseUser.emailVerified; // Get latest verification status
-      
+      userData['emailVerified'] =
+          firebaseUser.emailVerified; // Get latest verification status
+
       // Update verification status in Firestore if needed
       if (firebaseUser.emailVerified != (userData['emailVerified'] ?? false)) {
         await updateEmailVerificationStatus(firebaseUser.emailVerified);
@@ -303,11 +301,11 @@ class AuthService {
     try {
       final user = _auth.currentUser;
       if (user == null) throw Exception('No user logged in');
-      
+
       await _firestore.collection('users').doc(user.uid).update({
         'emailVerified': isVerified,
       });
-      
+
       print('🟢 Updated email verification status to: $isVerified');
     } catch (e) {
       print('🔴 Error updating email verification status: $e');
