@@ -134,7 +134,7 @@ class _BudgetState extends State<Budget> {
                 fit: BoxFit.cover,
               ),
             ),
-            FourSecretsDivider(),
+            FourSecretsDivider(padValue: 0),
             Container(
               padding: EdgeInsets.only(left: 25, right: 25, bottom: 10),
               child: Row(
@@ -199,7 +199,7 @@ class _BudgetState extends State<Budget> {
                 );
               },
             ),
-            FourSecretsDivider(),
+            FourSecretsDivider(padValue: 0),
             Container(
               padding: EdgeInsets.only(left: 25, right: 25, top: 10),
               child: Container(

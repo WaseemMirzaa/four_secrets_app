@@ -1,5 +1,5 @@
-import 'package:DreamWedding/data/catering_card_items.dart';
-import 'package:DreamWedding/menue.dart';
+import 'package:four_secrets_wedding_app/data/catering_card_items.dart';
+import 'package:four_secrets_wedding_app/menue.dart';
 import 'package:flutter/material.dart';
 
 class Catering extends StatelessWidget {

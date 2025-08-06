@@ -1,4 +1,4 @@
-import 'package:DreamWedding/routes/routes.dart';
+import 'package:four_secrets_wedding_app/routes/routes.dart';
 
 class MuenchnerGeheimtippRoutes {
   static List getRoutes() {

@@ -1,6 +1,6 @@
-import 'package:DreamWedding/data/kontakt_data.dart';
-import 'package:DreamWedding/menue.dart';
-import 'package:DreamWedding/model/url_email_instagram.dart';
+import 'package:four_secrets_wedding_app/data/kontakt_data.dart';
+import 'package:four_secrets_wedding_app/menue.dart';
+import 'package:four_secrets_wedding_app/model/url_email_instagram.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 

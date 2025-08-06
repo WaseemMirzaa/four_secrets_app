@@ -1,8 +1,8 @@
-import 'package:DreamWedding/model/chatbot_api_key_manager.dart';
-import 'package:DreamWedding/model/chatbot_session_manager.dart';
-import 'package:DreamWedding/model/chatbot_config.dart';
-import 'package:DreamWedding/model/chatbot_rate_limiter.dart';
-import 'package:DreamWedding/menue.dart';
+import 'package:four_secrets_wedding_app/model/chatbot_api_key_manager.dart';
+import 'package:four_secrets_wedding_app/model/chatbot_session_manager.dart';
+import 'package:four_secrets_wedding_app/model/chatbot_config.dart';
+import 'package:four_secrets_wedding_app/model/chatbot_rate_limiter.dart';
+import 'package:four_secrets_wedding_app/menue.dart';
 import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
 import 'package:dash_chat_2/dash_chat_2.dart';
 import 'package:flutter/material.dart';

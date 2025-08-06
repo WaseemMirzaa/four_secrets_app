@@ -1,11 +1,11 @@
-import 'package:DreamWedding/data/hair_makeup_data.dart';
-import 'package:DreamWedding/data/hair_makeup_images.dart';
-import 'package:DreamWedding/model/carousel_slider_widget.dart';
-import 'package:DreamWedding/model/footer_buttons.dart';
-import 'package:DreamWedding/model/four_secrets_divider.dart';
+import 'package:four_secrets_wedding_app/data/hair_makeup_data.dart';
+import 'package:four_secrets_wedding_app/data/hair_makeup_images.dart';
+import 'package:four_secrets_wedding_app/model/carousel_slider_widget.dart';
+import 'package:four_secrets_wedding_app/model/footer_buttons.dart';
+import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
 import 'package:flutter/material.dart';
-import 'package:DreamWedding/menue.dart';
-import 'package:DreamWedding/data/hair_makeup_card_items.dart';
+import 'package:four_secrets_wedding_app/menue.dart';
+import 'package:four_secrets_wedding_app/data/hair_makeup_card_items.dart';
 
 // ignore: must_be_immutable
 class HairMakeUp extends StatelessWidget {
@@ -71,7 +71,7 @@ class HairMakeUp extends StatelessWidget {
                   // Card Items (falls Sie diese später verwenden möchten)
                   ...items,
                   Padding(padding: EdgeInsets.only(top: 15)),
-                  FourSecretsDivider(),
+                  FourSecretsDivider(padValue: 0),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Text("An deinem Hochzeitstag sollst du dich "

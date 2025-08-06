@@ -1,11 +1,10 @@
 // checklist.dart - Erweitert mit Drag-and-Drop-Funktionalität
-import 'package:DreamWedding/model/dialog_box.dart';
-import 'package:DreamWedding/model/to_do_data_base.dart';
-import 'package:DreamWedding/model/todo_item.dart';
+import 'package:four_secrets_wedding_app/model/to_do_data_base.dart';
+import 'package:four_secrets_wedding_app/model/todo_item.dart';
 import 'package:flutter/material.dart';
-import 'package:DreamWedding/menue.dart';
-import 'package:DreamWedding/model/checklist_item.dart';
-import 'package:DreamWedding/model/four_secrets_divider.dart';
+import 'package:four_secrets_wedding_app/menue.dart';
+import 'package:four_secrets_wedding_app/model/checklist_item.dart';
+import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
 import 'package:hive/hive.dart';
 import 'package:flutter/services.dart';
 

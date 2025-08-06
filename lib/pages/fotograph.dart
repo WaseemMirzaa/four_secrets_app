@@ -1,6 +1,6 @@
-import 'package:DreamWedding/data/fotograph_card_items.dart';
+import 'package:four_secrets_wedding_app/data/fotograph_card_items.dart';
 import 'package:flutter/material.dart';
-import 'package:DreamWedding/menue.dart';
+import 'package:four_secrets_wedding_app/menue.dart';
 
 class Fotograph extends StatelessWidget {
   Fotograph({super.key});

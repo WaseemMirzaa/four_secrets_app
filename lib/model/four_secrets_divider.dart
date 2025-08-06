@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class FourSecretsDivider extends StatelessWidget {
-  const FourSecretsDivider({super.key});
+  const FourSecretsDivider({super.key, required int padValue});
 
   @override
   Widget build(BuildContext context) {

@@ -1,5 +1,5 @@
-import 'package:DreamWedding/model/chatbot_config.dart';
-import 'package:DreamWedding/model/chatbot_system_promt.dart';
+import 'package:four_secrets_wedding_app/model/chatbot_config.dart';
+import 'package:four_secrets_wedding_app/model/chatbot_system_promt.dart';
 import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
 import 'package:dash_chat_2/dash_chat_2.dart';
 

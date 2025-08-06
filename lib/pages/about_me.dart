@@ -1,12 +1,12 @@
 import 'dart:async';
 
-import 'package:DreamWedding/data/about_me_data.dart';
-import 'package:DreamWedding/model/url_email_instagram.dart';
-import 'package:DreamWedding/routes/routes.dart';
+import 'package:four_secrets_wedding_app/data/about_me_data.dart';
+import 'package:four_secrets_wedding_app/model/url_email_instagram.dart';
+import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:expandable_text/expandable_text.dart';
 import 'package:flutter/gestures.dart';
-import 'package:DreamWedding/menue.dart';
+import 'package:four_secrets_wedding_app/menue.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 

@@ -48,7 +48,8 @@ class _GaestelistState extends State<Gaestelist> {
           .collection('users')
           .doc(userId)
           .collection('guests')
-          .orderBy('createdAt', descending: false)  // Sort by creation time, oldest first
+          .orderBy('createdAt',
+              descending: false) // Sort by creation time, oldest first
           .get();
 
       final List<Map<String, dynamic>> loadedGuests = [];
@@ -323,7 +324,7 @@ class _GaestelistState extends State<Gaestelist> {
                 // cacheWidth: MediaQuery.of(context).size.width.toInt(),
               ),
             ),
-            FourSecretsDivider(),
+            FourSecretsDivider(padValue: 0),
             Container(
               padding: const EdgeInsets.only(left: 25, right: 25, top: 5),
               child: Container(
@@ -413,7 +414,7 @@ class _GaestelistState extends State<Gaestelist> {
                               statusChanged(context, index));
                     },
                   ),
-            FourSecretsDivider(),
+            FourSecretsDivider(padValue: 0),
             Container(
               padding: const EdgeInsets.only(left: 25, right: 25, top: 5),
               child: Container(
@@ -495,7 +496,7 @@ class _GaestelistState extends State<Gaestelist> {
                 ),
               ),
             ),
-            FourSecretsDivider(),
+            FourSecretsDivider(padValue: 0),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Row(

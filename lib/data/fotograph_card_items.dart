@@ -1,5 +1,5 @@
-import 'package:DreamWedding/data/fotograph_card_data.dart';
-import 'package:DreamWedding/model/card_front_widget.dart';
+import 'package:four_secrets_wedding_app/data/fotograph_card_data.dart';
+import 'package:four_secrets_wedding_app/model/card_front_widget.dart';
 import 'package:flutter/material.dart';
 
 class FotographCardItems {

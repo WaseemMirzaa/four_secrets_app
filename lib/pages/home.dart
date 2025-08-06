@@ -94,7 +94,7 @@ class _HomePageState extends State<HomePage> {
                         const Duration(milliseconds: 100),
                         () {
                           Navigator.of(context)
-                              .pushNamed(RouteManager.inspirationsPage);
+                              .pushNamed(RouteManager.muenchnerGeheimtippPage);
                         },
                       );
                     },

@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:four_secrets_wedding_app/menue.dart';
-import 'package:four_secrets_wedding_app/model/checklist_button.dart';
 import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
 import 'package:four_secrets_wedding_app/model/table_dialog_box.dart';
 import '../models/table_model.dart';
-import '../models/guest.dart';
 import '../services/table_service.dart';
-import '../services/guest_service.dart';
-import 'add_edit_table_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:four_secrets_wedding_app/utils/snackbar_helper.dart';
@@ -55,7 +51,8 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
       });
     } catch (e) {
       if (mounted) {
-        SnackBarHelper.showErrorSnackBar(context, '${AppConstants.loadDataError}$e');
+        SnackBarHelper.showErrorSnackBar(
+            context, '${AppConstants.loadDataError}$e');
       }
     }
   }
@@ -99,9 +96,9 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
     final maxGuestsController = TextEditingController();
     var selectedTableType; // Default value
     final tableTypes = [
-      AppConstants.tableTypeRound, 
-      AppConstants.tableTypeOval, 
-      AppConstants.tableTypeRectangular, 
+      AppConstants.tableTypeRound,
+      AppConstants.tableTypeOval,
+      AppConstants.tableTypeRectangular,
       AppConstants.tableTypeSquare
     ];
     bool _isLoading = false; // Track loading state
@@ -142,8 +139,8 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
                 setState(() {
                   _isLoading = false;
                 });
-                SnackBarHelper.showErrorSnackBar(context,
-                    AppConstants.enterValidGuestsError);
+                SnackBarHelper.showErrorSnackBar(
+                    context, AppConstants.enterValidGuestsError);
                 return;
               }
 
@@ -343,7 +340,8 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
                                                         SnackBarHelper
                                                             .showInfoSnackBar(
                                                                 context,
-                                                                AppConstants.maxCapacityWarning);
+                                                                AppConstants
+                                                                    .maxCapacityWarning);
                                                         capacityWarningShown =
                                                             true;
                                                       }
@@ -502,11 +500,13 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
                                           if (selectedGuestIds.length == 1) {
                                             SnackBarHelper.showSuccessSnackBar(
                                                 context,
-                                                AppConstants.oneGuestAssignedSuccess);
+                                                AppConstants
+                                                    .oneGuestAssignedSuccess);
                                           } else {
                                             SnackBarHelper.showSuccessSnackBar(
                                                 context,
-                                                AppConstants.multipleGuestsAssignedSuccess);
+                                                AppConstants
+                                                    .multipleGuestsAssignedSuccess);
                                           }
                                         } catch (e) {
                                           if (!mounted) return;
@@ -859,7 +859,7 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
                   fit: BoxFit.cover,
                 ),
               ),
-              FourSecretsDivider(),
+              FourSecretsDivider(padValue: 0),
               Container(
                 padding: const EdgeInsets.only(left: 25, right: 25, top: 5),
                 child: Container(
@@ -910,7 +910,7 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
                         return _buildTableCard(_tables[index]);
                       },
                     ),
-              FourSecretsDivider(),
+              FourSecretsDivider(padValue: 0),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 45),
               ),

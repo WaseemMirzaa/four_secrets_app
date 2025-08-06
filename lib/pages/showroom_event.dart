@@ -1,13 +1,13 @@
 import 'dart:async';
 
-import 'package:DreamWedding/data/showroom_event_data.dart';
-import 'package:DreamWedding/data/showroom_event_images.dart';
-import 'package:DreamWedding/model/carousel_slider_widget.dart';
-import 'package:DreamWedding/model/four_secrets_divider.dart';
-import 'package:DreamWedding/routes/routes.dart';
+import 'package:four_secrets_wedding_app/data/showroom_event_data.dart';
+import 'package:four_secrets_wedding_app/data/showroom_event_images.dart';
+import 'package:four_secrets_wedding_app/model/carousel_slider_widget.dart';
+import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
+import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:expandable_text/expandable_text.dart';
 import 'package:flutter/material.dart';
-import 'package:DreamWedding/menue.dart';
+import 'package:four_secrets_wedding_app/menue.dart';
 
 // ignore: must_be_immutable
 class ShowroomEvent extends StatelessWidget {
@@ -59,7 +59,7 @@ class ShowroomEvent extends StatelessWidget {
                       fit: BoxFit.cover,
                     ),
                   ),
-                  FourSecretsDivider(),
+                  FourSecretsDivider(padValue: 0),
                   Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,
