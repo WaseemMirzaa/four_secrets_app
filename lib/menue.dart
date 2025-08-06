@@ -120,7 +120,7 @@ class MenueState extends State<Menue> {
   bool isPressedBtn8 = false; // About me
   bool isPressedBtn9 = false; // Kontakt
   bool isPressedBtn10 = false; // KI-Assistent (Chatbot)
-  bool isPressedBtn10 = false; // Impressum
+  bool isPressedBtn11 = false; // Impressum
   bool isPressedBtn12 = false; // Logout
 
   void buttonIsPressed(int buttonNumber) {
@@ -137,7 +137,7 @@ class MenueState extends State<Menue> {
       isPressedBtn9 = buttonNumber == 9;
       isPressedBtn10 = buttonNumber == 10;
       isPressedBtn11 = buttonNumber == 11;
-      isPressedBtn11 = buttonNumber == 12;
+      isPressedBtn12 = buttonNumber == 12;
     });
   }
 
@@ -600,7 +600,7 @@ class MenueState extends State<Menue> {
                 horizontal: 10,
                 vertical: 0,
               ),
-              tileColor: isPressedBtn11 ? Colors.purple[50] : Colors.white,
+              tileColor: isPressedBtn10 ? Colors.purple[50] : Colors.white,
               leading: Icon(
                 FontAwesomeIcons.circleInfo,
               ),
