@@ -58,7 +58,7 @@ class _HomePageState extends State<HomePage> {
               child: Container(
                 width: MediaQuery.of(context).size.width,
                 child: Image.asset(
-                  'assets/images/background/home_bg.png',
+                  'assets/images/home/welcome_home.png',
                   fit: BoxFit.contain,
                 ),
               ),

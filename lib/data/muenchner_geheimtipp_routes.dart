@@ -19,6 +19,7 @@ class MuenchnerGeheimtippRoutes {
       RouteManager.papeteriePage,
       RouteManager.unterhaltungPage,
       RouteManager.trauringePage,
+      RouteManager.cateringPage,
     ];
     return routes;
   }

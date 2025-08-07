@@ -17,7 +17,8 @@ class MuenchnerGeheimtippContent {
       'Personal Training',
       'Papeterie',
       'Unterhaltung',
-      'Trauringe'
+      'Trauringe',
+      'Catering'
     ];
 
     return content;
