@@ -288,7 +288,8 @@ class _InspirationFolderState extends State<InspirationFolder> {
                   SliverToBoxAdapter(
                     child: Column(
                       children: [
-                        Image.asset("assets/images/background/inspiration.png"),
+                        Image.asset(
+                            "assets/images/wedding_day_schedule/wedding_day_schedule.jpg"),
                         SpacerWidget(height: 5),
                         FourSecretsDivider(),
                         SpacerWidget(height: 5),
@@ -309,8 +310,7 @@ class _InspirationFolderState extends State<InspirationFolder> {
                                 child: CustomTextWidget(
                                     textAlign: TextAlign.center,
                                     fontSize: 16,
-                            color: Colors.grey[600],
-
+                                    color: Colors.grey[600],
                                     fontWeight: FontWeight.w500,
                                     text:
                                         "Noch Keine Bilder hinzugefügt. Tippe auf das + Symbol unten rechts."),
