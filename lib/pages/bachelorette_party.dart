@@ -136,6 +136,7 @@ class BacheloretteParty extends StatelessWidget {
                       ],
                     ),
                   ),
+                  SizedBox(height: 25),
 
                   // Platz für Footer-Buttons
                   const SizedBox(height: 80),

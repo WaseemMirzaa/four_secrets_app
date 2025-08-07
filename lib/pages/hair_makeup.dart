@@ -111,7 +111,7 @@ class HairMakeUp extends StatelessWidget {
                   // Card Items (falls vorhanden)
                   ...items,
 
-                  const Padding(padding: EdgeInsets.only(top: 15)),
+                  const Padding(padding: EdgeInsets.only(top: 10)),
                   FourSecretsDivider(),
 
                   // Text Content Section
@@ -150,9 +150,8 @@ class HairMakeUp extends StatelessWidget {
                     ),
                   ),
 
-                  const Padding(
-                    padding: EdgeInsets.only(top: 12.5),
-                  ),
+                  FourSecretsDivider(),
+                  SizedBox(height: 25),
 
                   // Platz für Footer-Buttons
                   const SizedBox(height: 80),

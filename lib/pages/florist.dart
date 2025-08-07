@@ -39,6 +39,7 @@ class Florist extends StatelessWidget {
                   return items[index];
                 },
               ),
+              SizedBox(height: 25),
             ],
           ),
         ),
