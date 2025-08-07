@@ -99,22 +99,12 @@ class HairMakeUp extends StatelessWidget {
             SingleChildScrollView(
               child: Column(
                 children: [
-                  // Image Gallery Section (oben)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 12.0),
-                    child: SwipeableCardWidget(
-                      images: images,
-                      height: 430,
-                    ),
-                  ),
-
-                  // Card Items (falls vorhanden)
+                  // Card Items ohne weitere ListView
                   ...items,
 
-                  const Padding(padding: EdgeInsets.only(top: 10)),
+                  const Padding(padding: EdgeInsets.only(top: 15)),
                   FourSecretsDivider(),
 
-                  // Text Content Section
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
@@ -150,8 +140,22 @@ class HairMakeUp extends StatelessWidget {
                     ),
                   ),
 
+                  const Padding(
+                    padding: EdgeInsets.only(top: 12.5),
+                  ),
+
                   FourSecretsDivider(),
-                  SizedBox(height: 25),
+
+                  // Image Carousel Section
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12.0),
+                    child: SwipeableCardWidget(
+                      images: images,
+                      height: 430,
+                    ),
+                  ),
+
+                  const SizedBox(height: 25),
 
                   // Platz für Footer-Buttons
                   const SizedBox(height: 80),
