@@ -387,7 +387,7 @@ class _SwipeableItemWidget1State extends State<SlidableItemWidget1> {
                 Row(
                   children: [
                     Icon(FontAwesomeIcons.clock, size: 16),
-                    SizedBox(width: 4),
+                    const SizedBox(width: 4),
                     CustomTextWidget(
                       text:
                           "${widget.item.time.hour.toString().padLeft(2, '0')}:${widget.item.time.minute.toString().padLeft(2, '0')} "
@@ -411,7 +411,7 @@ class _SwipeableItemWidget1State extends State<SlidableItemWidget1> {
                       FontAwesomeIcons.calendar,
                       size: 14,
                     ),
-                    SizedBox(width: 4),
+                    const SizedBox(width: 4),
                     CustomTextWidget(
                       text:
                           "${widget.item.time.day.toString().padLeft(2, '0')},${widget.item.time.month.toString().padLeft(2, '0')},${widget.item.time.year}",
@@ -434,7 +434,7 @@ class _SwipeableItemWidget1State extends State<SlidableItemWidget1> {
                     ),
                   ),
                 ),
-                SizedBox(width: 4),
+                const SizedBox(width: 4),
                 InkWell(
                   onTap: widget.onEdit,
                   child: Padding(
@@ -759,7 +759,7 @@ class _SwipeableItemWidget1State extends State<SlidableItemWidget1> {
                     FileUploadService1.getFileIcon(widget.item.angebotFileName),
                     style: TextStyle(fontSize: 20),
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -769,7 +769,7 @@ class _SwipeableItemWidget1State extends State<SlidableItemWidget1> {
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                         ),
-                        SizedBox(height: 2),
+                        const SizedBox(height: 2),
                         Text(
                           FileUploadService1.isImageFile(
                                   widget.item.angebotFileName)
@@ -837,7 +837,7 @@ class _SwipeableItemWidget1State extends State<SlidableItemWidget1> {
                     size: 16,
                     color: Colors.white,
                   ),
-                  SizedBox(width: 4),
+                  const SizedBox(width: 4),
                   CustomTextWidget(
                     text: widget.item.zahlungsstatus,
                     fontSize: 12,
@@ -862,16 +862,16 @@ class _SwipeableItemWidget1State extends State<SlidableItemWidget1> {
               children: [
                 Icon(FontAwesomeIcons.calendar,
                     size: 16, color: Color.fromARGB(255, 107, 69, 106)),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 CustomTextWidget(
                   text:
                       "${widget.item.probetermin!.day.toString().padLeft(2, '0')}.${widget.item.probetermin!.month.toString().padLeft(2, '0')}.${widget.item.probetermin!.year}",
                   fontSize: 14,
                 ),
-                SizedBox(width: 16),
+                const SizedBox(width: 16),
                 Icon(FontAwesomeIcons.clock,
                     size: 16, color: Color.fromARGB(255, 107, 69, 106)),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 CustomTextWidget(
                   text:
                       "${widget.item.probetermin!.hour.toString().padLeft(2, '0')}:${widget.item.probetermin!.minute.toString().padLeft(2, '0')} Uhr",

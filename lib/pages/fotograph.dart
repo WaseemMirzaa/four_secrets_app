@@ -39,7 +39,7 @@ class Fotograph extends StatelessWidget {
                   return items[index];
                 },
               ),
-              SizedBox(height: 25),
+              const SizedBox(height: 25),
             ],
           ),
         ),

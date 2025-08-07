@@ -74,8 +74,10 @@ class BacheloretteParty extends StatelessWidget {
                 children: [
                   // Card Items ohne weitere ListView
                   ...items,
+
                   const Padding(padding: EdgeInsets.only(top: 15)),
                   FourSecretsDivider(),
+
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
@@ -132,7 +134,7 @@ class BacheloretteParty extends StatelessWidget {
                       ],
                     ),
                   ),
-                  SizedBox(height: 25),
+                  const SizedBox(height: 25),
 
                   // Platz für Footer-Buttons
                   const SizedBox(height: 80),

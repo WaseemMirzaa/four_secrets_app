@@ -64,12 +64,12 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             const SliverToBoxAdapter(
-              child: SizedBox(
+              child: const SizedBox(
                 height: 30,
               ),
             ),
             const SliverToBoxAdapter(
-              child: SizedBox(
+              child: const SizedBox(
                 height: 10,
               ),
             ),
@@ -138,7 +138,7 @@ class _HomePageState extends State<HomePage> {
             // ),
 
             const SliverToBoxAdapter(
-              child: SizedBox(
+              child: const SizedBox(
                 height: 40,
               ),
             ),

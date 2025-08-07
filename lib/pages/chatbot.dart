@@ -169,7 +169,7 @@ class _ChatbotState extends State<Chatbot> with TickerProviderStateMixin {
         title: Row(
           children: [
             Icon(Icons.warning, color: Colors.orange),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             Text('API Key Setup'),
           ],
         ),
@@ -183,12 +183,12 @@ class _ChatbotState extends State<Chatbot> with TickerProviderStateMixin {
             Text('• Key vorhanden: ${debugInfo['hasApiKey']}'),
             Text('• Gültiges Format: ${debugInfo['isValidFormat']}'),
             Text('• Key Länge: ${debugInfo['keyLength']}'),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text('Lösung:', style: TextStyle(fontWeight: FontWeight.bold)),
             Text('1. Erstelle eine .env Datei im Root-Verzeichnis'),
             Text('2. Füge hinzu: OPENAI_API_KEY=sk-proj-...'),
             Text('3. Starte die App neu'),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text('Den API Key erhältst du auf: platform.openai.com',
                 style: TextStyle(fontSize: 12, color: Colors.grey[600])),
           ],
@@ -285,7 +285,7 @@ class _ChatbotState extends State<Chatbot> with TickerProviderStateMixin {
               color: _primaryColor,
               strokeWidth: 2,
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             Text(
               'KI-Assistent wird geladen...',
               style: TextStyle(
@@ -328,7 +328,7 @@ class _ChatbotState extends State<Chatbot> with TickerProviderStateMixin {
                 size: 64,
                 color: Colors.orange.shade400,
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               Text(
                 'KI-Assistent Setup erforderlich',
                 style: TextStyle(
@@ -338,7 +338,7 @@ class _ChatbotState extends State<Chatbot> with TickerProviderStateMixin {
                 ),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               Text(
                 _errorMessage.isNotEmpty
                     ? _errorMessage

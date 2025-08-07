@@ -382,7 +382,7 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                           });
                         },
                       ),
-                      SizedBox(width: 10),
+                      const SizedBox(width: 10),
                     ],
                   ),
                 ),

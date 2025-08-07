@@ -288,7 +288,7 @@ class _AboutMeState extends State<AboutMe> {
                   ),
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 15,
               ),
               Row(

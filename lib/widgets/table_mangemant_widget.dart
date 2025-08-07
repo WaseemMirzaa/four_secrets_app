@@ -89,7 +89,7 @@ class TableCardWidget extends StatelessWidget {
                                 )
                               ],
                             ),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 4),
                             Text(
                               '${AppConstants.maxGuestsDisplay}${table.maxGuests}',
                               style: TextStyle(
@@ -159,7 +159,7 @@ class TableCardWidget extends StatelessWidget {
                                         fontSize: 15,
                                       ),
                                     ),
-                                    SizedBox(height: 2),
+                                    const SizedBox(height: 2),
                                     Text(
                                       guest['takePart']
                                           ? 'Bestätigt'

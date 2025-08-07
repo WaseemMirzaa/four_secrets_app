@@ -65,7 +65,7 @@ class _CollabTodoEditDialogState extends State<CollabTodoEditDialog> {
               fontSize: 15,
               color: Colors.black,
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             TextField(
               controller: _editController,
               decoration: InputDecoration(
@@ -89,13 +89,13 @@ class _CollabTodoEditDialogState extends State<CollabTodoEditDialog> {
               ),
               style: TextStyle(color: Colors.black, fontSize: 15),
             ),
-            SizedBox(height: 18),
+            const SizedBox(height: 18),
             CustomTextWidget(
               text: 'Items:',
               fontSize: 15,
               color: Colors.black,
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Column(
               mainAxisSize: MainAxisSize.min,
               children: List.generate(_itemControllers.length, (idx) {
@@ -143,7 +143,7 @@ class _CollabTodoEditDialogState extends State<CollabTodoEditDialog> {
                 );
               }),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Align(
               alignment: Alignment.centerLeft,
               child: TextButton.icon(
@@ -183,7 +183,7 @@ class _CollabTodoEditDialogState extends State<CollabTodoEditDialog> {
                     fontWeight: FontWeight.bold),
               ),
             ),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             Expanded(
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(

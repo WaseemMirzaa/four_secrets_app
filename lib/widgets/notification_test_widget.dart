@@ -26,7 +26,7 @@ class NotificationTestWidget extends StatelessWidget {
               color: Colors.blue.shade800,
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
@@ -57,7 +57,7 @@ class NotificationTestWidget extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Expanded(
                 child: ElevatedButton.icon(
                   onPressed: () async {
@@ -88,7 +88,7 @@ class NotificationTestWidget extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Row(
             children: [
               Expanded(
@@ -123,7 +123,7 @@ class NotificationTestWidget extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Expanded(
                 child: ElevatedButton.icon(
                   onPressed: () async {
@@ -155,7 +155,7 @@ class NotificationTestWidget extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Row(
             children: [
               Expanded(
@@ -188,7 +188,7 @@ class NotificationTestWidget extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Expanded(
                 child: ElevatedButton.icon(
                   onPressed: () async {
@@ -220,7 +220,7 @@ class NotificationTestWidget extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             'Use these buttons to test notifications and manage red indicator issues.',
             style: TextStyle(

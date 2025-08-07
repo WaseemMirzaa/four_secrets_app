@@ -650,7 +650,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
                             size: 18,
                             color: Colors.black,
                           ),
-                          SizedBox(width: 10),
+                          const SizedBox(width: 10),
                           CustomTextWidget(
                             text: "Keine Ergebnisse gefunden",
                             fontSize: 16,
@@ -1098,7 +1098,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
                                                         )
                                                       : null,
                                                 ),
-                                                SizedBox(width: 8),
+                                                const SizedBox(width: 8),
                                                 Expanded(
                                                   child: CustomTextWidget(
                                                     text: " $item",
