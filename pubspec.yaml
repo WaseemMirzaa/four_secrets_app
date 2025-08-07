@@ -150,10 +150,9 @@ flutter:
     - assets/images/muenchner_geheimtipps/Bacheloretteparty.jpg
     - assets/images/muenchner_geheimtipps/Band_DJ.jpg
     - assets/images/muenchner_geheimtipps/Braut_Braeutigam_Atelier.jpg
-    - assets/images/muenchner_geheimtipps/Cake.jpg
     - assets/images/muenchner_geheimtipps/Catering.jpg
-    - assets/images/muenchner_geheimtipps/Florist.jpg
-    - assets/images/muenchner_geheimtipps/Fotograf.jpg
+    - assets/images/muenchner_geheimtipps/Floristik.jpg
+    - assets/images/muenchner_geheimtipps/Fotografie.jpg
     - assets/images/muenchner_geheimtipps/Gesang.jpg
     - assets/images/muenchner_geheimtipps/Hair_und_MakeUp_Styling.jpg
     - assets/images/muenchner_geheimtipps/Kosmetische_Akupunktur.jpg
@@ -165,7 +164,6 @@ flutter:
     - assets/images/muenchner_geheimtipps/Trauredner.jpg
     - assets/images/muenchner_geheimtipps/Trauringe.jpg
     - assets/images/muenchner_geheimtipps/Unterhaltung.jpg
-    - assets/images/muenchner_geheimtipps/Wedding_Designer.jpg
 
     - assets/icons/secrets-icon.png
     - assets/icons/oval.png
