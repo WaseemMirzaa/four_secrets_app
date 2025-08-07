@@ -177,6 +177,7 @@ class _AboutMeState extends State<AboutMe> {
                     Positioned(
                       top: 195,
                       left: 20,
+                      right: 20,
                       child: Container(
                         padding: const EdgeInsets.only(
                             left: 5, right: 20, top: 5, bottom: 5),
@@ -242,13 +243,18 @@ class _AboutMeState extends State<AboutMe> {
                       ),
                     ),
                     Positioned(
-                      top:
-                          520, // Passe diesen Wert ggf. an, damit das Bild direkt unter dem Text erscheint
+                      top: 490,
                       left: 20,
                       right: 20,
-                      child: Image.asset(
-                        'assets/images/about_me/about_me_main.jpg',
-                        height: 350,
+                      child: ClipRRect(
+                        borderRadius:
+                            BorderRadius.circular(2.0), // Dezente Abrundung
+                        child: Image.asset(
+                          'assets/images/about_me/about_me_main.jpg',
+                          height: 370,
+                          fit:
+                              BoxFit.cover, // Optional: für bessere Darstellung
+                        ),
                       ),
                     ),
                   ],
@@ -258,11 +264,10 @@ class _AboutMeState extends State<AboutMe> {
                 height: 15,
               ),
               Container(
-                width: 320,
-                margin: EdgeInsets.only(left: 20),
+                margin: EdgeInsets.only(left: 20, right: 20),
                 color: Colors.white,
                 child: Padding(
-                  padding: EdgeInsetsGeometry.all(5),
+                  padding: EdgeInsets.all(5),
                   child: ExpandableText(
                     "Bereits seit über 15 Jahren begleite ich Paare an einem der wichtigsten Tage ihres Lebens. "
                     "Ich durfte Freudentränen sehen, Nervosität lindern - und dabei immer wieder "
