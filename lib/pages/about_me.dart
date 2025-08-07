@@ -177,7 +177,6 @@ class _AboutMeState extends State<AboutMe> {
                     Positioned(
                       top: 195,
                       left: 20,
-                      right: 20,
                       child: Container(
                         padding: const EdgeInsets.only(
                             left: 5, right: 20, top: 5, bottom: 5),
@@ -243,18 +242,13 @@ class _AboutMeState extends State<AboutMe> {
                       ),
                     ),
                     Positioned(
-                      top: 490,
+                      top:
+                          520, // Passe diesen Wert ggf. an, damit das Bild direkt unter dem Text erscheint
                       left: 20,
                       right: 20,
-                      child: ClipRRect(
-                        borderRadius:
-                            BorderRadius.circular(2.0), // Dezente Abrundung
-                        child: Image.asset(
-                          'assets/images/about_me/about_me_main.jpg',
-                          height: 370,
-                          fit:
-                              BoxFit.cover, // Optional: für bessere Darstellung
-                        ),
+                      child: Image.asset(
+                        'assets/images/about_me/about_me_main.jpg',
+                        height: 350,
                       ),
                     ),
                   ],
@@ -264,7 +258,8 @@ class _AboutMeState extends State<AboutMe> {
                 height: 15,
               ),
               Container(
-                margin: EdgeInsets.only(left: 20, right: 20),
+                width: 320,
+                margin: EdgeInsets.only(left: 20),
                 color: Colors.white,
                 child: Padding(
                   padding: EdgeInsets.all(5),
@@ -293,7 +288,7 @@ class _AboutMeState extends State<AboutMe> {
                   ),
                 ),
               ),
-              const SizedBox(
+              SizedBox(
                 height: 15,
               ),
               Row(

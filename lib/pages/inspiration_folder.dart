@@ -288,8 +288,7 @@ class _InspirationFolderState extends State<InspirationFolder> {
                   SliverToBoxAdapter(
                     child: Column(
                       children: [
-                        Image.asset(
-                            "assets/images/wedding_day_schedule/wedding_day_schedule.jpg"),
+                        Image.asset("assets/images/background/inspiration.png"),
                         SpacerWidget(height: 5),
                         FourSecretsDivider(),
                         SpacerWidget(height: 5),

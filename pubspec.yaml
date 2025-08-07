@@ -141,6 +141,9 @@ flutter:
     - assets/images/kontakt/
     - assets/images/background/
     - assets/images/checklist/
+    - assets/images/inspirations/
+    - assets/images/table_management/ 
+    - assets/images/eigene/
     - assets/icons/
     - assets/images/divider/
     - assets/videos/

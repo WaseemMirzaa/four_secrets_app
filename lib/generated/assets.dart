@@ -2,90 +2,163 @@
 class Assets {
   Assets._();
 
-  static const String aboutMeAboutMeHeader = 'assets/images/about_me/about_me_header.jpg';
-  static const String aboutMeAboutMeMain = 'assets/images/about_me/about_me_main.jpg';
-  static const String bachelorettePartyBacheloretteParty1 = 'assets/images/bachelorette_party/bachelorette_party_1.png';
-  static const String bachelorettePartyBacheloretteParty2 = 'assets/images/bachelorette_party/bachelorette_party_2.jpg';
-  static const String bachelorettePartyBacheloretteParty3 = 'assets/images/bachelorette_party/bachelorette_party_3.jpg';
-  static const String bachelorettePartyBacheloretteParty4 = 'assets/images/bachelorette_party/bachelorette_party_4.jpg';
-  static const String bachelorettePartyBacheloretteParty5 = 'assets/images/bachelorette_party/bachelorette_party_5.jpg';
-  static const String bachelorettePartyBacheloretteParty6 = 'assets/images/bachelorette_party/bachelorette_party_6.jpg';
-  static const String bachelorettePartyBacheloretteParty7 = 'assets/images/bachelorette_party/bachelorette_party_7.jpg';
-  static const String bachelorettePartyBacheloretteParty8 = 'assets/images/bachelorette_party/bachelorette_party_8.jpg';
-  static const String bachelorettePartyBacheloretteParty9 = 'assets/images/bachelorette_party/bachelorette_party_9.jpg';
-  static const String backgroundBacheloretteBack = 'assets/images/background/bachelorette_back.jpg';
-  static const String backgroundBandBack = 'assets/images/background/band_back.jpg';
+  static const String aboutMeAboutMeHeader =
+      'assets/images/about_me/about_me_header.jpg';
+  static const String aboutMeAboutMeMain =
+      'assets/images/about_me/about_me_main.jpg';
+  static const String bachelorettePartyBacheloretteParty1 =
+      'assets/images/bachelorette_party/bachelorette_party_1.png';
+  static const String bachelorettePartyBacheloretteParty2 =
+      'assets/images/bachelorette_party/bachelorette_party_2.jpg';
+  static const String bachelorettePartyBacheloretteParty3 =
+      'assets/images/bachelorette_party/bachelorette_party_3.jpg';
+  static const String bachelorettePartyBacheloretteParty4 =
+      'assets/images/bachelorette_party/bachelorette_party_4.jpg';
+  static const String bachelorettePartyBacheloretteParty5 =
+      'assets/images/bachelorette_party/bachelorette_party_5.jpg';
+  static const String bachelorettePartyBacheloretteParty6 =
+      'assets/images/bachelorette_party/bachelorette_party_6.jpg';
+  static const String bachelorettePartyBacheloretteParty7 =
+      'assets/images/bachelorette_party/bachelorette_party_7.jpg';
+  static const String bachelorettePartyBacheloretteParty8 =
+      'assets/images/bachelorette_party/bachelorette_party_8.jpg';
+  static const String bachelorettePartyBacheloretteParty9 =
+      'assets/images/bachelorette_party/bachelorette_party_9.jpg';
+  static const String backgroundBacheloretteBack =
+      'assets/images/background/bachelorette_back.jpg';
+  static const String backgroundBandBack =
+      'assets/images/background/band_back.jpg';
   static const String backgroundBg = 'assets/images/background/bg.jpg';
-  static const String backgroundBrautUndBraeutigamBack = 'assets/images/background/braut_und_braeutigam_back.jpg';
-  static const String backgroundCateringBack = 'assets/images/background/catering_back.jpg';
-  static const String backgroundChatbotBack = 'assets/images/background/chatbot_back.jpg';
+  static const String backgroundBrautUndBraeutigamBack =
+      'assets/images/background/braut_und_braeutigam_back.jpg';
+  static const String backgroundCateringBack =
+      'assets/images/background/catering_back.jpg';
+  static const String backgroundChatbotBack =
+      'assets/images/background/chatbot_back.jpg';
   static const String backgroundEigene = 'assets/images/background/eigene.jpg';
-  static const String backgroundFloristBack = 'assets/images/background/florist_back.jpg';
-  static const String backgroundFotografieBack = 'assets/images/background/fotografie_back.jpg';
-  static const String backgroundHairstylingMakeupBack = 'assets/images/background/hairstyling_makeup_back.jpg';
+  static const String backgroundFloristBack =
+      'assets/images/background/florist_back.jpg';
+  static const String backgroundFotografieBack =
+      'assets/images/background/fotografie_back.jpg';
+  static const String backgroundHairstylingMakeupBack =
+      'assets/images/background/hairstyling_makeup_back.jpg';
   static const String backgroundHomeBg = 'assets/images/background/home_bg.png';
-  static const String backgroundInspiration = 'assets/images/background/inspiration.png';
-  static const String backgroundInspirationbg = 'assets/images/background/inspirationbg.png';
-  static const String backgroundKosmetischeAkupunkturBack = 'assets/images/background/kosmetische_akupunktur_back.jpg';
-  static const String backgroundLocationBack = 'assets/images/background/location_back.jpg';
+  static const String backgroundInspiration =
+      'assets/images/background/inspiration.png';
+  static const String backgroundInspirationbg =
+      'assets/images/background/inspirationbg.png';
+  static const String backgroundKosmetischeAkupunkturBack =
+      'assets/images/background/kosmetische_akupunktur_back.jpg';
+  static const String backgroundLocationBack =
+      'assets/images/background/location_back.jpg';
   static const String backgroundNobg = 'assets/images/background/nobg.png';
-  static const String backgroundNoimage = 'assets/images/background/noimage.png';
-  static const String backgroundPapeterieBack = 'assets/images/background/papeterie_back.jpg';
-  static const String backgroundPatiserieBack = 'assets/images/background/patiserie_back.jpg';
-  static const String backgroundPersonalTrainingBack = 'assets/images/background/personal_training_back.jpg';
-  static const String backgroundShowroomEventBack = 'assets/images/background/showroom_event_back.jpg';
-  static const String backgroundTableManagementBg = 'assets/images/background/table_management_bg.png';
-  static const String backgroundTanzschuleBack = 'assets/images/background/tanzschule_back.jpg';
+  static const String backgroundNoimage =
+      'assets/images/background/noimage.png';
+  static const String backgroundPapeterieBack =
+      'assets/images/background/papeterie_back.jpg';
+  static const String backgroundPatiserieBack =
+      'assets/images/background/patiserie_back.jpg';
+  static const String backgroundPersonalTrainingBack =
+      'assets/images/background/personal_training_back.jpg';
+  static const String backgroundShowroomEventBack =
+      'assets/images/background/showroom_event_back.jpg';
+  static const String backgroundTableManagementBg =
+      'assets/images/table_management/table_management.jpg';
+  static const String backgroundTanzschuleBack =
+      'assets/images/background/tanzschule_back.jpg';
   static const String backgroundTodoBg = 'assets/images/background/todoBg.jpeg';
-  static const String backgroundTrauringeBack = 'assets/images/background/trauringe_back.jpg';
-  static const String backgroundUnterhaltungBack = 'assets/images/background/unterhaltung_back.jpg';
-  static const String backgroundWeddingDesignBack = 'assets/images/background/wedding_design_back.jpg';
-  static const String backgroundWeddingSche = 'assets/images/background/wedding_sche.png';
+  static const String backgroundTrauringeBack =
+      'assets/images/background/trauringe_back.jpg';
+  static const String backgroundUnterhaltungBack =
+      'assets/images/background/unterhaltung_back.jpg';
+  static const String backgroundWeddingDesignBack =
+      'assets/images/background/wedding_design_back.jpg';
+  static const String backgroundWeddingSche =
+      'assets/images/background/wedding_sche.png';
   static const String budgetBudget = 'assets/images/budget/budget.png';
-  static const String cardAlexeyTestovCard = 'assets/images/card/alexey_testov_card.jpg';
-  static const String cardAlteGaertnereiCard = 'assets/images/card/alte_gaertnerei_card.jpg';
-  static const String cardAnjaAndFriendsMusikensembleCard = 'assets/images/card/anja_and_friends_musikensemble_card.jpg';
-  static const String cardAnnaBachkalovaCard = 'assets/images/card/anna_bachkalova_card.jpg';
-  static const String cardAnnaMariaTabakaCard = 'assets/images/card/anna_maria_tabaka_card.jpg';
-  static const String cardBacheloretteCard = 'assets/images/card/bachelorette_card.jpg';
+  static const String cardAlexeyTestovCard =
+      'assets/images/card/alexey_testov_card.jpg';
+  static const String cardAlteGaertnereiCard =
+      'assets/images/card/alte_gaertnerei_card.jpg';
+  static const String cardAnjaAndFriendsMusikensembleCard =
+      'assets/images/card/anja_and_friends_musikensemble_card.jpg';
+  static const String cardAnnaBachkalovaCard =
+      'assets/images/card/anna_bachkalova_card.jpg';
+  static const String cardAnnaMariaTabakaCard =
+      'assets/images/card/anna_maria_tabaka_card.jpg';
+  static const String cardBacheloretteCard =
+      'assets/images/card/bachelorette_card.jpg';
   static const String cardBelflairCard = 'assets/images/card/belflair_card.jpg';
-  static const String cardElievAtelierCard = 'assets/images/card/eliev_atelier_card.jpg';
+  static const String cardElievAtelierCard =
+      'assets/images/card/eliev_atelier_card.jpg';
   static const String cardEltoCard = 'assets/images/card/elto_card.jpg';
-  static const String cardFabianRichtCard = 'assets/images/card/fabian_richt_card.jpg';
-  static const String cardHairMakeupCard = 'assets/images/card/hair_makeup_card.jpg';
-  static const String cardJessiKonfettiImHerzenCard = 'assets/images/card/jessi_konfetti_im_herzen_card.jpg';
-  static const String cardJoernGroppAdrianPlanitzCard = 'assets/images/card/joern_gropp_adrian_planitz_card.jpg';
-  static const String cardJudithLorenzSkusaSchmuckCard = 'assets/images/card/judith_lorenz_skusa_schmuck_card.jpg';
-  static const String cardKidsInMunichCard = 'assets/images/card/kids_in_munich_card.jpg';
-  static const String cardMariasPlatzlCard = 'assets/images/card/marias_platzl_card.jpg';
-  static const String cardMiracleWeddingCard = 'assets/images/card/miracle_wedding_card.jpg';
-  static const String cardMonokelberlinCard = 'assets/images/card/monokelberlin_card.jpg';
-  static const String cardPhillipSchmittCard = 'assets/images/card/phillip_schmitt_card.jpg';
+  static const String cardFabianRichtCard =
+      'assets/images/card/fabian_richt_card.jpg';
+  static const String cardHairMakeupCard =
+      'assets/images/card/hair_makeup_card.jpg';
+  static const String cardJessiKonfettiImHerzenCard =
+      'assets/images/card/jessi_konfetti_im_herzen_card.jpg';
+  static const String cardJoernGroppAdrianPlanitzCard =
+      'assets/images/card/joern_gropp_adrian_planitz_card.jpg';
+  static const String cardJudithLorenzSkusaSchmuckCard =
+      'assets/images/card/judith_lorenz_skusa_schmuck_card.jpg';
+  static const String cardKidsInMunichCard =
+      'assets/images/card/kids_in_munich_card.jpg';
+  static const String cardMariasPlatzlCard =
+      'assets/images/card/marias_platzl_card.jpg';
+  static const String cardMiracleWeddingCard =
+      'assets/images/card/miracle_wedding_card.jpg';
+  static const String cardMonokelberlinCard =
+      'assets/images/card/monokelberlin_card.jpg';
+  static const String cardPhillipSchmittCard =
+      'assets/images/card/phillip_schmitt_card.jpg';
   static const String cardReginaCard = 'assets/images/card/regina_card.jpg';
-  static const String cardSebastianSchwarzbachCard = 'assets/images/card/sebastian_schwarzbach_card.jpg';
-  static const String cardStefanKrovinovicCard = 'assets/images/card/stefan_krovinovic_card.jpg';
-  static const String cardTanjaKugelmannPapierRomantikCard = 'assets/images/card/tanja_kugelmann_papier_romantik_card.jpg';
+  static const String cardSebastianSchwarzbachCard =
+      'assets/images/card/sebastian_schwarzbach_card.jpg';
+  static const String cardStefanKrovinovicCard =
+      'assets/images/card/stefan_krovinovic_card.jpg';
+  static const String cardTanjaKugelmannPapierRomantikCard =
+      'assets/images/card/tanja_kugelmann_papier_romantik_card.jpg';
   static const String cardTasteriaCard = 'assets/images/card/tasteria_card.jpg';
-  static const String cardWirMachenCupcakesCard = 'assets/images/card/wir_machen_cupcakes_card.jpg';
-  static const String checklistChecklist = 'assets/images/checklist/checklist.jpg';
+  static const String cardWirMachenCupcakesCard =
+      'assets/images/card/wir_machen_cupcakes_card.jpg';
+  static const String checklistChecklist =
+      'assets/images/checklist/checklist.jpg';
   static const String dividerDivider2 = 'assets/images/divider/divider2.png';
-  static const String dividerWeddingRings = 'assets/images/divider/wedding_rings.png';
-  static const String gaestelistGaesteliste = 'assets/images/gaestelist/gaesteliste.png';
-  static const String hairMakeupHairMakeup1 = 'assets/images/hair_makeup/hair_makeup_1.png';
-  static const String hairMakeupHairMakeup10 = 'assets/images/hair_makeup/hair_makeup_10.jpg';
-  static const String hairMakeupHairMakeup11 = 'assets/images/hair_makeup/hair_makeup_11.jpg';
-  static const String hairMakeupHairMakeup12 = 'assets/images/hair_makeup/hair_makeup_12.jpg';
-  static const String hairMakeupHairMakeup13 = 'assets/images/hair_makeup/hair_makeup_13.jpg';
-  static const String hairMakeupHairMakeup14 = 'assets/images/hair_makeup/hair_makeup_14.jpg';
-  static const String hairMakeupHairMakeup15 = 'assets/images/hair_makeup/hair_makeup_15.jpg';
-  static const String hairMakeupHairMakeup2 = 'assets/images/hair_makeup/hair_makeup_2.jpg';
-  static const String hairMakeupHairMakeup3 = 'assets/images/hair_makeup/hair_makeup_3.jpg';
-  static const String hairMakeupHairMakeup4 = 'assets/images/hair_makeup/hair_makeup_4.jpg';
-  static const String hairMakeupHairMakeup5 = 'assets/images/hair_makeup/hair_makeup_5.jpg';
-  static const String hairMakeupHairMakeup6 = 'assets/images/hair_makeup/hair_makeup_6.jpg';
-  static const String hairMakeupHairMakeup7 = 'assets/images/hair_makeup/hair_makeup_7.jpg';
-  static const String hairMakeupHairMakeup8 = 'assets/images/hair_makeup/hair_makeup_8.jpg';
-  static const String hairMakeupHairMakeup9 = 'assets/images/hair_makeup/hair_makeup_9.jpg';
+  static const String dividerWeddingRings =
+      'assets/images/divider/wedding_rings.png';
+  static const String gaestelistGaesteliste =
+      'assets/images/gaestelist/gaesteliste.png';
+  static const String hairMakeupHairMakeup1 =
+      'assets/images/hair_makeup/hair_makeup_1.png';
+  static const String hairMakeupHairMakeup10 =
+      'assets/images/hair_makeup/hair_makeup_10.jpg';
+  static const String hairMakeupHairMakeup11 =
+      'assets/images/hair_makeup/hair_makeup_11.jpg';
+  static const String hairMakeupHairMakeup12 =
+      'assets/images/hair_makeup/hair_makeup_12.jpg';
+  static const String hairMakeupHairMakeup13 =
+      'assets/images/hair_makeup/hair_makeup_13.jpg';
+  static const String hairMakeupHairMakeup14 =
+      'assets/images/hair_makeup/hair_makeup_14.jpg';
+  static const String hairMakeupHairMakeup15 =
+      'assets/images/hair_makeup/hair_makeup_15.jpg';
+  static const String hairMakeupHairMakeup2 =
+      'assets/images/hair_makeup/hair_makeup_2.jpg';
+  static const String hairMakeupHairMakeup3 =
+      'assets/images/hair_makeup/hair_makeup_3.jpg';
+  static const String hairMakeupHairMakeup4 =
+      'assets/images/hair_makeup/hair_makeup_4.jpg';
+  static const String hairMakeupHairMakeup5 =
+      'assets/images/hair_makeup/hair_makeup_5.jpg';
+  static const String hairMakeupHairMakeup6 =
+      'assets/images/hair_makeup/hair_makeup_6.jpg';
+  static const String hairMakeupHairMakeup7 =
+      'assets/images/hair_makeup/hair_makeup_7.jpg';
+  static const String hairMakeupHairMakeup8 =
+      'assets/images/hair_makeup/hair_makeup_8.jpg';
+  static const String hairMakeupHairMakeup9 =
+      'assets/images/hair_makeup/hair_makeup_9.jpg';
   static const String homeHome1 = 'assets/images/home/home_1.jpg';
   static const String homeHome2 = 'assets/images/home/home_2.jpg';
   static const String homeWeddingHome = 'assets/images/home/wedding_home.jpg';
@@ -96,65 +169,114 @@ class Assets {
   static const String iconsSecretsIcon = 'assets/icons/secrets-icon.png';
   static const String iconsSquare = 'assets/icons/square.png';
   static const String imagesHomeHome1 = 'assets/images/home/home_1.png';
-  static const String inspirationsBacheloretteparty = 'assets/images/inspirations/Bacheloretteparty.jpg';
-  static const String inspirationsBandDJ = 'assets/images/inspirations/Band_DJ.jpg';
-  static const String inspirationsBrautBraeutigamAtelier = 'assets/images/inspirations/Braut_Braeutigam_Atelier.jpg';
+  static const String inspirationsBacheloretteparty =
+      'assets/images/inspirations/Bacheloretteparty.jpg';
+  static const String inspirationsBandDJ =
+      'assets/images/inspirations/Band_DJ.jpg';
+  static const String inspirationsBrautBraeutigamAtelier =
+      'assets/images/inspirations/Braut_Braeutigam_Atelier.jpg';
   static const String inspirationsCake = 'assets/images/inspirations/Cake.jpg';
-  static const String inspirationsCatering = 'assets/images/inspirations/Catering.jpg';
-  static const String inspirationsFloristFloristin = 'assets/images/inspirations/Florist_Floristin.jpg';
-  static const String inspirationsFotografFotografin = 'assets/images/inspirations/Fotograf_Fotografin.jpg';
-  static const String inspirationsGesang = 'assets/images/inspirations/Gesang.jpg';
-  static const String inspirationsHairUndMakeUpStyling = 'assets/images/inspirations/Hair_und_MakeUp_Styling.jpg';
-  static const String inspirationsKosmetischeAkupunktur = 'assets/images/inspirations/kosmetische_akupunktur.jpg';
-  static const String inspirationsLocation = 'assets/images/inspirations/Location.jpg';
-  static const String inspirationsPapeterie = 'assets/images/inspirations/Papeterie.jpg';
-  static const String inspirationsPatiserie = 'assets/images/inspirations/Patiserie.jpg';
-  static const String inspirationsPersonalTraining = 'assets/images/inspirations/Personal_Training.jpg';
-  static const String inspirationsTanzschule = 'assets/images/inspirations/Tanzschule.jpg';
-  static const String inspirationsTrauredner = 'assets/images/inspirations/Trauredner.jpg';
-  static const String inspirationsTrauringe = 'assets/images/inspirations/Trauringe.jpg';
-  static const String inspirationsUnterhaltung = 'assets/images/inspirations/Unterhaltung.jpg';
-  static const String inspirationsWeddingDesigner = 'assets/images/inspirations/Wedding_Designer.jpg';
-  static const String kontaktKontaktseite = 'assets/images/kontakt/kontaktseite.png';
+  static const String inspirationsCatering =
+      'assets/images/inspirations/Catering.jpg';
+  static const String inspirationsFloristFloristin =
+      'assets/images/inspirations/Florist_Floristin.jpg';
+  static const String inspirationsFotografFotografin =
+      'assets/images/inspirations/Fotograf_Fotografin.jpg';
+  static const String inspirationsGesang =
+      'assets/images/inspirations/Gesang.jpg';
+  static const String inspirationsHairUndMakeUpStyling =
+      'assets/images/inspirations/Hair_und_MakeUp_Styling.jpg';
+  static const String inspirationsKosmetischeAkupunktur =
+      'assets/images/inspirations/kosmetische_akupunktur.jpg';
+  static const String inspirationsLocation =
+      'assets/images/inspirations/Location.jpg';
+  static const String inspirationsPapeterie =
+      'assets/images/inspirations/Papeterie.jpg';
+  static const String inspirationsPatiserie =
+      'assets/images/inspirations/Patiserie.jpg';
+  static const String inspirationsPersonalTraining =
+      'assets/images/inspirations/Personal_Training.jpg';
+  static const String inspirationsTanzschule =
+      'assets/images/inspirations/Tanzschule.jpg';
+  static const String inspirationsTrauredner =
+      'assets/images/inspirations/Trauredner.jpg';
+  static const String inspirationsTrauringe =
+      'assets/images/inspirations/Trauringe.jpg';
+  static const String inspirationsUnterhaltung =
+      'assets/images/inspirations/Unterhaltung.jpg';
+  static const String inspirationsWeddingDesigner =
+      'assets/images/inspirations/Wedding_Designer.jpg';
+  static const String kontaktKontaktseite =
+      'assets/images/kontakt/kontaktseite.png';
   static const String logoCalendar = 'assets/images/logo/calendar.png';
   static const String logoSecretsLogo = 'assets/images/logo/secrets-logo.jpg';
-  static const String logoSecretsLogoAppBar = 'assets/images/logo/secrets-logo-app-bar.jpg';
+  static const String logoSecretsLogoAppBar =
+      'assets/images/logo/secrets-logo-app-bar.jpg';
   static const String logoTime = 'assets/images/logo/time.png';
-  static const String muenchnerGeheimtippsBacheloretteparty = 'assets/images/muenchner_geheimtipps/Bacheloretteparty.jpg';
-  static const String muenchnerGeheimtippsBandDJ = 'assets/images/muenchner_geheimtipps/Band_DJ.jpg';
-  static const String muenchnerGeheimtippsBrautBraeutigamAtelier = 'assets/images/muenchner_geheimtipps/Braut_Braeutigam_Atelier.jpg';
-  static const String muenchnerGeheimtippsCake = 'assets/images/muenchner_geheimtipps/Cake.jpg';
-  static const String muenchnerGeheimtippsCatering = 'assets/images/muenchner_geheimtipps/Catering.jpg';
-  static const String muenchnerGeheimtippsFlorist = 'assets/images/muenchner_geheimtipps/Florist.jpg';
-  static const String muenchnerGeheimtippsFotograf = 'assets/images/muenchner_geheimtipps/Fotograf.jpg';
-  static const String muenchnerGeheimtippsGesang = 'assets/images/muenchner_geheimtipps/Gesang.jpg';
-  static const String muenchnerGeheimtippsHairUndMakeUpStyling = 'assets/images/muenchner_geheimtipps/Hair_und_MakeUp_Styling.jpg';
-  static const String muenchnerGeheimtippsKosmetischeAkupunktur = 'assets/images/muenchner_geheimtipps/Kosmetische_Akupunktur.jpg';
-  static const String muenchnerGeheimtippsLocation = 'assets/images/muenchner_geheimtipps/Location.jpg';
-  static const String muenchnerGeheimtippsPapeterie = 'assets/images/muenchner_geheimtipps/Papeterie.jpg';
-  static const String muenchnerGeheimtippsPatiserie = 'assets/images/muenchner_geheimtipps/Patiserie.jpg';
-  static const String muenchnerGeheimtippsPersonalTraining = 'assets/images/muenchner_geheimtipps/Personal_Training.jpg';
-  static const String muenchnerGeheimtippsTanzschule = 'assets/images/muenchner_geheimtipps/Tanzschule.jpg';
-  static const String muenchnerGeheimtippsTrauredner = 'assets/images/muenchner_geheimtipps/Trauredner.jpg';
-  static const String muenchnerGeheimtippsTrauringe = 'assets/images/muenchner_geheimtipps/Trauringe.jpg';
-  static const String muenchnerGeheimtippsUnterhaltung = 'assets/images/muenchner_geheimtipps/Unterhaltung.jpg';
-  static const String muenchnerGeheimtippsWeddingDesigner = 'assets/images/muenchner_geheimtipps/Wedding_Designer.jpg';
-  static const String showroomEventShowroomEvent1 = 'assets/images/showroom_event/showroom_event_1.png';
-  static const String showroomEventShowroomEvent2 = 'assets/images/showroom_event/showroom_event_2.jpg';
-  static const String showroomEventShowroomEvent3 = 'assets/images/showroom_event/showroom_event_3.jpg';
-  static const String showroomEventShowroomEvent4 = 'assets/images/showroom_event/showroom_event_4.jpg';
-  static const String showroomEventShowroomEvent5 = 'assets/images/showroom_event/showroom_event_5.jpg';
-  static const String showroomEventShowroomEvent6 = 'assets/images/showroom_event/showroom_event_6.jpg';
-  static const String showroomEventShowroomEvent7 = 'assets/images/showroom_event/showroom_event_7.jpg';
-  static const String showroomEventShowroomEvent8 = 'assets/images/showroom_event/showroom_event_8.jpg';
-  static const String showroomEventShowroomEvent9 = 'assets/images/showroom_event/showroom_event_9.jpg';
+  static const String muenchnerGeheimtippsBacheloretteparty =
+      'assets/images/muenchner_geheimtipps/Bacheloretteparty.jpg';
+  static const String muenchnerGeheimtippsBandDJ =
+      'assets/images/muenchner_geheimtipps/Band_DJ.jpg';
+  static const String muenchnerGeheimtippsBrautBraeutigamAtelier =
+      'assets/images/muenchner_geheimtipps/Braut_Braeutigam_Atelier.jpg';
+  static const String muenchnerGeheimtippsCake =
+      'assets/images/muenchner_geheimtipps/Cake.jpg';
+  static const String muenchnerGeheimtippsCatering =
+      'assets/images/muenchner_geheimtipps/Catering.jpg';
+  static const String muenchnerGeheimtippsFlorist =
+      'assets/images/muenchner_geheimtipps/Florist.jpg';
+  static const String muenchnerGeheimtippsFotograf =
+      'assets/images/muenchner_geheimtipps/Fotograf.jpg';
+  static const String muenchnerGeheimtippsGesang =
+      'assets/images/muenchner_geheimtipps/Gesang.jpg';
+  static const String muenchnerGeheimtippsHairUndMakeUpStyling =
+      'assets/images/muenchner_geheimtipps/Hair_und_MakeUp_Styling.jpg';
+  static const String muenchnerGeheimtippsKosmetischeAkupunktur =
+      'assets/images/muenchner_geheimtipps/Kosmetische_Akupunktur.jpg';
+  static const String muenchnerGeheimtippsLocation =
+      'assets/images/muenchner_geheimtipps/Location.jpg';
+  static const String muenchnerGeheimtippsPapeterie =
+      'assets/images/muenchner_geheimtipps/Papeterie.jpg';
+  static const String muenchnerGeheimtippsPatiserie =
+      'assets/images/muenchner_geheimtipps/Patiserie.jpg';
+  static const String muenchnerGeheimtippsPersonalTraining =
+      'assets/images/muenchner_geheimtipps/Personal_Training.jpg';
+  static const String muenchnerGeheimtippsTanzschule =
+      'assets/images/muenchner_geheimtipps/Tanzschule.jpg';
+  static const String muenchnerGeheimtippsTrauredner =
+      'assets/images/muenchner_geheimtipps/Trauredner.jpg';
+  static const String muenchnerGeheimtippsTrauringe =
+      'assets/images/muenchner_geheimtipps/Trauringe.jpg';
+  static const String muenchnerGeheimtippsUnterhaltung =
+      'assets/images/muenchner_geheimtipps/Unterhaltung.jpg';
+  static const String muenchnerGeheimtippsWeddingDesigner =
+      'assets/images/muenchner_geheimtipps/Wedding_Designer.jpg';
+  static const String showroomEventShowroomEvent1 =
+      'assets/images/showroom_event/showroom_event_1.png';
+  static const String showroomEventShowroomEvent2 =
+      'assets/images/showroom_event/showroom_event_2.jpg';
+  static const String showroomEventShowroomEvent3 =
+      'assets/images/showroom_event/showroom_event_3.jpg';
+  static const String showroomEventShowroomEvent4 =
+      'assets/images/showroom_event/showroom_event_4.jpg';
+  static const String showroomEventShowroomEvent5 =
+      'assets/images/showroom_event/showroom_event_5.jpg';
+  static const String showroomEventShowroomEvent6 =
+      'assets/images/showroom_event/showroom_event_6.jpg';
+  static const String showroomEventShowroomEvent7 =
+      'assets/images/showroom_event/showroom_event_7.jpg';
+  static const String showroomEventShowroomEvent8 =
+      'assets/images/showroom_event/showroom_event_8.jpg';
+  static const String showroomEventShowroomEvent9 =
+      'assets/images/showroom_event/showroom_event_9.jpg';
   static const String videos1 = 'assets/videos/1.mp4';
   static const String videos2 = 'assets/videos/2.mp4';
   static const String videosAboutMe = 'assets/videos/about_me.mp4';
   static const String videosAkupunktur = 'assets/videos/akupunktur.mp4';
   static const String videosBachelorette = 'assets/videos/bachelorette.mp4';
   static const String videosHairMakeup = 'assets/videos/hair_makeup.mp4';
-  static const String videosX202505210037280001 = 'assets/videos/X_20250521_003728_0001.mp4';
-  static const String videosYouCut20250520023034496 = 'assets/videos/YouCut_20250520_023034496.mp4';
-
+  static const String videosX202505210037280001 =
+      'assets/videos/X_20250521_003728_0001.mp4';
+  static const String videosYouCut20250520023034496 =
+      'assets/videos/YouCut_20250520_023034496.mp4';
 }

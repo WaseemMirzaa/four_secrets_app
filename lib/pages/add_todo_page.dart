@@ -741,7 +741,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
                               context, 'Kategorie existiert bereits!');
                           return;
                         }
-                        var g = Navigator.of(context).pushNamed(
+                        var g = await Navigator.of(context).pushNamed(
                             RouteManager.addTodoCategoriesPage,
                             arguments: {"toDoModel": null, "id": null});
                         // if (g == true) {
@@ -755,7 +755,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
                             size: 18,
                             color: Colors.black,
                           ),
-                          const SizedBox(width: 10),
+                          SizedBox(width: 10),
                           CustomTextWidget(
                             text: "Keine Ergebnisse gefunden",
                             fontSize: 16,
