@@ -67,6 +67,7 @@ import 'package:four_secrets_wedding_app/pages/to_do_page.dart';
 import 'package:four_secrets_wedding_app/pages/trauredner.dart';
 import 'package:four_secrets_wedding_app/pages/trauringe.dart';
 import 'package:four_secrets_wedding_app/pages/unterhaltung.dart';
+import 'package:four_secrets_wedding_app/pages/gesang.dart';
 import 'package:four_secrets_wedding_app/pages/wedding_category_title_page.dart';
 import 'package:four_secrets_wedding_app/pages/wedding_schedule_page.dart';
 
@@ -321,6 +322,14 @@ class RouteManager {
       case papeteriePage:
         return PageTransition(
           child: Papeterie(),
+          settings: settings,
+          duration: const Duration(milliseconds: 250),
+          type: PageTransitionType.rightToLeft,
+        );
+
+      case gesangPage:
+        return PageTransition(
+          child: Gesang(),
           settings: settings,
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,

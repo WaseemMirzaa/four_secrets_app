@@ -17,8 +17,8 @@ class MuenchnerGeheimtippImages {
       'assets/images/muenchner_geheimtipps/Personal_Training.jpg',
       'assets/images/muenchner_geheimtipps/Papeterie.jpg',
       'assets/images/muenchner_geheimtipps/Unterhaltung.jpg',
-      'assets/images/muenchner_geheimtipps/Trauringe.jpg'
-          'assets/images/muenchner_geheimtipps/Catering.jpg'
+      'assets/images/muenchner_geheimtipps/Trauringe.jpg',
+      'assets/images/muenchner_geheimtipps/Catering.jpg'
     ];
     return images;
   }
