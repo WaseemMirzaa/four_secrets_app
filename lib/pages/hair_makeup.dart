@@ -57,28 +57,28 @@ class HairMakeUp extends StatelessWidget {
             ),
           ),
           backgroundColor: const Color.fromARGB(255, 107, 69, 106),
-          actions: [
-            // Video icon button in top right
-            if (videoAsset.isNotEmpty || videoUri.isNotEmpty)
-              IconButton(
-                icon: const Icon(
-                  Icons.play_circle,
-                  color: Colors.white,
-                  size: 28,
-                ),
-                onPressed: () {
-                  Navigator.of(context).pushNamed(
-                    RouteManager.videoPlayer2,
-                    arguments: {
-                      'asset': videoAsset,
-                      'uri': videoUri,
-                      'ratio': videoRatio,
-                    },
-                  );
-                },
-                tooltip: 'Video abspielen',
-              ),
-          ],
+          // actions: [
+          //   // Video icon button in top right
+          //   if (videoAsset.isNotEmpty || videoUri.isNotEmpty)
+          //     IconButton(
+          //       icon: const Icon(
+          //         Icons.play_circle,
+          //         color: Colors.white,
+          //         size: 28,
+          //       ),
+          //       onPressed: () {
+          //         Navigator.of(context).pushNamed(
+          //           RouteManager.videoPlayer2,
+          //           arguments: {
+          //             'asset': videoAsset,
+          //             'uri': videoUri,
+          //             'ratio': videoRatio,
+          //           },
+          //         );
+          //       },
+          //       tooltip: 'Video abspielen',
+          //     ),
+          // ],
         ),
         body: Stack(
           children: [
