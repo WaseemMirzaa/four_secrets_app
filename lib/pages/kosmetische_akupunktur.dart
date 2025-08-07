@@ -73,7 +73,7 @@ class KosmetischeAkupunktur extends StatelessWidget {
                   ),
                 ),
                 FourSecretsDivider(),
-                const (height: 25),
+                const SizedBox(height: 25),
               ],
             ),
           ),
