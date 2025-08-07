@@ -382,7 +382,7 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
                                                           fontSize: 16,
                                                         ),
                                                       ),
-                                                      SizedBox(height: 2),
+                                                      const SizedBox(height: 2),
                                                       Text(
                                                         guest['takePart']
                                                             ? 'Bestätigt'
@@ -709,7 +709,7 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
                                 )
                               ],
                             ),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 4),
                             Text(
                               '${AppConstants.maxGuestsDisplay}${table.maxGuests}',
                               style: TextStyle(
@@ -773,7 +773,7 @@ class _TablesManagementPageState extends State<TablesManagementPage> {
                                         fontSize: 15,
                                       ),
                                     ),
-                                    SizedBox(height: 2),
+                                    const SizedBox(height: 2),
                                     Text(
                                       guest['takePart']
                                           ? 'Bestätigt'

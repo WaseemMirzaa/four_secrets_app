@@ -110,7 +110,7 @@ class ShowroomEvent extends StatelessWidget {
                     images: images,
                     height: 480,
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 15,
                   ),
                   Row(

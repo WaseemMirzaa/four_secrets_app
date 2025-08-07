@@ -367,7 +367,7 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
             //  SpacerWidget(height: 17),
             SizedBox(
               child: Image.asset(
-                "assets/images/background/inspirationbg.png",
+                "assets/images/background/inspirationbg.jpg",
                 fit: BoxFit.fitWidth,
               ),
             ),

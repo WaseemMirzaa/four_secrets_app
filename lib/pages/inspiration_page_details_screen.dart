@@ -65,7 +65,7 @@ class _InspirationDetailPageState extends State<InspirationDetailPage> {
                     children: [
                       Icon(FontAwesomeIcons.penToSquare,
                           size: 16, color: Colors.black),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Text("Bearbeiten", style: TextStyle(color: Colors.black)),
                     ],
                   ),
@@ -75,7 +75,7 @@ class _InspirationDetailPageState extends State<InspirationDetailPage> {
                   child: Row(
                     children: [
                       Icon(FontAwesomeIcons.trash, size: 18, color: Colors.red),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Text("Löschen", style: TextStyle(color: Colors.red)),
                     ],
                   ),
@@ -234,7 +234,7 @@ class _InspirationDetailPageState extends State<InspirationDetailPage> {
                     color: Colors.white,
                     onPressed: () => Navigator.of(context).pop(),
                   )),
-                  SizedBox(width: 24),
+                  const SizedBox(width: 24),
                   Expanded(
                     child: CustomButtonWidget(
                       text: "Speichern",

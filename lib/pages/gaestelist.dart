@@ -512,7 +512,7 @@ class _GaestelistState extends State<Gaestelist> {
                 ],
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Padding(
               padding: EdgeInsets.symmetric(vertical: 25),
             ),

@@ -78,7 +78,7 @@ class _SwipeableCardTestState extends State<SwipeableCardTest> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
                       // Image Fit Mode
                       Text("Image Fit Mode:"),
@@ -104,7 +104,7 @@ class _SwipeableCardTestState extends State<SwipeableCardTest> {
                           );
                         }).toList(),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
                       // Show Indicators
                       Row(
@@ -168,7 +168,7 @@ class _SwipeableCardTestState extends State<SwipeableCardTest> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Text(
                         "• Swipe left or right to change images\n"
                         "• Even a small swipe will trigger the change\n"

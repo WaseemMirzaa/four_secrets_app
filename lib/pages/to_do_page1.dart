@@ -371,7 +371,7 @@ class _ToDoPageState extends State<ToDoPage1> {
                           children: [
                             Icon(Icons.error_outline,
                                 color: Colors.red, size: 20),
-                            SizedBox(width: 8),
+                            const SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 errorMessage!,

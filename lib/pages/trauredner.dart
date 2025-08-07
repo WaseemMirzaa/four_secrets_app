@@ -24,7 +24,7 @@ class Trauredner extends StatelessWidget {
           decoration: BoxDecoration(
             image: DecorationImage(
               opacity: 0.4,
-              image: AssetImage("assets/images/inspirations/Trauredner.jpg"),
+              image: AssetImage("assets/images/background/trauredner_back.jpg"),
               fit: BoxFit.cover,
             ),
           ),
@@ -39,6 +39,7 @@ class Trauredner extends StatelessWidget {
                   return items[index];
                 },
               ),
+              const SizedBox(height: 25),
             ],
           ),
         ),

@@ -8,16 +8,17 @@ class MuenchnerGeheimtippImages {
       'assets/images/muenchner_geheimtipps/Location.jpg',
       'assets/images/muenchner_geheimtipps/Gesang.jpg',
       'assets/images/muenchner_geheimtipps/Band_DJ.jpg',
-      'assets/images/muenchner_geheimtipps/Florist_Floristin.jpg',
+      'assets/images/muenchner_geheimtipps/Floristik.jpg',
       'assets/images/muenchner_geheimtipps/Patiserie.jpg',
       'assets/images/muenchner_geheimtipps/Trauredner.jpg',
-      'assets/images/muenchner_geheimtipps/Fotograf_Fotografin.jpg',
+      'assets/images/muenchner_geheimtipps/Fotografie.jpg',
       'assets/images/muenchner_geheimtipps/Tanzschule.jpg',
       'assets/images/muenchner_geheimtipps/Kosmetische_Akupunktur.jpg',
       'assets/images/muenchner_geheimtipps/Personal_Training.jpg',
       'assets/images/muenchner_geheimtipps/Papeterie.jpg',
       'assets/images/muenchner_geheimtipps/Unterhaltung.jpg',
-      'assets/images/muenchner_geheimtipps/Trauringe.jpg'
+      'assets/images/muenchner_geheimtipps/Trauringe.jpg',
+      'assets/images/muenchner_geheimtipps/Catering.jpg'
     ];
     return images;
   }

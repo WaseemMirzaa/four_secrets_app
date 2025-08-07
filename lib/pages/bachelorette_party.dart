@@ -3,14 +3,10 @@ import 'package:four_secrets_wedding_app/data/bachelorette_data.dart';
 import 'package:four_secrets_wedding_app/data/bachelorette_images.dart';
 import 'package:four_secrets_wedding_app/data/bachelorette_card_items.dart';
 import 'package:four_secrets_wedding_app/model/swipeable_card_widget.dart';
-import 'package:four_secrets_wedding_app/model/carousel_slider_widget.dart';
 import 'package:four_secrets_wedding_app/model/footer_buttons.dart';
 import 'package:four_secrets_wedding_app/model/four_secrets_divider.dart';
-import 'package:flutter/material.dart';
-import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:four_secrets_wedding_app/widgets/spacer_widget.dart';
 import 'package:four_secrets_wedding_app/menue.dart';
-import 'package:four_secrets_wedding_app/data/bachelorette_card_items.dart';
 
 // // ignore: must_be_immutable
 // ignore: must_be_immutable
@@ -78,8 +74,10 @@ class BacheloretteParty extends StatelessWidget {
                 children: [
                   // Card Items ohne weitere ListView
                   ...items,
+
                   const Padding(padding: EdgeInsets.only(top: 15)),
                   FourSecretsDivider(),
+
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
@@ -136,6 +134,7 @@ class BacheloretteParty extends StatelessWidget {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 25),
 
                   // Platz für Footer-Buttons
                   const SizedBox(height: 80),

@@ -78,7 +78,7 @@ class AppConstants {
 
   // Asset Paths
   static const String tableManagementBackground =
-      'assets/images/background/table_management_bg.png';
+      'assets/images/table_management/table_management.jpg';
   static const String tableIconCircle = 'assets/icons/circle.png';
   static const String tableIconOval = 'assets/icons/oval.png';
   static const String tableIconRectangle = 'assets/icons/rectangle.png';

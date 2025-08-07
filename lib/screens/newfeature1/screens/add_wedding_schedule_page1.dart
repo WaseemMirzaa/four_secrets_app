@@ -1057,7 +1057,7 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
                                           _angebotFileName),
                                       style: TextStyle(fontSize: 16),
                                     ),
-                                    SizedBox(width: 4),
+                                    const SizedBox(width: 4),
                                     Text(
                                       FileUploadService1.isImageFile(
                                               _angebotFileName)
@@ -1230,7 +1230,7 @@ class _AddWeddingSchedulePage1State extends State<AddWeddingSchedulePage1> {
                           });
                         },
                       ),
-                      SizedBox(width: 10),
+                      const SizedBox(width: 10),
                     ],
                   ),
                 ),

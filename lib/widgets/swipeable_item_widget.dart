@@ -65,7 +65,7 @@ class _SwipeableItemWidgetState extends State<SlidableItemWidget> {
                 Row(
                   children: [
                     Icon(FontAwesomeIcons.clock, size: 16),
-                    SizedBox(width: 4),
+                    const SizedBox(width: 4),
                     CustomTextWidget(
                       text:
                           "${widget.item.time.hour.toString().padLeft(2, '0')}:${widget.item.time.minute.toString().padLeft(2, '0')} "
@@ -89,7 +89,7 @@ class _SwipeableItemWidgetState extends State<SlidableItemWidget> {
                       FontAwesomeIcons.calendar,
                       size: 14,
                     ),
-                    SizedBox(width: 4),
+                    const SizedBox(width: 4),
                     CustomTextWidget(
                       text:
                           "${widget.item.time.day.toString().padLeft(2, '0')},${widget.item.time.month.toString().padLeft(2, '0')},${widget.item.time.year}",
@@ -112,7 +112,7 @@ class _SwipeableItemWidgetState extends State<SlidableItemWidget> {
                     ),
                   ),
                 ),
-                SizedBox(width: 4),
+                const SizedBox(width: 4),
                 InkWell(
                   onTap: widget.onEdit,
                   child: Padding(

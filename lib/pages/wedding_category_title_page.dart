@@ -274,7 +274,7 @@ class _WeddingCategoryTitlePageState extends State<WeddingCategoryTitlePage> {
                             size: 20,
                             color: Colors.black,
                           ),
-                          SizedBox(width: 10),
+                          const SizedBox(width: 10),
                           Text(
                             "Keine Ergebnisse gefunden",
                             style: TextStyle(color: Colors.black, fontSize: 16),

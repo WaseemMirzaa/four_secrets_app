@@ -57,28 +57,28 @@ class HairMakeUp extends StatelessWidget {
             ),
           ),
           backgroundColor: const Color.fromARGB(255, 107, 69, 106),
-          actions: [
-            // Video icon button in top right
-            if (videoAsset.isNotEmpty || videoUri.isNotEmpty)
-              IconButton(
-                icon: const Icon(
-                  Icons.play_circle,
-                  color: Colors.white,
-                  size: 28,
-                ),
-                onPressed: () {
-                  Navigator.of(context).pushNamed(
-                    RouteManager.videoPlayer2,
-                    arguments: {
-                      'asset': videoAsset,
-                      'uri': videoUri,
-                      'ratio': videoRatio,
-                    },
-                  );
-                },
-                tooltip: 'Video abspielen',
-              ),
-          ],
+          // actions: [
+          //   // Video icon button in top right
+          //   if (videoAsset.isNotEmpty || videoUri.isNotEmpty)
+          //     IconButton(
+          //       icon: const Icon(
+          //         Icons.play_circle,
+          //         color: Colors.white,
+          //         size: 28,
+          //       ),
+          //       onPressed: () {
+          //         Navigator.of(context).pushNamed(
+          //           RouteManager.videoPlayer2,
+          //           arguments: {
+          //             'asset': videoAsset,
+          //             'uri': videoUri,
+          //             'ratio': videoRatio,
+          //           },
+          //         );
+          //       },
+          //       tooltip: 'Video abspielen',
+          //     ),
+          // ],
         ),
         body: Stack(
           children: [
@@ -99,22 +99,12 @@ class HairMakeUp extends StatelessWidget {
             SingleChildScrollView(
               child: Column(
                 children: [
-                  // Image Gallery Section (oben)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 12.0),
-                    child: SwipeableCardWidget(
-                      images: images,
-                      height: 430,
-                    ),
-                  ),
-
-                  // Card Items (falls vorhanden)
+                  // Card Items ohne weitere ListView
                   ...items,
 
                   const Padding(padding: EdgeInsets.only(top: 15)),
                   FourSecretsDivider(),
 
-                  // Text Content Section
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
@@ -153,6 +143,19 @@ class HairMakeUp extends StatelessWidget {
                   const Padding(
                     padding: EdgeInsets.only(top: 12.5),
                   ),
+
+                  FourSecretsDivider(),
+
+                  // Image Carousel Section
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12.0),
+                    child: SwipeableCardWidget(
+                      images: images,
+                      height: 430,
+                    ),
+                  ),
+
+                  const SizedBox(height: 25),
 
                   // Platz für Footer-Buttons
                   const SizedBox(height: 80),

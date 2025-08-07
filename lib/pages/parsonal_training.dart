@@ -71,6 +71,7 @@ class PersonalTraining extends StatelessWidget {
                 ),
               ),
               FourSecretsDivider(),
+              const SizedBox(height: 25),
             ],
           ),
         ),

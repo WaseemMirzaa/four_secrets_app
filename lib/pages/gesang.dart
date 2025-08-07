@@ -23,8 +23,7 @@ class Gesang extends StatelessWidget {
           decoration: BoxDecoration(
             image: DecorationImage(
               opacity: 0.4,
-              image: AssetImage(
-                  "assets/images/background/wedding_design_back.jpg"),
+              image: AssetImage("assets/images/background/gesang_back.jpg"),
               fit: BoxFit.cover,
             ),
           ),
@@ -39,6 +38,7 @@ class Gesang extends StatelessWidget {
                   return items[index];
                 },
               ),
+              const SizedBox(height: 25),
             ],
           ),
         ),

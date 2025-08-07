@@ -58,18 +58,18 @@ class _HomePageState extends State<HomePage> {
               child: Container(
                 width: MediaQuery.of(context).size.width,
                 child: Image.asset(
-                  'assets/images/background/home_bg.png',
+                  'assets/images/home/welcome_home.png',
                   fit: BoxFit.contain,
                 ),
               ),
             ),
             const SliverToBoxAdapter(
-              child: SizedBox(
+              child: const SizedBox(
                 height: 30,
               ),
             ),
             const SliverToBoxAdapter(
-              child: SizedBox(
+              child: const SizedBox(
                 height: 10,
               ),
             ),
@@ -138,7 +138,7 @@ class _HomePageState extends State<HomePage> {
             // ),
 
             const SliverToBoxAdapter(
-              child: SizedBox(
+              child: const SizedBox(
                 height: 40,
               ),
             ),

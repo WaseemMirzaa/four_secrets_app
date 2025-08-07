@@ -78,7 +78,7 @@ class _CommentInputFieldState extends State<CommentInputField> {
             },
           ),
         ),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         IconButton(
           icon: _isSending
               ? SizedBox(

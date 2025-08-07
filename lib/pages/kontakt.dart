@@ -49,7 +49,7 @@ class Kontakt extends StatelessWidget {
                         color: Color.fromARGB(255, 107, 69, 106),
                         size: 24,
                       ),
-                      SizedBox(width: 10), // Einheitlicher Abstand
+                      const SizedBox(width: 10), // Einheitlicher Abstand
                       Text.rich(
                         TextSpan(
                           children: [
@@ -80,7 +80,7 @@ class Kontakt extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(
+                  const SizedBox(
                       height: 15), // Einheitlicher Abstand zwischen den Zeilen
 
                   // EMAIL
@@ -91,7 +91,7 @@ class Kontakt extends StatelessWidget {
                         color: Color.fromARGB(255, 107, 69, 106),
                         size: 24,
                       ),
-                      SizedBox(width: 10), // Einheitlicher Abstand
+                      const SizedBox(width: 10), // Einheitlicher Abstand
                       Text.rich(
                         TextSpan(
                           children: [
@@ -123,7 +123,7 @@ class Kontakt extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(
+                  const SizedBox(
                       height: 15), // Einheitlicher Abstand zwischen den Zeilen
 
                   // WEBSITE
@@ -134,7 +134,7 @@ class Kontakt extends StatelessWidget {
                         color: Color.fromARGB(255, 107, 69, 106),
                         size: 24,
                       ),
-                      SizedBox(width: 10), // Einheitlicher Abstand
+                      const SizedBox(width: 10), // Einheitlicher Abstand
                       Text.rich(
                         TextSpan(
                           children: [

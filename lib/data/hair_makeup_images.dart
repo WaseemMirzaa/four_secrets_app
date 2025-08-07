@@ -2,7 +2,7 @@ class HairMakeUpImages {
   // List with all assets images
   static List<String> getImages() {
     final List<String> images = [
-      'assets/images/hair_makeup/hair_makeup_1.png',
+      'assets/images/hair_makeup/hair_makeup_1.jpg',
       'assets/images/hair_makeup/hair_makeup_2.jpg',
       'assets/images/hair_makeup/hair_makeup_3.jpg',
       'assets/images/hair_makeup/hair_makeup_4.jpg',
@@ -16,7 +16,6 @@ class HairMakeUpImages {
       'assets/images/hair_makeup/hair_makeup_12.jpg',
       'assets/images/hair_makeup/hair_makeup_13.jpg',
       'assets/images/hair_makeup/hair_makeup_14.jpg',
-      'assets/images/hair_makeup/hair_makeup_15.jpg',
     ];
     return images;
   }

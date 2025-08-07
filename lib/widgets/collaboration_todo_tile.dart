@@ -654,7 +654,7 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                         children: [
                           Icon(FontAwesomeIcons.penToSquare,
                               color: Color(0xFF6B456A), size: 18),
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
                           CustomTextWidget(
                               color: Color(0xFF6B456A), text: 'Bearbeiten'),
                         ],
@@ -666,7 +666,7 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                         children: [
                           Icon(FontAwesomeIcons.trashCan,
                               color: Colors.red, size: 18),
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
                           CustomTextWidget(color: Colors.red, text: 'Löschen'),
                         ],
                       ),
@@ -675,7 +675,7 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                 ),
             ],
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Padding(
             padding:
                 const EdgeInsets.symmetric(horizontal: 20.0, vertical: 4.0),
@@ -844,7 +844,7 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                       // Hide edit/delete buttons for revoked users
                     ],
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   // Always show the tag for revoked users
                   FutureBuilder<String>(
                     future: _getOwnerName(ownerId, ownerName),
@@ -903,7 +903,7 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                                       null, // Always disabled for revoked
                                   activeColor: checkboxColor,
                                 ),
-                                SizedBox(width: 8),
+                                const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
                                     itemName,
@@ -929,7 +929,7 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                     children: [
                       Text('Kommentare:',
                           style: TextStyle(fontWeight: FontWeight.bold)),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
                         stream: FirebaseFirestore.instance
                             .collection(widget.collectionPath)
@@ -1026,7 +1026,7 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                           );
                         },
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                     ],
                   ),
                 ),
@@ -1215,7 +1215,7 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                     ],
                   ],
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 // Always show "Shared by" tag for non-owned todos
                 if (showTag && !isOwned)
                   FutureBuilder<String>(
@@ -1399,7 +1399,7 @@ class _CollaborationTodoTileState extends State<CollaborationTodoTile> {
                                 },
                                 activeColor: checkboxColor,
                               ),
-                              SizedBox(width: 8),
+                              const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
                                   itemName,

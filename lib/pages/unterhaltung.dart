@@ -40,6 +40,7 @@ class Unterhaltung extends StatelessWidget {
                   return items[index];
                 },
               ),
+              const SizedBox(height: 25),
             ],
           ),
         ),
