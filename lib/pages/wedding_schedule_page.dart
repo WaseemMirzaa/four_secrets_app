@@ -220,7 +220,7 @@ class _WeddingSchedulePageState extends State<WeddingSchedulePage> {
       // Share the file using share_plus
       await Share.shareXFiles(
         [XFile(tempFile.path)],
-        text: 'Tagesablauf - 4secrets Wedding Planner',
+        text: 'Tagesablauf - 4secrets - Wedding Planner',
         subject: 'Tagesablauf PDF',
       );
 

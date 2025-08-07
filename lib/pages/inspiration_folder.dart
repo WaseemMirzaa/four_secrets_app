@@ -194,8 +194,8 @@ class _InspirationFolderState extends State<InspirationFolder> {
                                 children: [
                                   Expanded(
                                       child: CustomButtonWidget(
-                                    text: AppConstants
-                                        .inspirationFolderPageCancelButton,
+                                    text:
+                                        '${AppConstants.inspirationFolderPageCancelButton}',
                                     color: Colors.white,
                                     onPressed: () {
                                       _controller.clear();
@@ -309,8 +309,7 @@ class _InspirationFolderState extends State<InspirationFolder> {
                                 child: CustomTextWidget(
                                     textAlign: TextAlign.center,
                                     fontSize: 16,
-                            color: Colors.grey[600],
-
+                                    color: Colors.grey[600],
                                     fontWeight: FontWeight.w500,
                                     text:
                                         "Noch Keine Bilder hinzugefügt. Tippe auf das + Symbol unten rechts."),

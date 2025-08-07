@@ -121,7 +121,7 @@ ERROR RESPONSE:
 HEALTH CHECK RESPONSE:
 {
   "status": "ok",
-  "service": "4 Secrets Wedding Email Service - Firebase",
+  "service": "4secrets - Wedding Planner Email Service - Firebase",
   "timestamp": "2025-07-05T22:36:49.115Z",
   "version": "1.0.0"
 }
@@ -214,7 +214,7 @@ Subject: [Your custom subject]
 Content: [Your custom message]
 
 WELCOME EMAIL:
-Subject: Willkommen bei 4 Secrets Wedding! 💍
+Subject: Willkommen bei 4secrets - Wedding Planner! 💍
 Content: Welcome message with app features
 
 ================================================================================

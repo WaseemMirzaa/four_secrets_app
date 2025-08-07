@@ -291,7 +291,7 @@ class _AddWeddingSchedulePageState extends State<AddWeddingSchedulePage> {
                   // label: AppConstants.weddingSchedulePageResponsiblePerson,
                   text: AppConstants.weddingSchedulePageResponsiblePerson,
                   maxLines: 1,
-                  hint: "Z. B. Elena Koller",
+                  hint: "z. B. Elena Koller",
                 ),
 
                 SpacerWidget(height: 4),

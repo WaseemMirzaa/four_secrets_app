@@ -150,10 +150,10 @@ class _AddTodoPageState extends State<AddTodoPage> {
     print("🔵 ===== _loadAndInitCategories START =====");
     print("🔵 mounted: $mounted");
 
-    if (!mounted) {
-      print("🔴 Component not mounted, returning early");
-      return;
-    }
+    // if (!mounted) {
+    //   print("🔴 Component not mounted, returning early");
+    //   return;
+    // }
 
     setState(() {
       isLoading = true;
@@ -438,7 +438,37 @@ class _AddTodoPageState extends State<AddTodoPage> {
                   await Future.delayed(const Duration(milliseconds: 50));
                   final lower = pattern.toLowerCase();
                   final Set<String> allSuggestions = {};
-                  allTodo.forEach((cat, items) {
+
+                  // Use filtered data source based on showOnlyCustomCategories
+                  Map<String, List<String>> searchSource;
+                  if (widget.showOnlyCustomCategories) {
+                    // Only search in custom categories
+                    searchSource = {};
+
+                    // Define the initial category names to exclude (same as in CategoryService)
+                    final initialCategoryNames = {
+                      "Dokumente & Organisatorisches",
+                      "Braut",
+                      "Bräutigam",
+                      "Technik",
+                      "Snacks & Getränke",
+                      "Sonstiges"
+                    };
+
+                    for (var category in allTodoModels) {
+                      if (!initialCategoryNames
+                          .contains(category.categoryName)) {
+                        searchSource[category.categoryName] = category.todos;
+                      }
+                    }
+                    print(
+                        '🔵 Search limited to custom categories: ${searchSource.keys}');
+                  } else {
+                    // Search in all categories
+                    searchSource = allTodo;
+                  }
+
+                  searchSource.forEach((cat, items) {
                     if (cat.toLowerCase().contains(lower))
                       allSuggestions.add(cat);
                     allSuggestions.addAll(items
@@ -481,7 +511,32 @@ class _AddTodoPageState extends State<AddTodoPage> {
                                 setState(() {
                                   _searchController.clear();
                                   controller.clear();
-                                  filteredTodo = Map.from(allTodo);
+
+                                  // Reset filteredTodo based on showOnlyCustomCategories
+                                  if (widget.showOnlyCustomCategories) {
+                                    // Only show custom categories
+                                    filteredTodo = {};
+                                    final initialCategoryNames = {
+                                      "Dokumente & Organisatorisches",
+                                      "Braut",
+                                      "Bräutigam",
+                                      "Technik",
+                                      "Snacks & Getränke",
+                                      "Sonstiges"
+                                    };
+
+                                    for (var category in allTodoModels) {
+                                      if (!initialCategoryNames
+                                          .contains(category.categoryName)) {
+                                        filteredTodo[category.categoryName] =
+                                            category.todos;
+                                      }
+                                    }
+                                  } else {
+                                    // Show all categories
+                                    filteredTodo = Map.from(allTodo);
+                                  }
+
                                   isSearching = false;
                                   showFilteredList = false;
                                   expandedCategory = null;
@@ -574,34 +629,84 @@ class _AddTodoPageState extends State<AddTodoPage> {
                   setState(() {
                     final lower = suggestion.toLowerCase();
                     filteredTodo = {};
-                    allTodo.forEach((cat, items) {
-                      final catMatch = cat.toLowerCase().contains(lower);
-                      // final itemMatches = items
-                      //     .where((item) => item.toLowerCase().contains(lower))
-                      //     .toList();
+
+                    // Use filtered data source based on showOnlyCustomCategories
+                    Map<String, List<String>> searchSource;
+                    if (widget.showOnlyCustomCategories) {
+                      // Only search in custom categories
+                      searchSource = allTodo;
+
+                      // Define the initial category names to exclude (same as in CategoryService)
+
+                      print(
+                          '🔵 onSelected: Search limited to custom categories: ${searchSource}');
+                      final initialCategoryNames = {
+                        "Dokumente & Organisatorisches",
+                        "Braut",
+                        "Bräutigam",
+                        "Technik",
+                        "Snacks & Getränke",
+                        "Sonstiges"
+                      };
+
+                      for (var name in initialCategoryNames) {
+                        searchSource.remove(name);
+                      }
+
+                      // for (var category in allTodoModels) {
+                      //   if (!initialCategoryNames
+                      //       .contains(category.categoryName)) {
+                      //     searchSource[category.categoryName] = category.todos;
+                      //     print(
+                      //         '🔵 onSelected: Search limited to custom category: ${category.categoryName}');
+                      //   }
+                      // }
+                      print(
+                          '🔵 onSelected: Search limited to custom categories: ${searchSource}');
+                      print(
+                          '🔵 onSelected: Search limited to custom categories: ${lower}');
+                    } else {
+                      // Search in all categories
+                      searchSource = allTodo;
+                    }
+
+                    searchSource.forEach((cat, items) {
+                      var catMatch = cat.toLowerCase().contains(lower.trim()) ||
+                          items.contains(lower.trim());
+
+                      if (!catMatch) {
+                        for (var item in items) {
+                          if (item.toLowerCase().contains(lower.trim())) {
+                            catMatch = true;
+                            break;
+                          }
+                        }
+                        print('🔴 onSelected: No match for $cat');
+                      }
                       if (catMatch) {
                         filteredTodo[cat] = items;
                       }
-
-                      // else if (itemMatches.isNotEmpty) {
-                      //   filteredTodo[cat] = itemMatches;
-                      // }
                     });
+
                     showFilteredList = true;
+
                     if (filteredTodo.isNotEmpty) {
                       expandedCategory = filteredTodo.keys.first;
                     }
+
                     // Optionally expand the matched category
-                    if (allTodo.containsKey(suggestion)) {
-                      expandedCategory = suggestion;
-                    } else {
-                      final found = allTodo.entries.firstWhere(
-                          (e) => e.value.contains(suggestion),
-                          orElse: () => MapEntry('', []));
-                      if (found.key.isNotEmpty) {
-                        expandedCategory = found.key;
-                      }
-                    }
+                    // if (searchSource.containsKey(suggestion)) {
+                    //   expandedCategory = suggestion;
+                    // } else {
+                    //   // final found = searchSource.entries.firstWhere(
+                    //   //     (e) => e.value.contains(suggestion),
+                    //   //     orElse: () => MapEntry('', []));
+                    //   // if (found.key.isNotEmpty) {
+                    //   //   expandedCategory = found.key;
+                    //   // }
+
+                    //   print('expanded category ${expandedCategory}');
+                    // }
                   });
                   _searchController.text = suggestion;
                   _searchController.selection = TextSelection.fromPosition(
@@ -639,9 +744,9 @@ class _AddTodoPageState extends State<AddTodoPage> {
                         var g = Navigator.of(context).pushNamed(
                             RouteManager.addTodoCategoriesPage,
                             arguments: {"toDoModel": null, "id": null});
-                        if (g == true) {
-                          _loadAndInitCategories();
-                        }
+                        // if (g == true) {
+                        _loadAndInitCategories();
+                        // }
                       },
                       child: Row(
                         children: [

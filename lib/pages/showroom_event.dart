@@ -72,7 +72,7 @@ class ShowroomEvent extends StatelessWidget {
                         "Willkommen im 4secrets-wedding Showroom München. Hier ist der "
                         "Treffpunkt für Brautpaare, die ihre Hochzeit stilvoll "
                         "und mit echten Profis planen möchten. Renommierte "
-                        "Hochzeitsdienstleister, wie z.B. Floristen, Fotografen, "
+                        "Hochzeitsdienstleister, wie z. B. Floristen, Fotografen, "
                         "Hairstylisten oder Entertainer präsentieren sich an "
                         "ausgewählten Tagen. Hier kann man sich von kreativen "
                         "Ideen inspirieren lassen, wie durch atemberaubende "

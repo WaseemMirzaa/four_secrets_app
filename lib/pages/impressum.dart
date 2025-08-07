@@ -42,7 +42,7 @@ class Impressum extends StatelessWidget {
 
                 const Text(
                   "Verantwortlich für den Inhalt:\n"
-                  "4SECRETS-WEDDING\n"
+                  "4secrets - Wedding Planner\n"
                   "Franziskanerstraße 38\n"
                   "81669 München\n\n"
                   "E-Mail: 4secrets-wedding@gmx.de\n"
@@ -289,7 +289,7 @@ class Impressum extends StatelessWidget {
                   "Eine Weitergabe Ihrer Daten an Dritte erfolgt nur:\n\n"
                   "• Mit Ihrer ausdrücklichen Einwilligung\n"
                   "• Soweit dies gesetzlich zulässig und erforderlich ist\n"
-                  "• An Auftragsverarbeiter (z.B. Hosting-Anbieter) unter "
+                  "• An Auftragsverarbeiter (z. B. Hosting-Anbieter) unter "
                   "strikter Beachtung der DSGVO",
                   style: TextStyle(height: 1.4),
                 ),

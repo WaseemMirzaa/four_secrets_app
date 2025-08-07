@@ -81,7 +81,7 @@ class _FilePreviewScreen1State extends State<FilePreviewScreen1> {
       try {
         await Share.shareXFiles(
           [XFile(_localFilePath!)],
-          text: 'Angebot: ${widget.title} - 4secrets Wedding Planner',
+          text: 'Angebot: ${widget.title} - 4secrets - Wedding Planner',
         );
       } catch (e) {
         _showErrorSnackBar('Fehler beim Teilen der Datei: $e');

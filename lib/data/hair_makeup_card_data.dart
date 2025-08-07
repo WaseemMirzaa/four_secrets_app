@@ -11,7 +11,7 @@ class HairMakeUpCardData {
     "vorname": "Elena",
     "nachname": "Koller",
     "bezeichnung": "Braut-Stylistin & Make-up Artist",
-    "backCardTaetigkeit": "4secrets",
+    "backCardTaetigkeit": "4secrets - Wedding Planner",
     "slogan": "Echt, schön, unvergesslich."
   };
 }

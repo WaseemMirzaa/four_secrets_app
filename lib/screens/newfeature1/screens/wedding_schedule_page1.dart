@@ -214,7 +214,7 @@ class _WeddingSchedulePage1State extends State<WeddingSchedulePage1> {
       // Share the file using share_plus
       await Share.shareXFiles(
         [XFile(tempFile.path)],
-        text: 'Eigene Dienstleister - 4secrets Wedding Planner',
+        text: 'Eigene Dienstleister - 4secrets - Wedding Planner',
         subject: 'Eigene Dienstleister PDF',
       );
 
@@ -362,7 +362,7 @@ class _WeddingSchedulePage1State extends State<WeddingSchedulePage1> {
             //  SpacerWidget(height: 17),
             SizedBox(
               child: Image.asset(
-                "assets/images/inspirations/eigene.jpg",
+                "assets/images/background/eigene.jpg",
                 fit: BoxFit.fitWidth,
               ),
             ),

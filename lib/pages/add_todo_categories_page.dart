@@ -242,6 +242,7 @@ class _AddTodoCategoriesPageState extends State<AddTodoCategoriesPage> {
                                 userId: widget.toDoModel!.userId,
                               ),
                             );
+                            Navigator.of(context).pop(true);
                           } else {
                             // Add new category
                             await categoryService.createCategory(
@@ -250,9 +251,9 @@ class _AddTodoCategoriesPageState extends State<AddTodoCategoriesPage> {
                             );
                           }
 
-                          if (mounted) {
-                            Navigator.of(context).pop(true);
-                          }
+                          // if (mounted) {
+                          Navigator.of(context).pop(true);
+                          // }
                         } catch (e) {
                           if (mounted) {
                             SnackBarHelper.showErrorSnackBar(context,

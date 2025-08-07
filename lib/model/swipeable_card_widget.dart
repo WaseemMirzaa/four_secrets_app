@@ -179,8 +179,7 @@ class _SwipeableCardWidgetState extends State<SwipeableCardWidget>
       ),
       child: Image.asset(
         image,
-        fit: _BoxFitMode(mode) ??
-            BoxFit.cover, // Use the mode parameter and default to cover
+        fit: BoxFit.cover, // Use the mode parameter and default to cover
         width: double.infinity,
         height: double.infinity,
         filterQuality: FilterQuality.medium,
@@ -223,52 +222,82 @@ class _SwipeableCardWidgetState extends State<SwipeableCardWidget>
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: widget.height,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // Background cards (tilted)
-          for (int i = widget.images.length - 1; i >= 1; i--)
-            _buildBackgroundCard(i),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Card container
+        SizedBox(
+          height: widget.height,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              // Background cards (tilted)
+              for (int i = widget.images.length - 1; i >= 1; i--)
+                _buildBackgroundCard(i),
 
-          // Top card (interactive)
-          AnimatedBuilder(
-            animation: _animationController,
-            builder: (context, child) {
-              // Calculate swipe progress for visual feedback
-              final screenWidth = MediaQuery.of(context).size.width;
-              final swipeProgress =
-                  (_dragOffset.dx.abs() / (screenWidth * 0.15)).clamp(0.0, 1.0);
-              final scale = 1.0 -
-                  (swipeProgress * 0.05); // Slight scale down when swiping
+              // Top card (interactive)
+              AnimatedBuilder(
+                animation: _animationController,
+                builder: (context, child) {
+                  // Calculate swipe progress for visual feedback
+                  final screenWidth = MediaQuery.of(context).size.width;
+                  final swipeProgress =
+                      (_dragOffset.dx.abs() / (screenWidth * 0.15))
+                          .clamp(0.0, 1.0);
+                  final scale = 1.0 -
+                      (swipeProgress * 0.05); // Slight scale down when swiping
 
-              return Transform.scale(
-                scale: scale,
-                child: Transform.translate(
-                  offset: _isAnimating
-                      ? Offset(
-                          _slideAnimation.value.dx *
-                              MediaQuery.of(context).size.width,
-                          _slideAnimation.value.dy,
-                        )
-                      : _dragOffset,
-                  child: Transform.rotate(
-                    angle:
-                        _isAnimating ? _rotationAnimation.value : _dragRotation,
-                    child: GestureDetector(
-                      onPanStart: _onPanStart,
-                      onPanUpdate: _onPanUpdate,
-                      onPanEnd: _onPanEnd,
-                      child: _buildCard(widget.images[0], 0, swipeProgress),
+                  return Transform.scale(
+                    scale: scale,
+                    child: Transform.translate(
+                      offset: _isAnimating
+                          ? Offset(
+                              _slideAnimation.value.dx *
+                                  MediaQuery.of(context).size.width,
+                              _slideAnimation.value.dy,
+                            )
+                          : _dragOffset,
+                      child: Transform.rotate(
+                        angle: _isAnimating
+                            ? _rotationAnimation.value
+                            : _dragRotation,
+                        child: GestureDetector(
+                          onPanStart: _onPanStart,
+                          onPanUpdate: _onPanUpdate,
+                          onPanEnd: _onPanEnd,
+                          child: _buildCard(widget.images[0], 0, swipeProgress),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              );
-            },
+                  );
+                },
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+
+        // 25 padding between card and indicators
+        // if (widget.showIndicators && widget.images.length > 1)
+        //   SizedBox(height: 25),
+
+        // // Indicator dots outside the card
+        // if (widget.showIndicators && widget.images.length > 1)
+        //   Row(
+        //     mainAxisAlignment: MainAxisAlignment.center,
+        //     children: List.generate(
+        //       widget.images.length,
+        //       (i) => Container(
+        //         margin: EdgeInsets.symmetric(horizontal: 3),
+        //         width: 8,
+        //         height: 8,
+        //         decoration: BoxDecoration(
+        //           shape: BoxShape.circle,
+        //           color: i == 0 ? Colors.grey[800] : Colors.grey[400],
+        //         ),
+        //       ),
+        //     ),
+        //   ),
+      ],
     );
   }
 
@@ -337,31 +366,6 @@ class _SwipeableCardWidgetState extends State<SwipeableCardWidget>
             child: buildImage(context, imagePath, index, widget.imageFit),
           ),
 
-          // Indicator dots at the bottom
-          if (widget.showIndicators && widget.images.length > 1)
-            Positioned(
-              bottom: 10,
-              left: 0,
-              right: 0,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(
-                  widget.images.length,
-                  (i) => Container(
-                    margin: EdgeInsets.symmetric(horizontal: 3),
-                    width: 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: i == index
-                          ? Colors.white
-                          : Colors.white.withValues(alpha: 0.5),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
           // Swipe hint overlay
           if (widget.showSwipeHints && widget.images.length > 1)
             Positioned(
@@ -428,28 +432,28 @@ class _SwipeableCardWidgetState extends State<SwipeableCardWidget>
           //     widget.images.length > 1 &&
           //     index == 0 &&
           //     swipeProgress < 0.1)
-            // Positioned(
-            //   bottom: widget.showIndicators ? 30 : 10,
-            //   left: 0,
-            //   right: 0,
-            //   child: Center(
-            //     child: Container(
-            //       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            //       decoration: BoxDecoration(
-            //         color: Colors.black.withValues(alpha: 0.5),
-            //         borderRadius: BorderRadius.circular(15),
-            //       ),
-            //       child: Text(
-            //         "← Swipe →",
-            //         style: TextStyle(
-            //           color: Colors.white,
-            //           fontSize: 12,
-            //           fontWeight: FontWeight.bold,
-            //         ),
-            //       ),
-            //     ),
-            //   ),
-            // ),
+          // Positioned(
+          //   bottom: widget.showIndicators ? 30 : 10,
+          //   left: 0,
+          //   right: 0,
+          //   child: Center(
+          //     child: Container(
+          //       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          //       decoration: BoxDecoration(
+          //         color: Colors.black.withValues(alpha: 0.5),
+          //         borderRadius: BorderRadius.circular(15),
+          //       ),
+          //       child: Text(
+          //         "← Swipe →",
+          //         style: TextStyle(
+          //           color: Colors.white,
+          //           fontSize: 12,
+          //           fontWeight: FontWeight.bold,
+          //         ),
+          //       ),
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     );

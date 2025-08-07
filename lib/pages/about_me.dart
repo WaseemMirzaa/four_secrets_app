@@ -156,7 +156,7 @@ class _AboutMeState extends State<AboutMe> {
                                       ),
                                       TextSpan(text: ' der '),
                                       TextSpan(
-                                        text: '4secrets-wedding App',
+                                        text: '4secrets - Wedding Planner App',
                                         style: const TextStyle(
                                             fontWeight: FontWeight.bold),
                                       ),
@@ -188,7 +188,7 @@ class _AboutMeState extends State<AboutMe> {
                             children: [
                               TextSpan(
                                 text:
-                                    "Wer steckt hinter der 4secrets-wedding App?\n\n",
+                                    "Wer steckt hinter der 4secrets - Wedding Planner App?\n\n",
                                 style: GoogleFonts.openSans(
                                   color: Colors.black,
                                 ),
@@ -262,7 +262,7 @@ class _AboutMeState extends State<AboutMe> {
                 margin: EdgeInsets.only(left: 20),
                 color: Colors.white,
                 child: Padding(
-                  padding: EdgeInsetsGeometry.all(5),
+                  padding: EdgeInsets.all(5),
                   child: ExpandableText(
                     "Bereits seit über 15 Jahren begleite ich Paare an einem der wichtigsten Tage ihres Lebens. "
                     "Ich durfte Freudentränen sehen, Nervosität lindern - und dabei immer wieder "
@@ -270,7 +270,7 @@ class _AboutMeState extends State<AboutMe> {
                     "Eins viel mir dabei besonders auf: Viele Paare verlieren sich in der Planung "
                     "und vergessen dabei, den Moment zu genießen. "
                     "Aus dem Wunsch heraus, Brautpaare nicht nur am Hochzeitstag, sondern schon während "
-                    "der gesamten Planung zur Seite zu stehen, entstand 4secrets-wedding App - eine liebevoll gestaltete App, "
+                    "der gesamten Planung zur Seite zu stehen, entstand 4secrets - Wedding Planner App - eine liebevoll gestaltete App, "
                     "die euch Klarheit, Struktur und Ruhe schenkt. "
                     "Jede Braut, jede Freundin, jede Begegnung ist für mich mehr als ein Job - "
                     "es ist Teil einer Herzensgeschichte, die ich mitschreiben darf. ",

@@ -98,7 +98,7 @@ class _InspirationDetailPageState extends State<InspirationDetailPage> {
                                   await inspirationImageService.deleteImage(
                                       widget.inspirationImage.id!,
                                       widget.inspirationImage.imageUrl);
-                                  Navigator.of(context).pop();
+                                  // Navigator.of(context).pop();
                                   Navigator.of(context).pop(
                                       inspirationImageService.loadDataToDo());
                                   statee(() {

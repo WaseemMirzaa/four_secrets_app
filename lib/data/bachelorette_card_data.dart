@@ -11,7 +11,7 @@ class BacheloretteCardData {
     "vorname": "Elena",
     "nachname": "Koller",
     "bezeichnung": "Master-Stylistin & Make-up Artist",
-    "backCardTaetigkeit": "4secrets",
+    "backCardTaetigkeit": "4secrets - Wedding Planner",
     "slogan": "Schminken, Stylen, Strahlen."
   };
 }
