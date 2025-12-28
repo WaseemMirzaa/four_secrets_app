@@ -1,8 +1,9 @@
 class GesangCardData {
   static final Map<String, String> map1 = {
     "videoAsset": "", // Uri geht vor Asset video
-    "videoUri": "",
-    "videoRatio": "",
+    "videoUri":
+        "https://res.cloudinary.com/dhnupmrhv/video/upload/v1766941183/sebastian_schwarzbach_bklaue.mp4",
+    "videoRatio": "0.7",
     "email": "mail@sebastianschwarzbach.com",
     "homepage": "https://sebastianschwarzbach.com",
     "instagram": "https://www.instagram.com/blackbrook/",
@@ -12,13 +13,14 @@ class GesangCardData {
     "nachname": "Schwarzbach",
     "bezeichnung": "Sänger",
     "backCardTaetigkeit": "Gesang & Events",
-    "slogan": "Stimme, die berührt. Musik, die bleibt."
+    "slogan": "Stimme, die berührt. Musik, die bleibt.",
   };
 
   static final Map<String, String> map2 = {
     "videoAsset": "", // Uri geht vor Asset video
-    "videoUri": "",
-    "videoRatio": "",
+    "videoUri":
+        "https://res.cloudinary.com/dhnupmrhv/video/upload/v1766942315/Elto_-_Home_Zusammenkunst_h6iksz.mp4",
+    "videoRatio": "0.7",
     "email": "mgmt@eltomusic.com",
     "homepage": "https://www.eltomusic.com",
     "instagram": "https://www.instagram.com/eltomusic/",
@@ -28,6 +30,6 @@ class GesangCardData {
     "nachname": "",
     "bezeichnung": "Sänger",
     "backCardTaetigkeit": "Gesang & Events",
-    "slogan": "Mit Gefühl. Mit Stimme. Mit Herz."
+    "slogan": "Mit Gefühl. Mit Stimme. Mit Herz.",
   };
 }

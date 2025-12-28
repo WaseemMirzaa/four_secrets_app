@@ -17,14 +17,15 @@ class BandDjCardData {
 
   static final Map<String, String> map2 = {
     "videoAsset": "", // Uri geht vor Asset video
-    "videoUri": "",
+    "videoUri":
+        "https://res.cloudinary.com/dhnupmrhv/video/upload/v1766937424/A_fWedding_cmw1rv.mov",
     "videoRatio": "0.7",
     "email": "info@anjaandfriends.com",
     "homepage": "https://www.anjaandfriends.com",
     "instagram": "https://www.instagram.com/anjaandfriendsmusic/",
     "phoneNumber": "+49 176 212 047 88",
     "avatar": "assets/images/card/anja_and_friends_musikensemble_card.jpg",
-    "vorname": "Anja & Frends",
+    "vorname": "Anja & Friends",
     "nachname": "",
     "bezeichnung": "Musikensemble",
     "backCardTaetigkeit": "Musikbegleitung",
@@ -33,7 +34,8 @@ class BandDjCardData {
 
   static final Map<String, String> map3 = {
     "videoAsset": "", // Uri geht vor Asset video
-    "videoUri": "",
+    "videoUri":
+        "https://res.cloudinary.com/dhnupmrhv/video/upload/v1766940741/saxobeatz_etthgk.mp4",
     "videoRatio": "0.7",
     "email": "mail@saxobeatz.com",
     "homepage": "https://www.saxobeatz.com",

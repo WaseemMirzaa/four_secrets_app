@@ -1,7 +1,8 @@
 class TraurednerCardData {
   static final Map<String, String> map1 = {
     "videoAsset": "", // Uri geht vor Asset video
-    "videoUri": "",
+    "videoUri":
+        "https://res.cloudinary.com/dhnupmrhv/video/upload/v1766936276/konfetti_ynkzsb.mp4",
     "videoRatio": "0.7",
     "email": "jessi@konfettiimherzen.com",
     "homepage": "https://www.konfettiimherzen.com",
@@ -12,6 +13,6 @@ class TraurednerCardData {
     "nachname": "Herzen",
     "bezeichnung": "Jessi",
     "backCardTaetigkeit": "Traurednerin",
-    "slogan": "Die Liebe feiern genauso, wie ihr es Euch wünscht."
+    "slogan": "Die Liebe feiern genauso, wie ihr es Euch wünscht.",
   };
 }
