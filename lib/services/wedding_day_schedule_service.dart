@@ -53,7 +53,8 @@ class WeddingDayScheduleService {
       // If a later item in order has an earlier time, manual reordering occurred
       if (current.time.isAfter(next.time)) {
         print(
-            "Manual reordering detected: chronological order doesn't match order field");
+          "Manual reordering detected: chronological order doesn't match order field",
+        );
         return true;
       }
     }
@@ -88,12 +89,13 @@ class WeddingDayScheduleService {
     if (hasManualOrder) {
       // Manual ordering is active - find the correct position based on time
       print(
-          "Manual ordering detected - inserting new item in chronological position");
+        "Manual ordering detected - inserting new item in chronological position",
+      );
 
       // Sort existing items by their current order
-      final sortedByOrder =
-          List<WeddingDayScheduleModel>.from(weddingDayScheduleList)
-            ..sort((a, b) => a.order.compareTo(b.order));
+      final sortedByOrder = List<WeddingDayScheduleModel>.from(
+        weddingDayScheduleList,
+      )..sort((a, b) => a.order.compareTo(b.order));
 
       // Find where the new item should be inserted based on time
       int insertPosition = 0;
@@ -129,9 +131,9 @@ class WeddingDayScheduleService {
         .collection('weddingDaySchedule');
 
     // Sort existing items by their current order
-    final sortedByOrder =
-        List<WeddingDayScheduleModel>.from(weddingDayScheduleList)
-          ..sort((a, b) => a.order.compareTo(b.order));
+    final sortedByOrder = List<WeddingDayScheduleModel>.from(
+      weddingDayScheduleList,
+    )..sort((a, b) => a.order.compareTo(b.order));
 
     // Update order values for items at and after the insert position
     for (int i = insertPosition; i < sortedByOrder.length; i++) {
@@ -142,8 +144,9 @@ class WeddingDayScheduleService {
       batch.update(docRef, {'order': newOrder});
 
       // Update local list
-      final index =
-          weddingDayScheduleList.indexWhere((element) => element.id == item.id);
+      final index = weddingDayScheduleList.indexWhere(
+        (element) => element.id == item.id,
+      );
       if (index != -1) {
         weddingDayScheduleList[index] = item.copyWith(order: newOrder);
       }
@@ -153,17 +156,18 @@ class WeddingDayScheduleService {
     print("Made room for new item at position $insertPosition");
   }
 
-  Future<String?> addScheduleItem(
-      {required String title,
-      // required String description,
-      required DateTime time,
-      required bool reminderEnabled,
-      DateTime? reminderTime, // Make nullable
-      required String responsiblePerson,
-      required String notes,
-      required String address,
-      required double lat,
-      required double long}) async {
+  Future<String?> addScheduleItem({
+    required String title,
+    // required String description,
+    required DateTime time,
+    required bool reminderEnabled,
+    DateTime? reminderTime, // Make nullable
+    required String responsiblePerson,
+    required String notes,
+    required String address,
+    required double lat,
+    required double long,
+  }) async {
     if (userId == null) {
       throw StateError('User must be logged in to add a schedule item.');
     }
@@ -172,19 +176,20 @@ class WeddingDayScheduleService {
     final temporaryOrder = await _calculateNewItemOrder(time);
 
     final newScheduleItem = WeddingDayScheduleModel(
-        id: null, // Firestore will generate
-        title: title,
-        // description: description,
-        responsiblePerson: responsiblePerson,
-        notes: notes,
-        time: time,
-        reminderEnabled: reminderEnabled,
-        reminderTime: reminderTime, // Can be null
-        userId: userId!,
-        order: temporaryOrder,
-        address: address,
-        lat: lat,
-        long: long);
+      id: null, // Firestore will generate
+      title: title,
+      // description: description,
+      responsiblePerson: responsiblePerson,
+      notes: notes,
+      time: time,
+      reminderEnabled: reminderEnabled,
+      reminderTime: reminderTime, // Can be null
+      userId: userId!,
+      order: temporaryOrder,
+      address: address,
+      lat: lat,
+      long: long,
+    );
 
     try {
       // Add the item to Firestore and wait for the DocumentReference
@@ -277,20 +282,22 @@ class WeddingDayScheduleService {
             await NotificationService.scheduleAlarmNotification(
               id: item.id.hashCode, // Unique ID based on document ID
               dateTime: item.reminderTime!,
-              title: "Wedding Reminder: ${item.title}",
+              title: "Hochzeits-Erinnerung: ${item.title}",
               body: item.notes,
               payload: item.id,
             );
             scheduledCount++;
           } catch (e) {
             print(
-                "❌ Failed to schedule notification for: ${item.title} - Error: $e");
+              "❌ Failed to schedule notification for: ${item.title} - Error: $e",
+            );
             skippedCount++;
           }
         }
       }
       print(
-          "📅 Notification scheduling complete: $scheduledCount scheduled, $skippedCount skipped");
+        "📅 Notification scheduling complete: $scheduledCount scheduled, $skippedCount skipped",
+      );
     } catch (e) {
       print('Error loading schedule: $e');
     }
@@ -333,7 +340,7 @@ class WeddingDayScheduleService {
         'order': item.order,
         'address': item.address,
         'lat': item.lat,
-        'long': item.long
+        'long': item.long,
       };
 
       // Only add reminderTime if it's not null
@@ -359,7 +366,8 @@ class WeddingDayScheduleService {
   /// Rewrites every item's `order` field in Firestore to match its
   /// index in [reordered], then replaces your local list.
   Future<void> updateOrderItemsList(
-      List<WeddingDayScheduleModel> reordered) async {
+    List<WeddingDayScheduleModel> reordered,
+  ) async {
     if (userId == null) {
       throw StateError('User must be logged in to reorder items.');
     }
@@ -410,6 +418,7 @@ class WeddingDayScheduleService {
     await loadData();
 
     print(
-        'Reset ${weddingDayScheduleList.length} items to timestamp-based order.');
+      'Reset ${weddingDayScheduleList.length} items to timestamp-based order.',
+    );
   }
 }

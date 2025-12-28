@@ -1,19 +1,19 @@
 class LocationCardData {
-  static final Map<String, String> map1 = {
-    "videoAsset": "", // Uri geht vor Asset video
-    "videoUri": "",
-    "videoRatio": "0.7",
-    "email": "servus@schlossgut-moosschwaige.de",
-    "homepage": "https://www.schlossgut-muenchen.de",
-    "instagram": "https://www.instagram.com/moosschwaigemuenchen/",
-    "phoneNumber": "+49 (0)89 614 84 84",
-    "avatar": "assets/images/card/alte_gaertnerei_card.jpg",
-    "vorname": "Schlossgut",
-    "nachname": "Moosschwaige",
-    "bezeichnung": "",
-    "backCardTaetigkeit": "Event & Hochzeitslocation",
-    "slogan": "Wo Liebe den schönsten Platz findet.",
-  };
+  // static final Map<String, String> map1 = {
+  //   "videoAsset": "", // Uri geht vor Asset video
+  //   "videoUri": "",
+  //   "videoRatio": "0.7",
+  //   "email": "servus@schlossgut-moosschwaige.de",
+  //   "homepage": "https://www.schlossgut-muenchen.de",
+  //   "instagram": "https://www.instagram.com/moosschwaigemuenchen/",
+  //   "phoneNumber": "+49 (0)89 614 84 84",
+  //   "avatar": "assets/images/card/alte_gaertnerei_card.jpg",
+  //   "vorname": "Schlossgut",
+  //   "nachname": "Moosschwaige",
+  //   "bezeichnung": "",
+  //   "backCardTaetigkeit": "Event & Hochzeitslocation",
+  //   "slogan": "Wo Liebe den schönsten Platz findet.",
+  // };
 
   static final Map<String, String> map2 = {
     "videoAsset": "", // Uri geht vor Asset video

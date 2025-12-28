@@ -5,22 +5,22 @@ import 'package:flutter/material.dart';
 class PapeterieCardItems {
   static List getCardItems() {
     List<Widget> items = [
-      CardWidget(
-        className: PapeterieCardData,
-        avatarImage: PapeterieCardData.map1['avatar']!,
-        vorname: PapeterieCardData.map1['vorname']!,
-        nachname: PapeterieCardData.map1['nachname']!,
-        bezeichnung: PapeterieCardData.map1['bezeichnung']!,
-        backCardTaetigkeit: PapeterieCardData.map1['backCardTaetigkeit']!,
-        slogan: PapeterieCardData.map1['slogan']!,
-        homepage: PapeterieCardData.map1['homepage']!,
-        email: PapeterieCardData.map1['email']!,
-        instagram: PapeterieCardData.map1["instagram"]!,
-        phoneNumber: PapeterieCardData.map1["phoneNumber"]!,
-        videoAsset: PapeterieCardData.map1["videoAsset"]!,
-        videoRatio: PapeterieCardData.map1["videoRatio"]!,
-        videoUri: PapeterieCardData.map1["videoUri"]!,
-      ),
+      // CardWidget(
+      //   className: PapeterieCardData,
+      //   avatarImage: PapeterieCardData.map1['avatar']!,
+      //   vorname: PapeterieCardData.map1['vorname']!,
+      //   nachname: PapeterieCardData.map1['nachname']!,
+      //   bezeichnung: PapeterieCardData.map1['bezeichnung']!,
+      //   backCardTaetigkeit: PapeterieCardData.map1['backCardTaetigkeit']!,
+      //   slogan: PapeterieCardData.map1['slogan']!,
+      //   homepage: PapeterieCardData.map1['homepage']!,
+      //   email: PapeterieCardData.map1['email']!,
+      //   instagram: PapeterieCardData.map1["instagram"]!,
+      //   phoneNumber: PapeterieCardData.map1["phoneNumber"]!,
+      //   videoAsset: PapeterieCardData.map1["videoAsset"]!,
+      //   videoRatio: PapeterieCardData.map1["videoRatio"]!,
+      //   videoUri: PapeterieCardData.map1["videoUri"]!,
+      // ),
       CardWidget(
         className: PapeterieCardData,
         avatarImage: PapeterieCardData.map2['avatar']!,

@@ -21,6 +21,22 @@ class TrauringeCardItems {
         videoRatio: TrauringeCardData.map1["videoRatio"]!,
         videoUri: TrauringeCardData.map1["videoUri"]!,
       ),
+      // CardWidget(
+      //   className: TrauringeCardData,
+      //   avatarImage: TrauringeCardData.map2['avatar']!,
+      //   vorname: TrauringeCardData.map2['vorname']!,
+      //   nachname: TrauringeCardData.map2['nachname']!,
+      //   bezeichnung: TrauringeCardData.map2['bezeichnung']!,
+      //   backCardTaetigkeit: TrauringeCardData.map2['backCardTaetigkeit']!,
+      //   slogan: TrauringeCardData.map2['slogan']!,
+      //   homepage: TrauringeCardData.map2['homepage']!,
+      //   email: TrauringeCardData.map2['email']!,
+      //   instagram: TrauringeCardData.map2["instagram"]!,
+      //   phoneNumber: TrauringeCardData.map2["phoneNumber"]!,
+      //   videoAsset: TrauringeCardData.map2["videoAsset"]!,
+      //   videoRatio: TrauringeCardData.map2["videoRatio"]!,
+      //   videoUri: TrauringeCardData.map2["videoUri"]!,
+      // ),
     ];
     return items;
   }

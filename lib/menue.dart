@@ -50,6 +50,22 @@ class MenueState extends State<Menue> {
   late Map<String, bool> _pressedStates;
   String? currentSelected;
 
+  Set<String> premiumFeatures = {
+    "Eigene Dienstleister",
+    "Budget",
+    "Gästeliste",
+    "Tischverwaltung",
+    "Tagesablauf",
+    "Inspirationen",
+    "Hochzeitskit",
+    "Mitgestalter",
+    "KI-Assistent",
+    "Abonnement",
+  };
+
+  /// Features that are free but should NOT show "Gratis"
+  Set<String> hideGratisLabel = {"Home", "Profile bearbeiten"};
+
   // Use shared notification stream from PushNotificationService
   Stream<bool> get _hasNewCollabNotificationStream =>
       PushNotificationService.hasNewCollabNotificationStream;
@@ -172,23 +188,9 @@ class MenueState extends State<Menue> {
   // Add this method to your MenueState class
   Future<void> _handleNavigation(String itemName) async {
     // Define which menu items require active subscription
-    const premiumFeatures = [
-      //"Münchner Geheimtipp",
-      "Budget",
-      "Checkliste",
-      "Gästeliste",
-      "Tischverwaltung",
-      //"Showroom",
-      "KI-Assistent",
-      "Mitgestalter",
-      "Hochzeitskit",
-      "Inspirationen",
-      "Tagesablauf",
-      "Abonnement",
-      "Eigene Dienstleister",
-    ];
 
     final isPremiumFeature = premiumFeatures.contains(itemName);
+
     final hasSubscription = SubscriptionManager().hasActiveSubscription;
 
     if (isPremiumFeature && !hasSubscription) {
@@ -524,11 +526,34 @@ class MenueState extends State<Menue> {
                                   fit: BoxFit.contain,
                                 )
                               : Icon(e.icon),
-                          title: CustomTextWidget(
-                            text: e.name,
-                            fontSize: 16,
-                            color: Colors.black,
+                          title: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Expanded(
+                                child: CustomTextWidget(
+                                  text: e.name,
+                                  fontSize: 16,
+                                  color: Colors.black,
+                                ),
+                              ),
+
+                              // Show "Gratis" ONLY for non-premium features
+                              if (!premiumFeatures.contains(e.name) &&
+                                  !hideGratisLabel.contains(e.name)) ...[
+                                const SizedBox(width: 6),
+                                Text(
+                                  'Gratis',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.normal,
+                                    decorationThickness: 2,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
+
                           onTap: () {
                             _handleNavigation(e.name);
                           },

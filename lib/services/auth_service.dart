@@ -25,7 +25,7 @@ class AuthService {
 
   static const String _userKey = 'user_data';
 
-// In AuthService class
+  // In AuthService class
   Future<UserModel> signIn({
     required String email,
     required String password,
@@ -45,8 +45,10 @@ class AuthService {
       await result.user!.reload();
 
       // Fetch user data from Firestore
-      final userDoc =
-          await _firestore.collection('users').doc(result.user!.uid).get();
+      final userDoc = await _firestore
+          .collection('users')
+          .doc(result.user!.uid)
+          .get();
 
       if (!userDoc.exists) {
         print('🔴 User document not found in Firestore');
@@ -73,10 +75,9 @@ class AuthService {
       final fcmToken = await PushNotificationService().getFcmTokenDirect();
       print('🟢 FCM token: $fcmToken');
       if (fcmToken != null) {
-        await _firestore
-            .collection('users')
-            .doc(result.user!.uid)
-            .update({'fcmToken': fcmToken});
+        await _firestore.collection('users').doc(result.user!.uid).update({
+          'fcmToken': fcmToken,
+        });
         print('🟢 FCM token saved to Firestore');
       }
 
@@ -90,12 +91,15 @@ class AuthService {
 
         // Update Firestore with current subscription status from RevenueCat
         final customerInfo = await revenueCatService.getCustomerInfo();
-        await revenueCatService
-            .updateSubscriptionStatusInFirebase(customerInfo);
+        await revenueCatService.updateSubscriptionStatusInFirebase(
+          customerInfo,
+        );
 
         // Reload user data to get updated subscription status
-        final updatedUserDoc =
-            await _firestore.collection('users').doc(result.user!.uid).get();
+        final updatedUserDoc = await _firestore
+            .collection('users')
+            .doc(result.user!.uid)
+            .get();
         final updatedUserData = updatedUserDoc.data()!;
         updatedUserData['uid'] = result.user!.uid;
         updatedUserData['emailVerified'] = result.user!.emailVerified;
@@ -133,15 +137,13 @@ class AuthService {
     String? profilePictureUrl,
   }) async {
     try {
-      final UserCredential userCredential =
-          await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      final UserCredential userCredential = await _auth
+          .createUserWithEmailAndPassword(email: email, password: password);
 
       // Check if user was previously invited (exists in non_registered_users collection)
-      bool wasInvited =
-          await TodoUnreadStatusService.wasUserPreviouslyInvited(email);
+      bool wasInvited = await TodoUnreadStatusService.wasUserPreviouslyInvited(
+        email,
+      );
 
       if (wasInvited) {
         print('✅ User was previously invited: $email');
@@ -198,8 +200,10 @@ class AuthService {
 
       // Try to get user data from Firestore
       print('🟢 Fetching current user data from Firestore');
-      final doc =
-          await _firestore.collection('users').doc(firebaseUser.uid).get();
+      final doc = await _firestore
+          .collection('users')
+          .doc(firebaseUser.uid)
+          .get();
 
       if (!doc.exists || doc.data() == null) {
         print('🔴 No Firestore document for current user');
@@ -257,10 +261,9 @@ class AuthService {
 
       // Clear FCM token before signing out
       if (_auth.currentUser != null) {
-        await _firestore
-            .collection('users')
-            .doc(_auth.currentUser!.uid)
-            .update({'fcmToken': ''});
+        await _firestore.collection('users').doc(_auth.currentUser!.uid).update(
+          {'fcmToken': ''},
+        );
         print('🟢 Cleared FCM token');
       }
 

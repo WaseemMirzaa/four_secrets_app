@@ -15,21 +15,21 @@ class PapeterieCardData {
   //   "slogan": "Worte, die bleiben - auf Papier, das berührt.",
   // };
 
-  static final Map<String, String> map1 = {
-    "videoAsset": "",
-    "videoUri": "",
-    "videoRatio": "0.7",
-    "email": "info@freudenwerkstatt.de",
-    "homepage": "https://www.freudenwerkstatt.de",
-    "instagram": "https://www.instagram.com/freudenwerkstatt/",
-    "phoneNumber": "+49 151 178 136 37",
-    "avatar": "assets/images/card/Freudenwerkstatt_card.webp",
-    "vorname": "Freudenwerkstatt",
-    "nachname": "",
-    "bezeichnung": "Illustrations",
-    "backCardTaetigkeit": "Unique Designs",
-    "slogan": "Kreatives Design. Persönlich gedruckt.",
-  };
+  // static final Map<String, String> map1 = {
+  //   "videoAsset": "",
+  //   "videoUri": "",
+  //   "videoRatio": "0.7",
+  //   "email": "info@freudenwerkstatt.de",
+  //   "homepage": "https://www.freudenwerkstatt.de",
+  //   "instagram": "https://www.instagram.com/freudenwerkstatt/",
+  //   "phoneNumber": "+49 151 178 136 37",
+  //   "avatar": "assets/images/card/Freudenwerkstatt_card.webp",
+  //   "vorname": "Freudenwerkstatt",
+  //   "nachname": "",
+  //   "bezeichnung": "Illustrations",
+  //   "backCardTaetigkeit": "Unique Designs",
+  //   "slogan": "Besonders. Stilvoll. Illustriert.",
+  // };
 
   static final Map<String, String> map2 = {
     "videoAsset": "",
