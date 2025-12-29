@@ -21,7 +21,8 @@ class SubscriptionManager {
       if ((currentUser?.email ?? "") == "offfahad1@gmail.com") {
         _hasActiveSubscription = true;
         print(
-            "✅ Tester override: subscription forced active for ${currentUser?.email}");
+          "✅ Tester override: subscription forced active for ${currentUser?.email}",
+        );
         return _hasActiveSubscription;
       }
 

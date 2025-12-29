@@ -1,0 +1,1 @@
+/Users/gulzarsoft/FlutterProjects/four_secrets_app/android/app/build/intermediates/cxx/debug/24715r5f/obj/arm64-v8a

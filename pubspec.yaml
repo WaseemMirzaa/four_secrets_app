@@ -4,7 +4,7 @@ description: "4secrets - Wedding Planner"
 # Prevent accidental publishing to pub.dev
 publish_to: "none"
 
-version: 1.0.7+22
+version: 1.1.7+23
 
 environment:
   sdk: ">=3.9.0 <4.0.0"

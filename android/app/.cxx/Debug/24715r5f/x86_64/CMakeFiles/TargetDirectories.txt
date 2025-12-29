@@ -1,0 +1,2 @@
+/Users/gulzarsoft/FlutterProjects/four_secrets_app/android/app/.cxx/debug/24715r5f/x86_64/CMakeFiles/edit_cache.dir
+/Users/gulzarsoft/FlutterProjects/four_secrets_app/android/app/.cxx/debug/24715r5f/x86_64/CMakeFiles/rebuild_cache.dir

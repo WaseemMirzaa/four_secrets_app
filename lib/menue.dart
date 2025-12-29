@@ -345,6 +345,8 @@ class MenueState extends State<Menue> {
 
   @override
   Widget build(BuildContext context) {
+    final hasActiveSubscription = SubscriptionManager().hasActiveSubscription;
+
     // Set status bar for drawer - Huawei compatible
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
@@ -537,8 +539,12 @@ class MenueState extends State<Menue> {
                                 ),
                               ),
 
-                              // Show "Gratis" ONLY for non-premium features
-                              if (!premiumFeatures.contains(e.name) &&
+                              // Show "Gratis" ONLY when:
+                              // 1) User does NOT have active subscription
+                              // 2) Feature is NOT premium
+                              // 3) Feature is NOT in hideGratisLabel (e.g. Home)
+                              if (!hasActiveSubscription &&
+                                  !premiumFeatures.contains(e.name) &&
                                   !hideGratisLabel.contains(e.name)) ...[
                                 const SizedBox(width: 6),
                                 Text(
