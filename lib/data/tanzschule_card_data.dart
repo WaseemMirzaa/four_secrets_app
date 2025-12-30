@@ -17,7 +17,8 @@ class TanzschuleCardData {
 
   static final Map<String, String> map2 = {
     "videoAsset": "", // Uri geht vor Asset video
-    "videoUri": "",
+    "videoUri":
+        "https://res.cloudinary.com/dhnupmrhv/video/upload/v1767113902/DT-Deine_wkhegq.mp4",
     "videoRatio": "",
     "email": "info@tanzschule-muenchen-dt.de",
     "homepage": "https://www.tanzschule-muenchen-dt.de/",

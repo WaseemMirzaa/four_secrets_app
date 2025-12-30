@@ -6,7 +6,8 @@ import '../models/email_send_response.dart';
 
 class EmailService {
   // New Brevo API server base URL
-  static const String baseUrl = 'http://164.92.175.72:3001';
+  //static const String baseUrl = 'http://164.92.175.72:3001';
+  static const String baseUrl = 'http://localhost:3001';
 
   /// Get current user's name from Firebase
   static Future<String> _getCurrentUserName() async {
@@ -32,7 +33,8 @@ class EmailService {
 
         if (userDoc.exists) {
           final userData = userDoc.data();
-          final name = userData?['name'] ??
+          final name =
+              userData?['name'] ??
               userData?['displayName'] ??
               userData?['firstName'];
           if (name != null && name.toString().isNotEmpty) {
@@ -54,7 +56,7 @@ class EmailService {
     }
   }
 
-  static const String sendCustomEndpoint = '/api/email/send-custom';
+  static const String sendCustomEndpoint = '/api/email/send';
   static const String sendInvitationEndpoint = '/api/email/send-invitation';
   static const String sendDeclinedInvitationEndpoint =
       '/api/email/declined-invitation';
@@ -98,7 +100,8 @@ class EmailService {
         });
       } else {
         throw Exception(
-            'Failed to send email: ${response.statusCode} - ${response.body}');
+          'Failed to send email: ${response.statusCode} - ${response.body}',
+        );
       }
     } catch (e) {
       print('Error sending email: $e');
@@ -123,10 +126,7 @@ class EmailService {
           'Content-Type': 'application/json',
           'User-Agent': '4SecretsWeddingApp/1.0',
         },
-        body: json.encode({
-          'email': email,
-          'inviterName': currentUserName,
-        }),
+        body: json.encode({'email': email, 'inviterName': currentUserName}),
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
         final jsonResponse = json.decode(response.body);
@@ -143,7 +143,8 @@ class EmailService {
         });
       } else {
         throw Exception(
-            'Failed to send invitation email: ${response.statusCode} - ${response.body}');
+          'Failed to send invitation email: ${response.statusCode} - ${response.body}',
+        );
       }
     } catch (e) {
       print('Error sending invitation email: $e');
@@ -164,17 +165,16 @@ class EmailService {
           'Content-Type': 'application/json',
           'User-Agent': '4SecretsWeddingApp/1.0',
         },
-        body: json.encode({
-          'email': email,
-          'declinerName': declinerName,
-        }),
+        body: json.encode({'email': email, 'declinerName': declinerName}),
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
         final jsonResponse = json.decode(response.body);
         print(
-            '[EMAIL_LOG] Declined invitation email sent: ${jsonResponse['message']}');
+          '[EMAIL_LOG] Declined invitation email sent: ${jsonResponse['message']}',
+        );
         return EmailSendResponse.fromJson({
-          'message': jsonResponse['message'] ??
+          'message':
+              jsonResponse['message'] ??
               'Declined invitation notification sent successfully',
           'status': jsonResponse['success'] == true ? 'success' : 'error',
           'data': {
@@ -185,7 +185,8 @@ class EmailService {
         });
       } else {
         throw Exception(
-            'Failed to send declined invitation email: ${response.statusCode} - ${response.body}');
+          'Failed to send declined invitation email: ${response.statusCode} - ${response.body}',
+        );
       }
     } catch (e) {
       print('Error sending declined invitation email: $e');
@@ -210,17 +211,16 @@ class EmailService {
           'Content-Type': 'application/json',
           'User-Agent': '4SecretsWeddingApp/1.0',
         },
-        body: json.encode({
-          'email': email,
-          'inviterName': currentUserName,
-        }),
+        body: json.encode({'email': email, 'inviterName': currentUserName}),
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
         final jsonResponse = json.decode(response.body);
         print(
-            '[EMAIL_LOG] Revoke access email sent: ${jsonResponse['message']}');
+          '[EMAIL_LOG] Revoke access email sent: ${jsonResponse['message']}',
+        );
         return EmailSendResponse.fromJson({
-          'message': jsonResponse['message'] ??
+          'message':
+              jsonResponse['message'] ??
               'Access revoked notification sent successfully',
           'status': jsonResponse['success'] == true ? 'success' : 'error',
           'data': {
@@ -231,7 +231,8 @@ class EmailService {
         });
       } else {
         print(
-            'Failed to send revoke access email: ${response.statusCode} - ${response.body}');
+          'Failed to send revoke access email: ${response.statusCode} - ${response.body}',
+        );
         return null;
       }
     } catch (e) {
@@ -253,10 +254,7 @@ class EmailService {
           'Content-Type': 'application/json',
           'User-Agent': '4SecretsWeddingApp/1.0',
         },
-        body: json.encode({
-          'email': email,
-          'userName': userName,
-        }),
+        body: json.encode({'email': email, 'userName': userName}),
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
         final jsonResponse = json.decode(response.body);
@@ -273,7 +271,8 @@ class EmailService {
         });
       } else {
         throw Exception(
-            'Failed to send welcome email: ${response.statusCode} - ${response.body}');
+          'Failed to send welcome email: ${response.statusCode} - ${response.body}',
+        );
       }
     } catch (e) {
       print('Error sending welcome email: $e');

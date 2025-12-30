@@ -45,8 +45,10 @@ class _AdvancedPlacePickerWidgetState extends State<AdvancedPlacePickerWidget> {
         (widget.initialLong == null || widget.initialLong == 0)) {
       _getCurrentLocation();
     } else {
-      _selectedLocation =
-          LatLng(widget.initialLat ?? 0, widget.initialLong ?? 0);
+      _selectedLocation = LatLng(
+        widget.initialLat ?? 0,
+        widget.initialLong ?? 0,
+      );
       _selectedAddress = widget.initialAddress ?? '';
       _cameraPosition = CameraPosition(target: _selectedLocation!, zoom: 15);
     }
@@ -81,7 +83,7 @@ class _AdvancedPlacePickerWidgetState extends State<AdvancedPlacePickerWidget> {
           place.street,
           place.locality,
           place.administrativeArea,
-          place.country
+          place.country,
         ].where((e) => e != null && e.isNotEmpty).join(', ');
         setState(() {
           _selectedAddress = formatted;
@@ -140,23 +142,82 @@ class _AdvancedPlacePickerWidgetState extends State<AdvancedPlacePickerWidget> {
 
   Future<void> _fetchPlacePredictions(String input) async {
     if (input.isEmpty) {
+      debugPrint('Search input is empty. Clearing predictions.');
       setState(() => _placePredictions = []);
       _removeOverlay();
       return;
     }
+
+    debugPrint('Fetching place predictions for input: "$input"');
+
     if (_sessionToken.isEmpty) {
       _sessionToken = DateTime.now().millisecondsSinceEpoch.toString();
+      debugPrint('Generated new session token: $_sessionToken');
     }
+
     final String url =
         'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$input&key=$_googleApiKey&sessiontoken=$_sessionToken&language=de&components=country:de';
-    final response = await http.get(Uri.parse(url));
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      setState(() {
-        _placePredictions = data['predictions'] ?? [];
-      });
-      _showOverlay();
-    } else {
+
+    debugPrint('API URL: $url');
+    debugPrint(
+      'API Key (first few chars): ${_googleApiKey.substring(0, 10)}...',
+    );
+
+    try {
+      final response = await http.get(Uri.parse(url));
+
+      debugPrint('Response status code: ${response.statusCode}');
+      debugPrint('Response headers: ${response.headers}');
+      debugPrint(
+        'Response body (first 500 chars): ${response.body.length > 500 ? response.body.substring(0, 500) + "..." : response.body}',
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        debugPrint('Response JSON keys: ${data.keys.join(", ")}');
+
+        final predictions = data['predictions'] ?? [];
+        final status = data['status'] ?? 'NO_STATUS';
+
+        debugPrint('API Status: $status');
+        debugPrint('Number of predictions: ${predictions.length}');
+
+        if (predictions.isNotEmpty) {
+          for (int i = 0; i < predictions.length; i++) {
+            final prediction = predictions[i];
+            debugPrint('Prediction $i: ${prediction['description']}');
+          }
+        } else {
+          debugPrint('No predictions returned. Possible issues:');
+          debugPrint('1. API key might be invalid');
+          debugPrint('2. Country restriction (DE) might be filtering results');
+          debugPrint('3. Language setting (de) might affect results');
+        }
+
+        setState(() {
+          _placePredictions = predictions;
+        });
+
+        debugPrint(
+          'Predictions list length after setState: ${_placePredictions.length}',
+        );
+        _showOverlay();
+
+        // Check if overlay was created
+        if (_overlayEntry == null && predictions.isNotEmpty) {
+          debugPrint(
+            'WARNING: Overlay entry is null despite having predictions',
+          );
+        }
+      } else {
+        debugPrint('ERROR: Non-200 response: ${response.statusCode}');
+        debugPrint('Error body: ${response.body}');
+        setState(() => _placePredictions = []);
+        _removeOverlay();
+      }
+    } catch (e, stackTrace) {
+      debugPrint('EXCEPTION during API call: $e');
+      debugPrint('Stack trace: $stackTrace');
       setState(() => _placePredictions = []);
       _removeOverlay();
     }
@@ -174,9 +235,7 @@ class _AdvancedPlacePickerWidgetState extends State<AdvancedPlacePickerWidget> {
       final lng = location['lng'];
       final address = data['result']['formatted_address'];
       final position = LatLng(lat, lng);
-      _mapController?.animateCamera(
-        CameraUpdate.newLatLngZoom(position, 16),
-      );
+      _mapController?.animateCamera(CameraUpdate.newLatLngZoom(position, 16));
       setState(() {
         _selectedLocation = position;
         _selectedAddress = address;
@@ -248,11 +307,7 @@ class _AdvancedPlacePickerWidgetState extends State<AdvancedPlacePickerWidget> {
                             color: mainColor.withValues(alpha: 0.12),
                           ),
                         ),
-                        Icon(
-                          Icons.location_on,
-                          size: 56,
-                          color: mainColor,
-                        ),
+                        Icon(Icons.location_on, size: 56, color: mainColor),
                       ],
                     ),
                   ),
@@ -288,8 +343,9 @@ class _AdvancedPlacePickerWidgetState extends State<AdvancedPlacePickerWidget> {
                             FontAwesomeIcons.magnifyingGlass,
                             size: 16,
                           ),
-                          border:
-                              OutlineInputBorder(borderSide: BorderSide.none),
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide.none,
+                          ),
                         ),
                         onChanged: (value) {
                           _fetchPlacePredictions(value);
@@ -311,7 +367,9 @@ class _AdvancedPlacePickerWidgetState extends State<AdvancedPlacePickerWidget> {
                   bottom: 0,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 18, vertical: 18),
+                      horizontal: 18,
+                      vertical: 18,
+                    ),
                     decoration: const BoxDecoration(
                       color: Colors.white,
                       boxShadow: [
@@ -334,10 +392,7 @@ class _AdvancedPlacePickerWidgetState extends State<AdvancedPlacePickerWidget> {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        CustomTextWidget(
-                          text: _selectedAddress,
-                          fontSize: 14,
-                        ),
+                        CustomTextWidget(text: _selectedAddress, fontSize: 14),
                         const SizedBox(height: 16),
                         SizedBox(
                           width: double.infinity,

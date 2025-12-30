@@ -1,0 +1,20 @@
+{
+  "buildFiles": [
+    "/Users/gulzarsoft/Development/flutter/packages/flutter_tools/gradle/src/main/scripts/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/gulzarsoft/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Users/gulzarsoft/FlutterProjects/four_secrets_app/android/app/.cxx/release/4k171e1m/armeabi-v7a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/gulzarsoft/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Users/gulzarsoft/FlutterProjects/four_secrets_app/android/app/.cxx/release/4k171e1m/armeabi-v7a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {}
+}
