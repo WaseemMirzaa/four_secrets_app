@@ -6,8 +6,8 @@ import '../models/email_send_response.dart';
 
 class EmailService {
   // New Brevo API server base URL
-  //static const String baseUrl = 'http://164.92.175.72:3001';
-  static const String baseUrl = 'http://localhost:3001';
+  static const String baseUrl = 'http://164.92.175.72:3001';
+  //static const String baseUrl = 'http://localhost:3001';
 
   /// Get current user's name from Firebase
   static Future<String> _getCurrentUserName() async {

@@ -67,10 +67,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
         appBar: AppBar(
           title: Text(
             "Zurück",
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           toolbarHeight: 60,
           backgroundColor: Color.fromARGB(255, 107, 69, 106),
@@ -110,40 +107,47 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                         children: [
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                backgroundColor:
-                                    const Color.fromARGB(255, 107, 69, 106),
-                                foregroundColor: Colors.white),
-                            child: Icon(
-                              FontAwesomeIcons.backward,
-                              size: 22,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              backgroundColor: const Color.fromARGB(
+                                255,
+                                107,
+                                69,
+                                106,
+                              ),
+                              foregroundColor: Colors.white,
                             ),
+                            child: Icon(FontAwesomeIcons.backward, size: 22),
                             onPressed: () {
-                              setState(
-                                () {
-                                  _videoPlayerController.seekTo(
-                                    Duration(
-                                        seconds: _videoPlayerController
-                                                .value.position.inSeconds -
-                                            1),
-                                  );
-                                },
-                              );
+                              setState(() {
+                                _videoPlayerController.seekTo(
+                                  Duration(
+                                    seconds:
+                                        _videoPlayerController
+                                            .value
+                                            .position
+                                            .inSeconds -
+                                        1,
+                                  ),
+                                );
+                              });
                             },
                           ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 8),
-                          ),
+                          Padding(padding: EdgeInsets.symmetric(horizontal: 8)),
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                backgroundColor:
-                                    const Color.fromARGB(255, 107, 69, 106),
-                                foregroundColor: Colors.white),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              backgroundColor: const Color.fromARGB(
+                                255,
+                                107,
+                                69,
+                                106,
+                              ),
+                              foregroundColor: Colors.white,
+                            ),
                             child: Icon(FontAwesomeIcons.play, size: 21),
                             onPressed: () {
                               setState(() {
@@ -153,21 +157,21 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                               });
                             },
                           ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 8),
-                          ),
+                          Padding(padding: EdgeInsets.symmetric(horizontal: 8)),
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                backgroundColor:
-                                    const Color.fromARGB(255, 107, 69, 106),
-                                foregroundColor: Colors.white),
-                            child: Icon(
-                              FontAwesomeIcons.pause,
-                              size: 22,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              backgroundColor: const Color.fromARGB(
+                                255,
+                                107,
+                                69,
+                                106,
+                              ),
+                              foregroundColor: Colors.white,
                             ),
+                            child: Icon(FontAwesomeIcons.pause, size: 22),
                             onPressed: () {
                               setState(() {
                                 if (_videoPlayerController.value.isPlaying) {
@@ -176,32 +180,34 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                               });
                             },
                           ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 8),
-                          ),
+                          Padding(padding: EdgeInsets.symmetric(horizontal: 8)),
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                backgroundColor:
-                                    const Color.fromARGB(255, 107, 69, 106),
-                                foregroundColor: Colors.white),
-                            child: Icon(
-                              FontAwesomeIcons.forward,
-                              size: 22,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              backgroundColor: const Color.fromARGB(
+                                255,
+                                107,
+                                69,
+                                106,
+                              ),
+                              foregroundColor: Colors.white,
                             ),
+                            child: Icon(FontAwesomeIcons.forward, size: 22),
                             onPressed: () {
-                              setState(
-                                () {
-                                  _videoPlayerController.seekTo(
-                                    Duration(
-                                        seconds: _videoPlayerController
-                                                .value.position.inSeconds +
-                                            1),
-                                  );
-                                },
-                              );
+                              setState(() {
+                                _videoPlayerController.seekTo(
+                                  Duration(
+                                    seconds:
+                                        _videoPlayerController
+                                            .value
+                                            .position
+                                            .inSeconds +
+                                        1,
+                                  ),
+                                );
+                              });
                             },
                           ),
                         ],
@@ -211,9 +217,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                 } else {
                   // If the VideoPlayerController is still initializing, show a
                   // loading spinner.
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
+                  return const Center(child: CircularProgressIndicator());
                 }
               },
             ),

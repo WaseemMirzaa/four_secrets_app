@@ -551,10 +551,9 @@ class MenueState extends State<Menue> {
                                 Text(
                                   'Gratis',
                                   style: TextStyle(
-                                    fontSize: 13,
+                                    fontSize: 12,
                                     fontWeight: FontWeight.normal,
-                                    decorationThickness: 2,
-                                    color: Colors.black,
+                                    color: Colors.grey.shade800,
                                   ),
                                 ),
                               ],
@@ -679,41 +678,41 @@ class MenueState extends State<Menue> {
                 ),
 
                 // // // Log Out
-                // Card(
-                //   margin: const EdgeInsets.only(
-                //     left: 8,
-                //     right: 8,
-                //     top: 5,
-                //     bottom: 8,
-                //   ),
-                //   shape: RoundedRectangleBorder(
-                //     borderRadius: BorderRadius.circular(8),
-                //   ),
-                //   child: ListTile(
-                //     shape: RoundedRectangleBorder(
-                //       borderRadius: BorderRadius.circular(8),
-                //     ),
-                //     contentPadding: const EdgeInsets.symmetric(
-                //       horizontal: 10,
-                //       vertical: 0,
-                //     ),
+                Card(
+                  margin: const EdgeInsets.only(
+                    left: 8,
+                    right: 8,
+                    top: 5,
+                    bottom: 8,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: ListTile(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 0,
+                    ),
 
-                //     leading: const Icon(Icons.send, color: Colors.red),
-                //     title: CustomTextWidget(
-                //       text: 'send test email',
-                //       fontSize: 16,
-                //       color: Colors.red,
-                //     ),
-                //     onTap: () {
-                //       final EmailService service = EmailService();
-                //       service.sendEmail(
-                //         email: "mughalfahad544@gmail.com",
-                //         subject: "Helo this is test email",
-                //         message: "How are you",
-                //       );
-                //     },
-                //   ),
-                // ),
+                    leading: const Icon(Icons.send, color: Colors.red),
+                    title: CustomTextWidget(
+                      text: 'send test email',
+                      fontSize: 16,
+                      color: Colors.red,
+                    ),
+                    onTap: () {
+                      final EmailService service = EmailService();
+                      service.sendEmail(
+                        email: "mughalfahad544@gmail.com",
+                        subject: "Helo this is test email",
+                        message: "How are you",
+                      );
+                    },
+                  ),
+                ),
                 const SpacerWidget(height: 10),
               ],
             ),

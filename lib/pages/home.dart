@@ -58,6 +58,7 @@ class _HomePageState extends State<HomePage> {
           physics: ClampingScrollPhysics(),
           slivers: <Widget>[
             const SliverAppBar(
+              centerTitle: true,
               foregroundColor: Color.fromARGB(255, 255, 255, 255),
               title: Text('Home'),
               pinned: false,
@@ -80,41 +81,41 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             const SliverToBoxAdapter(child: const SizedBox(height: 30)),
-            const SliverToBoxAdapter(child: const SizedBox(height: 10)),
-            SliverToBoxAdapter(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Color.fromARGB(255, 107, 69, 106),
-                      padding: const EdgeInsets.all(15.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      elevation: 5,
-                      backgroundColor: isPressedBtn1
-                          ? Color.fromARGB(255, 204, 145, 203)
-                          : Colors.white,
-                    ),
-                    onPressed: () async {
-                      buttonIsPressed(1);
-                      Navigator.of(
-                        context,
-                      ).pushNamed(RouteManager.muenchnerGeheimtippPage);
-                    },
-                    label: const Text(
-                      'let´s go',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                    icon: const Icon(Icons.arrow_forward_ios_sharp),
-                  ),
-                ],
-              ),
-            ),
+            // const SliverToBoxAdapter(child: const SizedBox(height: 10)),
+            // SliverToBoxAdapter(
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.center,
+            //     children: [
+            //       ElevatedButton.icon(
+            //         style: ElevatedButton.styleFrom(
+            //           foregroundColor: Color.fromARGB(255, 107, 69, 106),
+            //           padding: const EdgeInsets.all(15.0),
+            //           shape: RoundedRectangleBorder(
+            //             borderRadius: BorderRadius.circular(8),
+            //           ),
+            //           elevation: 5,
+            //           backgroundColor: isPressedBtn1
+            //               ? Color.fromARGB(255, 204, 145, 203)
+            //               : Colors.white,
+            //         ),
+            //         onPressed: () async {
+            //           buttonIsPressed(1);
+            //           Navigator.of(
+            //             context,
+            //           ).pushNamed(RouteManager.muenchnerGeheimtippPage);
+            //         },
+            //         label: const Text(
+            //           'let´s go',
+            //           style: TextStyle(
+            //             fontWeight: FontWeight.bold,
+            //             fontSize: 16,
+            //           ),
+            //         ),
+            //         icon: const Icon(Icons.arrow_forward_ios_sharp),
+            //       ),
+            //     ],
+            //   ),
+            // ),
 
             // Test button for swipeable card
             // SliverToBoxAdapter(

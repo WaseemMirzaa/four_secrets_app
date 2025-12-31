@@ -2,7 +2,7 @@ class GesangCardData {
   static final Map<String, String> map1 = {
     "videoAsset": "", // Uri geht vor Asset video
     "videoUri":
-        "https://res.cloudinary.com/dhnupmrhv/video/upload/v1766941183/sebastian_schwarzbach_bklaue.mp4",
+        "https://res.cloudinary.com/dhnupmrhv/video/upload/v1767204775/sebastian_schwarzbach_momxfj.mp4",
     "videoRatio": "0.7",
     "email": "mail@sebastianschwarzbach.com",
     "homepage": "https://sebastianschwarzbach.com",
