@@ -315,4 +315,71 @@ class EmailService {
       throw Exception('Failed to check status: $e');
     }
   }
+
+  /// Send subscription confirmation email using existing custom endpoint with HTML formatting
+  Future<EmailSendResponse> sendSubscriptionEmail({
+    required String email,
+    required String userName,
+    required String planName,
+    required String price,
+    required String billingPeriod,
+    String? nextBillingDate,
+    String? orderId,
+  }) async {
+    try {
+      // Build the email content in German with HTML
+      final subject = 'Willkommen bei 4secrets – Wedding Planner';
+
+      final message = buildSubscriptionEmailHtml(
+        userName: userName,
+        planName: planName,
+        price: price,
+        billingPeriod: billingPeriod,
+        nextBillingDate: nextBillingDate,
+      );
+
+      // Call existing sendEmail endpoint
+      return await sendEmail(email: email, subject: subject, message: message);
+    } catch (e) {
+      print('Error creating subscription email: $e');
+      rethrow;
+    }
+  }
+
+  String buildSubscriptionEmailHtml({
+    required String userName,
+    required String planName,
+    required String price,
+    required String billingPeriod,
+    String? nextBillingDate,
+  }) {
+    return '<html><body>'
+        '<div align="center">'
+        '<img src="https://res.cloudinary.com/dhnupmrhv/image/upload/v1767287927/Logo_4secrets_-_Wedding_Planner_App_e4sfqw.jpg" '
+        'alt="4secrets – Wedding Planner" width="120">'
+        '</div><br>'
+        'Liebe/r <b>$userName</b>,<br><br>'
+        'Vielen Dank, dass du dich für 4secrets – Wedding Planner entschieden hast.<br>'
+        'Wir freuen uns sehr, dich auf dem Weg zu einem der schönsten Tage deines Lebens begleiten zu dürfen.<br><br>'
+        'Dein Abonnement wurde erfolgreich aktiviert.<br>'
+        'Ab sofort kannst du alle Funktionen unserer App nutzen.<br>'
+        'So kannst du deinen Hochzeitstag entspannt, übersichtlich und mit ganz viel Vorfreude planen.<br><br>'
+        'Solltest du Fragen haben oder Unterstützung benötigen, sind wir jederzeit gerne für dich da.<br>'
+        'Auch für neue Inspirationen kannst du uns jederzeit kontaktieren.<br>'
+        'Wir begleiten dich mit Herz und Leidenschaft durch deine Hochzeitsplanung.<br><br>'
+        'Wir wünschen dir ganz viel Freude bei der Planung.<br>'
+        'Und eine unvergessliche Hochzeitszeit.<br><br>'
+        'Herzliche Grüße<br>'
+        'Dein 4secrets – Wedding Planner Team 💍<br><br>'
+        '<b>Dein Abonnement</b><br>'
+        'Abonnement: $planName<br>'
+        'Preis: $price $billingPeriod<br>'
+        '${nextBillingDate != null ? 'Nächste Verlängerung: $nextBillingDate<br>' : ''}<br>'
+        '<b>Kontakt:</b><br>'
+        'E-Mail: 4secrets-wedding@gmx.de<br>'
+        'Website: https://www.4secrets-wedding-planner.de<br><br>'
+        '<br><br><br>'
+        '© ${DateTime.now().year} 4secrets – Wedding Planner'
+        '</body></html>';
+  }
 }

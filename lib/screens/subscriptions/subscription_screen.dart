@@ -70,6 +70,12 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
 
       if (result.info != null) {
         // Then navigate back or to home
+
+        SnackBarHelper.showSuccessSnackBar(
+          context,
+          'Vielen Dank für Ihren Kauf! Eine Bestätigungs-E-Mail wurde gesendet.',
+        );
+
         Navigator.of(
           context,
         ).pushNamedAndRemoveUntil(RouteManager.homePage, (route) => false);

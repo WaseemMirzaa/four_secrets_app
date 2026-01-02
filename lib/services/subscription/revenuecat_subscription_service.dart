@@ -8,7 +8,10 @@ import 'package:flutter/services.dart';
 import 'package:four_secrets_wedding_app/constants/revenuecat_consts.dart';
 import 'package:four_secrets_wedding_app/services/subscription/revenucecat_purchase_result.dart';
 import 'package:four_secrets_wedding_app/services/subscription/revenuecat_purchase_exception.dart';
+import 'package:four_secrets_wedding_app/services/subscription/subscription_email_helper.dart';
 import 'package:purchases_flutter/purchases_flutter.dart' hide PurchaseResult;
+
+import '../email_service.dart';
 
 class RevenueCatService {
   static const String _iosApiKey = RevenuecatConsts.appleRevenueCatId;
@@ -81,6 +84,11 @@ class RevenueCatService {
 
       // Update Firebase after successful purchase
       await updateSubscriptionStatusInFirebase(purchaserInfo.customerInfo);
+      // Send subscription confirmation email
+      _sendSubscriptionEmail(
+        customerInfo: purchaserInfo.customerInfo,
+        package: package,
+      );
 
       return PurchaseResult(info: purchaserInfo.customerInfo);
     } on PlatformException catch (e) {
@@ -119,6 +127,25 @@ class RevenueCatService {
     }
   }
 
+  // Add this private helper method
+  Future<void> _sendSubscriptionEmail({
+    required CustomerInfo customerInfo,
+    required Package package,
+  }) async {
+    try {
+      final emailHelper = SubscriptionEmailHelper();
+      await emailHelper.sendSubscriptionConfirmation(
+        customerInfo: customerInfo,
+        packageIdentifier: package.identifier,
+        priceString: package.storeProduct.priceString,
+      );
+      log('[REVENUECAT] Subscription email sent successfully');
+    } catch (e) {
+      log('[REVENUECAT] Failed to send subscription email: $e');
+      // Don't throw - email failure should not affect purchase
+    }
+  }
+
   Future<bool> hasActiveSubscription() async {
     final customerInfo = await getCustomerInfo();
     return customerInfo
@@ -149,6 +176,9 @@ class RevenueCatService {
 
       // Update Firebase after restore
       await updateSubscriptionStatusInFirebase(customerInfo);
+
+      // Send email if subscription was restored
+      await _sendRestoredSubscriptionEmail(customerInfo);
       return customerInfo;
     } on PlatformException catch (e) {
       final errorCode = PurchasesErrorHelper.getErrorCode(e);
@@ -190,6 +220,32 @@ class RevenueCatService {
     } catch (e) {
       debugPrint("Unexpected error while restoring purchases: $e");
       throw Exception("Unerwarteter Fehler bei der Wiederherstellung.");
+    }
+  }
+
+  Future<void> _sendRestoredSubscriptionEmail(CustomerInfo customerInfo) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user?.email == null) return;
+
+      final hasActiveSub =
+          customerInfo.entitlements.all['premium']?.isActive ?? false;
+
+      if (hasActiveSub) {
+        final EmailService _emailService = EmailService();
+        await _emailService.sendSubscriptionEmail(
+          email: user!.email!,
+          userName: user.displayName ?? 'Benutzer',
+          planName: 'Wiederhergestelltes Abonnement',
+          price: 'Restored',
+          billingPeriod: 'wiederhergestellt',
+          nextBillingDate: null,
+          orderId: 'Restored: ${DateTime.now()}',
+        );
+        log('[REVENUECAT] Restore confirmation email sent');
+      }
+    } catch (e) {
+      log('[REVENUECAT] Failed to send restore email: $e');
     }
   }
 

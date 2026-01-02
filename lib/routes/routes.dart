@@ -216,9 +216,7 @@ class RouteManager {
       case updateSubscriptionScreen:
         final args = settings.arguments as Map<String, dynamic>?;
         return PageTransition(
-          child: UpdateSubscriptionScreen(
-            currentPlan: args?['currentPlan'],
-          ),
+          child: UpdateSubscriptionScreen(currentPlan: args?['currentPlan']),
           settings: settings,
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
@@ -460,7 +458,7 @@ class RouteManager {
         return PageTransition(
           child: VideoPlayer2(
             uri: arguments?['uri'] ?? '', // Provide empty string if null
-            asset: arguments?['asset'] ?? '', // Provide empty string if null
+            // asset: arguments?['asset'] ?? '', // Provide empty string if null
           ),
           settings: settings,
           duration: const Duration(milliseconds: 250),
@@ -524,9 +522,7 @@ class RouteManager {
         final model =
             args?['weddingDayScheduleModel'] as WeddingDayScheduleModel?;
         return PageTransition(
-          child: AddWeddingSchedulePage(
-            weddingDayScheduleModel: model,
-          ),
+          child: AddWeddingSchedulePage(weddingDayScheduleModel: model),
           settings: settings,
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
@@ -593,10 +589,7 @@ class RouteManager {
         final toDoModel = args?['toDoModel'] as CategoryModel?;
         final id = args?['id'] as String?;
         return PageTransition(
-          child: AddTodoCategoriesPage(
-            toDoModel: toDoModel,
-            id: id,
-          ),
+          child: AddTodoCategoriesPage(toDoModel: toDoModel, id: id),
           settings: settings,
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,
@@ -651,9 +644,7 @@ class RouteManager {
         final model =
             args?['weddingDayScheduleModel'] as WeddingDayScheduleModel1?;
         return PageTransition(
-          child: AddWeddingSchedulePage1(
-            weddingDayScheduleModel: model,
-          ),
+          child: AddWeddingSchedulePage1(weddingDayScheduleModel: model),
           settings: settings,
           duration: const Duration(milliseconds: 250),
           type: PageTransitionType.rightToLeft,

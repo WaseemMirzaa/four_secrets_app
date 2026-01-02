@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:four_secrets_wedding_app/models/drawer_model.dart';
 import 'package:four_secrets_wedding_app/routes/routes.dart';
+import 'package:four_secrets_wedding_app/screens/subscriptions/test_email_screen.dart';
 import 'package:four_secrets_wedding_app/services/auth_service.dart';
-import 'package:four_secrets_wedding_app/services/email_service.dart';
 import 'package:four_secrets_wedding_app/services/push_notification_service.dart';
 import 'package:four_secrets_wedding_app/services/subscription/subscription_manager.dart';
 import 'package:four_secrets_wedding_app/services/todo_unread_status_service.dart';
@@ -677,42 +677,15 @@ class MenueState extends State<Menue> {
                   ),
                 ),
 
-                // // // Log Out
-                Card(
-                  margin: const EdgeInsets.only(
-                    left: 8,
-                    right: 8,
-                    top: 5,
-                    bottom: 8,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: ListTile(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 0,
-                    ),
-
-                    leading: const Icon(Icons.send, color: Colors.red),
-                    title: CustomTextWidget(
-                      text: 'send test email',
-                      fontSize: 16,
-                      color: Colors.red,
-                    ),
-                    onTap: () {
-                      final EmailService service = EmailService();
-                      service.sendEmail(
-                        email: "mughalfahad544@gmail.com",
-                        subject: "Helo this is test email",
-                        message: "How are you",
-                      );
-                    },
-                  ),
-                ),
+                // TextButton(
+                //   onPressed: () {
+                //     Navigator.push(
+                //       context,
+                //       MaterialPageRoute(builder: (_) => TestEmailScreen()),
+                //     );
+                //   },
+                //   child: Text("Test Email Screen"),
+                // ),
                 const SpacerWidget(height: 10),
               ],
             ),

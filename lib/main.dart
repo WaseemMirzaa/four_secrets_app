@@ -10,6 +10,7 @@ import 'package:four_secrets_wedding_app/services/push_notification_service.dart
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:media_kit/media_kit.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
@@ -26,6 +27,8 @@ void alarmCallback(int id) {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
+  MediaKit.ensureInitialized();
 
   // Initialize timezone data for alarm functionality
   tz.initializeTimeZones();
