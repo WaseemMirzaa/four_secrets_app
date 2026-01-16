@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:four_secrets_wedding_app/model/url_email_instagram.dart';
 import 'package:four_secrets_wedding_app/routes/routes.dart';
 import 'package:flutter/material.dart';
@@ -63,9 +64,46 @@ class FooterButtons extends StatelessWidget {
     }
   }
 
-  void _handleMailPress(BuildContext context) {
+  void _handleMailPress(BuildContext context) async {
     if (isMailAvailable) {
-      UrlEmailInstagram.sendEmail(toEmail: mailAdress);
+      try {
+        await UrlEmailInstagram.sendEmail(toEmail: mailAdress);
+      } catch (e) {
+        // Show dialog with options
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text("Keine E-Mail-App gefunden"),
+            content: Text(
+              "Auf Ihrem Gerät wurde keine E-Mail-App erkannt.\n\n"
+              "E-Mail-Adresse: $mailAdress\n\n"
+              "Bitte installieren Sie eine E-Mail-App oder kopieren Sie die Adresse.",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text("Abbrechen"),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  try {
+                    await Clipboard.setData(ClipboardData(text: mailAdress));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("E-Mail-Adresse kopiert")),
+                    );
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Kopieren fehlgeschlagen")),
+                    );
+                  }
+                  Navigator.pop(context);
+                },
+                child: Text("Adresse kopieren"),
+              ),
+            ],
+          ),
+        );
+      }
     } else {
       SnackBarHelper.showErrorSnackBar(
         context,

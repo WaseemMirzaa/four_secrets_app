@@ -20,7 +20,7 @@ class TanzschuleCardData {
     "videoUri":
         "https://res.cloudinary.com/dhnupmrhv/video/upload/v1767113902/DT-Deine_wkhegq.mp4",
     "videoRatio": "",
-    "email": "info@tanzschule-muenchen-dt.de",
+    "email": "4secrets@tanzschule-muenchen-dt.de",
     "homepage": "https://www.tanzschule-muenchen-dt.de/",
     "instagram": "https://www.instagram.com/tanzschule_dt01/",
     "phoneNumber": "+49 172 442 78 27",
